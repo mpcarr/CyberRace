@@ -9,6 +9,12 @@ Randomize
 
 DebugOutClear()
 
+
+
+'TABLE OPTIONS
+
+Dim usePUP:usePUP = True 'Use Pup Pack or FlexDMD. false = FlexDMD, true = Pup Pack
+
 Dim FlexDMD
 ' FlexDMD constants
 Const 	FlexDMD_RenderMode_DMD_GRAY = 0, _
@@ -57,7 +63,7 @@ Dim pBackglass:pBackglass=2
 'Const BallShadowOn = 1				'1 - on; 0 - off
 Const RollingSoundFactor = 1 		'Change volume of rolling sounds
 
-Const VR_ON = True
+Const VR_ON = False
 
 '----- Shadow Options -----
 Dim DynamicBallShadowsOn: DynamicBallShadowsOn = 1		'0 = no dynamic ball shadow, 1 = enable dynamic ball shadow
@@ -171,10 +177,13 @@ dim tableheight: tableheight = Table1.height
 	End Sub
 
 	Sub Table1_Exit()
-		If Not FlexDMD is Nothing Then
-			FlexDMD.Show = False
-			FlexDMD.Run = False
-			FlexDMD = NULL
+		
+		If usePUP=False Then
+			If Not FlexDMD is Nothing Then
+				FlexDMD.Show = False
+				FlexDMD.Run = False
+				FlexDMD = NULL
+			End If
 		End If
 	End Sub
 
@@ -589,7 +598,9 @@ Sub InitFlexDMD()
 	CreateWelcomeScene()
 End Sub
 
-InitFlexDMD()
+If usePUP = False Then
+	InitFlexDMD()
+End If
 
 Sub CreateWelcomeScene()
 	'DotMatrix.color = RGB(255, 88, 32)
@@ -713,6 +724,7 @@ Sub pUpdateScores  'call this ONLY on timer 300ms is good enough
 		'	if Score(CurrentPlayer)=0 then 
 		'		puPlayer.LabelSet pBackglass,"CurScore1", "00"								,1,ScoreTag(0)
 		'	else
+			Debug.print("Updating Scores")
 			If gameState("game")("hideScore") = False Then
 				puPlayer.LabelSet pBackglass,"CurScore1", FormatScore(DebugScore)	 ,1,ScoreTag(0)
 			End If
@@ -762,11 +774,10 @@ End function
 
 '****** PuP Variables ******
 
-Dim usePUP: Dim cPuPPack: Dim PuPlayer: Dim PUPStatus: PUPStatus=false ' dont edit this line!!!
+Dim cPuPPack: Dim PuPlayer: Dim PUPStatus: PUPStatus=false ' dont edit this line!!!
 
 '*************************** PuP Settings for this table ********************************
 
-usePUP   = false               ' enable Pinup Player functions for this table
 cPuPPack = "ra3"    ' name of the PuP-Pack / PuPVideos folder for this table
 
 '//////////////////// PINUP PLAYER: STARTUP & CONTROL SECTION //////////////////////////
@@ -842,9 +853,11 @@ Sub EnableBallSaver(seconds)
 	BallSaverTimerExpired.Interval = 1000 * seconds
 	BallSaverTimerExpired.Enabled = True
 
+	'p_watchdisplay_full.Visible = True
 	p_watchdisplay_left.Visible = True
 	p_watchdisplay_right.Visible = True
 
+	LightBlink(lsBallSave)
 	'Set display to x seconds 
 	dbstime = seconds
 	dbsdelta = .1
@@ -866,26 +879,26 @@ Sub EnableBallSaver(seconds)
 End Sub
 
 Sub StopBallSaver
-    BallSaverUpdateTimer.Enabled = False
-	BallSaverTimer2Expired.Enabled = False
-	If ExtraBallsAwards(CurrentPlayer) = 0 Then
-		ResetBallSaveDisplay
-	Else
-		SetExtraBallDisplay
-	End If
-	bBallSaverActive = False
+	BallSaverTimerExpired.Enabled = False
+	BallSaverUpdateTimer.Enabled = False
+	ResetBallSaveDisplay
+	StopLightBlink(lsBallSave)
 End Sub
 
 Sub BallSaverTimerExpired_Timer()
     BallSaverTimerExpired.Enabled = False
     BallSaverUpdateTimer.Enabled = False
 	ResetBallSaveDisplay
+	StopLightBlink(lsBallSave)
 	DISPATCH GAME_BALL_SAVE_ENDED, null
 End Sub
 
 Sub ResetBallSaveDisplay
 	p_watchdisplay_left.Visible = False
 	p_watchdisplay_right.Visible = False
+	p_watchdisplay_full.blenddisablelighting = 0
+	p_watchdisplay_left.blenddisablelighting = 0
+	p_watchdisplay_right.blenddisablelighting = 0
 End Sub
 
 Sub BallSaverUpdateTimer_Timer()
@@ -1230,6 +1243,9 @@ Sub debugKeys(ByVal Keycode)
 		debugKicker.CreateSizedball BallSize / 2
 		debugKicker.LastCapturedBall.UserValue = "debugBall"
 		debugKicker.Kick 90, 10
+		LightSeqAttract.StopPlay
+  		LightSeqAttract.UpdateInterval = 8
+  		LightSeqAttract.Play SeqStripe1VertOn , 10, 0
 	End If
 	If keyCode = 31 Then 'S
 		debugKicker.CreateSizedball BallSize / 2
@@ -2459,6 +2475,13 @@ Sub GameTimer_timer()
     Diverter.RotZ = DiverterFlipper.CurrentAngle
     Diverter001.RotZ = DiverterFlipper.CurrentAngle
 
+	For b = UBound(BOT) + 1 to tnob
+		if rolling(b) Then
+			rolling(b) = False
+			StopSound("fx_ballrolling" & b)
+		End if 
+    Next
+
 	' play the rolling sound for each ball
 	For b = 0 to UBound(BOT)
 		If BallSpeed(BOT(b) ) > 1 AND BOT(b).z < 27 and BOT(b).radius > 23  Then
@@ -2892,12 +2915,20 @@ Sub InitLampsNF()
 	Lampz.MassAssign(121) = l_pop2
 	Lampz.MassAssign(122) = l_pop3
 
+	Lampz.MassAssign(123) = l_ballsave
+
 	Lampz.MassAssign(130) = l_watch
 	Lampz.Callback(130) = "DisableLighting p_watchdisplay_full, 45,"
 	Lampz.MassAssign(131) = l_watch
 	Lampz.Callback(131) = "DisableLighting p_watchdisplay_left, 45,"
 	Lampz.MassAssign(132) = l_watch
 	Lampz.Callback(132) = "DisableLighting p_watchdisplay_right, 45,"
+
+
+	Lampz.MassAssign(133) = l_racer
+	Lampz.Callback(133) = "DisableLighting p_racer_lights, 45,"
+	'p_racer_lights.blenddisablelighting = 15
+	Lampz.State(133) = 1
 	'Lampz.MassAssign(100) = L58
 	'Lampz.MassAssign(101) = L25
 	'Lampz.MassAssign(110) = l_alert_a
@@ -4068,6 +4099,25 @@ lSeqAugmentationFlicker.UpdateInterval = 20
 Dim lSeqAugmentation: Set lSeqAugmentation = new LightSeq
 lSeqAugmentation.Name = "lSeqAugmentation"
 
+Dim lsBallSaverClock1: Set lsBallSaverClock1 = New LightChangeItem
+lsBallSaverClock1.Init 130,1,120,"pal_purple"
+Dim lsBallSaverClock1Off: Set lsBallSaverClock1Off = New LightChangeItem
+lsBallSaverClock1Off.Init 130,0,120,"pal_purple"
+
+Dim lsBallSaverClock2: Set lsBallSaverClock2 = New LightChangeItem
+lsBallSaverClock2.Init 131,1,120,"pal_purple"
+Dim lsBallSaverClock2Off: Set lsBallSaverClock2Off = New LightChangeItem
+lsBallSaverClock2Off.Init 131,0,120,"pal_purple"
+
+Dim lsBallSaverClock3: Set lsBallSaverClock3 = New LightChangeItem
+lsBallSaverClock3.Init 132,1,120,"pal_purple"
+Dim lsBallSaverClock3Off: Set lsBallSaverClock3Off = New LightChangeItem
+lsBallSaverClock3Off.Init 132,0,120,"pal_purple"
+
+Dim lsBallSave: Set lsBallSave = New LightChangeItem
+lsBallSave.Init 123,1,120,"pal_purple"
+Dim lsBallSaveOff: Set lsBallSaveOff = New LightChangeItem
+lsBallSaveOff.Init 123,0,120,"pal_purple"
 Dim lsBet1: Set lsBet1 = New LightChangeItem
 lsBet1.Init 9,1,20,"pal_purple"
 Dim lsBet1Off: Set lsBet1Off = New LightChangeItem
@@ -5321,7 +5371,7 @@ Sub GameStartOfBall()
 End Sub
 
 Sub GameEndOfBall()
-
+  EndMusic
   Dispatch LIGHTS_GI_OFF, Null
   If gameState("game")("modes")(GAME_MODE_AUGMENTATION_RESEARCH) = True Then
     DISPATCH LIGHTS_RESEARCH_OFF, Null
@@ -5339,6 +5389,7 @@ Sub GameEndOfBall()
   lSeqLeftRamp.RemoveAll()
   gameState("game")("targetShots").RemoveAll
   gameState("game")("pauseLights") = True
+  StopBallSaver()
   DISPATCH LIGHTS_PAUSE, null
   DISPATCH GAME_UNLOCK_AUGMENTATIONS, Null
   
@@ -5432,7 +5483,7 @@ End Sub
 Sub vpmTimerGameStartAugmentationResearchStage2
     pupevent 600 'main  - bg
     'pupevent 504 'music - hackers
-    PlayMusic "cyberrace-augmentation.wav", 100
+    PlayAugmentationBGMusic()
     DISPATCH GAME_SHOW_LABELS, null
     DISPATCH GAME_LOCK_AUGMENTATIONS, null
     DISPATCH LIGHTS_GI_AUGMENTATION_RESEARCH, null
@@ -5580,7 +5631,7 @@ End Sub
 Sub vpmTimerGameFinishAugmentationResearchStage2
   pupevent 600
   pupevent 500
-  PlayAugmentationMusic()
+  PlayMainBGMusic()
   RPin.IsDropped = 1
   DISPATCH LIGHTS_GI_ON, Null
   DISPATCH LIGHTS_GI_NORMAL, null
@@ -5686,9 +5737,11 @@ End Sub
 Sub GameEnableBallSave()
 
   EnableBallSaver(15)
-	Lampz.State(130) = 1
-	Lampz.State(131) = 1
-	Lampz.State(132) = 1
+  p_watchdisplay_left.blenddisablelighting = 15
+  p_watchdisplay_right.blenddisablelighting = 15
+  'LightOn(lsBallSaverClock1)
+  'LightOn(lsBallSaverClock2)
+  'LightOn(lsBallSaverClock3)
 
 End Sub
 
@@ -5942,7 +5995,6 @@ Sub LightsUpdate(FrameTime)
     If Not IsNull(lSeqLightsOverride.CurrentItem) Then
         RunLightSeq lSeqLightsOverride, "lightsOverride"
     Else
-
 
         If HasKeys(gameState("lights")("lightSeqs")) Then
             Dim k

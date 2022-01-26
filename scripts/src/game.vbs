@@ -86,6 +86,13 @@ Sub GameTimer_timer()
     Diverter.RotZ = DiverterFlipper.CurrentAngle
     Diverter001.RotZ = DiverterFlipper.CurrentAngle
 
+	For b = UBound(BOT) + 1 to tnob
+		if rolling(b) Then
+			rolling(b) = False
+			StopSound("fx_ballrolling" & b)
+		End if 
+    Next
+
 	' play the rolling sound for each ball
 	For b = 0 to UBound(BOT)
 		If BallSpeed(BOT(b) ) > 1 AND BOT(b).z < 27 and BOT(b).radius > 23  Then

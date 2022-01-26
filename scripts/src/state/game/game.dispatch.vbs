@@ -39,7 +39,7 @@ Sub GameStartOfBall()
 End Sub
 
 Sub GameEndOfBall()
-
+  EndMusic
   Dispatch LIGHTS_GI_OFF, Null
   If gameState("game")("modes")(GAME_MODE_AUGMENTATION_RESEARCH) = True Then
     DISPATCH LIGHTS_RESEARCH_OFF, Null
@@ -57,6 +57,7 @@ Sub GameEndOfBall()
   lSeqLeftRamp.RemoveAll()
   gameState("game")("targetShots").RemoveAll
   gameState("game")("pauseLights") = True
+  StopBallSaver()
   DISPATCH LIGHTS_PAUSE, null
   DISPATCH GAME_UNLOCK_AUGMENTATIONS, Null
   
@@ -150,7 +151,7 @@ End Sub
 Sub vpmTimerGameStartAugmentationResearchStage2
     pupevent 600 'main  - bg
     'pupevent 504 'music - hackers
-    PlayMusic "cyberrace-augmentation.wav", 100
+    PlayAugmentationBGMusic()
     DISPATCH GAME_SHOW_LABELS, null
     DISPATCH GAME_LOCK_AUGMENTATIONS, null
     DISPATCH LIGHTS_GI_AUGMENTATION_RESEARCH, null
@@ -298,7 +299,7 @@ End Sub
 Sub vpmTimerGameFinishAugmentationResearchStage2
   pupevent 600
   pupevent 500
-  PlayAugmentationMusic()
+  PlayMainBGMusic()
   RPin.IsDropped = 1
   DISPATCH LIGHTS_GI_ON, Null
   DISPATCH LIGHTS_GI_NORMAL, null
@@ -404,9 +405,11 @@ End Sub
 Sub GameEnableBallSave()
 
   EnableBallSaver(15)
-	Lampz.State(130) = 1
-	Lampz.State(131) = 1
-	Lampz.State(132) = 1
+  p_watchdisplay_left.blenddisablelighting = 15
+  p_watchdisplay_right.blenddisablelighting = 15
+  'LightOn(lsBallSaverClock1)
+  'LightOn(lsBallSaverClock2)
+  'LightOn(lsBallSaverClock3)
 
 End Sub
 

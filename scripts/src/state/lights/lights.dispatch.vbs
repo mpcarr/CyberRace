@@ -93,7 +93,6 @@ Sub LightsUpdate(FrameTime)
         RunLightSeq lSeqLightsOverride, "lightsOverride"
     Else
 
-
         If HasKeys(gameState("lights")("lightSeqs")) Then
             Dim k
             For Each k in gameState("lights")("lightSeqs").Keys()

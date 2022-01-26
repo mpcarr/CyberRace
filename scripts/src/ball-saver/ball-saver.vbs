@@ -4,9 +4,11 @@ Sub EnableBallSaver(seconds)
 	BallSaverTimerExpired.Interval = 1000 * seconds
 	BallSaverTimerExpired.Enabled = True
 
+	'p_watchdisplay_full.Visible = True
 	p_watchdisplay_left.Visible = True
 	p_watchdisplay_right.Visible = True
 
+	LightBlink(lsBallSave)
 	'Set display to x seconds 
 	dbstime = seconds
 	dbsdelta = .1
@@ -28,26 +30,26 @@ Sub EnableBallSaver(seconds)
 End Sub
 
 Sub StopBallSaver
-    BallSaverUpdateTimer.Enabled = False
-	BallSaverTimer2Expired.Enabled = False
-	If ExtraBallsAwards(CurrentPlayer) = 0 Then
-		ResetBallSaveDisplay
-	Else
-		SetExtraBallDisplay
-	End If
-	bBallSaverActive = False
+	BallSaverTimerExpired.Enabled = False
+	BallSaverUpdateTimer.Enabled = False
+	ResetBallSaveDisplay
+	StopLightBlink(lsBallSave)
 End Sub
 
 Sub BallSaverTimerExpired_Timer()
     BallSaverTimerExpired.Enabled = False
     BallSaverUpdateTimer.Enabled = False
 	ResetBallSaveDisplay
+	StopLightBlink(lsBallSave)
 	DISPATCH GAME_BALL_SAVE_ENDED, null
 End Sub
 
 Sub ResetBallSaveDisplay
 	p_watchdisplay_left.Visible = False
 	p_watchdisplay_right.Visible = False
+	p_watchdisplay_full.blenddisablelighting = 0
+	p_watchdisplay_left.blenddisablelighting = 0
+	p_watchdisplay_right.blenddisablelighting = 0
 End Sub
 
 Sub BallSaverUpdateTimer_Timer()

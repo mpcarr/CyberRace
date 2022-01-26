@@ -8,11 +8,10 @@
 
 '****** PuP Variables ******
 
-Dim usePUP: Dim cPuPPack: Dim PuPlayer: Dim PUPStatus: PUPStatus=false ' dont edit this line!!!
+Dim cPuPPack: Dim PuPlayer: Dim PUPStatus: PUPStatus=false ' dont edit this line!!!
 
 '*************************** PuP Settings for this table ********************************
 
-usePUP   = false               ' enable Pinup Player functions for this table
 cPuPPack = "ra3"    ' name of the PuP-Pack / PuPVideos folder for this table
 
 '//////////////////// PINUP PLAYER: STARTUP & CONTROL SECTION //////////////////////////

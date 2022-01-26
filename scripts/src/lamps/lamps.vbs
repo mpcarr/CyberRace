@@ -152,12 +152,20 @@ Sub InitLampsNF()
 	Lampz.MassAssign(121) = l_pop2
 	Lampz.MassAssign(122) = l_pop3
 
+	Lampz.MassAssign(123) = l_ballsave
+
 	Lampz.MassAssign(130) = l_watch
 	Lampz.Callback(130) = "DisableLighting p_watchdisplay_full, 45,"
 	Lampz.MassAssign(131) = l_watch
 	Lampz.Callback(131) = "DisableLighting p_watchdisplay_left, 45,"
 	Lampz.MassAssign(132) = l_watch
 	Lampz.Callback(132) = "DisableLighting p_watchdisplay_right, 45,"
+
+
+	Lampz.MassAssign(133) = l_racer
+	Lampz.Callback(133) = "DisableLighting p_racer_lights, 45,"
+	'p_racer_lights.blenddisablelighting = 15
+	Lampz.State(133) = 1
 	'Lampz.MassAssign(100) = L58
 	'Lampz.MassAssign(101) = L25
 	'Lampz.MassAssign(110) = l_alert_a

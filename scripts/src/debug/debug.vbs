@@ -29,6 +29,9 @@ Sub debugKeys(ByVal Keycode)
 		debugKicker.CreateSizedball BallSize / 2
 		debugKicker.LastCapturedBall.UserValue = "debugBall"
 		debugKicker.Kick 90, 10
+		LightSeqAttract.StopPlay
+  		LightSeqAttract.UpdateInterval = 8
+  		LightSeqAttract.Play SeqStripe1VertOn , 10, 0
 	End If
 	If keyCode = 31 Then 'S
 		debugKicker.CreateSizedball BallSize / 2

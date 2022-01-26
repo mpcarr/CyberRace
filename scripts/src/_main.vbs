@@ -9,6 +9,12 @@ Randomize
 
 DebugOutClear()
 
+
+
+'TABLE OPTIONS
+
+Dim usePUP:usePUP = True 'Use Pup Pack or FlexDMD. false = FlexDMD, true = Pup Pack
+
 Dim FlexDMD
 ' FlexDMD constants
 Const 	FlexDMD_RenderMode_DMD_GRAY = 0, _
@@ -57,7 +63,7 @@ Dim pBackglass:pBackglass=2
 'Const BallShadowOn = 1				'1 - on; 0 - off
 Const RollingSoundFactor = 1 		'Change volume of rolling sounds
 
-Const VR_ON = True
+Const VR_ON = False
 
 '----- Shadow Options -----
 Dim DynamicBallShadowsOn: DynamicBallShadowsOn = 1		'0 = no dynamic ball shadow, 1 = enable dynamic ball shadow
@@ -171,10 +177,13 @@ dim tableheight: tableheight = Table1.height
 	End Sub
 
 	Sub Table1_Exit()
-		If Not FlexDMD is Nothing Then
-			FlexDMD.Show = False
-			FlexDMD.Run = False
-			FlexDMD = NULL
+		
+		If usePUP=False Then
+			If Not FlexDMD is Nothing Then
+				FlexDMD.Show = False
+				FlexDMD.Run = False
+				FlexDMD = NULL
+			End If
 		End If
 	End Sub
 

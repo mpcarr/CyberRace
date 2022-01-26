@@ -18,7 +18,9 @@ Sub InitFlexDMD()
 	CreateWelcomeScene()
 End Sub
 
-InitFlexDMD()
+If usePUP = False Then
+	InitFlexDMD()
+End If
 
 Sub CreateWelcomeScene()
 	'DotMatrix.color = RGB(255, 88, 32)

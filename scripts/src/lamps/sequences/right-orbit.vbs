@@ -1,9 +1,9 @@
 
 
 Dim lsRightOrbit: Set lsRightOrbit = New LightChangeItem
-lsRightOrbit.Init 36,1,100,"pal_purple"
+lsRightOrbit.Init 36,1,180,"pal_purple"
 Dim lsRightOrbitOff: Set lsRightOrbitOff = New LightChangeItem
-lsRightOrbitOff.Init 36,0,100,"pal_purple"
+lsRightOrbitOff.Init 36,0,180,"pal_purple"
 
 Dim lSeqRightOrbitActiveShot: Set lSeqRightOrbitActiveShot = new LightSeqItem
 lSeqRightOrbitActiveShot.Name = "lSeqRightOrbitActiveShot"

@@ -1,7 +1,10 @@
 
 Sub SwitchHitShortcut()
     If gameState("game")("modes")(GAME_MODE_NORMAL) = True Then
-        DebugScore = DebugScore + 1000
+        GameAddScore GAME_POINTS_BASE
+        If gameState("game")("perkShot") = GAME_SHOT_SHORTCUT Then
+            DISPATCH GAME_AWARD_PERKSHOT, null
+        End If
     End If
 
     If gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = True Then
@@ -15,4 +18,6 @@ Sub SwitchHitShortcut()
             DISPATCH GAME_MODE_ADVANCE_AUGMENTATION, null
         End If
     End If
+
+    gameState("switches")("shortcut") = 1
 End Sub

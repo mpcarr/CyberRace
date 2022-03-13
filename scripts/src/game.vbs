@@ -39,14 +39,26 @@ Sub StartGame()
 	StartLightSeq(lSeqRightRamp)
 	StartLightSeq(lSeqRightOrbit)
 	StartLightSeq(lSeqShortcut)
+	StartLightSeq(lSeqPlungerLane)
+	StartLightSeq(lSeqMultiballC)
+	StartLightSeq(lSeqMultiballY)
+	StartLightSeq(lSeqMultiballB)
+	StartLightSeq(lSeqMultiballE)
+	StartLightSeq(lSeqMultiballR)
+	StartLightSeq(lSeqMultiballCYBER)
 
+	gameState("game")("playerName") = "Player 1"
+  	gameState("game")("playerBall") = 1
+	
 	StartLightSeq(lSeqAugmentation)
 	StartLightSeq(lSeqCaptive)
 	
+	gameState("switches")("lightlock") = 1
+
 	StartLightSeq(lSeqLeftDrain)
+	StartLightSeq(lSeqRightDrain)
 
 	DebugScore = "0"
-
 
 	DISPATCH LIGHTS_RESEARCH_RESET, null
 	DISPATCH GAME_START_OF_BALL, null
@@ -60,10 +72,6 @@ End Sub
 Const tnob = 10 ' total number of balls
 ReDim rolling(tnob)
 InitRolling
-
-'Dim BallShadow, BallRefl
-'BallShadow = Array (BallShadow1,BallShadow2,BallShadow3,BallShadow4,BallShadow5,BallShadow6,BallShadow7,BallShadow8,BallShadow9,BallShadow10,BallShadow11)
-'BallRefl = Array (BallRefl1,BallRefl2,BallRefl3,BallRefl4,BallRefl5,BallRefl6,BallRefl7,BallRefl8,BallRefl9,BallRefl10,BallRefl11)
 
 Function BallSpeed(ball) 'Calculates the ball speed
     BallSpeed = SQR(ball.VelX^2 + ball.VelY^2 + ball.VelZ^2)
@@ -104,31 +112,6 @@ Sub GameTimer_timer()
 				rolling(b) = False
 			End If
 		End If
-
-		'***Ball Reflections***
-		'dim shift
-		'If BallReflections = 1 Then
-		'	shift = (BOT(b).X - tablewidth/2)/20 * 1 / Bot(b).Y
-		'	BallRefl(b).z = BOT(b).z - 24
-		'	BallRefl(b).Size_z = 40 - BOT(b).y/130
-		'	BallRefl(b).X = BOT(b).X - shift
-		'	BallRefl(b).Y = BOT(b).Y + 5 - abs(shift)	
-		'	BallRefl(b).RotY = 180 + (BOT(b).X - tablewidth/2)/15
-		'End If
-
-		'***Ball Shadows***	
-		'If BallShadowOn = 1 Then
-		'	BallShadow(b).X = BOT(b).X
-		'	ballShadow(b).Y = BOT(b).Y + 10
-		'End If
-
-		'If BOT(b).Z > 24 and BOT(b).Z < 35 and BOT(b).radius > 23  and not inrect(BOT(b).x,BOT(b).y,183,925,227,925,227,969,183,969) Then
-		'	BallShadow(b).visible = 1
-		'	BallRefl(b).visible = 1
-		'Else
-		'	BallShadow(b).visible = 0
-		'	BallRefl(b).visible = 0
-		'End If
 
 		'***Ball Drop Sounds***
 		If BOT(b).radius > 23 and BOT(b).VelZ < -1 and BOT(b).z < 55 and BOT(b).z > 27 Then 'height adjust for ball drop sounds

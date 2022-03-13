@@ -13,12 +13,13 @@ FlasherFlareIntensity = 1		' *** lower this, if the flares are too bright (i.e. 
 FlasherOffBrightness = 0.1		' *** brightness of the flasher dome when switched off (range 0-2)	***
 								' *********************************************************************
 
-Dim ObjLevel(20), objbase(20), objlit(20), objflasher(20), objlight(20)
+Dim ObjLevel(20), objbase(20), objlit(20), objflasher(20), objlight(20), objPulse(20)
 'Dim tablewidth, tableheight : tablewidth = TableRef.width : tableheight = TableRef.height
 'initialise the flasher color, you can only choose from "green", "red", "purple", "blue", "white" and "yellow"
-InitFlasher 1, "blue"
+InitFlasher 1, "white"
 InitFlasher 2, "white"
-InitFlasher 3, "blue"
+InitFlasher 3, "white"
+InitFlasher 4, "white"
 'InitFlasher 3, "white"
 'InitFlasher 4, "white"
 'InitFlasher 5, "white"
@@ -67,6 +68,7 @@ Sub InitFlasher(nr, col)
 		objflasher(nr).height = objflasher(nr).height - 20 * ObjFlasher(nr).y / tableheight
 		ObjFlasher(nr).y = ObjFlasher(nr).y + 10
 	End If
+	objPulse(nr) = 1
 End Sub
 
 Sub RotateFlasher(nr, angle) : angle = ((angle + 360 - objbase(nr).ObjRotZ) mod 180)/30 : objbase(nr).showframe(angle) : objlit(nr).showframe(angle) : End Sub
@@ -79,10 +81,12 @@ Sub FlashFlasher(nr)
 	objlit(nr).BlendDisableLighting = 10 * ObjLevel(nr)^2
 	UpdateMaterial "Flashermaterial" & nr,0,0,0,0,0,0,ObjLevel(nr),RGB(255,255,255),0,0,False,True,0,0,0,0 
 	ObjLevel(nr) = ObjLevel(nr) * 0.9 - 0.01
-	If ObjLevel(nr) < 0 Then 
-		objflasher(nr).TimerEnabled = False : objflasher(nr).visible = 0 : objlit(nr).visible = 0
-		objbase(nr).image = "dome2basewhite"
-		objlit(nr).image = "dome2litwhite" 
+	If ObjLevel(nr) < 0.2 And objPulse(nr) > 0 Then
+			FlashDome nr, -1, objPulse(nr)-1
+	ElseIf ObjLevel(nr) < 0 Then
+			objflasher(nr).TimerEnabled = False : objflasher(nr).visible = 0 : objlit(nr).visible = 0
+			objbase(nr).image = "dome2basewhite"
+			objlit(nr).image = "dome2litwhite"
 	End If
 End Sub
 
@@ -97,5 +101,53 @@ Sub FlasherFlash8_Timer() : FlashFlasher(8) : End Sub
 Sub FlasherFlash9_Timer() : FlashFlasher(9) : End Sub
 Sub FlasherFlash10_Timer() : FlashFlasher(10) : End Sub
 Sub FlasherFlash11_Timer() : FlashFlasher(11) : End Sub
+
+
+Sub FlashDome(Idx, color, pulseCount)
+	If color > -1 Then
+		objlit(Idx).image = gameDomes(color)
+		objlight(Idx).color = gameColors(color)
+		objlight(Idx).colorfull = objlight(Idx).color
+	End If
+	objlevel(Idx) = 1
+	objPulse(Idx) = pulseCount
+	Execute "FlashFlasher "&Idx
+
+End Sub
+
+Sub FlashDomes(color, pulseCount)
+	Dim flasherDome
+	'MsgBox(Ubound(flasherDomes))
+	Dim totalTimeout : totalTimeout = 0
+	For flasherDome = 0 to Ubound(objflasher)-1
+		
+		If Not IsEmpty(objflasher(flasherDome)) Then
+			'Debug.print "flasherdome > "&flasherDome
+			If color > -1 Then
+				objlit(flasherDome).image = gameDomes(color)
+				objlight(flasherDome).color = gameColors(color)
+				objlight(flasherDome).colorfull = objlight(flasherDome).color
+			End If
+			objlevel(flasherDome) = 1
+			objPulse(flasherDome) = pulseCount-1
+
+			Dim rndTimeout : rndTimeout = RndNum(100,300)
+			totalTimeout=totalTimeout+rndTimeout
+			vpmTimer.addtimer rndTimeout, "vpmTimerFlasherPulseRandom "&flasherDome&" '"
+			
+		End If
+	next
+	DISPATCH LIGHTS_GI_OFF, Null
+	DISPATCH LIGHTS_GI_DOMES, color
+	vpmTimer.addtimer totalTimeout+(200*pulseCount), "vpmTimerFlasherPulseFinished '"
+End Sub
+
+Sub vpmTimerFlasherPulseRandom(Idx)
+	Execute "FlashFlasher "&Idx
+End Sub
+
+Sub vpmTimerFlasherPulseFinished
+  DISPATCH LIGHTS_GI_ON, Null
+End Sub
 
 '***********************************************************************************************************************

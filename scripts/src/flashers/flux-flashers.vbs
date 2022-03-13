@@ -12,12 +12,19 @@ FluxFlasherFlareIntensity = 1		' *** lower this, if the flares are too bright (i
 FluxFlasherOffBrightness = 0.1		' *** brightness of the flasher dome when switched off (range 0-2)	***
 								' *********************************************************************
 
-Dim FluxObjLevel(20), objFluxBase(20), objFluxLit(20), objFluxTimer(20)
+Dim FluxObjLevel(20), objFluxBase(20), objFluxLit(20), objFluxTimer(20), objFluxOffBrightness(20)
 'Dim tablewidth, tableheight : tablewidth = TableRef.width : tableheight = TableRef.height
 'initialise the flasher color, you can only choose from "green", "red", "purple", "blue", "white" and "yellow"
 InitFluxFlasher 1, 0.4
 InitFluxFlasher 2, 0.4
-'InitFluxFlasher 3, 0.4
+'InitFluxFlasher 3, 2
+InitFluxFlasher 4, 1.5
+InitFluxFlasher 5, 2
+InitFluxFlasher 6, 2
+InitFluxFlasher 7, 2
+'InitFluxFlasher 8, 2
+'InitFluxFlasher 9, 2
+'InitFluxFlasher 10, 2
 'InitFluxFlasher 7, "white"
 'InitFluxFlasher 8, "white"
 'InitFluxFlasher 9, "white"
@@ -41,6 +48,7 @@ Sub InitFluxFlasher(nr, col)
 	' store all objects in an array for use in FlashFluxFlasher subroutine
 	Set objFluxBase(nr) = Eval("FlasherFluxBase" & nr)
 	objFluxBase(nr).UserValue = col
+	objFluxOffBrightness(nr) = FluxFlasherOffBrightness
 	''Set objFluxLit(nr) = Eval("FlasherFluxLit" & nr)
 	Set objFluxTimer(nr) = Eval("FlasherFluxTimer" & nr)
 	' If the flasher is parallel to the playfield, rotate the VPX flasher object for POV and place it at the correct height
@@ -69,7 +77,7 @@ End Sub
 Sub TurnOnFluxFlasher(nr)
 '	If not objFluxFlasher(nr).TimerEnabled Then objFluxFlasher(nr).TimerEnabled = True : objFluxFlasher(nr).visible = 1 : objFluxLit(nr).visible = 1 : End If
 '	objFluxFlasher(nr).opacity = 1000 *  FluxFlasherFlareIntensity * FluxObjLevel(nr)^2.5
-	objFluxBase(nr).BlendDisableLighting = 10 * 0.4^2 'FluxFlasherOffBrightness + 10 * FluxObjLevel(nr)^3	
+	objFluxBase(nr).BlendDisableLighting = 10 * FluxObjLevel(nr)^2 'FluxFlasherOffBrightness + 10 * FluxObjLevel(nr)^3	
 '	objFluxLit(nr).BlendDisableLighting = 10 * FluxObjLevel(nr)^2
 	'FluxObjLevel(nr) = FluxObjLevel(nr) * 0.9 - 0.01
 	'If FluxObjLevel(nr) < 0 Then 
@@ -87,11 +95,11 @@ Sub PulseFluxFlasher(nr)
 	ElseIf objFluxTimer(nr).UserValue = 2 Then
 		FluxObjLevel(nr) = FluxObjLevel(nr) * 1 + 0.01
 	End If
-	If FluxObjLevel(nr) < FluxFlasherOffBrightness Then 
+	If FluxObjLevel(nr) < objFluxOffBrightness(nr) Then 
 		If objFluxTimer(nr).UserValue = 0 Then
 			TurnOffFluxFlasher(nr)
 		Else
-			FluxObjLevel(nr) = FluxFlasherOffBrightness
+			FluxObjLevel(nr) = objFluxOffBrightness(nr)
 			objFluxTimer(nr).UserValue = 2
 		End If
 	ElseIf FluxObjLevel(nr) > objFluxBase(nr).UserValue Then 
@@ -120,5 +128,12 @@ End Sub
 Sub FlasherFluxTimer1_Timer() : PulseFluxFlasher(1) : End Sub
 Sub FlasherFluxTimer2_Timer() : PulseFluxFlasher(2) : End Sub
 Sub FlasherFluxTimer3_Timer() : PulseFluxFlasher(3) : End Sub
+Sub FlasherFluxTimer4_Timer() : PulseFluxFlasher(4) : End Sub
+Sub FlasherFluxTimer5_Timer() : PulseFluxFlasher(5) : End Sub
+Sub FlasherFluxTimer6_Timer() : PulseFluxFlasher(6) : End Sub
+Sub FlasherFluxTimer7_Timer() : PulseFluxFlasher(7) : End Sub
+Sub FlasherFluxTimer8_Timer() : PulseFluxFlasher(8) : End Sub
+Sub FlasherFluxTimer9_Timer() : PulseFluxFlasher(9) : End Sub
+Sub FlasherFluxTimer10_Timer() : PulseFluxFlasher(10) : End Sub
 
 '***********************************************************************************************************************

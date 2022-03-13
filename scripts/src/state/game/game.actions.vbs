@@ -4,6 +4,7 @@
 '***********************************************************************************************************************
 
 Const GAME_AUGMENTATION_READY = "Game Augmentation Ready"
+Const GAME_RACE_READY = "Game Race Ready"
 Const GAME_START_AUGMENTATION_RESEARCH = "Game Start Augmentation Research"
 Const GAME_LOCK_AUGMENTATIONS = "Game Lock Augmentations"
 Const GAME_UNLOCK_AUGMENTATIONS = "Game UnLock Augmentations"
@@ -22,6 +23,13 @@ Const GAME_ROTATE_SKILLSHOT_ANTI_CLOCKWISE = "Game Rotate Skillshot Anti Clockwi
 Const GAME_AWARD_SKILLSHOT = "Game Award Skillshot"
 Const GAME_BALL_SAVE_ENDED = "Game Ball Save Ended"
 Const GAME_ENABLE_BALL_SAVE = "Game Enable Ball Save"
+Const GAME_ENABLE_BALL_LOCK = "Game Enable Ball Lock"
+Const GAME_DISABLE_BALL_LOCK = "Game Disable Ball Lock"
 
+Const GAME_CHECK_LOCKS = "Game Check Locks"
+Const GAME_CHECK_LANES = "Game Check Lanes"
+Const GAME_CLEAR_SHOTS = "Game Clear Shots"
+Const GAME_MULTIBALL_JACKPOT = "Game Multiball Jackpot"
+Const GAME_AWARD_PERKSHOT = "Game Award Perkshot"
 
 '***********************************************************************************************************************

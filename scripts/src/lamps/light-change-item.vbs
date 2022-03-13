@@ -34,11 +34,10 @@ Class LightChangeItem
         Public Sub Blink()
                 If m_State = 1 Then
                         m_State = 0
-                        m_Frames = m_initialFrames
                 Else
                         m_State = 1
-                        m_Frames = m_initialFrames
                 End If
+                m_Frames = m_initialFrames
 	End Sub
 
         Public Sub Init(idx, state, frames, baseImage)
@@ -61,6 +60,11 @@ Class LightChangeItem
 
 	Public Property Get Update(framesPassed)
                 m_Frames = m_Frames - framesPassed
+                
+                If m_Idx = 21 Then
+                        'Debug.print(m_Idx & ":" & m_Frames)
+                        'Debug.print("Frames Passed: "& framesPassed)
+                End If
                 Update = m_Frames
         End Property
 

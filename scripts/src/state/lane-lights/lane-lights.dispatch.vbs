@@ -3,34 +3,30 @@
 '*****                                                                                                              ****
 '***********************************************************************************************************************
 
-Const LIGHTB = 4
-
 Sub RotateLaneLightsClockwise()
-
-    Dim temp : temp = Lampz.State(90)
-    Lampz.State(90) = Lampz.State(93)
-    Lampz.State(93) = Lampz.State(92)
-    Lampz.State(92) = Lampz.State(91)
-    Lampz.State(91) = temp
-    
-
+    Dim temp : temp = gameState("laneLights")("leftOuter")
+    gameState("laneLights")("leftOuter") = gameState("laneLights")("rightOuter")
+    gameState("laneLights")("rightOuter") = gameState("laneLights")("rightInner")
+    gameState("laneLights")("rightInner") = gameState("laneLights")("leftInner")
+    gameState("laneLights")("leftInner") = temp
+    CheckLaneLights()
 End Sub
 
 Sub RotateLaneLightsAntiClockwise()
-
-    Dim temp : temp = Lampz.State(90)
-    Lampz.State(90) = Lampz.State(91)
-    Lampz.State(91) = Lampz.State(92)
-    Lampz.State(92) = Lampz.State(93)
-    Lampz.State(93) = temp
-    
+    Dim temp : temp = gameState("laneLights")("leftOuter")
+    gameState("laneLights")("leftOuter") = gameState("laneLights")("leftInner")
+    gameState("laneLights")("leftInner") = gameState("laneLights")("rightInner")
+    gameState("laneLights")("rightInner") = gameState("laneLights")("rightOuter")
+    gameState("laneLights")("rightOuter") = temp
+    CheckLaneLights()
 End Sub
 
 Sub ResetLaneLights()
-    Lampz.State(90) = 0
-    Lampz.State(91) = 0
-    Lampz.State(92) = 0
-    Lampz.State(93) = 0
+    gameState("laneLights")("leftOuter") = 0
+    gameState("laneLights")("leftInner") = 0
+    gameState("laneLights")("rightInner") = 0
+    gameState("laneLights")("rightOuter") = 0
+    CheckLaneLights()
 End Sub
 
 

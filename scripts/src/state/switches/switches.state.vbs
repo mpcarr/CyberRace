@@ -12,6 +12,8 @@ Function InitSwitchesState()
     switches("rightOrbit") = 0
     switches("augmentation") = 0
     switches("captive") = 0
+    switches("shortcut") = 0
+    switches("lightlock") = 0
 
     Set InitSwitchesState = switches
 End Function

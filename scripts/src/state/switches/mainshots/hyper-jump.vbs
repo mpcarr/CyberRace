@@ -1,6 +1,9 @@
 Sub SwitchHitHyperJump()
     If gameState("game")("modes")(GAME_MODE_NORMAL) = True Then
-        DebugScore = DebugScore + 1000
+        GameAddScore GAME_POINTS_BASE
+        If gameState("game")("perkShot") = GAME_SHOT_HYPER_JUMP Then
+            DISPATCH GAME_AWARD_PERKSHOT, null
+        End If
     End If
 
     If gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = True Then

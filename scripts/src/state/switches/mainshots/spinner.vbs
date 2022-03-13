@@ -1,7 +1,10 @@
 Sub SwitchHitSpinner2()
     If gameState("game")("modes")(GAME_MODE_NORMAL) = True Then
         PlaySoundAt "fx-spinner2", Spinner2
-        DebugScore = DebugScore + 1000
+        GameAddScore GAME_POINTS_SPINNER
+        If gameState("game")("perkShot") = GAME_SHOT_SPINNER Then
+            DISPATCH GAME_AWARD_PERKSHOT, null
+        End If
     End If
 
     If gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = True Then

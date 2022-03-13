@@ -1,9 +1,9 @@
 
 
 Dim lsCenterRamp: Set lsCenterRamp = New LightChangeItem
-lsCenterRamp.Init 34,1,100,"pal_purple"
+lsCenterRamp.Init 34,1,180,"pal_purple"
 Dim lsCenterRampOff: Set lsCenterRampOff = New LightChangeItem
-lsCenterRampOff.Init 34,0,100,"pal_purple"
+lsCenterRampOff.Init 34,0,180,"pal_purple"
 
 Dim lSeqCenterRampActiveShot: Set lSeqCenterRampActiveShot = new LightSeqItem
 lSeqCenterRampActiveShot.Name = "lSeqCenterRampActiveShot"

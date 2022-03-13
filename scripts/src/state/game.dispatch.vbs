@@ -16,15 +16,19 @@ Sub Dispatch(action, options)
         Case ROTATE_LANE_LIGHTS_ANTI_CLOCKWISE:
             RotateLaneLightsAntiClockwise
         Case LIGHTS_UPDATE:
-            LightsUpdate options
+            LightsUpdate
         Case LIGHTS_GI_ON:
             LightsGiOn
         Case LIGHTS_GI_OFF:
             LightsGiOff
         Case LIGHTS_GI_NORMAL:
             LightsGiNormal
+        Case LIGHTS_GI_DOMES:
+            LightsGiDomes options
         Case LIGHTS_GI_AUGMENTATION_RESEARCH:
-            LightsGiAugmentationResearch                      
+            LightsGiAugmentationResearch     
+        Case LIGHTS_GI_MULTIBALL:
+            LightsGiMultiball                             
         Case LIGHTS_START_SEQUENCE:
             LightsStartSequence            
         Case LIGHTS_RESEARCH_OFF:
@@ -79,12 +83,28 @@ Sub Dispatch(action, options)
             SwitchHitRampPin
         Case SWITCH_HIT_PLUNGER_LANE:
             SwitchHitPlungerLane    
+        Case SWITCH_HIT_LIGHT_LOCK:
+            SwitchHitLightLock
+        Case SWITCH_HIT_LEFT_OUTLANE:
+            SwitchHitLeftOutlane
+        Case SWITCH_HIT_LEFT_INLANE:
+            SwitchHitLeftInlane
+        Case SWITCH_HIT_RIGHT_INLANE:
+            SwitchHitRightInlane
+        Case SWITCH_HIT_RIGHT_OUTLANE:
+            SwitchHitRightOutlane
+        Case SWITCH_HIT_BALL_LOCK:
+            SwitchHitBallLock
+        Case SWITCH_HIT_SECRET_UPGRADE:
+            SwitchHitSecretUpgrade
         Case GAME_START_OF_BALL:
             GameStartOfBall
         Case GAME_END_OF_BALL:
             GameEndOfBall        
         Case GAME_AUGMENTATION_READY:
             GameAugmentationReady
+        Case GAME_RACE_READY
+            GameRaceReady
         Case GAME_START_AUGMENTATION_RESEARCH:
             GameStartAugmentationResearch
         Case GAME_LOCK_AUGMENTATIONS:
@@ -95,6 +115,8 @@ Sub Dispatch(action, options)
             GameShowLabels
         Case GAME_HIDE_LABELS:
             GameHideLabels
+        Case GAME_MODE_NORMAL
+            GameModeNormal
         Case GAME_MODE_ADVANCE_AUGMENTATION:
             GameModeAdvanceAugmentation
         Case GAME_MODE_FINISH_AUGMENTATION:
@@ -111,6 +133,20 @@ Sub Dispatch(action, options)
             GameBallSaveEnded
         Case GAME_ENABLE_BALL_SAVE
             GameEnableBallSave
+        Case GAME_ENABLE_BALL_LOCK
+            GameEnableBallLock
+        Case GAME_DISABLE_BALL_LOCK
+            GameDisableBallLock
+        Case GAME_CHECK_LOCKS
+            GameCheckLocks
+        Case GAME_CHECK_LANES
+            GameCheckLanes
+        Case GAME_CLEAR_SHOTS
+            GameClearShots
+        Case GAME_MULTIBALL_JACKPOT
+            GameMultiballJackpot
+        Case GAME_AWARD_PERKSHOT
+            GameAwardPerkShot
         Case Else
             MsgBox("Action Unknown")
     End Select

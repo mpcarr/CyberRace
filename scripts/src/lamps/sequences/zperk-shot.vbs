@@ -14,7 +14,7 @@ Dim lSeqHyperJumpPerkShot: Set lSeqHyperJumpPerkShot = new LightSeqItem
 lSeqHyperJumpPerkShot.Name = "lSeqHyperJumpPerkShot"
 lSeqHyperJumpPerkShot.Image = "pal_orange"
 lSeqHyperJumpPerkShot.Sequence = Array(lsHyperJump5,lsHyperJump4,Array(lsHyperJump5Off,lsHyperJump3),Array(lsHyperJump4Off,lsHyperJump2),Array(lsHyperJump3Off,lsHyperJump1),lsHyperJump2Off, lsHyperJump1Off)
-lSeqHyperJumpPerkShot.UpdateInterval = 20
+lSeqHyperJumpPerkShot.UpdateInterval = 60
 
 Dim lSeqShortcutPerkShot: Set lSeqShortcutPerkShot = new LightSeqItem
 lSeqShortcutPerkShot.Name = "lSeqShortcutPerkShot"

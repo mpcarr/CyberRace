@@ -24,5 +24,13 @@ Const SWITCH_HIT_CENTER_RAMP = "Switches Hit Center Ramp"
 Const SWITCH_HIT_SHORTCUT = "Switches Hit Shortcut"
 Const SWITCH_HIT_RAMP_PIN = "Switches Hit Ramp Pin"
 Const SWITCH_HIT_PLUNGER_LANE = "Switches Hit Plunger Lane"
+Const SWITCH_HIT_LIGHT_LOCK = "Switches Hit Light Lock"
+Const SWITCH_HIT_LEFT_OUTLANE = "Switches Hit Left Outlane"
+Const SWITCH_HIT_LEFT_INLANE = "Switches Hit Left Inlane"
+Const SWITCH_HIT_RIGHT_INLANE = "Switches Hit Right Inlane"
+Const SWITCH_HIT_RIGHT_OUTLANE = "Switches Hit Right Outlane"
+Const SWITCH_HIT_BALL_LOCK = "Switches Hit Ball Lock"
+Const SWITCH_HIT_SECRET_UPGRADE = "Switches Hit Secret Upgrade"
+
 
 '***********************************************************************************************************************

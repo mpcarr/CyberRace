@@ -83,7 +83,7 @@ End Sub
 
 
 
-Sub LightsUpdate(FrameTime)
+Sub LightsUpdate()
     
     If gameState("game")("pauseLights") = True Then
         Exit Sub
@@ -237,19 +237,19 @@ Sub LightsAugmentationAttract()
     
     
     'Dim aug1On: Set aug1On = New LightChangeItem
-    'aug1On.Init 0,1,100,"pal_purple"
+    'aug1On.Init 0,1,180,"pal_purple"
     'Dim aug1Off: Set aug1Off = new LightChangeItem
-    'aug1Off.Init 0,0,100,"pal_purple"
+    'aug1Off.Init 0,0,180,"pal_purple"
 
     'Dim aug2On: Set aug2On = New LightChangeItem
-    'aug2On.Init 3,1,100,"pal_purple"
+    'aug2On.Init 3,1,180,"pal_purple"
     'Dim aug2Off: Set aug2Off = new LightChangeItem
-    'aug2Off.Init 3,0,100,"pal_purple"
+    'aug2Off.Init 3,0,180,"pal_purple"
 
     'Dim aug3On: Set aug3On = New LightChangeItem
-    'aug3On.Init 6,1,100,"pal_purple"
+    'aug3On.Init 6,1,180,"pal_purple"
     'Dim aug3Off: Set aug3Off = new LightChangeItem
-    'aug3Off.Init 6,0,100,"pal_purple"
+    'aug3Off.Init 6,0,180,"pal_purple"
 
     'Dim flicker: Set flicker=CreateObject("Scripting.Dictionary")
     'flicker.Add "currentIdx", 0
@@ -272,14 +272,21 @@ Sub LightsGIOn()
     gameState("lights")("gi") = 1
     
     'LightsAugmentationAttract()
+    'TurnOffFluxFlasher(3)
+    'FluxObjlevel(3) = 2
+    LightOn(lsSpeeder)
 
     playfield_lm.visible = True
-    p_artblades_back.Image = "artbladesbackgion"
-    p_plastics.Image = "plastics_on"
+    'p_artblades_back.Image = "artbladesbackgion"
+    p_plastics.Image = "plastics4"
     ModLampz.SetGI 0, 9
     SetGI 0,9
-    Dispatch LIGHTS_GI_NORMAL, Null
-    
+    SetGIPerk 0,0
+    'Dispatch LIGHTS_GI_NORMAL, Null
+    for each GIxx in GI
+        GIxx.Color = gameState("lights")("GIColor")
+        GIxx.ColorFull = gameState("lights")("GIColor")
+    next
 End Sub
 
 Sub LightsGIOff()
@@ -288,6 +295,7 @@ Sub LightsGIOff()
     'p_artblades_back.Image = "artbladesbackgioff"
     'p_plastics.Image = "plastics_off"
     ModLampz.SetGI 0, 0
+    LightOff(lsSpeeder)
 End Sub
 
 Sub LightsGINormal()
@@ -295,14 +303,31 @@ Sub LightsGINormal()
         GIxx.Color = c_normal
         GIxx.ColorFull = c_normal_full
     next
+    gameState("lights")("GIColor") = c_normal
 End Sub
 
+Sub LightsGIDomes(color)
+    for each GIxx in GISLings
+        GIxx.Color = gameColors(color)
+        GIxx.ColorFull = gameColors(color)
+    next
+    SetGIPerk 0,9
+End Sub
 
 Sub LightsGiAugmentationResearch()
     for each GIxx in GI
         GIxx.Color = c_augmentationResearch
         GIxx.ColorFull = c_augmentationResearch
     next
+    gameState("lights")("GIColor") = c_augmentationResearch
+End Sub
+
+Sub LightsGiMultiball()
+    for each GIxx in GI
+        GIxx.Color = c_multiball
+        GIxx.ColorFull = c_multiball
+    next
+    gameState("lights")("GIColor") = c_multiball
 End Sub
 
 Sub LightsResearchReset()

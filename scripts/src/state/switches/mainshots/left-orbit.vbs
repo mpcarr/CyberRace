@@ -16,7 +16,10 @@ Sub SwitchHitLeftOrbit()
             'LightSeqGIUpperLeft.UpdateInterval = 2
             'LightSeqGIUpperLeft.Play SeqArcTopLeftUpOn, 2, 0
             'LightSeqGIUpperLeft.Play SeqArcTopLeftUpOff, 2, 0
-            DebugScore = DebugScore + 1500
+            GameAddScore GAME_POINTS_BASE
+            If gameState("game")("perkShot") = GAME_SHOT_LEFT_ORBIT Then
+                DISPATCH GAME_AWARD_PERKSHOT, null
+            End If
         End If
 
         If gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = True Then
@@ -28,6 +31,15 @@ Sub SwitchHitLeftOrbit()
         If gameState("game")("modes")(GAME_MODE_AUGMENTATION_RESEARCH) = True Then
             If gameState("game")("targetShots").Exists(GAME_SHOT_LEFT_ORBIT) Then
                 DISPATCH GAME_MODE_ADVANCE_AUGMENTATION, null
+            End If
+        End If
+
+        If gameState("game")("modes")(GAME_MODE_MULTIBALL) = True Then
+            If gameState("game")("targetShots").Exists(GAME_SHOT_LEFT_ORBIT) Then
+                RemoveGameTargetShot(GAME_SHOT_LEFT_ORBIT)
+                LightOn(lsCyber1)
+                lSeqMultiballC.RemoveAll()
+                DISPATCH GAME_MULTIBALL_JACKPOT, null
             End If
         End If
         

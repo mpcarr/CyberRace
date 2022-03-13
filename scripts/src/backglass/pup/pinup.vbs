@@ -12,7 +12,7 @@ Dim cPuPPack: Dim PuPlayer: Dim PUPStatus: PUPStatus=false ' dont edit this line
 
 '*************************** PuP Settings for this table ********************************
 
-cPuPPack = "ra3"    ' name of the PuP-Pack / PuPVideos folder for this table
+cPuPPack = "cyberrace"    ' name of the PuP-Pack / PuPVideos folder for this table
 
 '//////////////////// PINUP PLAYER: STARTUP & CONTROL SECTION //////////////////////////
 

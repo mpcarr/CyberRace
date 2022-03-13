@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<physics>
+	<name>CyberRace</name>
+	<table>
+		<gravityConstant>0.980665</gravityConstant>
+		<contactFriction>0.075000</contactFriction>
+		<elasticity>0.250000</elasticity>
+		<elasticityFalloff>0.100000</elasticityFalloff>
+		<defaultElementScatter>2.000000</defaultElementScatter>
+		<playfieldScatter>2.000000</playfieldScatter>
+	</table>
+	<flipper>
+		<speed>5.000000</speed>
+		<strength>4500.000000</strength>
+		<elasticity>0.600000</elasticity>
+		<scatter>0.000000</scatter>
+		<eosTorque>0.350000</eosTorque>
+		<eosTorqueAngle>7.000000</eosTorqueAngle>
+		<returnStrength>0.080000</returnStrength>
+		<elasticityFalloff>0.100000</elasticityFalloff>
+		<friction>0.200000</friction>
+		<coilRampUp>0.000000</coilRampUp>
+	</flipper>
+</physics>
+

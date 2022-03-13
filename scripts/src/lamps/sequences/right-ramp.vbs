@@ -1,9 +1,9 @@
 
 
 Dim lsRightRamp: Set lsRightRamp = New LightChangeItem
-lsRightRamp.Init 35,1,100,"pal_purple"
+lsRightRamp.Init 35,1,180,"pal_purple"
 Dim lsRightRampOff: Set lsRightRampOff = New LightChangeItem
-lsRightRampOff.Init 35,0,100,"pal_purple"
+lsRightRampOff.Init 35,0,180,"pal_purple"
 
 Dim lSeqRightRampActiveShot: Set lSeqRightRampActiveShot = new LightSeqItem
 lSeqRightRampActiveShot.Name = "lSeqRightRampActiveShot"

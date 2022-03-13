@@ -40,3 +40,9 @@ End Sub
 Sub RPin_Hit()
 	DISPATCH SWITCH_HIT_RAMP_PIN, Null
 End Sub
+
+Sub LockPin_Hit()
+	'If gameState("switches")("lockPinHit") = False Then
+'		DISPATCH SWITCH_HIT_BALL_LOCK, Null
+'	End If
+End Sub

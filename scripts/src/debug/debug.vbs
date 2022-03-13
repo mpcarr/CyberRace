@@ -5,10 +5,10 @@
 
 Sub DebugOutClear()
 
-	Dim objFileToWrite:Set objFileToWrite = CreateObject("Scripting.FileSystemObject").OpenTextFile("C:\vpxout\ra3.txt",2,true)
-	objFileToWrite.WriteLine("")
-	objFileToWrite.Close
-	Set objFileToWrite = Nothing
+	'Dim objFileToWrite:Set objFileToWrite = CreateObject("Scripting.FileSystemObject").OpenTextFile("C:\vpxout\ra3.txt",2,true)
+	'objFileToWrite.WriteLine("")
+	'objFileToWrite.Close
+	'Set objFileToWrite = Nothing
 
 End Sub
 
@@ -29,9 +29,10 @@ Sub debugKeys(ByVal Keycode)
 		debugKicker.CreateSizedball BallSize / 2
 		debugKicker.LastCapturedBall.UserValue = "debugBall"
 		debugKicker.Kick 90, 10
+
 		LightSeqAttract.StopPlay
-  		LightSeqAttract.UpdateInterval = 8
-  		LightSeqAttract.Play SeqStripe1VertOn , 10, 0
+		LightSeqAttract.UpdateInterval = 8
+		LightSeqAttract.Play SeqHatch2HorizOn , 10, 0
 	End If
 	If keyCode = 31 Then 'S
 		debugKicker.CreateSizedball BallSize / 2
@@ -51,9 +52,9 @@ Sub debugKeys(ByVal Keycode)
 	End If
 	If keyCode = 35 Then 'H
 		Timer_test1.Enabled=False
-		vukEmpireDebug.CreateSizedball BallSize / 2
-		vukEmpireDebug.LastCapturedBall.UserValue = "debugBall"
-		vukEmpireDebug.Kick 20, 50
+		vukBallLockDebug.CreateSizedball BallSize / 2
+		vukBallLockDebug.LastCapturedBall.UserValue = "debugBall"
+		vukBallLockDebug.Kick 20, 50
 	End If
 	If keyCode = 36 Then 'J
 		debugKickerTopLock.CreateSizedball BallSize / 2

@@ -16,18 +16,18 @@ Sub swRightOrbit_Hit()
     Dispatch SWITCH_HIT_RIGHT_ORBIT, Null
 End Sub
 Sub swLeftOutlane_Hit()
-    Lampz.State(90) = 1
-    lSeqLeftDrain.AddItem(lSeqLeftDrainBlink)
+    Dispatch SWITCH_HIT_LEFT_OUTLANE, Null
 End Sub
 Sub swLeftInlane_Hit()
-    Lampz.State(91) = 1
+    Dispatch SWITCH_HIT_LEFT_INLANE, Null
 End Sub
 Sub swRightInlane_Hit()
-    Lampz.State(92) = 1
+    Dispatch SWITCH_HIT_RIGHT_INLANE, Null
 End Sub
 Sub swRightOutlane_Hit()
-    Lampz.State(93) = 1
-    lSeqRightDrain.AddItem(lSeqRightDrainBlink)
+    If gameState("switches")("shortcut") = 0 Then
+        Dispatch SWITCH_HIT_RIGHT_OUTLANE, Null
+    End If
 End Sub
 
 Sub swShortcut_Hit()
@@ -40,12 +40,15 @@ End Sub
 Sub closeRightLaneDiverter
     DiverterFlipper.RotateToStart
     DiverterFlipper001.RotateToStart
+    gameState("switches")("shortcut") = 0
 End Sub
 
 Sub swPlungerLane_Hit()
     DISPATCH SWITCH_HIT_PLUNGER_LANE, Null
 End Sub
 
-
+Sub swSecretUpgrade_Hit()
+    DISPATCH SWITCH_HIT_SECRET_UPGRADE, Null
+End Sub
 
 '***********************************************************************************************************************

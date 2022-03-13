@@ -46,7 +46,7 @@ Sub pUpdateScores  'call this ONLY on timer 300ms is good enough
 		'	if Score(CurrentPlayer)=0 then 
 		'		puPlayer.LabelSet pBackglass,"CurScore1", "00"								,1,ScoreTag(0)
 		'	else
-			Debug.print("Updating Scores")
+			'Debug.print("Updating Scores")
 			If gameState("game")("hideScore") = False Then
 				puPlayer.LabelSet pBackglass,"CurScore1", FormatScore(DebugScore)	 ,1,ScoreTag(0)
 			End If

@@ -11,6 +11,7 @@
 Dim NullFader : set NullFader = new NullFadingObject
 Dim Lampz : Set Lampz = New LampFader
 Dim ModLampz : Set ModLampz = New DynamicLamps
+Dim ModLampzPerk : Set ModLampzPerk = New DynamicLamps
 InitLampsNF              ' Setup lamp assignments
 
 Sub InitLampsNF()
@@ -18,6 +19,7 @@ Sub InitLampsNF()
 	'Filtering (comment out to disable)
 	Lampz.Filter = "LampFilter"	'Puts all lamp intensity scale output (no callbacks) through this function before updating
 	ModLampz.Filter = "LampFilter"
+	ModLampzPerk.Filter = "LampFilter"
 	'Adjust fading speeds (1 / full MS fading time)
 	dim x : for x = 0 to 140 : Lampz.FadeSpeedUp(x) = 1/80 : Lampz.FadeSpeedDown(x) = 1/100 : next
 	Lampz.FadeSpeedUp(110) = 1/64 'GI
@@ -41,6 +43,17 @@ Sub InitLampsNF()
 	Lampz.MassAssign(22) = l_pw3
 	Lampz.MassAssign(23) = l_pw4
 	Lampz.MassAssign(25) = l_research
+
+	Lampz.MassAssign(15) = l_augsign1
+	Lampz.Callback(15) = "DisableLighting p_augsign_1, 45,"
+	Lampz.MassAssign(16) = l_augsign2
+	Lampz.Callback(16) = "DisableLighting p_augsign_2, 45,"
+	Lampz.MassAssign(17) = l_augsign3
+	Lampz.Callback(17) = "DisableLighting p_augsign_3, 45,"
+	Lampz.MassAssign(18) = l_augsign4
+	Lampz.Callback(18) = "DisableLighting p_augsign_4, 45,"
+	Lampz.MassAssign(19) = l_augsign5
+	Lampz.Callback(19) = "DisableLighting p_augsign_5, 45,"
 
 	
 	Lampz.MassAssign(26) = l_captive1
@@ -162,10 +175,21 @@ Sub InitLampsNF()
 	Lampz.Callback(132) = "DisableLighting p_watchdisplay_right, 45,"
 
 
-	Lampz.MassAssign(133) = l_racer
-	Lampz.Callback(133) = "DisableLighting p_racer_lights, 45,"
+	Lampz.MassAssign(133) = l_plungerlane1
+	Lampz.Callback(133) = "DisableLighting p_plungerSign1, 45,"
+	Lampz.MassAssign(134) = l_plungerlane2
+	Lampz.Callback(134) = "DisableLighting p_plungerSign2, 45,"
+	Lampz.MassAssign(135) = l_plungerlane3
+	Lampz.Callback(135) = "DisableLighting p_plungerSign3, 45,"
+
+	Lampz.MassAssign(136) = l_speederToy
+	Lampz.Callback(136) = "DisableLighting p_speederToy, 45,"
+	Lampz.Callback(136) = "PriSwapImage p_speederToy, l_speederToy.Image,"
+
+
+
 	'p_racer_lights.blenddisablelighting = 15
-	Lampz.State(133) = 1
+	'Lampz.State(133) = 1
 	'Lampz.MassAssign(100) = L58
 	'Lampz.MassAssign(101) = L25
 	'Lampz.MassAssign(110) = l_alert_a
@@ -181,6 +205,9 @@ Sub InitLampsNF()
 	ModLampz.Callback(0) = "GIUpdates"
 	ModLampz.MassAssign(0)= ColToArray(GI) 
 
+	ModLampzPerk.Callback(0) = "GIUpdates"
+	ModLampzPerk.MassAssign(0)= ColToArray(GISlings) 
+
 	dim ii
 	For each ii in GI:ii.IntensityScale = 0.3:Next
 	'For each ii in GI_PF:ii.IntensityScale = 1:Next
@@ -193,11 +220,22 @@ Sub InitLampsNF()
 		'Turn off all lamps on startup
 	lampz.Init	'This just turns state of any lamps to 1
 	ModLampz.Init
+	ModLampzPerk.Init
 
 	'Immediate update to turn on GI, turn off lamps
 	lampz.update
 	ModLampz.Update
+	ModLampzPerk.Update
 
+
+End Sub
+
+
+Dim fps: fps = 0
+Sub fpsTimer_Timer
+
+	'("FPS: " & fps)
+	fps=0
 
 End Sub
 
@@ -207,10 +245,13 @@ Sub LampTimer()
 	
 	FrameTime = gametime - InitFrameTime : InitFrameTime = gametime
 	Dispatch LIGHTS_UPDATE, FrameTime
+
+	fps=fps+1
 	
 	'Lampz.Update1 ' what does this do
 	Lampz.Update2 ' what does this do
 	ModLampz.Update2 ' what does this do
+	ModLampzPerk.Update2 ' what does this do
 End Sub
 
 Wall9.TimerInterval = -1
@@ -282,6 +323,10 @@ Sub DisableLighting(pri, DLintensity, ByVal aLvl)	'cp's script  DLintensity = di
 	pri.blenddisablelighting = aLvl * DLintensity * 0.4
 End Sub
 
+Sub PriSwapImage(pri, image, ByVal aLvl)	'cp's script  DLintensity = disabled lighting intesity
+	pri.Image = image
+End Sub
+
 
 
 
@@ -318,6 +363,13 @@ Sub SetGI(aNr, aValue)
 	ModLampz.SetGI aNr, aValue 'Redundant. Could reassign GI indexes here
 '	GestioneGIWall
 	SetGIColor
+End Sub
+
+Sub SetGIPerk(aNr, aValue)
+	'DebugOut("SETTING GI MAIN FROM CORE.vbs ; "+ Cstr(aNr) + " ; " + Cstr(aValue))
+	ModLampzPerk.SetGI aNr, aValue 'Redundant. Could reassign GI indexes here
+'	GestioneGIWall
+	'SetGIColor
 End Sub
 
 '***GI Color Mod***
@@ -849,28 +901,17 @@ End Function
 
 Sub LightOn(light)
 
+	StopLightBlink(light)
+
 	light.State = 1
 	If Not gameState("lights")("lightOn").Exists(light.Idx) Then 
 		gameState("lights")("lightOn").Add light.Idx, light
 	End If
 	
-	If gameState("lights")("lightBlinks").Exists(light.Idx) Then 
-		gameState("lights")("lightBlinks").Remove light.Idx
-	End If
-
 End Sub
 
 Sub LightOff(light)
-
-	Lampz.State(light.Idx) = 0
-	If gameState("lights")("lightOn").Exists(light.Idx) Then	
-		gameState("lights")("lightOn").Remove light.Idx
-	End If
-
-	If gameState("lights")("lightBlinks").Exists(light.Idx) Then	
-		gameState("lights")("lightBlinks").Remove light.Idx
-	End If
-
+	StopLightBlink(light)
 End Sub
 
 Sub LightFluxFlash(nr, light)

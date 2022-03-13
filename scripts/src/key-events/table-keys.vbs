@@ -17,6 +17,16 @@ Sub Table1_KeyDown(ByVal Keycode)
             StartGame()
         End If
 
+        If keycode = LeftMagnaSave then
+            lutpos = lutpos - 1 : If lutpos < 0 Then lutpos = 0 : end if
+            Table1.ColorGradeImage = luts(lutpos)
+        End if
+    
+        If keycode = RightMagnaSave then
+            lutpos = lutpos + 1 : If lutpos > 5 Then lutpos = 5: end if
+            Table1.ColorGradeImage = luts(lutpos)
+        End if
+
     Else
     
         If keycode = PlungerKey Then

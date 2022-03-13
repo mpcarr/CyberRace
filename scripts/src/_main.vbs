@@ -49,7 +49,7 @@ Const typefont = "Raleway Medium"
 Const numberfont = "Bebas Neue"
 Const zoomfont = "Fundamental  Brigade"
 Const zoombgfont = "Fundamental 3D  Brigade" ' needs to be an outline of the zoomfont
-Const cGameName = "redalert"
+Const cGameName = "cyberrace"
 Const myVersion = "1.0.0"
 Const BallSize = 50
 Const BallMass = 1.5
@@ -59,8 +59,6 @@ Const MaxMultiplier = 6
 Const MaxMultiballs = 5
 Const bpgcurrent = 3
 Dim pBackglass:pBackglass=2
-'Const BallReflections = 1			'1 - on; 0 - off
-'Const BallShadowOn = 1				'1 - on; 0 - off
 Const RollingSoundFactor = 1 		'Change volume of rolling sounds
 
 Const VR_ON = False
@@ -107,6 +105,7 @@ dim tableheight: tableheight = Table1.height
 	Dim bAutoPlunger
 	Dim bInstantInfo
 	Dim bromconfig
+	dim plungerIM
 	Dim bAttractMode
 	Dim LastSwitchHit
 	Dim BallsOnPlayfield
@@ -173,18 +172,26 @@ dim tableheight: tableheight = Table1.height
 		kickerCaptiveBall1.kick 0,0
 		kickerCaptiveBall2.CreateSizedballWithMass Ballsize/2, BallMass
 		kickerCaptiveBall2.kick 0,0
-		'StartGame()
+		Const IMPowerSetting = 50 ' Plunger Power (45)
+		Const IMTime = 1.1        ' Time in seconds for Full Plunge
+		Set plungerIM = New cvpmImpulseP
+		With plungerIM
+			.InitImpulseP swplunger, IMPowerSetting, IMTime
+			.Random 1.5
+			.InitExitSnd SoundFX("fx_kicker", DOFContactors), SoundFX("fx_solenoid", DOFContactors)
+			.CreateEvents "plungerIM"
+		End With
 	End Sub
 
 	Sub Table1_Exit()
 		
-		If usePUP=False Then
+		'If usePUP=False Then
 			If Not FlexDMD is Nothing Then
 				FlexDMD.Show = False
 				FlexDMD.Run = False
 				FlexDMD = NULL
 			End If
-		End If
+		'End If
 	End Sub
 
 ' End Region
@@ -210,7 +217,7 @@ Dim LStep, RStep
 
 Sub LeftSlingShot_Slingshot
     PlaySoundAt SoundFX("fx_slingshot", DOFContactors), Lemk
-    myDof.DOF 101, DOFPulse
+    DOF 201, DOFPulse
     LeftSling4.Visible = 1
     Lemk.RotX = 26
     LStep = 0
@@ -228,7 +235,7 @@ End Sub
 
 Sub RightSlingShot_Slingshot
     PlaySoundAt SoundFX("fx_slingshot", DOFContactors), Remk
-    myDof.DOF 102, DOFPulse
+    DOF 202, DOFPulse
     RightSling4.Visible = 1
     Remk.RotX = 26
     RStep = 0
@@ -263,19 +270,7 @@ End Sub
 	
 
 
-	Sub exitvukEmpire
 
-		vukEmpire.Kick 0, 100, 1.36
-
-	End Sub	
-
-	Sub vukEmpire_Hit()
-
-		Dim waittime
-		waittime = 400
-		vpmTimer.addtimer waittime, "exitvukEmpire '"
-
-	End Sub
 
     Sub empireLockKicker_Hit()
         Dim waittime

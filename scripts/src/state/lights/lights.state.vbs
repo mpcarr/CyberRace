@@ -12,9 +12,7 @@ Function InitLightsState()
     lights.Add "lightOn", InitLightOn()
     lights.Add "lightFlash", InitLightFlash()
 
-    lights.Add "activeCommanderIdx", 0
-    lights.Add "activeCommanderCol", 0
-    lights.Add "activeCommanders", CreateObject("Scripting.Dictionary")
+    lights.Add "GIColor", c_normal
     lights.Add "activeResearch", CreateObject("Scripting.Dictionary")
 
     lights.Add "changedLamps", CreateObject("Scripting.Dictionary")

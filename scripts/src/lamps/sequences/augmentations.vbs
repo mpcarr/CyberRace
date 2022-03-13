@@ -1,48 +1,48 @@
 
 Dim lsAug1: Set lsAug1 = New LightChangeItem
-lsAug1.Init 0,1,100,"pal_blue"
+lsAug1.Init 0,1,180,"pal_blue"
 Dim lsAug1Off: Set lsAug1Off = New LightChangeItem
-lsAug1Off.Init 0,0,100,"pal_blue"
+lsAug1Off.Init 0,0,180,"pal_blue"
 
 Dim lsAug2: Set lsAug2 = New LightChangeItem
-lsAug2.Init 3,1,100,"pal_blue"
+lsAug2.Init 3,1,180,"pal_blue"
 Dim lsAug2Off: Set lsAug2Off = New LightChangeItem
-lsAug2Off.Init 3,0,100,"pal_blue"
+lsAug2Off.Init 3,0,180,"pal_blue"
 
 Dim lsAug3: Set lsAug3 = New LightChangeItem
-lsAug3.Init 6,1,100,"pal_blue"
+lsAug3.Init 6,1,180,"pal_blue"
 Dim lsAug3Off: Set lsAug3Off = New LightChangeItem
-lsAug3Off.Init 6,0,100,"pal_blue"
+lsAug3Off.Init 6,0,180,"pal_blue"
 
 Dim lsAug4: Set lsAug4 = New LightChangeItem
-lsAug4.Init 1,4,100,"pal_blue"
+lsAug4.Init 1,4,180,"pal_blue"
 Dim lsAug4Off: Set lsAug4Off = New LightChangeItem
-lsAug4Off.Init 1,0,100,"pal_blue"
+lsAug4Off.Init 1,0,180,"pal_blue"
 
 Dim lsAug5: Set lsAug5 = New LightChangeItem
-lsAug5.Init 4,1,100,"pal_blue"
+lsAug5.Init 4,1,180,"pal_blue"
 Dim lsAug5Off: Set lsAug5Off = New LightChangeItem
-lsAug5Off.Init 4,0,100,"pal_blue"
+lsAug5Off.Init 4,0,180,"pal_blue"
 
 Dim lsAug6: Set lsAug6 = New LightChangeItem
-lsAug6.Init 7,1,100,"pal_blue"
+lsAug6.Init 7,1,180,"pal_blue"
 Dim lsAug6Off: Set lsAug6Off = New LightChangeItem
-lsAug6Off.Init 7,0,100,"pal_blue"
+lsAug6Off.Init 7,0,180,"pal_blue"
 
 Dim lsAug7: Set lsAug7 = New LightChangeItem
-lsAug7.Init 2,4,100,"pal_blue"
+lsAug7.Init 2,4,180,"pal_blue"
 Dim lsAug7Off: Set lsAug7Off = New LightChangeItem
-lsAug7Off.Init 2,0,100,"pal_blue"
+lsAug7Off.Init 2,0,180,"pal_blue"
 
 Dim lsAug8: Set lsAug8 = New LightChangeItem
-lsAug8.Init 5,1,100,"pal_blue"
+lsAug8.Init 5,1,180,"pal_blue"
 Dim lsAug8Off: Set lsAug8Off = New LightChangeItem
-lsAug8Off.Init 5,0,100,"pal_blue"
+lsAug8Off.Init 5,0,180,"pal_blue"
 
 Dim lsAug9: Set lsAug9 = New LightChangeItem
-lsAug9.Init 8,1,100,"pal_blue"
+lsAug9.Init 8,1,180,"pal_blue"
 Dim lsAug9Off: Set lsAug9Off = New LightChangeItem
-lsAug9Off.Init 8,0,100,"pal_blue"
+lsAug9Off.Init 8,0,180,"pal_blue"
 
 
 'Dim lSeqAugmentationFlicker: Set lSeqAugmentationFlicker=CreateObject("Scripting.Dictionary")

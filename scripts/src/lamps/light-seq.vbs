@@ -78,13 +78,13 @@ Class LightSeq
                                                 For Each xx in x
                                                         'DebugOut("Resetting IDX: " & xx.Idx)
                                                         Lampz.state(xx.Idx) = 0
-                                                        Lampz.image(xx.Idx) = "pal_purple"
+                                                        Lampz.image(xx.Idx) = xx.BaseImage
                                                         xx.Image = xx.BaseImage
                                                 Next
                                         Else
                                                 'DebugOut("Resetting IDX: " & x.Idx)
                                                 Lampz.state(x.Idx) = 0
-                                                Lampz.image(x.Idx) = "pal_purple"
+                                                Lampz.image(x.Idx) = x.BaseImage
                                                 x.Image = x.BaseImage
                                         End If
                                 Next

@@ -818,7 +818,7 @@ End Sub
 'Dim audioBGTracks: Set gameLogic=CreateObject("Scripting.Dictionary")
 
 Dim audioTracks, currentTrack, trackCount
-audioTracks = Array(Array("500", "White Bat Audio - Glitch in Reality", "195600"), Array("501", "Rob Avery - Untitled", "67200"), Array("508", "WBA - Race Against Sunset", "206400"),Array("509", "WBA - Existence", "212400"))
+audioTracks = Array(Array("500", "White Bat Audio - Glitch in Reality", "195600", "601"), Array("501", "Rob Avery - Untitled", "67200", "602"), Array("508", "WBA - Race Against Sunset", "206400", "603"),Array("509", "WBA - Existence", "212400", "604"))
 currentTrack = RndNum(0,UBound(audioTracks))
 trackCount = 0
 'audioBGTracks.Add "E500", "White Bat Audio - Glitch in Reality"
@@ -866,11 +866,10 @@ Sub PlayBGAudioNext()
 End Sub
 
 Sub StopBGAudio
-
-    pupevent 601
-    pupevent 602
-    pupevent 603
-    pupevent 604
+    dim track
+    for each track in audioTracks
+        pupevent track(3)
+    next
     currentTrack = -1
 
 End sub

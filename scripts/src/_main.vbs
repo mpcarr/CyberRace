@@ -256,12 +256,7 @@ End Sub
 
 'Region Kickers
 
-	Sub exitEmpireLockkicker
-		'MsgBox("exit")
-		empireLockKicker.Kick 50, 15
-		'PlaySoundAt SoundFXDOF("fx_kicker", 200, DOFPulse, DOFContactors), kicker1   
-		'PlaySound "zing"
-	End Sub
+
 
     Sub exitAlliedMCVKickerOut
         alliedMCVKickerOut.CreateSizedball BallSize / 2
@@ -272,11 +267,7 @@ End Sub
 
 
 
-    Sub empireLockKicker_Hit()
-        Dim waittime
-        waittime = 500
-        vpmTimer.addtimer waittime, "exitEmpireLockkicker '"
-	End Sub
+
 
     Sub kickerLeftRampDrain_Hit()
         kickerLeftRampDrain.DestroyBall

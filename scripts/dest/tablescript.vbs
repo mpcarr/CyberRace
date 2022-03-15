@@ -256,12 +256,7 @@ End Sub
 
 'Region Kickers
 
-	Sub exitEmpireLockkicker
-		'MsgBox("exit")
-		empireLockKicker.Kick 50, 15
-		'PlaySoundAt SoundFXDOF("fx_kicker", 200, DOFPulse, DOFContactors), kicker1   
-		'PlaySound "zing"
-	End Sub
+
 
     Sub exitAlliedMCVKickerOut
         alliedMCVKickerOut.CreateSizedball BallSize / 2
@@ -272,11 +267,7 @@ End Sub
 
 
 
-    Sub empireLockKicker_Hit()
-        Dim waittime
-        waittime = 500
-        vpmTimer.addtimer waittime, "exitEmpireLockkicker '"
-	End Sub
+
 
     Sub kickerLeftRampDrain_Hit()
         kickerLeftRampDrain.DestroyBall
@@ -3885,12 +3876,16 @@ End Function
 
 Sub LightOn(light)
 
+	If gameState("lights")("lightOn").Exists(light.Idx) Then 
+		Exit Sub
+	End If
+	
 	StopLightBlink(light)
 
 	light.State = 1
-	If Not gameState("lights")("lightOn").Exists(light.Idx) Then 
-		gameState("lights")("lightOn").Add light.Idx, light
-	End If
+	'If Not gameState("lights")("lightOn").Exists(light.Idx) Then 
+	gameState("lights")("lightOn").Add light.Idx, light
+	'End If
 	
 End Sub
 
@@ -3931,7 +3926,8 @@ Sub StopLightBlink(light)
 	Lampz.State(light.Idx) = 0
 	light.State = 1
 	light.ResetFrames()
-	If gameState("lights")("lightBlinks").Exists(light.Idx) Then	
+
+	If gameState("lights")("lightBlinks").Exists(light.Idx) Then
 		gameState("lights")("lightBlinks").Remove light.Idx
 	End If
 
@@ -8185,6 +8181,15 @@ Sub exitsw_hyperJump
     StopSound("fx-allied-flasher")
     PlaySoundAt "fx-allied-flasher", Flasherbase2
     sw_hyperJump.Kick 0, 60, 1.36
+End Sub
+Sub raceVuk_Hit()
+    Dim waittime
+    waittime = 500
+    vpmTimer.addtimer waittime, "exitRaceVuk '"
+End Sub
+
+Sub exitraceVuk
+    raceVuk.Kick 5, 15
 End Sub
 Sub timerRampDiverter_Timer()
 	DiverterP002.RotZ=DiverterP002.RotZ+DiverterDir

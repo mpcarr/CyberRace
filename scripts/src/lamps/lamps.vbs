@@ -901,12 +901,16 @@ End Function
 
 Sub LightOn(light)
 
+	If gameState("lights")("lightOn").Exists(light.Idx) Then 
+		Exit Sub
+	End If
+	
 	StopLightBlink(light)
 
 	light.State = 1
-	If Not gameState("lights")("lightOn").Exists(light.Idx) Then 
-		gameState("lights")("lightOn").Add light.Idx, light
-	End If
+	'If Not gameState("lights")("lightOn").Exists(light.Idx) Then 
+	gameState("lights")("lightOn").Add light.Idx, light
+	'End If
 	
 End Sub
 
@@ -947,7 +951,8 @@ Sub StopLightBlink(light)
 	Lampz.State(light.Idx) = 0
 	light.State = 1
 	light.ResetFrames()
-	If gameState("lights")("lightBlinks").Exists(light.Idx) Then	
+
+	If gameState("lights")("lightBlinks").Exists(light.Idx) Then
 		gameState("lights")("lightBlinks").Remove light.Idx
 	End If
 

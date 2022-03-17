@@ -10,7 +10,6 @@ Sub StartGame()
     Set gameState = CreateObject("Scripting.Dictionary")
     Set materials=CreateObject("Scripting.Dictionary")
 
-
     Set laneLights = InitLaneLightsState
     Set lights = InitLightsState
 	Set switches = InitSwitchesState
@@ -59,6 +58,8 @@ Sub StartGame()
 	StartLightSeq(lSeqRightDrain)
 
 	DebugScore = "0"
+
+	LockPin.IsDropped = False
 
 	DISPATCH LIGHTS_RESEARCH_RESET, null
 	DISPATCH GAME_START_OF_BALL, null

@@ -67,15 +67,18 @@ End Sub
 Sub vpmTimerGameEndOfBallStage2()
 
   If gameState("game")("playerBall") = 3 Then
-    'END GAME
-    gameStarted = false
+    DISPATCH GAME_END, Null
   Else
     gameState("game")("playerBall") = gameState("game")("playerBall") + 1
     DISPATCH GAME_START_OF_BALL, Null
   End If
 End Sub
 
-
+Sub GameEnd
+  'END GAME
+  gameStarted = false
+  LockPin.IsDropped = True
+End Sub
 
 Sub GameRotateSkillshotAntiClockwise()
 

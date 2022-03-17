@@ -9,6 +9,10 @@ End Sub
 
 Sub drain_Hit()
     drain.DestroyBall
+
+    If gameStarted = false Then
+        Exit Sub
+    End If
     dim bip: bip = UBound(GetBalls) - gameState("game")("ballsLocked") - 1 'actual balls in play (minus captive)
     'Debug.print UBound(GetBalls)
     If gameState("game")("ballSave") = True Then

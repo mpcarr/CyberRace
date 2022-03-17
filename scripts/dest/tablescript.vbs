@@ -2618,7 +2618,6 @@ Sub StartGame()
     Set gameState = CreateObject("Scripting.Dictionary")
     Set materials=CreateObject("Scripting.Dictionary")
 
-
     Set laneLights = InitLaneLightsState
     Set lights = InitLightsState
 	Set switches = InitSwitchesState
@@ -2667,6 +2666,8 @@ Sub StartGame()
 	StartLightSeq(lSeqRightDrain)
 
 	DebugScore = "0"
+
+	LockPin.IsDropped = False
 
 	DISPATCH LIGHTS_RESEARCH_RESET, null
 	DISPATCH GAME_START_OF_BALL, null
@@ -5701,6 +5702,8 @@ Sub Dispatch(action, options)
             GameMultiballJackpot
         Case GAME_AWARD_PERKSHOT
             GameAwardPerkShot
+        Case GAME_END
+            GameEnd
         Case Else
             MsgBox("Action Unknown")
     End Select
@@ -5727,6 +5730,7 @@ Const GAME_MODE_COLLECT_AUGMENTATION = "Game Mode Collect Augmentation"
 
 Const GAME_START_OF_BALL = "Game Start of Ball"
 Const GAME_END_OF_BALL = "Game End of Ball"
+Const GAME_END = "Game End"
 
 Const GAME_ROTATE_SKILLSHOT_CLOCKWISE = "Game Rotate Skillshot Clockwise"
 Const GAME_ROTATE_SKILLSHOT_ANTI_CLOCKWISE = "Game Rotate Skillshot Anti Clockwise"
@@ -5814,15 +5818,18 @@ End Sub
 Sub vpmTimerGameEndOfBallStage2()
 
   If gameState("game")("playerBall") = 3 Then
-    'END GAME
-    gameStarted = false
+    DISPATCH GAME_END, Null
   Else
     gameState("game")("playerBall") = gameState("game")("playerBall") + 1
     DISPATCH GAME_START_OF_BALL, Null
   End If
 End Sub
 
-
+Sub GameEnd
+  'END GAME
+  gameStarted = false
+  LockPin.IsDropped = True
+End Sub
 
 Sub GameRotateSkillshotAntiClockwise()
 
@@ -7952,6 +7959,10 @@ End Sub
 
 Sub drain_Hit()
     drain.DestroyBall
+
+    If gameStarted = false Then
+        Exit Sub
+    End If
     dim bip: bip = UBound(GetBalls) - gameState("game")("ballsLocked") - 1 'actual balls in play (minus captive)
     'Debug.print UBound(GetBalls)
     If gameState("game")("ballSave") = True Then
@@ -8189,7 +8200,7 @@ Sub raceVuk_Hit()
 End Sub
 
 Sub exitraceVuk
-    raceVuk.Kick 5, 15
+    raceVuk.Kick 58, 10
 End Sub
 Sub timerRampDiverter_Timer()
 	DiverterP002.RotZ=DiverterP002.RotZ+DiverterDir

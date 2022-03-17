@@ -147,6 +147,8 @@ Sub Dispatch(action, options)
             GameMultiballJackpot
         Case GAME_AWARD_PERKSHOT
             GameAwardPerkShot
+        Case GAME_END
+            GameEnd
         Case Else
             MsgBox("Action Unknown")
     End Select

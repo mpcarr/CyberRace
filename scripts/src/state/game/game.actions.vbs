@@ -16,6 +16,7 @@ Const GAME_MODE_COLLECT_AUGMENTATION = "Game Mode Collect Augmentation"
 
 Const GAME_START_OF_BALL = "Game Start of Ball"
 Const GAME_END_OF_BALL = "Game End of Ball"
+Const GAME_END = "Game End"
 
 Const GAME_ROTATE_SKILLSHOT_CLOCKWISE = "Game Rotate Skillshot Clockwise"
 Const GAME_ROTATE_SKILLSHOT_ANTI_CLOCKWISE = "Game Rotate Skillshot Anti Clockwise"

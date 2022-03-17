@@ -5,5 +5,5 @@ Sub raceVuk_Hit()
 End Sub
 
 Sub exitraceVuk
-    raceVuk.Kick 5, 15
+    raceVuk.Kick 58, 10
 End Sub

@@ -22,7 +22,15 @@ Function InitGameLogicState()
     gameLogic.Add "targetShots", targetShots
     gameLogic.Add "perkShot", ""
     gameLogic.Add "perkShotActive", false
-    gameLogic.Add "augmentationResearchStage", 0
+    gameLogic.Add "augmentationResearch0Stage", 0
+    gameLogic.Add "augmentationResearch1Stage", 0
+    gameLogic.Add "augmentationResearch2Stage", 0
+    gameLogic.Add "augmentationResearch3Stage", 0
+    gameLogic.Add "augmentationResearch4Stage", 0
+    gameLogic.Add "augmentationResearch5Stage", 0
+    gameLogic.Add "augmentationResearch6Stage", 0
+    gameLogic.Add "augmentationResearch7Stage", 0
+    gameLogic.Add "augmentationResearch8Stage", 0
     gameLogic.Add "augTigerLvl", 0
     gameLogic.Add "augBatLvl", 0
     gameLogic.Add "augBullLvl", 0

@@ -123,7 +123,7 @@ Sub GameStartAugmentationResearch()
   
   gameState("game")("modes")(GAME_MODE_NORMAL) = False
   gameState("game")("modes")(GAME_MODE_AUGMENTATION_RESEARCH) = True
-  gameState("game")("augmentationResearchStage") = 0
+  'gameState("game")("augmentationResearch"&gameState("game")("augmentationActive")&"Stage") = 0
   gameState("game")("augmentationReady") = False
   TurnOffFluxFlasher(1)
   TurnOffFluxFlasher(2)
@@ -159,7 +159,7 @@ Sub GameStartAugmentationResearch()
 End Sub
 
 Sub vpmTimerGameStartAugmentationResearchStage2
-    pupevent 600 'main  - bg
+    pupevent 600 'main bg
     pupevent 504 'music - hackers
     DISPATCH GAME_SHOW_LABELS, null
     DISPATCH GAME_LOCK_AUGMENTATIONS, null
@@ -168,7 +168,7 @@ Sub vpmTimerGameStartAugmentationResearchStage2
     LightBlink(lsResearch2)
     LightBlink(lsResearch3)
     'Setup Shots
-    GameModeAugmentationSetShot(gameState("game")("augmentationActive"))
+    SetAugmentationResearchShots()
     lsSpeeder.Image="pal_purple"
     LightOn(lsSpeeder)
     DISPATCH GAME_ENABLE_BALL_SAVE, Null
@@ -203,6 +203,16 @@ Sub GameLockAugmentations()
 End Sub
 
 Sub vpmTimerGameAugmentationHeldCountdown
+
+  If gameState("game")("modes")(GAME_MODE_NORMAL) = False Then
+    LightOff(lsAugSign1)
+    LightOff(lsAugSign2)
+    LightOff(lsAugSign3)
+    LightOff(lsAugSign4)
+    LightOff(lsAugSign5)
+    Exit Sub
+  End If
+
   Dim x: x = gameState("game")("augmentationHoldCountdown")
   If gameState("game")("augmentationHold") = 2 Then
     If x > 1 Then
@@ -342,8 +352,15 @@ Sub GameModeAdvanceAugmentation()
 
   gameState("game")("targetShots").RemoveAll()
 
-  gameState("game")("augmentationResearchStage") = gameState("game")("augmentationResearchStage") + 1
-  Select Case gameState("game")("augmentationResearchStage")
+  gameState("game")("augmentationResearch"&gameState("game")("augmentationActive")&"Stage") = gameState("game")("augmentationResearch"&gameState("game")("augmentationActive")&"Stage") + 1
+  SetAugmentationResearchShots()
+End Sub
+
+Sub SetAugmentationResearchShots()
+
+  Select Case gameState("game")("augmentationResearch"&gameState("game")("augmentationActive")&"Stage")
+    Case 0:
+      GameModeAugmentationSetShot(gameState("game")("augmentationActive"))
     Case 1:
       Dim s1: s1 = RndNum(0,8)
       Do While s1=gameState("game")("augmentationActive")
@@ -370,6 +387,7 @@ Sub GameModeAdvanceAugmentation()
 End Sub
 
 Sub GameModeFinishAugmentation()
+  gameState("game")("augmentationResearch"&gameState("game")("augmentationActive")&"Stage") = 0
   lSeqRightRamp.RemoveItem(lSeqRightRampCollectShot)
   StopLightBlink(lSeqFinish)
   RPin.IsDropped = 0

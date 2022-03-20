@@ -995,6 +995,13 @@ Sub StartLightSeq(seq)
 	End If
 End Sub
 
+Function IsLightOn(light)
+	If gameState("lights")("lightBlinks").Exists(light.Idx) Or gameState("lights")("lightOn").Exists(light.Idx) Then 
+		IsLightOn = True
+	Else
+		IsLightOn = False
+	End If
+End Function
 
 
 

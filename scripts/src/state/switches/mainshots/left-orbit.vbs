@@ -42,6 +42,8 @@ Sub SwitchHitLeftOrbit()
                 DISPATCH GAME_MULTIBALL_JACKPOT, null
             End If
         End If
+
+        DISPATCH GAME_COMBO, lsCombo1
         
     Else
         gameState("switches")("leftOrbit") = 1

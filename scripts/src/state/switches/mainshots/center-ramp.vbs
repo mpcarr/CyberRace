@@ -27,4 +27,6 @@ Sub SwitchHitCenterRamp()
             DISPATCH GAME_MULTIBALL_JACKPOT, null
         End If
     End If
+
+    DISPATCH GAME_COMBO, lsCombo3
 End Sub

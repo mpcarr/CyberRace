@@ -49,6 +49,7 @@ Sub pUpdateScores  'call this ONLY on timer 300ms is good enough
 			'Debug.print("Updating Scores")
 			If gameState("game")("hideScore") = False Then
 				puPlayer.LabelSet pBackglass,"CurScore1", FormatScore(DebugScore)	 ,1,ScoreTag(0)
+				PuPlayer.LabelSet pBackglass, "lblCombosMade",  gameState("game")("combosMade").Count & " / " & GameCombos.Count,                        1,  "{}"
 			End If
 		'	End if
 		'case 2:

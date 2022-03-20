@@ -120,7 +120,9 @@ Sub Dispatch(action, options)
         Case GAME_MODE_ADVANCE_AUGMENTATION:
             GameModeAdvanceAugmentation
         Case GAME_MODE_FINISH_AUGMENTATION:
-            GameModeFinishAugmentation            
+            GameModeFinishAugmentation       
+        Case GAME_COMBO
+            GameCombo options
         Case GAME_MODE_COLLECT_AUGMENTATION:
             GameModeCollectAugmentation
         Case GAME_ROTATE_SKILLSHOT_ANTI_CLOCKWISE:

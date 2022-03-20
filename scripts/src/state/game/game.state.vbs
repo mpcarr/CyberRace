@@ -43,6 +43,11 @@ Function InitGameLogicState()
     gameLogic.Add "ballsLocked", 0
     gameLogic.Add "outlaneDrain", False
     gameLogic.Add "ballsInPlay", 0
+    gameLogic.Add "combo", 0
+    gameLogic.Add "comboTime", 0
+    gameLogic.Add "currentCombo", ""
+    Dim combosMade: Set combosMade = CreateObject("Scripting.Dictionary")
+    gameLogic.Add "combosMade", combosMade
     Dim gameModes: Set gameModes=CreateObject("Scripting.Dictionary")
     gameModes.Add GAME_MODE_NORMAL, False
     gameModes.Add GAME_MODE_CHOOSE_SKILLSHOT, False
@@ -81,6 +86,8 @@ Const GAME_SHOT_RIGHT_ORBIT = "Game Shot Right Oribt"
 Const GAME_SHOT_SHORTCUT = "Game Shot Shortcut"
 
 Dim GameShots: GameShots = Array(GAME_SHOT_HYPER_JUMP, GAME_SHOT_LEFT_ORBIT,GAME_SHOT_LEFT_RAMP,GAME_SHOT_SPINNER,GAME_SHOT_BUMPERS,GAME_SHOT_CENTER_RAMP,GAME_SHOT_RIGHT_RAMP,GAME_SHOT_RIGHT_ORBIT,GAME_SHOT_SHORTCUT)
+Dim GameCombos: Set GameCombos = CreateObject("Scripting.Dictionary")
+GameCombos.Add "116118", "Left Ramp Right Ramp"
 
 Const GAME_MODE_NORMAL = "Game Mode Normal"
 Const GAME_MODE_CHOOSE_SKILLSHOT = "Game Mode Choose Skillshot"
@@ -91,9 +98,9 @@ Const GAME_MODE_MULTIBALL = "Game Mode Multiball"
 'Base Points
 Const GAME_POINTS_BASE = 10000
 Const GAME_POINTS_JACKPOT = 250000
-Const GAME_POINTS_BUMPERS = 1000
-Const GAME_POINTS_SPINNER = 1000
-Const GAME_POINTS_COMBO = 50000
+Const GAME_POINTS_BUMPERS = 2000
+Const GAME_POINTS_SPINNER = 2000
+Const GAME_POINTS_COMBO = 75000
 Const GAME_POINTS_RESEARCH_NODE = 10000
 
 '***********************************************************************************************************************

@@ -887,7 +887,8 @@ Sub InitPupLabels
     PuPlayer.LabelNew   pBackglass, "lblResearchNode",      sendhaFont,	3,              RGB(18, 155, 143),  0,  0,    0,    85,     35,         1,          1
     PuPlayer.LabelNew   pBackglass, "lblLocks",             sendhaFont,	3,              RGB(18, 155, 143),  0,  0,    0,    85,     45,         1,          1
     PuPlayer.LabelNew   pBackglass, "lblSpeeder",           sendhaFont,	3,              RGB(18, 155, 143),  0,  0,    0,    85,     55,         1,          1
-    PuPlayer.LabelNew   pBackglass, "lblCombos",           sendhaFont,	3,              RGB(18, 155, 143),  0,  0,    0,    85,     65,         1,          1
+    PuPlayer.LabelNew   pBackglass, "lblCombos",            sendhaFont,	3,              RGB(18, 155, 143),  0,  0,    0,    85,     65,         1,          1
+    PuPlayer.LabelNew   pBackglass, "lblCombosMade",        sendhaFont,	4,              RGB(18, 155, 143),  0,  0,    0,    85,     70,         1,          1
 
     'PuPlayer.LabelNew   pBackglass, "lblE",                 sendhaFont,	6,              RGB(0, 0, 0)	,  0,  0,    0,    0,      0,          1,          1
     'PuPlayer.LabelNew   pBackglass, "lblS",                 sendhaFont,	6,              RGB(0, 0, 0)	,  0,  0,    0,    0,      0,          1,          1
@@ -907,6 +908,7 @@ Sub InitPupLabels
     PuPlayer.LabelSet   pBackglass, "lblLocks",      "Locks",                        1,  "{}"
     PuPlayer.LabelSet   pBackglass, "lblSpeeder",      "Speeder Parts",                        1,  "{}"
     PuPlayer.LabelSet   pBackglass, "lblCombos",      "Combos",                        1,  "{}"
+    PuPlayer.LabelSet   pBackglass, "lblCombosMade",      "0",                        1,  "{}"
     
 End Sub
 '***********************************************************************************************************************
@@ -960,6 +962,7 @@ Sub pUpdateScores  'call this ONLY on timer 300ms is good enough
 			'Debug.print("Updating Scores")
 			If gameState("game")("hideScore") = False Then
 				puPlayer.LabelSet pBackglass,"CurScore1", FormatScore(DebugScore)	 ,1,ScoreTag(0)
+				PuPlayer.LabelSet pBackglass, "lblCombosMade",  gameState("game")("combosMade").Count & " / " & GameCombos.Count,                        1,  "{}"
 			End If
 		'	End if
 		'case 2:
@@ -3971,6 +3974,13 @@ Sub StartLightSeq(seq)
 	End If
 End Sub
 
+Function IsLightOn(light)
+	If gameState("lights")("lightBlinks").Exists(light.Idx) Or gameState("lights")("lightOn").Exists(light.Idx) Then 
+		IsLightOn = True
+	Else
+		IsLightOn = False
+	End If
+End Function
 
 
 
@@ -4531,29 +4541,29 @@ Dim lSeqCenterRamp: Set lSeqCenterRamp = new LightSeq
 lSeqCenterRamp.Name = "lSeqCenterRamp"
 lSeqCenterRamp.Repeat = 1
 Dim lsCombo1: Set lsCombo1 = New LightChangeItem
-lsCombo1.Init 115,1,20,"pal_purple"
+lsCombo1.Init 115,1,100,"pal_purple"
 Dim lsCombo1Off: Set lsCombo1Off = New LightChangeItem
-lsCombo1Off.Init 115,0,20,"pal_purple"
+lsCombo1Off.Init 115,0,100,"pal_purple"
 
 Dim lsCombo2: Set lsCombo2 = New LightChangeItem
-lsCombo2.Init 116,1,20,"pal_purple"
+lsCombo2.Init 116,1,100,"pal_purple"
 Dim lsCombo2Off: Set lsCombo2Off = New LightChangeItem
-lsCombo2Off.Init 116,0,20,"pal_purple"
+lsCombo2Off.Init 116,0,100,"pal_purple"
 
 Dim lsCombo3: Set lsCombo3 = New LightChangeItem
-lsCombo3.Init 117,1,20,"pal_purple"
+lsCombo3.Init 117,1,100,"pal_purple"
 Dim lsCombo3Off: Set lsCombo3Off = New LightChangeItem
-lsCombo3Off.Init 117,0,20,"pal_purple"
+lsCombo3Off.Init 117,0,100,"pal_purple"
 
 Dim lsCombo4: Set lsCombo4 = New LightChangeItem
-lsCombo4.Init 118,1,20,"pal_purple"
+lsCombo4.Init 118,1,100,"pal_purple"
 Dim lsCombo4Off: Set lsCombo4Off = New LightChangeItem
-lsCombo4Off.Init 118,0,20,"pal_purple"
+lsCombo4Off.Init 118,0,100,"pal_purple"
 
 Dim lsCombo5: Set lsCombo5 = New LightChangeItem
-lsCombo5.Init 119,1,20,"pal_purple"
+lsCombo5.Init 119,1,100,"pal_purple"
 Dim lsCombo5Off: Set lsCombo5Off = New LightChangeItem
-lsCombo5Off.Init 119,0,20,"pal_purple"
+lsCombo5Off.Init 119,0,100,"pal_purple"
 
 Dim lsCyber1: Set lsCyber1 = New LightChangeItem
 lsCyber1.Init 110,1,20,"pal_green"
@@ -5675,7 +5685,9 @@ Sub Dispatch(action, options)
         Case GAME_MODE_ADVANCE_AUGMENTATION:
             GameModeAdvanceAugmentation
         Case GAME_MODE_FINISH_AUGMENTATION:
-            GameModeFinishAugmentation            
+            GameModeFinishAugmentation       
+        Case GAME_COMBO
+            GameCombo options
         Case GAME_MODE_COLLECT_AUGMENTATION:
             GameModeCollectAugmentation
         Case GAME_ROTATE_SKILLSHOT_ANTI_CLOCKWISE:
@@ -5727,6 +5739,7 @@ Const GAME_HIDE_LABELS = "Game Hide Labels"
 Const GAME_MODE_ADVANCE_AUGMENTATION = "Game Mode Advance Augmentation"
 Const GAME_MODE_FINISH_AUGMENTATION = "Game Mode Finish Augmentation"
 Const GAME_MODE_COLLECT_AUGMENTATION = "Game Mode Collect Augmentation"
+Const GAME_COMBO = "Game Combo"
 
 Const GAME_START_OF_BALL = "Game Start of Ball"
 Const GAME_END_OF_BALL = "Game End of Ball"
@@ -6021,6 +6034,7 @@ Sub GameHideLabels()
   PuPlayer.LabelSet   pBackglass, "lblLocks",      "",   1,  "{}"
   PuPlayer.LabelSet   pBackglass, "lblSpeeder",      "",   1,  "{}"
   PuPlayer.LabelSet   pBackglass, "lblCombos",      "",   1,  "{}"
+  PuPlayer.LabelSet   pBackglass, "lblCombosMade",      "",   1,  "{}"
 End Sub
 
 Sub GameShowLabels()
@@ -6036,6 +6050,7 @@ Sub GameShowLabels()
   PuPlayer.LabelSet   pBackglass, "lblLocks",      "Locks",                        1,  "{}"
   PuPlayer.LabelSet   pBackglass, "lblSpeeder",      "Speeder Parts",                        1,  "{}"
   PuPlayer.LabelSet   pBackglass, "lblCombos",      "Combos",                        1,  "{}"
+  PuPlayer.LabelSet   pBackglass, "lblCombosMade",  gameState("game")("combosMade").Count & " / " & GameCombos.Count,                        1,  "{}"
 
 End Sub
 
@@ -6506,6 +6521,47 @@ Sub GameAddScore(score)
 
 End Sub
 
+Sub GameCombo(combo)
+
+  If IsLightOn(combo) Or gameState("game")("combo") = 0 Then
+    gameState("game")("combo") = gameState("game")("combo") + 1
+    gameState("game")("comboTime") = GameTime
+    If gameState("game")("combo") = 1 Then
+      LightBlink(lsCombo1)
+      LightBlink(lsCombo2)
+      LightBlink(lsCombo3)
+      LightBlink(lsCombo4)
+      LightBlink(lsCombo5)
+    Else
+      GameAddScore GAME_POINTS_COMBO * gameState("game")("combo")
+    End If
+    LightOff(combo)
+    comboTimer.Enabled = True
+    gameState("game")("currentCombo") = gameState("game")("currentCombo") & CStr(combo.Idx)
+    Debug.print gameState("game")("currentCombo")
+    If GameCombos.Exists(gameState("game")("currentCombo")) Then
+      Debug.print "add combo"
+      gameState("game")("combosMade").Add gameState("game")("currentCombo"), GameCombos(gameState("game")("currentCombo"))
+    End If
+  End If
+  
+End Sub
+
+Sub comboTimer_Timer
+
+  If GameTime - gameState("game")("comboTime") > 6000 Then
+    comboTimer.Enabled = False
+    LightOff(lsCombo1)
+    LightOff(lsCombo2)
+    LightOff(lsCombo3)
+    LightOff(lsCombo4)
+    LightOff(lsCombo5)
+    gameState("game")("combo") = 0
+    gameState("game")("currentCombo") = ""
+  End If
+
+End Sub
+
 'Sub vpmTimerDOFOff(DOFCode)
 '  Execute "DOF "&code&", DOFOff"
 'End Sub
@@ -6558,6 +6614,11 @@ Function InitGameLogicState()
     gameLogic.Add "ballsLocked", 0
     gameLogic.Add "outlaneDrain", False
     gameLogic.Add "ballsInPlay", 0
+    gameLogic.Add "combo", 0
+    gameLogic.Add "comboTime", 0
+    gameLogic.Add "currentCombo", ""
+    Dim combosMade: Set combosMade = CreateObject("Scripting.Dictionary")
+    gameLogic.Add "combosMade", combosMade
     Dim gameModes: Set gameModes=CreateObject("Scripting.Dictionary")
     gameModes.Add GAME_MODE_NORMAL, False
     gameModes.Add GAME_MODE_CHOOSE_SKILLSHOT, False
@@ -6596,6 +6657,8 @@ Const GAME_SHOT_RIGHT_ORBIT = "Game Shot Right Oribt"
 Const GAME_SHOT_SHORTCUT = "Game Shot Shortcut"
 
 Dim GameShots: GameShots = Array(GAME_SHOT_HYPER_JUMP, GAME_SHOT_LEFT_ORBIT,GAME_SHOT_LEFT_RAMP,GAME_SHOT_SPINNER,GAME_SHOT_BUMPERS,GAME_SHOT_CENTER_RAMP,GAME_SHOT_RIGHT_RAMP,GAME_SHOT_RIGHT_ORBIT,GAME_SHOT_SHORTCUT)
+Dim GameCombos: Set GameCombos = CreateObject("Scripting.Dictionary")
+GameCombos.Add "116118", "Left Ramp Right Ramp"
 
 Const GAME_MODE_NORMAL = "Game Mode Normal"
 Const GAME_MODE_CHOOSE_SKILLSHOT = "Game Mode Choose Skillshot"
@@ -6606,9 +6669,9 @@ Const GAME_MODE_MULTIBALL = "Game Mode Multiball"
 'Base Points
 Const GAME_POINTS_BASE = 10000
 Const GAME_POINTS_JACKPOT = 250000
-Const GAME_POINTS_BUMPERS = 1000
-Const GAME_POINTS_SPINNER = 1000
-Const GAME_POINTS_COMBO = 50000
+Const GAME_POINTS_BUMPERS = 2000
+Const GAME_POINTS_SPINNER = 2000
+Const GAME_POINTS_COMBO = 75000
 Const GAME_POINTS_RESEARCH_NODE = 10000
 
 '***********************************************************************************************************************
@@ -7180,6 +7243,8 @@ Sub SwitchHitCenterRamp()
             DISPATCH GAME_MULTIBALL_JACKPOT, null
         End If
     End If
+
+    DISPATCH GAME_COMBO, lsCombo3
 End Sub
 
 Sub SwitchHitHyperJump()
@@ -7248,6 +7313,8 @@ Sub SwitchHitLeftOrbit()
                 DISPATCH GAME_MULTIBALL_JACKPOT, null
             End If
         End If
+
+        DISPATCH GAME_COMBO, lsCombo1
         
     Else
         gameState("switches")("leftOrbit") = 1
@@ -7283,6 +7350,8 @@ Sub SwitchHitLeftRamp()
             DISPATCH GAME_MULTIBALL_JACKPOT, null
         End If
     End If
+
+    DISPATCH GAME_COMBO, lsCombo2
 End Sub
 Sub SwitchHitPreRightOrbit()
     If gameState("switches")("rightOrbit") = 1 Then
@@ -7327,6 +7396,8 @@ Sub SwitchHitRightOrbit()
                 DISPATCH GAME_MULTIBALL_JACKPOT, null
             End If
         End If
+
+        DISPATCH GAME_COMBO, lsCombo5
     Else
         gameState("switches")("rightOrbit") = 1
     End If
@@ -7364,6 +7435,8 @@ Sub SwitchHitRightRamp()
             DISPATCH GAME_MULTIBALL_JACKPOT, null
         End If
     End If
+
+    DISPATCH GAME_COMBO, lsCombo4
 End Sub
 
 Sub SwitchHitShortcut()

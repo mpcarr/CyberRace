@@ -21,7 +21,8 @@ Sub InitPupLabels
     PuPlayer.LabelNew   pBackglass, "lblResearchNode",      sendhaFont,	3,              RGB(18, 155, 143),  0,  0,    0,    85,     35,         1,          1
     PuPlayer.LabelNew   pBackglass, "lblLocks",             sendhaFont,	3,              RGB(18, 155, 143),  0,  0,    0,    85,     45,         1,          1
     PuPlayer.LabelNew   pBackglass, "lblSpeeder",           sendhaFont,	3,              RGB(18, 155, 143),  0,  0,    0,    85,     55,         1,          1
-    PuPlayer.LabelNew   pBackglass, "lblCombos",           sendhaFont,	3,              RGB(18, 155, 143),  0,  0,    0,    85,     65,         1,          1
+    PuPlayer.LabelNew   pBackglass, "lblCombos",            sendhaFont,	3,              RGB(18, 155, 143),  0,  0,    0,    85,     65,         1,          1
+    PuPlayer.LabelNew   pBackglass, "lblCombosMade",        sendhaFont,	4,              RGB(18, 155, 143),  0,  0,    0,    85,     70,         1,          1
 
     'PuPlayer.LabelNew   pBackglass, "lblE",                 sendhaFont,	6,              RGB(0, 0, 0)	,  0,  0,    0,    0,      0,          1,          1
     'PuPlayer.LabelNew   pBackglass, "lblS",                 sendhaFont,	6,              RGB(0, 0, 0)	,  0,  0,    0,    0,      0,          1,          1
@@ -41,5 +42,6 @@ Sub InitPupLabels
     PuPlayer.LabelSet   pBackglass, "lblLocks",      "Locks",                        1,  "{}"
     PuPlayer.LabelSet   pBackglass, "lblSpeeder",      "Speeder Parts",                        1,  "{}"
     PuPlayer.LabelSet   pBackglass, "lblCombos",      "Combos",                        1,  "{}"
+    PuPlayer.LabelSet   pBackglass, "lblCombosMade",      "0",                        1,  "{}"
     
 End Sub

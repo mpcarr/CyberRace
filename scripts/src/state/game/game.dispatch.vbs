@@ -270,6 +270,7 @@ Sub GameHideLabels()
   PuPlayer.LabelSet   pBackglass, "lblLocks",      "",   1,  "{}"
   PuPlayer.LabelSet   pBackglass, "lblSpeeder",      "",   1,  "{}"
   PuPlayer.LabelSet   pBackglass, "lblCombos",      "",   1,  "{}"
+  PuPlayer.LabelSet   pBackglass, "lblCombosMade",      "",   1,  "{}"
 End Sub
 
 Sub GameShowLabels()
@@ -285,6 +286,7 @@ Sub GameShowLabels()
   PuPlayer.LabelSet   pBackglass, "lblLocks",      "Locks",                        1,  "{}"
   PuPlayer.LabelSet   pBackglass, "lblSpeeder",      "Speeder Parts",                        1,  "{}"
   PuPlayer.LabelSet   pBackglass, "lblCombos",      "Combos",                        1,  "{}"
+  PuPlayer.LabelSet   pBackglass, "lblCombosMade",  gameState("game")("combosMade").Count & " / " & GameCombos.Count,                        1,  "{}"
 
 End Sub
 
@@ -752,6 +754,47 @@ Sub GameAddScore(score)
   'Apply any modifiers
 
   DebugScore = DebugScore + score
+
+End Sub
+
+Sub GameCombo(combo)
+
+  If IsLightOn(combo) Or gameState("game")("combo") = 0 Then
+    gameState("game")("combo") = gameState("game")("combo") + 1
+    gameState("game")("comboTime") = GameTime
+    If gameState("game")("combo") = 1 Then
+      LightBlink(lsCombo1)
+      LightBlink(lsCombo2)
+      LightBlink(lsCombo3)
+      LightBlink(lsCombo4)
+      LightBlink(lsCombo5)
+    Else
+      GameAddScore GAME_POINTS_COMBO * gameState("game")("combo")
+    End If
+    LightOff(combo)
+    comboTimer.Enabled = True
+    gameState("game")("currentCombo") = gameState("game")("currentCombo") & CStr(combo.Idx)
+    Debug.print gameState("game")("currentCombo")
+    If GameCombos.Exists(gameState("game")("currentCombo")) Then
+      Debug.print "add combo"
+      gameState("game")("combosMade").Add gameState("game")("currentCombo"), GameCombos(gameState("game")("currentCombo"))
+    End If
+  End If
+  
+End Sub
+
+Sub comboTimer_Timer
+
+  If GameTime - gameState("game")("comboTime") > 6000 Then
+    comboTimer.Enabled = False
+    LightOff(lsCombo1)
+    LightOff(lsCombo2)
+    LightOff(lsCombo3)
+    LightOff(lsCombo4)
+    LightOff(lsCombo5)
+    gameState("game")("combo") = 0
+    gameState("game")("currentCombo") = ""
+  End If
 
 End Sub
 

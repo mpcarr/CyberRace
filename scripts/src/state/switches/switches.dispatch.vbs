@@ -477,5 +477,27 @@ Sub vpmTimerCloseSecretUpgrade()
     diverterWall3Off.IsDropped = 0
     diverterWall3On.IsDropped = 1
 End Sub
+
+Sub SwitchHitBet
+    If IsLightOn(lsBet1) Then
+        If IsLightOn(lsBet2) Then
+            If IsLightOn(lsBet3) Then
+                LightOff(lsBet1)
+                LightOff(lsBet2)
+                LightOff(lsBet3)
+            Else
+                LightOn(lsBet3)
+            End If
+        Else
+            LightOn(lsBet2)
+        End If
+    Else
+        LightOn(lsBet1)
+    End If
+    gameState("game")("betHits") = gameState("game")("betHits") - 1
+    If gameState("game")("betHits") = 0 Then
+        'TODO Start Hurry Up
+    End If
+End Sub
 '***********************************************************************************************************************
 

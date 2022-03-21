@@ -516,7 +516,7 @@ Sub RemoveGameTargetShot(shot)
 End Sub
 
 Sub GameAwardSkillshot()
-
+  gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = False
   PlayGameCallout("skillshot")
   DOF 251, DOFOn
   SwitchSetAugmentation False, "pal_orange"
@@ -539,7 +539,7 @@ Sub vpmTimerAwardSkillshotDof2
 End Sub
 
 Sub vpmTimerAwardEarlyResearch()
-  gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = False
+  
   If gameState("lights")("activeResearch").Count < 3 Then
     gameState("lights")("activeResearch").RemoveAll()  
     gameState("lights")("activeResearch").Add "aug1", True

@@ -898,6 +898,13 @@ Function AppendArray(ByVal aArray, aInput)	'append one value, object, or Array o
 	End If
 End Function
 
+Function AppendLightSequenceArray(ByVal aArray, aInput)	'append one value, object, or Array onto the end of a 1 dimensional array
+		dim tmp : tmp = aArray
+		Redim Preserve tmp(uBound(aArray) +1)
+		tmp(uBound(aArray)+1) = aInput
+		AppendLightSequenceArray = tmp
+End Function
+
 
 Sub LightOn(light)
 

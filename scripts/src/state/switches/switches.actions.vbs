@@ -31,6 +31,7 @@ Const SWITCH_HIT_RIGHT_INLANE = "Switches Hit Right Inlane"
 Const SWITCH_HIT_RIGHT_OUTLANE = "Switches Hit Right Outlane"
 Const SWITCH_HIT_BALL_LOCK = "Switches Hit Ball Lock"
 Const SWITCH_HIT_SECRET_UPGRADE = "Switches Hit Secret Upgrade"
+Const SWITCH_HIT_BET = "Switches Hit Bet"
 
 
 '***********************************************************************************************************************

@@ -1,5 +1,5 @@
 '***********************************************************************************************************************
-'*****  RED ALERT PINBALL                                      	                                                    ****
+'*****  CYBERRACE PINBALL by Flux                                  	                                                ****
 '*****                                                                                                              ****
 '***********************************************************************************************************************
 
@@ -3877,6 +3877,13 @@ Function AppendArray(ByVal aArray, aInput)	'append one value, object, or Array o
 	End If
 End Function
 
+Function AppendLightSequenceArray(ByVal aArray, aInput)	'append one value, object, or Array onto the end of a 1 dimensional array
+		dim tmp : tmp = aArray
+		Redim Preserve tmp(uBound(aArray) +1)
+		tmp(uBound(aArray)+1) = aInput
+		AppendLightSequenceArray = tmp
+End Function
+
 
 Sub LightOn(light)
 
@@ -4392,19 +4399,19 @@ lsBallSave.Init 123,1,120,"pal_purple"
 Dim lsBallSaveOff: Set lsBallSaveOff = New LightChangeItem
 lsBallSaveOff.Init 123,0,120,"pal_purple"
 Dim lsBet1: Set lsBet1 = New LightChangeItem
-lsBet1.Init 9,1,20,"pal_purple"
+lsBet1.Init 9,1,100,"pal_yellow"
 Dim lsBet1Off: Set lsBet1Off = New LightChangeItem
-lsBet1Off.Init 9,0,20,"pal_purple"
+lsBet1Off.Init 9,0,100,"pal_yellow"
 
 Dim lsBet2: Set lsBet2 = New LightChangeItem
-lsBet2.Init 10,1,20,"pal_purple"
+lsBet2.Init 10,1,100,"pal_yellow"
 Dim lsBet2Off: Set lsBet2Off = New LightChangeItem
-lsBet2Off.Init 10,0,20,"pal_purple"
+lsBet2Off.Init 10,0,100,"pal_yellow"
 
 Dim lsBet3: Set lsBet3 = New LightChangeItem
-lsBet3.Init 11,1,20,"pal_purple"
+lsBet3.Init 11,1,100,"pal_yellow"
 Dim lsBet3Off: Set lsBet3Off = New LightChangeItem
-lsBet3Off.Init 11,0,20,"pal_purple"
+lsBet3Off.Init 11,0,100,"pal_yellow"
 
 Dim lsBonus1: Set lsBonus1 = New LightChangeItem
 lsBonus1.Init 107,1,20,"pal_purple"
@@ -5177,38 +5184,35 @@ lSeqBumpersPerkShot.Sequence = Array(Array(lsBump1flash,lsBump2flash,lsBump3flas
 Dim lSeqSkillshot: Set lSeqSkillshot = new LightSeqItem
 lSeqSkillshot.Name = "lSeqSkillshot"
 lSeqSkillshot.Image = "pal_yellow"
-lSeqSkillshot.Sequence = Array(Array(lsPop1, lsBet1, lsBet2, lsBet3, lsCenterRamp, lsRace6), Array(lsCombo3, lsRace3, lsBonus2, lsCyber3),Array(lsResearch2, lsCyber4, lsRace1, lsBonus1, lsRightRamp, lsCombo4),Array(lsPop1Off, lsBet1Off, lsBet2Off, lsBet3Off, lsCenterRampOff, lsRace6Off, lsAug1, lsRaceWizard),Array(lsCombo3Off, lsRace3Off, lsBonus1Off, lsCyber4Off, lsAug4, lsAug7, lsBonus3, lsRace2, lsRace5, lsSpinner2, lsPop2),Array(lsCyber3Off, lsResearch2Off, lsBonus2Off, lsRace1Off, lsRightRampOff, lsCombo4Off, lSeqFinish, lsShortcut),Array(lsAug1Off, lsRaceWizardOff, lsHyperJump5, lsHyperJump4, lsHoldAug, lsShortcut1, lsAug2, lsSpinner1),Array(lsAug4Off, lsAug7Off, lsBonus3Off, lsRace2Off, lsRace5Off, lsSpinner2Off, lsPop2Off, lsCombo2, lsCyber2, lsRace4, lsPlayfield2, lsCaptive1, lsCaptive4, lsShortcut2, lsAug5),Array(lSeqFinishOff, lsShortcutOff, lsHyperJump5Off, lsLeftRamp, lsHyperJump3, lsCaptive2, lsCaptive3, lsAug8),Array(lsHyperJump4Off, lsHoldAugOff, lsShortcut1Off, lsAug2Off, lsSpinner1Off, lsPlayfield3, lsPop3, lsShortcut3),Array(lsCombo2Off, lsCyber2Off, lsRace4Off, lsPlayfield2Off, lsCaptive1Off, lsCaptive4Off, lsShortcut2Off, lsAug5Off, lsHyperJump2, lsAug3, lsAug6),Array(lsLeftRampOff, lsHyperJump3Off, lsCaptive2Off, lsCaptive3Off, lsAug8Off, lsHyperJump1, lsLightLock, lsAug9, lsCyber5),Array(lsPlayfield3Off, lsPop3Off, lsShortcut3Off, lsExtraBall, lsPlayfield1, lsCombo5, lsResearch3, lsLane3),Array(lsHyperJump2Off, lsAug3Off, lsAug6Off, lsResearch1, lsRightOrbit),Array(lsHyperJump1Off, lsLightLockOff, lsAug9Off, lsCyber5Off, lsResearchReady, lsCyber1),Array(lsExtraBallOff, lsPlayfield1Off, lsCombo5Off, lsResearch3Off, lsLane3Off, lsCombo1, lsLane4, olr1a, olr2a, olr3a, olr4a, olr5a, olr6a, olr7a, olr8a, olr9a),Array(lsResearch1Off, lsRightOrbitOff, lsLeftOrbit, olr1b, olr2b, olr3b, olr4b, olr5b, olr6b, olr7b, olr8b, olr9b),Array(lsResearchReadyOff, lsCyber1Off),Array(lsCombo1Off, lsLane4Off, olr1aOff, olr2aOff, olr3aOff, olr4aOff, olr5aOff, olr6aOff, olr7aOff, olr8aOff, olr9aOff, lsLane2),Array(lsLeftOrbitOff, olr1bOff, olr2bOff, olr3bOff, olr4bOff, olr5bOff, olr6bOff, olr7bOff, olr8bOff, olr9bOff),Array(lsLane2Off, oll1b, oll2b, oll3b, oll4b, oll5b, oll6b, oll7b, oll8b, oll9b),Array(lsLane1, oll1a, oll2a, oll3a, oll4a, oll5a, oll6a, oll7a, oll8a, oll9a),Array(oll1bOff, oll2bOff, oll3bOff, oll4bOff, oll5bOff, oll6bOff, oll7bOff, oll8bOff, oll9bOff),Array(lsLane1Off, oll1aOff, oll2aOff, oll3aOff, oll4aOff, oll5aOff, oll6aOff, oll7aOff, oll8aOff, oll9aOff))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(Array(), Array(lsPop1, lsBet1, lsBet2, lsBet3, lsCenterRamp, lsRace6))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsCombo3, lsRace3, lsBonus2, lsCyber3))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsResearch2, lsCyber4, lsRace1, lsBonus1, lsRightRamp, lsCombo4))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsPop1Off, lsBet1Off, lsBet2Off, lsBet3Off, lsCenterRampOff, lsRace6Off, lsAug1, lsRaceWizard))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsCombo3Off, lsRace3Off, lsBonus1Off, lsCyber4Off, lsAug4, lsAug7, lsBonus3, lsRace2, lsRace5, lsSpinner2, lsPop2))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsCyber3Off, lsResearch2Off, lsBonus2Off, lsRace1Off, lsRightRampOff, lsCombo4Off, lSeqFinish, lsShortcut))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsAug1Off, lsRaceWizardOff, lsHyperJump5, lsHyperJump4, lsHoldAug, lsShortcut1, lsAug2, lsSpinner1))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsAug4Off, lsAug7Off, lsBonus3Off, lsRace2Off, lsRace5Off, lsSpinner2Off, lsPop2Off, lsCombo2, lsCyber2, lsRace4, lsPlayfield2, lsCaptive1, lsCaptive4, lsShortcut2, lsAug5))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lSeqFinishOff, lsShortcutOff, lsHyperJump5Off, lsLeftRamp, lsHyperJump3, lsCaptive2, lsCaptive3, lsAug8))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsHyperJump4Off, lsHoldAugOff, lsShortcut1Off, lsAug2Off, lsSpinner1Off, lsPlayfield3, lsPop3, lsShortcut3))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsCombo2Off, lsCyber2Off, lsRace4Off, lsPlayfield2Off, lsCaptive1Off, lsCaptive4Off, lsShortcut2Off, lsAug5Off, lsHyperJump2, lsAug3, lsAug6))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsLeftRampOff, lsHyperJump3Off, lsCaptive2Off, lsCaptive3Off, lsAug8Off, lsHyperJump1, lsLightLock, lsAug9, lsCyber5))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsPlayfield3Off, lsPop3Off, lsShortcut3Off, lsExtraBall, lsPlayfield1, lsCombo5, lsResearch3, lsLane3))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsHyperJump2Off, lsAug3Off, lsAug6Off, lsResearch1, lsRightOrbit))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsHyperJump1Off, lsLightLockOff, lsAug9Off, lsCyber5Off, lsResearchReady, lsCyber1))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsExtraBallOff, lsPlayfield1Off, lsCombo5Off, lsResearch3Off, lsLane3Off, lsCombo1, lsLane4, olr1a, olr2a, olr3a, olr4a, olr5a, olr6a, olr7a, olr8a, olr9a))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsResearch1Off, lsRightOrbitOff, lsLeftOrbit, olr1b, olr2b, olr3b, olr4b, olr5b, olr6b, olr7b, olr8b, olr9b))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsResearchReadyOff, lsCyber1Off))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsCombo1Off, lsLane4Off, olr1aOff, olr2aOff, olr3aOff, olr4aOff, olr5aOff, olr6aOff, olr7aOff, olr8aOff, olr9aOff, lsLane2))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsLeftOrbitOff, olr1bOff, olr2bOff, olr3bOff, olr4bOff, olr5bOff, olr6bOff, olr7bOff, olr8bOff, olr9bOff))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsLane2Off, oll1b, oll2b, oll3b, oll4b, oll5b, oll6b, oll7b, oll8b, oll9b))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsLane1, oll1a, oll2a, oll3a, oll4a, oll5a, oll6a, oll7a, oll8a, oll9a))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(oll1bOff, oll2bOff, oll3bOff, oll4bOff, oll5bOff, oll6bOff, oll7bOff, oll8bOff, oll9bOff))
+lSeqSkillshot.Sequence = AppendLightSequenceArray(lSeqSkillshot.Sequence, Array(lsLane1Off, oll1aOff, oll2aOff, oll3aOff, oll4aOff, oll5aOff, oll6aOff, oll7aOff, oll8aOff, oll9aOff))
 lSeqSkillshot.UpdateInterval = 10
 
 Dim lSeqLightsOverride: Set lSeqLightsOverride = new LightSeq
 lSeqLightsOverride.Name = "lSeqLightsOverride"
 
-
-'lSeqSkillshot.Sequence = Array(
-'    Array(lsPop1, lsBet1, lsBet2, lsBet3, lsCenterRamp, lsRace6), 
-'    Array(lsCombo3, lsRace3, lsBonus2, lsCyber3),
-'    Array(lsResearch2, lsCyber4, lsRace1, lsBonus1, lsRightRamp, lsCombo4),
-'    Array(lsPop1Off, lsBet1Off, lsBet2Off, lsBet3Off, lsCenterRampOff, lsRace6Off, lsAug1, lsRaceWizard),
-'    Array(lsCombo3Off, lsRace3Off, lsBonus1Off, lsCyber4Off, lsAug4, lsAug7, lsBonus3, lsRace2, lsRace5, lsSpinner2, lsPop2),
-'    Array(lsCyber3Off, lsResearch2Off, lsBonus2Off, lsRace1Off, lsRightRampOff, lsCombo4Off, lSeqFinish, lsShortcut),
-'    Array(lsAug1Off, lsRaceWizardOff, lsHyperJump5, lsHyperJump4, lsHoldAug, lsShortcut1, lsAug2, lsSpinner1),
-'    Array(lsAug4Off, lsAug7Off, lsBonus3Off, lsRace2Off, lsRace5Off, lsSpinner2Off, lsPop2Off, lsCombo2, lsCyber2, lsRace4, lsPlayfield2, lsCaptive1, lsCaptive4, lsShortcut2, lsAug5),
-'    Array(lSeqFinishOff, lsShortcutOff, lsHyperJump5Off, lsLeftRamp, lsHyperJump3, lsCaptive2, lsCaptive3, lsAug8),
-'    Array(lsHyperJump4Off, lsHoldAugOff, lsShortcut1Off, lsAug2Off, lsSpinner1Off, lsPlayfield3, lsPop3, lsShortcut3),
-'    Array(lsCombo2Off, lsCyber2Off, lsRace4Off, lsPlayfield2Off, lsCaptive1Off, lsCaptive4Off, lsShortcut2Off, lsAug5Off, lsHyperJump2, lsAug3, lsAug6),
-'    Array(lsLeftRampOff, lsHyperJump3Off, lsCaptive2Off, lsCaptive3Off, lsAug8Off, lsHyperJump1, lsLightLock, lsAug9, lsCyber5),
-'    Array(lsPlayfield3Off, lsPop3Off, lsShortcut3Off, lsExtraBall, lsPlayfield1, lsCombo5, lsResearch3, lsLane3),
-'    Array(lsHyperJump2Off, lsAug3Off, lsAug6Off, lsResearch1, lsRightOrbit),
-'    Array(lsHyperJump1Off, lsLightLockOff, lsAug9Off, lsCyber5Off, lsResearchReady, lsCyber1),
-'    Array(lsExtraBallOff, lsPlayfield1Off, lsCombo5Off, lsResearch3Off, lsLane3Off, lsCombo1, lsLane4, olr1a, olr2a, olr3a, olr4a, olr5a, olr6a, olr7a, olr8a, olr9a),
-'    Array(lsResearch1Off, lsRightOrbitOff, lsLeftOrbit, olr1b, olr2b, olr3b, olr4b, olr5b, olr6b, olr7b, olr8b, olr9b),
-'    Array(lsResearchReadyOff, lsCyber1Off),
-'    Array(lsCombo1Off, lsLane4Off, olr1aOff, olr2aOff, olr3aOff, olr4aOff, olr5aOff, olr6aOff, olr7aOff, olr8aOff, olr9aOff, lsLane2),
-'    Array(lsLeftOrbitOff, olr1bOff, olr2bOff, olr3bOff, olr4bOff, olr5bOff, olr6bOff, olr7bOff, olr8bOff, olr9bOff),
-'    Array(lsLane2Off, oll1b, oll2b, oll3b, oll4b, oll5b, oll6b, oll7b, oll8b, oll9b),
-'    Array(lsLane1, oll1a, oll2a, oll3a, oll4a, oll5a, oll6a, oll7a, oll8a, oll9a),
-'    Array(oll1bOff, oll2bOff, oll3bOff, oll4bOff, oll5bOff, oll6bOff, oll7bOff, oll8bOff, oll9bOff),
-'    Array(lsLane1Off, oll1aOff, oll2aOff, oll3aOff, oll4aOff, oll5aOff, oll6aOff, oll7aOff, oll8aOff, oll9aOff))
 Dim lutpos: lutpos = 2
 Dim luts: luts = Array("LUT0_0","LUT0_1","LUT1_0","LUT1_1","LUT1_2","LUT4_2","lutTotan1","ColorGrade_7")
 Table1.ColorGradeImage = luts(lutpos)
@@ -5662,6 +5666,8 @@ Sub Dispatch(action, options)
             SwitchHitBallLock
         Case SWITCH_HIT_SECRET_UPGRADE:
             SwitchHitSecretUpgrade
+        Case SWITCH_HIT_BET
+            SwitchHitBet
         Case GAME_START_OF_BALL:
             GameStartOfBall
         Case GAME_END_OF_BALL:
@@ -6280,7 +6286,7 @@ Sub RemoveGameTargetShot(shot)
 End Sub
 
 Sub GameAwardSkillshot()
-
+  gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = False
   PlayGameCallout("skillshot")
   DOF 251, DOFOn
   SwitchSetAugmentation False, "pal_orange"
@@ -6303,7 +6309,7 @@ Sub vpmTimerAwardSkillshotDof2
 End Sub
 
 Sub vpmTimerAwardEarlyResearch()
-  gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = False
+  
   If gameState("lights")("activeResearch").Count < 3 Then
     gameState("lights")("activeResearch").RemoveAll()  
     gameState("lights")("activeResearch").Add "aug1", True
@@ -6620,6 +6626,7 @@ Function InitGameLogicState()
     Dim combosMade: Set combosMade = CreateObject("Scripting.Dictionary")
     gameLogic.Add "combosMade", combosMade
     Dim gameModes: Set gameModes=CreateObject("Scripting.Dictionary")
+    gameLogic.Add "betHits", 3
     gameModes.Add GAME_MODE_NORMAL, False
     gameModes.Add GAME_MODE_CHOOSE_SKILLSHOT, False
     gameModes.Add GAME_MODE_SKILLSHOT_ACTIVE, False
@@ -6658,7 +6665,9 @@ Const GAME_SHOT_SHORTCUT = "Game Shot Shortcut"
 
 Dim GameShots: GameShots = Array(GAME_SHOT_HYPER_JUMP, GAME_SHOT_LEFT_ORBIT,GAME_SHOT_LEFT_RAMP,GAME_SHOT_SPINNER,GAME_SHOT_BUMPERS,GAME_SHOT_CENTER_RAMP,GAME_SHOT_RIGHT_RAMP,GAME_SHOT_RIGHT_ORBIT,GAME_SHOT_SHORTCUT)
 Dim GameCombos: Set GameCombos = CreateObject("Scripting.Dictionary")
-GameCombos.Add "116118", "Left Ramp Right Ramp"
+
+GameCombos.Add "116118", "Left Ramp -> Right Ramp"
+GameCombos.Add "118116", "Right Ramp -> Left Ramp"
 
 Const GAME_MODE_NORMAL = "Game Mode Normal"
 Const GAME_MODE_CHOOSE_SKILLSHOT = "Game Mode Choose Skillshot"
@@ -7517,6 +7526,7 @@ Const SWITCH_HIT_RIGHT_INLANE = "Switches Hit Right Inlane"
 Const SWITCH_HIT_RIGHT_OUTLANE = "Switches Hit Right Outlane"
 Const SWITCH_HIT_BALL_LOCK = "Switches Hit Ball Lock"
 Const SWITCH_HIT_SECRET_UPGRADE = "Switches Hit Secret Upgrade"
+Const SWITCH_HIT_BET = "Switches Hit Bet"
 
 
 '***********************************************************************************************************************
@@ -8000,6 +8010,28 @@ Sub vpmTimerCloseSecretUpgrade()
     diverterWall3Off.IsDropped = 0
     diverterWall3On.IsDropped = 1
 End Sub
+
+Sub SwitchHitBet
+    If IsLightOn(lsBet1) Then
+        If IsLightOn(lsBet2) Then
+            If IsLightOn(lsBet3) Then
+                LightOff(lsBet1)
+                LightOff(lsBet2)
+                LightOff(lsBet3)
+            Else
+                LightOn(lsBet3)
+            End If
+        Else
+            LightOn(lsBet2)
+        End If
+    Else
+        LightOn(lsBet1)
+    End If
+    gameState("game")("betHits") = gameState("game")("betHits") - 1
+    If gameState("game")("betHits") = 0 Then
+        'TODO Start Hurry Up
+    End If
+End Sub
 '***********************************************************************************************************************
 
 
@@ -8032,6 +8064,17 @@ End Function
 
 Sub sw_augmentation_Hit()
     DISPATCH SWITCH_HIT_AUGMENTATION, Null
+End Sub
+
+'***********************************************************************************************************************
+
+'***********************************************************************************************************************
+'*****    Bet Switch                                  	                                                            ****
+'*****                                                                                                              ****
+'***********************************************************************************************************************
+
+Sub sw_bet_Hit()
+    Dispatch SWITCH_HIT_BET, Null
 End Sub
 
 '***********************************************************************************************************************

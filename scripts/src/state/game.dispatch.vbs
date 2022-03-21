@@ -97,6 +97,8 @@ Sub Dispatch(action, options)
             SwitchHitBallLock
         Case SWITCH_HIT_SECRET_UPGRADE:
             SwitchHitSecretUpgrade
+        Case SWITCH_HIT_BET
+            SwitchHitBet
         Case GAME_START_OF_BALL:
             GameStartOfBall
         Case GAME_END_OF_BALL:

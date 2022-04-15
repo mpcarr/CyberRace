@@ -44,12 +44,6 @@ lsAug9.Init 8,1,180,"pal_blue"
 Dim lsAug9Off: Set lsAug9Off = New LightChangeItem
 lsAug9Off.Init 8,0,180,"pal_blue"
 
-
-'Dim lSeqAugmentationFlicker: Set lSeqAugmentationFlicker=CreateObject("Scripting.Dictionary")
-'lSeqAugmentationFlicker.Add "currentIdx", 0
-'lSeqAugmentationFlicker.Add "name", "lSeqAugmentationFlicker"
-'lSeqAugmentationFlicker.Add "sequence", Array(Array(lsAug1Off,lsAug2Off,lsAug3Off,lsAug4Off,lsAug5Off,lsAug6Off,lsAug7Off,lsAug8Off,lsAug9Off),lsAug1,lsAug2,lsAug3, Array(lsAug1Off,lsAug4),Array(lsAug2Off,lsAug5),Array(lsAug3Off,lsAug6),Array(lsAug4Off,lsAug7),Array(lsAug5Off,lsAug8),Array(lsAug6Off,lsAug9),lsAug7Off,lsAug8Off,lsAug9Off)
-
 Dim lSeqAugmentationFlicker: Set lSeqAugmentationFlicker = new LightSeqItem
 lSeqAugmentationFlicker.Name = "lSeqAugmentationFlicker"
 lSeqAugmentationFlicker.Image = "pal_blue"

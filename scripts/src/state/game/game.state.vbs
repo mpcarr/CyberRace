@@ -49,12 +49,14 @@ Function InitGameLogicState()
     Dim combosMade: Set combosMade = CreateObject("Scripting.Dictionary")
     gameLogic.Add "combosMade", combosMade
     Dim gameModes: Set gameModes=CreateObject("Scripting.Dictionary")
-    gameLogic.Add "betHits", 3
+    gameLogic.Add "betHits", 2
+    gameLogic.Add "betTimesRan", 0
     gameModes.Add GAME_MODE_NORMAL, False
     gameModes.Add GAME_MODE_CHOOSE_SKILLSHOT, False
     gameModes.Add GAME_MODE_SKILLSHOT_ACTIVE, False
     gameModes.Add GAME_MODE_AUGMENTATION_RESEARCH, False
     gameModes.Add GAME_MODE_MULTIBALL, False
+    gameModes.Add GAME_MODE_HURRYUP, False
     gameLogic.Add "modes", gameModes
     Set InitGameLogicState = gameLogic
 End Function
@@ -97,6 +99,9 @@ Const GAME_MODE_CHOOSE_SKILLSHOT = "Game Mode Choose Skillshot"
 Const GAME_MODE_SKILLSHOT_ACTIVE = "Game Mode Skillshot Active"
 Const GAME_MODE_AUGMENTATION_RESEARCH = "Game Mode Augmentation Research"
 Const GAME_MODE_MULTIBALL = "Game Mode Multiball"
+Const GAME_MODE_HURRYUP = "Game Mode Hurry Up"
+
+Const GAME_BET_MAX_HITS = 20
 
 'Base Points
 Const GAME_POINTS_BASE = 10000
@@ -105,5 +110,6 @@ Const GAME_POINTS_BUMPERS = 2000
 Const GAME_POINTS_SPINNER = 2000
 Const GAME_POINTS_COMBO = 75000
 Const GAME_POINTS_RESEARCH_NODE = 10000
+Const GAME_POINTS_HURRYUP = 1000000
 
 '***********************************************************************************************************************

@@ -28,5 +28,13 @@ Sub SwitchHitCenterRamp()
         End If
     End If
 
-    DISPATCH GAME_COMBO, lsCombo3
+    If gameState("game")("modes")(GAME_MODE_HURRYUP) = True Then
+        If gameState("game")("targetShots").Exists(GAME_SHOT_CENTER_RAMP) Then
+            DISPATCH GAME_AWARD_HURRYUP, null
+        End If
+    End If
+
+    If gameState("game")("modes")(GAME_MODE_MULTIBALL) = False Then
+        DISPATCH GAME_COMBO, lsCombo3
+    End If
 End Sub

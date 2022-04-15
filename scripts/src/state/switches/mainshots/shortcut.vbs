@@ -19,5 +19,11 @@ Sub SwitchHitShortcut()
         End If
     End If
 
+    If gameState("game")("modes")(GAME_MODE_HURRYUP) = True Then
+        If gameState("game")("targetShots").Exists(GAME_SHOT_SHORTCUT) Then
+            DISPATCH GAME_AWARD_HURRYUP, null
+        End If
+    End If
+
     gameState("switches")("shortcut") = 1
 End Sub

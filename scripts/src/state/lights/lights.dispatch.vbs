@@ -278,7 +278,7 @@ Sub LightsGIOn()
 
     playfield_lm.visible = True
     'p_artblades_back.Image = "artbladesbackgion"
-    p_plastics.Image = "plastics4"
+    p_plastics.Image = "plastics-new"
     ModLampz.SetGI 0, 9
     SetGI 0,9
     SetGIPerk 0,0
@@ -286,6 +286,7 @@ Sub LightsGIOn()
     for each GIxx in GI
         GIxx.Color = gameState("lights")("GIColor")
         GIxx.ColorFull = gameState("lights")("GIColor")
+        GIxx.Intensity = 2
     next
 End Sub
 
@@ -293,7 +294,7 @@ Sub LightsGIOff()
     gameState("lights")("gi") = 0
     playfield_lm.visible = False
     'p_artblades_back.Image = "artbladesbackgioff"
-    'p_plastics.Image = "plastics_off"
+    p_plastics.Image = "plastics-off"
     ModLampz.SetGI 0, 0
     LightOff(lsSpeeder)
 End Sub
@@ -302,7 +303,9 @@ Sub LightsGINormal()
     for each GIxx in GI
         GIxx.Color = c_normal
         GIxx.ColorFull = c_normal_full
+        GIxx.Intensity = 2
     next
+    p_plastics.Image = "plastics-new"
     gameState("lights")("GIColor") = c_normal
 End Sub
 
@@ -310,7 +313,9 @@ Sub LightsGIDomes(color)
     for each GIxx in GISLings
         GIxx.Color = gameColors(color)
         GIxx.ColorFull = gameColors(color)
+        GIxx.Intensity = 2
     next
+    'p_plastics.Image = gamePlastics(color)
     SetGIPerk 0,9
 End Sub
 
@@ -318,8 +323,20 @@ Sub LightsGiAugmentationResearch()
     for each GIxx in GI
         GIxx.Color = c_augmentationResearch
         GIxx.ColorFull = c_augmentationResearch
+        GIxx.Intensity = 3
     next
+    'p_plastics.Image = "plastics-blue"
     gameState("lights")("GIColor") = c_augmentationResearch
+End Sub
+
+Sub LightsGiHurryUp()
+    for each GIxx in GI
+        GIxx.Color = gameColors(6)
+        GIxx.ColorFull = gameColors(6)
+        GIxx.Intensity = 3
+    next
+    p_plastics.Image = "plastics-yellow"
+    gameState("lights")("GIColor") = gameColors(6)
 End Sub
 
 Sub LightsGiMultiball()
@@ -327,6 +344,7 @@ Sub LightsGiMultiball()
         GIxx.Color = c_multiball
         GIxx.ColorFull = c_multiball
     next
+    'p_plastics.Image = "plastics-green"
     gameState("lights")("GIColor") = c_multiball
 End Sub
 

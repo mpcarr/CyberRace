@@ -37,6 +37,10 @@ Sub swShortcut_Hit()
     vpmTimer.addtimer 3000, "closeRightLaneDiverter '"
 End Sub
 
+Sub swLeftReturn_Hit()
+    DISPATCH SWITCH_HIT_CENTER_RAMP, null
+End Sub
+
 Sub closeRightLaneDiverter
     DiverterFlipper.RotateToStart
     DiverterFlipper001.RotateToStart

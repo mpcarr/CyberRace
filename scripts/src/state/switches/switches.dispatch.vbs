@@ -265,6 +265,7 @@ Sub SwitchLeftFlipperDown()
 
     If gameState("game")("modes")(GAME_MODE_CHOOSE_SKILLSHOT) = True Then
         'Rotate Skillshot
+        gameState("switches")("lastFlipperDown") = GameTime
         DISPATCH GAME_ROTATE_SKILLSHOT_ANTI_CLOCKWISE, Null
     End If
 
@@ -275,6 +276,7 @@ Sub SwitchRightFlipperDown()
 
     If gameState("game")("modes")(GAME_MODE_CHOOSE_SKILLSHOT) = True Then
         'Rotate Skillshot
+        gameState("switches")("lastFlipperDown") = GameTime
         DISPATCH GAME_ROTATE_SKILLSHOT_CLOCKWISE, Null
     End If
 
@@ -306,7 +308,8 @@ Sub exitConsoleKickerWithFlash
     objFluxBase(1).UserValue = 1
     objFluxBase(1).Material = "Console_HUD_Red"
     FluxObjlevel(1) = 1 : FlasherFluxTimer1_Timer
-    consoleKicker.Kick 0, 30, 1.36
+    'consoleKicker.Kick 0, 30, 1.36
+    vukCenterRamp.Kick 0, 120, .5
 End Sub
 
 Sub SwitchHitRampPin()
@@ -326,6 +329,18 @@ Sub SwitchHitPlungerLane()
         DISPATCH GAME_ENABLE_BALL_SAVE, null
         lSeqPlungerLane.RemoveAll()
         FlexDMDGameModeNormal()
+        vpmTimer.addtimer 10000, "vpmTimerEndSkillshot '"
+    End If
+End Sub
+
+Sub vpmTimerEndSkillshot()
+    If gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = True Then
+        gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = False
+        If gameState("game")("modes")(GAME_MODE_NORMAL) = True Then
+            SwitchSetAugmentation False, "pal_orange"
+            DISPATCH GAME_UNLOCK_AUGMENTATIONS, Null
+            DISPATCH GAME_CHECK_BET, Null
+        End If
     End If
 End Sub
 
@@ -405,6 +420,7 @@ Sub SwitchHitBallLock()
         DOF 255, DOFOn
         gameState("game")("modes")(GAME_MODE_MULTIBALL) = True
         gameState("game")("modes")(GAME_MODE_NORMAL) = False
+        gameState("game")("modes")(GAME_MODE_HURRYUP) = False
         gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = False
         DISPATCH GAME_CLEAR_SHOTS, Null
         AddGameTargetShot(GAME_SHOT_LEFT_ORBIT)
@@ -479,25 +495,43 @@ Sub vpmTimerCloseSecretUpgrade()
 End Sub
 
 Sub SwitchHitBet
-    If IsLightOn(lsBet1) Then
-        If IsLightOn(lsBet2) Then
-            If IsLightOn(lsBet3) Then
-                LightOff(lsBet1)
-                LightOff(lsBet2)
-                LightOff(lsBet3)
-            Else
-                LightOn(lsBet3)
-            End If
-        Else
-            LightOn(lsBet2)
-        End If
-    Else
-        LightOn(lsBet1)
+
+    If gameState("game")("modes")(GAME_MODE_HURRYUP) = True Or gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = True Or gameState("game")("modes")(GAME_MODE_NORMAL) = False Then
+        Exit Sub
     End If
+
     gameState("game")("betHits") = gameState("game")("betHits") - 1
+    If gameState("switches")("betB") = 0 Then
+        gameState("switches")("betB") = 1
+        gameState("switches")("betE") = 0
+        gameState("switches")("betT") = 0
+        DisplayFlexBetHitScreen("BetFrameB")
+    ElseIf gameState("switches")("betE") = 0 Then
+        gameState("switches")("betB") = 1
+        gameState("switches")("betE") = 1
+        gameState("switches")("betT") = 0
+        DisplayFlexBetHitScreen("BetFrameE")
+    ElseIf gameState("switches")("betT") = 0 Then
+        gameState("switches")("betB") = 0
+        gameState("switches")("betE") = 0
+        gameState("switches")("betT") = 0
+        DisplayFlexBetHitScreen("BetFrameT")
+    End If
+
+    DISPATCH GAME_CHECK_BET, Null
+
+    vpmTimer.addtimer 3000, "vpmTimerFlexUpdateMain '"
+
     If gameState("game")("betHits") = 0 Then
-        'TODO Start Hurry Up
+        gameState("game")("betTimesRan") = gameState("game")("betTimesRan") + 1
+        gameState("game")("betHits") = 3 * (gameState("game")("betTimesRan")+1)
+        If gameState("game")("betHits") > GAME_BET_MAX_HITS Then
+            gameState("game")("betHits") = GAME_BET_MAX_HITS
+        End If
+        DISPATCH GAME_START_MODE_HURRYUP, Null
     End If
 End Sub
+
+
 '***********************************************************************************************************************
 

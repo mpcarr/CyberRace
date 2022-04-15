@@ -28,7 +28,9 @@ Sub Dispatch(action, options)
         Case LIGHTS_GI_AUGMENTATION_RESEARCH:
             LightsGiAugmentationResearch     
         Case LIGHTS_GI_MULTIBALL:
-            LightsGiMultiball                             
+            LightsGiMultiball  
+        Case LIGHTS_GI_HURRYUP:
+            LightsGiHurryup                                        
         Case LIGHTS_START_SEQUENCE:
             LightsStartSequence            
         Case LIGHTS_RESEARCH_OFF:
@@ -121,10 +123,14 @@ Sub Dispatch(action, options)
             GameModeNormal
         Case GAME_MODE_ADVANCE_AUGMENTATION:
             GameModeAdvanceAugmentation
+        Case GAME_START_MODE_HURRYUP:
+            GameStartModeHurryUp
         Case GAME_MODE_FINISH_AUGMENTATION:
             GameModeFinishAugmentation       
         Case GAME_COMBO
             GameCombo options
+        Case GAME_AWARD_HURRYUP
+            GameAwardHurryup
         Case GAME_MODE_COLLECT_AUGMENTATION:
             GameModeCollectAugmentation
         Case GAME_ROTATE_SKILLSHOT_ANTI_CLOCKWISE:
@@ -145,6 +151,8 @@ Sub Dispatch(action, options)
             GameCheckLocks
         Case GAME_CHECK_LANES
             GameCheckLanes
+        Case GAME_CHECK_BET
+            GameCheckBet
         Case GAME_CLEAR_SHOTS
             GameClearShots
         Case GAME_MULTIBALL_JACKPOT

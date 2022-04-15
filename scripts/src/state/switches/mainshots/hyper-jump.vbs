@@ -18,5 +18,10 @@ Sub SwitchHitHyperJump()
         End If
     End If
 
+    If gameState("game")("modes")(GAME_MODE_HURRYUP) = True Then
+        If gameState("game")("targetShots").Exists(GAME_SHOT_HYPER_JUMP) Then
+            DISPATCH GAME_AWARD_HURRYUP, null
+        End If
+    End If
     
 End Sub

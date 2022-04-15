@@ -63,6 +63,7 @@ Sub StartGame()
 
 	DISPATCH LIGHTS_RESEARCH_RESET, null
 	DISPATCH GAME_START_OF_BALL, null
+	DISPATCH GAME_CHECK_BET, Null
 	gameStarted = True
 End Sub
 

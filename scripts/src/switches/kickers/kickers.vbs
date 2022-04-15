@@ -3,10 +3,6 @@
 '*****                                                                                                              ****
 '***********************************************************************************************************************
 
-Sub consoleKicker_Hit()
-    Dispatch SWITCH_HIT_CONSOLE, Null 
-End Sub
-
 Sub drain_Hit()
     drain.DestroyBall
 

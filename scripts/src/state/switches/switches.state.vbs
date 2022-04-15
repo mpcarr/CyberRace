@@ -14,6 +14,10 @@ Function InitSwitchesState()
     switches("captive") = 0
     switches("shortcut") = 0
     switches("lightlock") = 0
+    switches("betB") = 1
+    switches("betE") = 0
+    switches("betT") = 0
+    switches("lastFlipperDown") = 0
 
     Set InitSwitchesState = switches
 End Function

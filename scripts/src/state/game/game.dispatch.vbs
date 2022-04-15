@@ -37,6 +37,7 @@ Sub GameStartOfBall()
 
   DISPATCH GAME_CHECK_LOCKS, Null
   DISPATCH GAME_CHECK_LANES, Null
+  DISPATCH GAME_CHECK_BET, Null
   DISPATCH GAME_SHOW_LABELS, null
   diverterWall3On.IsDropped = True
   diverterWall3Off.IsDropped = False
@@ -49,7 +50,7 @@ Sub GameEndOfBall()
   If gameState("game")("modes")(GAME_MODE_AUGMENTATION_RESEARCH) = True Then
     DISPATCH LIGHTS_RESEARCH_OFF, Null
     StopLightBlink(lSeqFinish)
-    GameModeAugmentationSetShot(-1)
+    GameModeSetShot -1, "pal_purple"
   End If
   DISPATCH GAME_CLEAR_SHOTS, Null
   gameState("game")("pauseLights") = True
@@ -87,7 +88,7 @@ Sub GameRotateSkillshotAntiClockwise()
     i = 8
   End If
   gameState("game")("augmentationActive") = i
-  SwitchSetAugmentation True, "pal_yellow"
+  SwitchSetAugmentation False, "pal_yellow"
 
 End Sub
 
@@ -98,7 +99,7 @@ Sub GameRotateSkillshotClockwise()
     i = 0
   End If
   gameState("game")("augmentationActive") = i
-  SwitchSetAugmentation True, "pal_yellow"
+  SwitchSetAugmentation False, "pal_yellow"
 
 End Sub
 
@@ -122,17 +123,21 @@ End Sub
 Sub GameStartAugmentationResearch()
   
   gameState("game")("modes")(GAME_MODE_NORMAL) = False
+  gameState("game")("modes")(GAME_MODE_HURRYUP) = False
   gameState("game")("modes")(GAME_MODE_AUGMENTATION_RESEARCH) = True
   'gameState("game")("augmentationResearch"&gameState("game")("augmentationActive")&"Stage") = 0
   gameState("game")("augmentationReady") = False
   TurnOffFluxFlasher(1)
   TurnOffFluxFlasher(2)
+  LightOff(lsBet1)
+  LightOff(lsBet2)
+  LightOff(lsBet3)
   DISPATCH LIGHTS_RESEARCH_OFF, null
   DISPATCH LIGHTS_RESEARCH_READY_OFF, null
   DISPATCH GAME_HIDE_LABELS, null
   DISPATCH LIGHTS_AUGMENTATIONS_OFF, null
   DISPATCH GAME_CHECK_LOCKS, Null
-  GameModeAugmentationSetShot(-1)
+  GameModeSetShot -1, "pal_purple"
   LightOff(lsSpeeder)
   Select Case gameState("game")("augmentationActive")
     Case 0:
@@ -172,7 +177,8 @@ Sub vpmTimerGameStartAugmentationResearchStage2
     lsSpeeder.Image="pal_purple"
     LightOn(lsSpeeder)
     DISPATCH GAME_ENABLE_BALL_SAVE, Null
-    consoleKicker.Kick 0, 30, 1.36
+    'consoleKicker.Kick 0, 30, 1.36
+    vukCenterRamp.Kick 0, 120, .5
 End Sub
 
 Sub GameLockAugmentations()
@@ -332,6 +338,7 @@ Sub GameModeNormal()
   DISPATCH GAME_SHOW_LABELS, null
   DISPATCH GAME_CHECK_LOCKS, Null
   DISPATCH GAME_CHECK_LANES, Null
+  DISPATCH GAME_CHECK_BET, Null
   'TODO CHECK RESEARCH NODES
 End Sub
 
@@ -362,23 +369,23 @@ Sub SetAugmentationResearchShots()
 
   Select Case gameState("game")("augmentationResearch"&gameState("game")("augmentationActive")&"Stage")
     Case 0:
-      GameModeAugmentationSetShot(gameState("game")("augmentationActive"))
+      GameModeSetShot gameState("game")("augmentationActive"), "pal_purple"
     Case 1:
       Dim s1: s1 = RndNum(0,8)
       Do While s1=gameState("game")("augmentationActive")
         s1=RndNum(0,8)
       Loop
       'Random Two Shots
-      GameModeAugmentationSetShot(s1)
+      GameModeSetShot s1, "pal_purple"
 
       Dim s2: s2 = RndNum(0,8)
       Do While s2=gameState("game")("augmentationActive") Or s2=s1
         s2=RndNum(0,8)
       Loop
       'Random Two Shots
-      GameModeAugmentationSetShot(s2)
+      GameModeSetShot s2, "pal_purple"
     Case 2:
-      GameModeAugmentationSetShot(gameState("game")("augmentationActive"))
+      GameModeSetShot gameState("game")("augmentationActive"), "pal_purple"
     Case 3:
       'Finish Shot
       lSeqRightRamp.AddItem(lSeqRightRampCollectShot)
@@ -444,6 +451,7 @@ Sub vpmTimerGameFinishAugmentationResearchStage2
   DISPATCH LIGHTS_GI_ON, Null
   DISPATCH GAME_UNLOCK_AUGMENTATIONS, null
   DISPATCH LIGHTS_RESEARCH_RESET, null
+  DISPATCH GAME_CHECK_BET, Null
   gameState("game")("modes")(GAME_MODE_AUGMENTATION_RESEARCH) = False
   
   DISPATCH GAME_MODE_NORMAL, Null
@@ -456,7 +464,7 @@ Sub vpmTimerGameFinishAugmentationResearchStage2
   SwitchSetAugmentation True, "pal_orange"
 End Sub
 
-Sub GameModeAugmentationSetShot(s)
+Sub GameModeSetShot(s, palette)
   Select Case s
     Case -1:
       StopLightBlink(lSeqHoldAug)
@@ -470,30 +478,39 @@ Sub GameModeAugmentationSetShot(s)
       lSeqBumpers.RemoveItem(lSeqBumpersPerkShot)
       lSeqLeftRamp.RemoveItem(lSeqLeftRampPerkShot)
     Case 0:
+      lSeqHyperJumpActiveShot.Image = palette
       lSeqHyperJump.AddItem(lSeqHyperJumpActiveShot)
       AddGameTargetShot GAME_SHOT_HYPER_JUMP
     Case 1:
+      lSeqLeftOrbitActiveShot.Image = palette
       lSeqLeftOrbit.AddItem(lSeqLeftOrbitActiveShot)
       AddGameTargetShot GAME_SHOT_LEFT_ORBIT
     Case 2:
+      lSeqLeftRampActiveShot.Image = palette
       lSeqLeftRamp.AddItem(lSeqLeftRampActiveShot)
       AddGameTargetShot GAME_SHOT_LEFT_RAMP
     Case 3:
+      lSeqSpinnerActiveShot.Image = palette
       lSeqSpinner.AddItem(lSeqSpinnerActiveShot)
       AddGameTargetShot GAME_SHOT_SPINNER
     Case 4:
+      lSeqBumpersActiveShot.Image = palette
       lSeqBumpers.AddItem(lSeqBumpersActiveShot)
       AddGameTargetShot GAME_SHOT_BUMPERS
     Case 5:
+      lSeqCenterRampActiveShot.Image = palette
       lSeqCenterRamp.AddItem(lSeqCenterRampActiveShot)
       AddGameTargetShot GAME_SHOT_CENTER_RAMP
     Case 6:
+      lSeqRightRampActiveShot.Image = palette
       lSeqRightRamp.AddItem(lSeqRightRampActiveShot)
       AddGameTargetShot GAME_SHOT_RIGHT_RAMP
     Case 7:
+      lSeqRightOrbitActiveShot.Image = palette
       lSeqRightOrbit.AddItem(lSeqRightOrbitActiveShot)
       AddGameTargetShot GAME_SHOT_RIGHT_ORBIT
     Case 8:
+      lSeqShortcutActiveShot.Image = palette
       lSeqShortcut.AddItem(lSeqShortcutActiveShot)
       AddGameTargetShot GAME_SHOT_SHORTCUT
   End Select
@@ -523,6 +540,7 @@ Sub GameAwardSkillshot()
   lSeqLightsOverride.AddItem(lSeqSkillshot)
 	DISPATCH LIGHTS_START_SEQUENCE, null
   DISPATCH GAME_UNLOCK_AUGMENTATIONS, Null
+  DISPATCH GAME_CHECK_BET, Null
   FlashDomes 6, 2
   vpmTimer.AddTimer 1200, "vpmTimerAwardEarlyResearch '"
   vpmTimer.AddTimer 400, "vpmTimerAwardSkillshotDof1 '"
@@ -555,12 +573,6 @@ End Sub
 
 Sub GameBallSaveEnded()
 
-  gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = False
-  If gameState("game")("modes")(GAME_MODE_NORMAL) = True Then
-    SwitchSetAugmentation False, "pal_orange"
-    DISPATCH GAME_UNLOCK_AUGMENTATIONS, Null
-  End If
-
   gameState("game")("ballSave") = False
 
 End Sub
@@ -569,8 +581,8 @@ Sub GameEnableBallSave()
 
   EnableBallSaver(15)
   gameState("game")("ballSave") = True
-  p_watchdisplay_left.blenddisablelighting = 15
-  p_watchdisplay_right.blenddisablelighting = 15
+  p_watchdisplay_left.blenddisablelighting = 5
+  p_watchdisplay_right.blenddisablelighting = 5
 
 End Sub
 
@@ -608,6 +620,29 @@ Sub GameCheckLocks()
   Else
     LightOff(lsLightLock)
     DISPATCH GAME_DISABLE_BALL_LOCK, Null
+  End If
+
+End Sub
+
+Sub GameCheckBet()
+
+  LightOff(lsBet1)  
+  LightOff(lsBet2)
+  LightOff(lsBet3)
+
+  If gameState("game")("modes")(GAME_MODE_SKILLSHOT_ACTIVE) = True Or gameState("game")("modes")(GAME_MODE_NORMAL) = False Then
+    Exit Sub
+  End If
+
+  If gameState("switches")("betB") = 1 Then
+    LightOn(lsBet1)
+    LightBlink(lsBet2)
+    LightBlink(lsBet3)
+  End If
+  If gameState("switches")("betE") = 1 Then
+    LightOn(lsBet1)
+    LightOn(lsBet2)
+    LightBlink(lsBet3)
   End If
 
 End Sub
@@ -777,7 +812,10 @@ Sub GameCombo(combo)
     Debug.print gameState("game")("currentCombo")
     If GameCombos.Exists(gameState("game")("currentCombo")) Then
       Debug.print "add combo"
-      gameState("game")("combosMade").Add gameState("game")("currentCombo"), GameCombos(gameState("game")("currentCombo"))
+      'TODO Check combo isn't already in gamestate
+      If Not gameState("game")("combosMade").Exists(gameState("game")("currentCombo")) Then 
+        gameState("game")("combosMade").Add gameState("game")("currentCombo"), GameCombos(gameState("game")("currentCombo"))
+      End If
     End If
   End If
   
@@ -796,6 +834,65 @@ Sub comboTimer_Timer
     gameState("game")("currentCombo") = ""
   End If
 
+End Sub
+
+Sub GameStartModeHurryUp
+ 
+  gameState("game")("modes")(GAME_MODE_HURRYUP) = True
+  gameState("switches")("betB") = 0
+  gameState("switches")("betE") = 0
+  gameState("switches")("betT") = 0
+  DISPATCH GAME_CHECK_BET, Null
+  'pupevent music
+  LightOff(lsSpeeder)
+  lsSpeeder.Image="pal_yellow"
+  LightOn(lsSpeeder)
+  StopBGAudio()
+  pupevent 510 ' hurryup
+  DISPATCH LIGHTS_GI_HURRYUP, null
+  vpmTimer.AddTimer 30000, "vpmTimerEndHurryUp '"
+  p_watchdisplay_left.blenddisablelighting = 5
+  p_watchdisplay_right.blenddisablelighting = 5
+  EnableWatchTimer(30)
+  'Add two random shots to make
+  Dim s1: s1 = RndNum(0,8)
+  'Random Two Shots
+  GameModeSetShot s1, "pal_yellow"
+  Dim s2: s2 = RndNum(0,8)
+  'Random Two Shots
+  GameModeSetShot s2, "pal_yellow"
+
+End Sub
+
+Sub vpmTimerEndHurryUp
+
+  If gameState("game")("modes")(GAME_MODE_HURRYUP) = True Then
+    gameState("game")("modes")(GAME_MODE_HURRYUP) = False
+    'pupevent music
+    StopBGAudio()
+    lSeqHyperJump.RemoveItem(lSeqHyperJumpActiveShot)
+    lSeqLeftOrbit.RemoveItem(lSeqLeftOrbitActiveShot)
+    lSeqShortcut.RemoveItem(lSeqShortcutActiveShot)
+    lSeqRightOrbit.RemoveItem(lSeqRightOrbitActiveShot)
+    lSeqRightRamp.RemoveItem(lSeqRightRampActiveShot)
+    lSeqCenterRamp.RemoveItem(lSeqCenterRampActiveShot)
+    lSeqSpinner.RemoveItem(lSeqSpinnerActiveShot)
+    lSeqBumpers.RemoveItem(lSeqBumpersActiveShot)
+    lSeqLeftRamp.RemoveItem(lSeqLeftRampActiveShot)
+    gameState("game")("targetShots").RemoveAll()
+    LightOff(lsSpeeder)
+    lsSpeeder.Image="pal_blue"
+    LightOn(lsSpeeder)
+    StopWatchDisplay()
+    PlayBGAudioNext()
+    DISPATCH GAME_MODE_NORMAL, Null
+  End If
+End Sub
+
+Sub GameAwardHurryup
+  vpmTimerEndHurryUp()
+  FlashDomes 6, 2
+  GameAddScore GAME_POINTS_HURRYUP
 End Sub
 
 'Sub vpmTimerDOFOff(DOFCode)

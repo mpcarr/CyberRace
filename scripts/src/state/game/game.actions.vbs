@@ -13,7 +13,9 @@ Const GAME_HIDE_LABELS = "Game Hide Labels"
 Const GAME_MODE_ADVANCE_AUGMENTATION = "Game Mode Advance Augmentation"
 Const GAME_MODE_FINISH_AUGMENTATION = "Game Mode Finish Augmentation"
 Const GAME_MODE_COLLECT_AUGMENTATION = "Game Mode Collect Augmentation"
+Const GAME_START_MODE_HURRYUP = "Game Start Mode Hurryup"
 Const GAME_COMBO = "Game Combo"
+Const GAME_AWARD_HURRYUP = "Game Award Hurry Up"
 
 Const GAME_START_OF_BALL = "Game Start of Ball"
 Const GAME_END_OF_BALL = "Game End of Ball"
@@ -33,5 +35,6 @@ Const GAME_CHECK_LANES = "Game Check Lanes"
 Const GAME_CLEAR_SHOTS = "Game Clear Shots"
 Const GAME_MULTIBALL_JACKPOT = "Game Multiball Jackpot"
 Const GAME_AWARD_PERKSHOT = "Game Award Perkshot"
+Const GAME_CHECK_BET = "Game Check Bet"
 
 '***********************************************************************************************************************

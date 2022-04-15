@@ -3,7 +3,13 @@
 '*****                                                                                                              ****
 '***********************************************************************************************************************
 
-Sub sw_bet_Hit()
+Sub sw_betB_Hit()
+    Dispatch SWITCH_HIT_BET, Null
+End Sub
+Sub sw_betE_Hit()
+    Dispatch SWITCH_HIT_BET, Null
+End Sub
+Sub sw_betT_Hit()
     Dispatch SWITCH_HIT_BET, Null
 End Sub
 

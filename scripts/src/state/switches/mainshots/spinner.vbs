@@ -19,4 +19,10 @@ Sub SwitchHitSpinner2()
             DISPATCH GAME_MODE_ADVANCE_AUGMENTATION, null
         End If
     End If
+
+    If gameState("game")("modes")(GAME_MODE_HURRYUP) = True Then
+        If gameState("game")("targetShots").Exists(GAME_SHOT_SPINNER) Then
+            DISPATCH GAME_AWARD_HURRYUP, null
+        End If
+    End If
 End Sub

@@ -42,7 +42,16 @@ Sub SwitchHitRightOrbit()
             End If
         End If
 
-        DISPATCH GAME_COMBO, lsCombo5
+        If gameState("game")("modes")(GAME_MODE_HURRYUP) = True Then
+            If gameState("game")("targetShots").Exists(GAME_SHOT_RIGHT_ORBIT) Then
+                DISPATCH GAME_AWARD_HURRYUP, null
+            End If
+        End If
+
+        
+        If gameState("game")("modes")(GAME_MODE_MULTIBALL) = False Then
+            DISPATCH GAME_COMBO, lsCombo5
+        End If
     Else
         gameState("switches")("rightOrbit") = 1
     End If

@@ -9,7 +9,7 @@ Sub InitFlexDMD()
 		.GameName = cGameName
 		.TableFile = Table1.Filename & ".vpx"
 		.Color = RGB(255, 88, 32)
-		.RenderMode = FlexDMD_RenderMode_DMD_GRAY_4
+		.RenderMode = FlexDMD_RenderMode_DMD_RGB
 		.Width = 128
 		.Height = 32
 		.Clear = True
@@ -42,12 +42,12 @@ End Sub
 	InitFlexDMD()
 'End If
 
+Dim font : Set font = FlexDMD.NewFont("FlexDMD.Resources.teeny_tiny_pixls-5.fnt", RGB(207, 11, 198),RGB(207, 11, 198), 0)
+Dim bigFont : Set bigFont = FlexDMD.NewFont("FlexDMD.Resources.bm_army-12.fnt", RGB(207, 11, 198),RGB(207, 11, 198), 0)
+
 Sub FlexDMDCreateWelcomeScene()
 	'DotMatrix.color = RGB(255, 88, 32)
 	Dim scene : Set scene = FlexDMD.NewGroup("Welcome")
-	Dim font : Set font = FlexDMD.NewFont("FlexDMD.Resources.teeny_tiny_pixls-5.fnt", vbWhite, vbWhite, 0)
-	Dim bigFont : Set bigFont = FlexDMD.NewFont("FlexDMD.Resources.bm_army-12.fnt", vbWhite, vbWhite, 0)
-
 	Dim lblTitle : Set lblTitle = FlexDMD.NewLabel("lblTitle", bigFont, "...CYBERRACE...")
 	Dim lblPressStart : Set lblPressStart = FlexDMD.NewLabel("lblPressStart", bigFont, "PRESS START")
 	scene.AddActor lblTitle
@@ -102,7 +102,7 @@ Sub FlexDMDCreateWelcomeScene()
 	'scene.GetLabel("Right").AddAction af.Repeat(blinkRight, -1)
 
 	FlexDMD.LockRenderThread
-	FlexDMD.RenderMode = FlexDMD_RenderMode_DMD_GRAY_4
+	FlexDMD.RenderMode = FlexDMD_RenderMode_DMD_RGB
 	FlexDMD.Stage.RemoveAll
 	FlexDMD.Stage.AddActor scene
 	FlexDMD.Show = True
@@ -111,10 +111,11 @@ End Sub
 
 Sub FlexDMDGameModeNormal()
 	'DotMatrix.color = RGB(255, 88, 32)
-	Dim scene : Set scene = FlexDMD.NewGroup("Welcome")
-	Dim font : Set font = FlexDMD.NewFont("FlexDMD.Resources.teeny_tiny_pixls-5.fnt", vbWhite, vbWhite, 0)
-	Dim bigFont : Set bigFont = FlexDMD.NewFont("FlexDMD.Resources.bm_army-12.fnt", vbWhite, vbWhite, 0)
 
+	DisplayFlexBetHitScreen("BetFrameB")
+	Exit Sub
+
+	Dim scene : Set scene = FlexDMD.NewGroup("Welcome")
 	Dim lblTitle : Set lblTitle = FlexDMD.NewLabel("lblTitle", bigFont, "...CYBERRACE...")
 	
 	scene.AddActor lblTitle
@@ -122,7 +123,7 @@ Sub FlexDMDGameModeNormal()
 	lblTitle.SetBounds 0, 0, 128, 16
 
 	FlexDMD.LockRenderThread
-	FlexDMD.RenderMode = FlexDMD_RenderMode_DMD_GRAY_4
+	FlexDMD.RenderMode = FlexDMD_RenderMode_DMD_RGB
 	FlexDMD.Stage.RemoveAll
 	FlexDMD.Stage.AddActor scene
 	FlexDMD.Show = True
@@ -133,8 +134,6 @@ End Sub
 Sub FlexDMDGameModeSkillshot()
 	'DotMatrix.color = RGB(255, 88, 32)
 	Dim scene : Set scene = FlexDMD.NewGroup("GameModeNormal")
-	Dim font : Set font = FlexDMD.NewFont("FlexDMD.Resources.teeny_tiny_pixls-5.fnt", vbWhite, vbWhite, 0)
-	Dim bigFont : Set bigFont = FlexDMD.NewFont("FlexDMD.Resources.bm_army-12.fnt", vbWhite, vbWhite, 0)
 
 	Dim lblTitle : Set lblTitle = FlexDMD.NewLabel("lblTitle", bigFont, "SKILLSHOT")
 	Dim lblMusic : Set lblMusic = FlexDMD.NewLabel("lblMusic", font, audioTracks(currentTrack)(1))
@@ -204,7 +203,7 @@ Sub FlexDMDGameModeSkillshot()
 	'scene.GetLabel("Right").AddAction af.Repeat(blinkRight, -1)
 
 	FlexDMD.LockRenderThread
-	FlexDMD.RenderMode = FlexDMD_RenderMode_DMD_GRAY_4
+	FlexDMD.RenderMode = FlexDMD_RenderMode_DMD_RGB
 	FlexDMD.Stage.RemoveAll
 	FlexDMD.Stage.AddActor scene
 	FlexDMD.Show = True
@@ -214,8 +213,6 @@ End Sub
 Sub DisplayCurrentAudioTrack()
 
 	Dim scene : Set scene = FlexDMD.NewGroup("GameModeNormal")
-	Dim font : Set font = FlexDMD.NewFont("FlexDMD.Resources.teeny_tiny_pixls-5.fnt", vbWhite, vbWhite, 0)
-	Dim bigFont : Set bigFont = FlexDMD.NewFont("FlexDMD.Resources.bm_army-12.fnt", vbWhite, vbWhite, 0)
 
 	Dim lblMusic : Set lblMusic = FlexDMD.NewLabel("lblMusic", font, audioTracks(currentTrack)(1))
 
@@ -232,10 +229,44 @@ Sub DisplayCurrentAudioTrack()
 	lblMusic.AddAction afMusic.Repeat(list, 1)
 
 	FlexDMD.LockRenderThread
-	FlexDMD.RenderMode = FlexDMD_RenderMode_DMD_GRAY_4
+	FlexDMD.RenderMode = FlexDMD_RenderMode_DMD_RGB
 	FlexDMD.Stage.RemoveAll
 	FlexDMD.Stage.AddActor scene
 	FlexDMD.Show = True
 	FlexDMD.UnlockRenderThread
 
+End Sub
+
+Dim BetFrameB: Set BetFrameB = FlexDMD.NewImage("BetFrame_B", "VPX.flexBET&region=0,0,512,128")
+BetFrameB.SetBounds 0, 6, 128, 26
+Dim BetFrameE: Set BetFrameE = FlexDMD.NewImage("BetFrame_E", "VPX.flexBET&region=0,128,512,128")
+BetFrameE.SetBounds 0, 6, 128, 26
+Dim BetFrameT: Set BetFrameT = FlexDMD.NewImage("BetFrame_T", "VPX.flexBET&region=0,256,512,128")
+BetFrameT.SetBounds 0, 6, 128, 26
+Dim BetScene : Set BetScene = FlexDMD.NewGroup("BetCharacters")
+BetScene.AddActor FlexDMD.NewLabel("BetHurryUp", font, "")
+BetScene.AddActor BetFrameB
+BetScene.AddActor BetFrameE
+BetScene.AddActor BetFrameT
+
+Sub DisplayFlexBetHitScreen(frame)
+	
+	BetFrameB.Visible = False
+	BetFrameE.Visible = False
+	BetFrameT.Visible = False
+	Dim label: Set label = BetScene.GetLabel("BetHurryUp")
+	label.SetAlignedPosition 64, 5, FlexDMD_Align_Center
+	label.Text = gameState("game")("betHits") & " More Hits"
+	Execute frame&".Visible = True"
+	FlexDMD.LockRenderThread
+	FlexDMD.RenderMode = FlexDMD_RenderMode_DMD_RGB
+	FlexDMD.Stage.RemoveAll
+	FlexDMD.Stage.AddActor BetScene
+	FlexDMD.Show = True
+	FlexDMD.UnlockRenderThread
+End Sub
+
+
+Sub vpmTimerFlexUpdateMain
+	FlexDMDGameModeNormal()
 End Sub

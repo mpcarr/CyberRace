@@ -16,3 +16,4 @@ lights.txt
 *.png
 testdof.vpx
 *.vpx
+*.blend*

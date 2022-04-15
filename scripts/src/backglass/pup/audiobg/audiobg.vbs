@@ -55,5 +55,7 @@ Sub StopBGAudio
         pupevent track(3)
     next
     currentTrack = -1
+    pupevent 605'hurryup
+    pupevent 503'hackers
 
 End sub

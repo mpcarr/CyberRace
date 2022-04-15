@@ -4,7 +4,7 @@
 '***********************************************************************************************************************
 
 Sub Bumper1_Hit()
-    PlaySoundAt SoundFXDOF("fx_bumper", 107, DOFPulse, DOFContactors), ActiveBall  
+    PlaySoundAt SoundFXDOF("LeftBumper", 107, DOFPulse, DOFContactors), ActiveBall  
 
     Dim colorIndex:colorIndex = RndNum(0,1)
     lSeqBumper1HitFlash.LampColor = gameColors(colorIndex)
@@ -20,7 +20,7 @@ Sub Bumper1_Hit()
 End Sub
 
 Sub Bumper2_Hit()
-    PlaySoundAt SoundFXDOF("fx_bumper", 107, DOFPulse, DOFContactors), ActiveBall  
+    PlaySoundAt SoundFXDOF("RightBumper", 107, DOFPulse, DOFContactors), ActiveBall  
 
     Dim colorIndex:colorIndex = RndNum(0,1)
     lSeqBumper2HitFlash.LampColor = gameColors(colorIndex)
@@ -36,7 +36,7 @@ Sub Bumper2_Hit()
 End Sub
 
 Sub Bumper3_Hit()
-    PlaySoundAt SoundFXDOF("fx_bumper", 107, DOFPulse, DOFContactors), ActiveBall  
+    PlaySoundAt SoundFXDOF("BottomBumper", 107, DOFPulse, DOFContactors), ActiveBall  
 
     Dim colorIndex:colorIndex = RndNum(0,1)
     lSeqBumper3HitFlash.LampColor = gameColors(colorIndex)

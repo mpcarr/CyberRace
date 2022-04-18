@@ -126,7 +126,7 @@ dim tableheight: tableheight = Table1.height
 
 	'Dim pupPlayer
 	'Set pupPlayer = new PinUp
-	Dim gameState, gameStarted
+	Dim gameStarted
 	gameStarted = False
 
 	Dim debugMode:debugMode = False

@@ -5,7 +5,7 @@
 
 Sub Dispatch(action, options)
 		
-    DebugPost action
+    'DebugPost action
 
     Select Case action
 

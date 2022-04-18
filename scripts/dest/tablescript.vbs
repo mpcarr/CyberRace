@@ -126,7 +126,7 @@ dim tableheight: tableheight = Table1.height
 
 	'Dim pupPlayer
 	'Set pupPlayer = new PinUp
-	Dim gameState, gameStarted
+	Dim gameStarted
 	gameStarted = False
 
 	Dim debugMode:debugMode = False
@@ -891,7 +891,7 @@ trackCount = 0
 'audioBGTracks.Add "E501", "Rob Avery - Untitled"
 
 Sub PlayBGAudio
-    Exit Sub
+
     If currentTrack > -1 Then
         Dim pupCode: pupCode = audioTracks(currentTrack)(0)
         pupevent pupCode
@@ -2647,6 +2647,7 @@ end sub
 '*****                                                                                                              ****
 '***********************************************************************************************************************
 Dim DebugScore
+Dim gameState
 
 Sub StartGame()
 
@@ -2654,6 +2655,8 @@ Sub StartGame()
     Set gameState = CreateObject("Scripting.Dictionary")
     Set materials=CreateObject("Scripting.Dictionary")
 
+
+	
     Set laneLights = InitLaneLightsState
     Set lights = InitLightsState
 	Set switches = InitSwitchesState
@@ -5603,7 +5606,7 @@ End Sub
 
 Sub Dispatch(action, options)
 		
-    DebugPost action
+    'DebugPost action
 
     Select Case action
 

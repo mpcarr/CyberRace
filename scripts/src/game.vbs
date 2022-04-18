@@ -3,6 +3,7 @@
 '*****                                                                                                              ****
 '***********************************************************************************************************************
 Dim DebugScore
+Dim gameState
 
 Sub StartGame()
 
@@ -10,6 +11,8 @@ Sub StartGame()
     Set gameState = CreateObject("Scripting.Dictionary")
     Set materials=CreateObject("Scripting.Dictionary")
 
+
+	
     Set laneLights = InitLaneLightsState
     Set lights = InitLightsState
 	Set switches = InitSwitchesState

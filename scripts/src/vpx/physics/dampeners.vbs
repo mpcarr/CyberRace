@@ -40,6 +40,14 @@ SleevesD.debugOn = False        'shows info in textbox "TBPout"
 SleevesD.Print = False        'debug, reports in debugger (in vel, out cor)
 SleevesD.CopyCoef RubbersD, 0.85
 
+dim FlippersD : Set FlippersD = new Dampener
+FlippersD.name = "Flippers"
+FlippersD.debugOn = False
+FlippersD.Print = False	
+FlippersD.addpoint 0, 0, 1.1	
+FlippersD.addpoint 1, 3.77, 0.99
+FlippersD.addpoint 2, 6, 0.99
+
 Class Dampener
 	Public Print, debugOn 'tbpOut.text
 	public name, Threshold         'Minimum threshold. Useful for Flippers, which don't have a hit threshold.
@@ -55,7 +63,7 @@ Class Dampener
 		if threshold then if BallSpeed(aBall) < threshold then exit sub end if end if
 		dim RealCOR, DesiredCOR, str, coef
 		DesiredCor = LinearEnvelope(cor.ballvel(aBall.id), ModIn, ModOut )
-		RealCOR = BallSpeed(aBall) / (cor.ballvel(aBall.id)+0.0000001)
+		RealCOR = BallSpeed(aBall) / (cor.ballvel(aBall.id)+0.0001)
 		coef = desiredcor / realcor 
 		if debugOn then str = name & " in vel:" & round(cor.ballvel(aBall.id),2 ) & vbnewline & "desired cor: " & round(desiredcor,4) & vbnewline & _
 		"actual cor: " & round(realCOR,4) & vbnewline & "ballspeed coef: " & round(coef, 3) & vbnewline 
@@ -63,6 +71,16 @@ Class Dampener
 
 		aBall.velx = aBall.velx * coef : aBall.vely = aBall.vely * coef
 		if debugOn then TBPout.text = str
+	End Sub
+
+	public sub Dampenf(aBall, parm) 'Rubberizer is handle here
+		dim RealCOR, DesiredCOR, str, coef
+		DesiredCor = LinearEnvelope(cor.ballvel(aBall.id), ModIn, ModOut )
+		RealCOR = BallSpeed(aBall) / (cor.ballvel(aBall.id)+0.0001)
+		coef = desiredcor / realcor 
+		If abs(aball.velx) < 2 and aball.vely < 0 and aball.vely > -3.75 then 
+			aBall.velx = aBall.velx * coef : aBall.vely = aBall.vely * coef
+		End If
 	End Sub
 
 	Public Sub CopyCoef(aObj, aCoef) 'alternative addpoints, copy with coef

@@ -1775,8 +1775,6 @@ Sub GameTimer_timer()
 
 	cor.update
 
-	FlipperTimer
-
 End Sub
 
 Sub FrameTimer_Timer()
@@ -1786,6 +1784,7 @@ Sub FrameTimer_Timer()
 	'GatesTimer
 	'RollingSound
 		LampTimer
+		FlipperVisualUpdate
 		If DynamicBallShadowsOn=1 Then DynamicBSUpdate 'update ball shadows
 	'VR_Primary_plunger.Y = -50 + (5* Plunger.Position) -20
 	End IF

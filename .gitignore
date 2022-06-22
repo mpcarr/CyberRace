@@ -17,3 +17,6 @@ lights.txt
 testdof.vpx
 *.vpx
 *.blend*
+CyberRace-VLM-backup - Bakes/**/*.*
+CyberRaceDMD/**/*.*
+lightmappertest - Bakes/**/*.*

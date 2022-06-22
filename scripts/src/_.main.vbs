@@ -13,38 +13,6 @@ DebugOutClear()
 
 'TABLE OPTIONS
 
-Dim usePUP:usePUP = True 'Use Pup Pack or FlexDMD. false = FlexDMD, true = Pup Pack
-
-Dim FlexDMD
-' FlexDMD constants
-Const 	FlexDMD_RenderMode_DMD_GRAY = 0, _
-		FlexDMD_RenderMode_DMD_GRAY_4 = 1, _
-		FlexDMD_RenderMode_DMD_RGB = 2, _
-		FlexDMD_RenderMode_SEG_2x16Alpha = 3, _
-		FlexDMD_RenderMode_SEG_2x20Alpha = 4, _
-		FlexDMD_RenderMode_SEG_2x7Alpha_2x7Num = 5, _
-		FlexDMD_RenderMode_SEG_2x7Alpha_2x7Num_4x1Num = 6, _
-		FlexDMD_RenderMode_SEG_2x7Num_2x7Num_4x1Num = 7, _
-		FlexDMD_RenderMode_SEG_2x7Num_2x7Num_10x1Num = 8, _
-		FlexDMD_RenderMode_SEG_2x7Num_2x7Num_4x1Num_gen7 = 9, _
-		FlexDMD_RenderMode_SEG_2x7Num10_2x7Num10_4x1Num = 10, _
-		FlexDMD_RenderMode_SEG_2x6Num_2x6Num_4x1Num = 11, _
-		FlexDMD_RenderMode_SEG_2x6Num10_2x6Num10_4x1Num = 12, _
-		FlexDMD_RenderMode_SEG_4x7Num10 = 13, _
-		FlexDMD_RenderMode_SEG_6x4Num_4x1Num = 14, _
-		FlexDMD_RenderMode_SEG_2x7Num_4x1Num_1x16Alpha = 15, _
-		FlexDMD_RenderMode_SEG_1x16Alpha_1x16Num_1x7Num = 16
-
-Const 	FlexDMD_Align_TopLeft = 0, _
-		FlexDMD_Align_Top = 1, _
-		FlexDMD_Align_TopRight = 2, _
-		FlexDMD_Align_Left = 3, _
-		FlexDMD_Align_Center = 4, _
-		FlexDMD_Align_Right = 5, _
-		FlexDMD_Align_BottomLeft = 6, _
-		FlexDMD_Align_Bottom = 7, _
-		FlexDMD_Align_BottomRight = 8
-
 Const typefont = "Raleway Medium"
 Const numberfont = "Bebas Neue"
 Const zoomfont = "Fundamental  Brigade"
@@ -60,18 +28,17 @@ Const MaxMultiballs = 5
 Const bpgcurrent = 3
 Dim pBackglass:pBackglass=2
 Const RollingSoundFactor = 1 		'Change volume of rolling sounds
-
+Dim usePup: usePUP = True 'Use Pup Pack or FlexDMD. false = FlexDMD, true = Pup Pack
+Dim useLightMapper: useLightMapper = true
 Const VR_ON = False
 
 '----- Shadow Options -----
-Dim DynamicBallShadowsOn: DynamicBallShadowsOn = 1		'0 = no dynamic ball shadow, 1 = enable dynamic ball shadow
+Dim DynamicBallShadowsOn: DynamicBallShadowsOn = 0		'0 = no dynamic ball shadow, 1 = enable dynamic ball shadow
 
 If VR_ON = True Then
 	DynamicBallShadowsOn = 0
 End If
 
-'///////////////////////-----Rubberizer-----////////////////////
-const RubberizerEnabled = 1 '0 = normal flip rubber, 1 = more lively rubber for flips
 ' using table width and height in script slows down the performance
 dim tablewidth: tablewidth = Table1.width
 dim tableheight: tableheight = Table1.height
@@ -181,6 +148,7 @@ dim tableheight: tableheight = Table1.height
 			.InitExitSnd SoundFX("fx_kicker", DOFContactors), SoundFX("fx_solenoid", DOFContactors)
 			.CreateEvents "plungerIM"
 		End With
+		InitLightMapperElements
 	End Sub
 
 	Sub Table1_Exit()
@@ -201,9 +169,7 @@ dim tableheight: tableheight = Table1.height
 ' MATHS
 '********************
 
-Function RndNum(min,max)
- RndNum = Int(Rnd()*(max-min+1))+min     ' Sets a random number between min AND max
-End Function
+
 
 'EndRegion Table Init
 

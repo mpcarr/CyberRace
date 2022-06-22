@@ -1,0 +1,19 @@
+Dim Table1: Set Table1 = new Table
+Dim LockPin: Set LockPin = new Wall
+Dim RPin: Set RPin = new Wall
+Dim playfield_lm: Set playfield_lm = new Flasher
+Dim p_plastics: Set p_plastics = new Primitive
+Dim GI: GI = Array()
+Dim vpmTimer: Set vpmTimer = new cvpmTimer
+Dim ballRelease: Set ballRelease = new Kicker
+Dim DiverterOff: Set DiverterOff = new Wall
+Dim DiverterOn: Set DiverterOn = new Wall
+Dim timerRampDiverter: Set timerRampDiverter = new VPXTimer
+Dim diverterWall3On: Set DiverterWall3On = new Wall
+Dim diverterWall3Off: Set DiverterWall3Off = new Wall
+Dim FlasherFluxTimer1: Set FlasherFluxTimer1 = new VPXTimer
+Dim FlasherFluxTimer2: Set FlasherFluxTimer2 = new VPXTimer
+Dim objFluxBase(3)
+Set objFluxBase(0) = new Primitive
+Set objFluxBase(1) = new Primitive
+Set objFluxBase(2) = new Primitive

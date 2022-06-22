@@ -1,0 +1,26 @@
+Class Flasher
+    Dim Name
+    Dim X
+    Dim Y
+    Dim ImageAlignment
+    Dim Height
+    Dim RotZ
+    Dim RotY
+    Dim RotX
+    Dim Color
+    Dim ImageA
+    Dim ImageB
+    Dim DisplayTexture
+    Dim Opacity
+    Dim IntensityScale
+    Dim ModulateVsAdd
+    Dim UserValue       
+    Dim Visible
+    Dim AddBlend
+    Dim DMD                
+    Dim DepthBias
+    Dim Filter
+    Dim Amount
+    Dim TimerEnabled
+    Dim TimerInterval
+End Class

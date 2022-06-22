@@ -2,15 +2,15 @@ module.exports = function(grunt) {
   grunt.initConfig({
       concat: {
         dist: {
-          src: ['src/**/*.vbs', '!src/unittests/vbsUnit.vbs', '!src/**/*.test.vbs'],
+          src: ['src/**/*.vbs', '!src/unittests/**/*.vbs', '!src/**/*.test.vbs'],
           dest: 'dest/tablescript.vbs',
         },
         state: {
-          src: ['src/_colors.vbs', 'src/game.vbs', 'src/state/**/*.vbs'],
+          src: ['src/game/**/*.vbs'],
           dest: 'dest/tablescript-state.vbs',
         },
         tests:{
-          src: ['src/unittests/vbsUnit.vbs', 'dest/tablescript-state.vbs', 'src/**/*.test.vbs'],
+          src: ['src/unittests/vbsUnit.vbs', 'src/unittests/mocks/**/*.vbs', 'dest/tablescript-state.vbs', 'src/unittests/tests-init.vbs','src/**/*.test.vbs', 'src/unittests/tests-report.vbs'],
           dest: 'dest/tests.vbs',
         }
       },

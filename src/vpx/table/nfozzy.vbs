@@ -738,18 +738,18 @@ Sub FlipperVisualUpdate
 	Dim lfa: lfa = -145.5 - (123-LeftFlipper.currentangle)
 	Dim rfa: rfa = -34.5 + (123+RightFlipper.currentangle)
 	Dim ufa: ufa = -34.5 + (123+UpRightFlipper.currentangle)
-	FlipperR_BM_World.RotZ = rfa ' VLM.Props;BM;1;FlipperR
+	BM_FlipperR.RotZ = rfa ' VLM.Props;BM;1;FlipperR
 	Dim el
-	For Each el in FlipperR_LM
-		el.Rotz = FlipperR_BM_World.Rotz
+	For Each el in BP_FlipperR
+		el.Rotz = BM_FlipperR.Rotz
 	Next
-	FlipperL_BM_World.RotZ = lfa ' VLM.Props;BM;1;FlipperL
-	For Each el in FlipperL_LM
-		el.Rotz = FlipperL_BM_World.Rotz
+	BM_FlipperL.RotZ = lfa ' VLM.Props;BM;1;FlipperL
+	For Each el in BP_FlipperL
+		el.Rotz = BM_FlipperL.Rotz
 	Next
-	FlipperU_BM_World.RotZ = ufa ' VLM.Props;BM;1;FlipperU
-	For Each el in FlipperU_LM
-		el.Rotz = FlipperU_BM_World.Rotz
+	BM_FlipperU.RotZ = ufa ' VLM.Props;BM;1;FlipperU
+	For Each el in BP_FlipperU
+		el.Rotz = BM_FlipperU.Rotz
 	Next
 End Sub
 

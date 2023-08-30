@@ -17,14 +17,14 @@ End Sub
 
 Sub FrameTimer_Timer()
 	Dim el, a 
-	Disc_BM_World.RotZ = (Disc_BM_World.RotZ + (ttSpinner.Speed/4)) Mod 360
-	a = Disc_BM_World.RotZ
-	For Each el in Disc_LM
+	BM_Disc.RotZ = (BM_Disc.RotZ + (ttSpinner.Speed/4)) Mod 360
+	a = BM_Disc.RotZ
+	For Each el in BP_Disc
 		el.Rotz = a		
 	Next
 	FlipperVisualUpdate()
 
-	For Each el in sw18_LM
+	For Each el in BP_Disc
 		el.Rotz = a		
 	Next
 
@@ -36,24 +36,24 @@ End Sub
 
 Sub TargetMovableHelper
 	Dim t
-	For each t in sw10_LM : t.transy = sw10_BM_World.transy : Next
+	For each t in BP_sw10 : t.transy = BM_sw10.transy : Next
 
-	For each t in sw11_LM : t.transy = sw11_BM_World.transy : Next
+	For each t in BP_sw11 : t.transy = BM_sw11.transy : Next
 
-	For each t in sw12_LM : t.transy = sw12_BM_World.transy : Next
+	For each t in BP_sw12 : t.transy = BM_sw12.transy : Next
 
-	For each t in sw18_LM : t.transy = sw18_BM_World.transy : Next
+	For each t in BP_sw18 : t.transy = BM_sw18.transy : Next
 
-	For each t in sw19_LM : t.transy = sw19_BM_World.transy : Next
+	For each t in BP_sw19 : t.transy = BM_sw19.transy : Next
 
-	For each t in sw20_LM : t.transy = sw20_BM_World.transy : Next
+	For each t in BP_sw20 : t.transy = BM_sw20.transy : Next
 
-	For each t in sw21_LM : t.transy = sw21_BM_World.transy : Next
+	For each t in BP_sw21 : t.transy = BM_sw21.transy : Next
 
-	For each t in sw22_LM : t.transy = sw22_BM_World.transy : Next
+	For each t in BP_sw22 : t.transy = BM_sw22.transy : Next
 
-	For each t in sw23_LM : t.transy = sw23_BM_World.transy : Next
+	For each t in BP_sw23 : t.transy = BM_sw23.transy : Next
 
-	For each t in sw25_LM : t.transy = sw25_BM_World.transy : Next
+	For each t in BP_sw25 : t.transy = BM_sw25.transy : Next
 
 End Sub

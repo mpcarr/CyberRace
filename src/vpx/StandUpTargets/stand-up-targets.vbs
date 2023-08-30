@@ -20,16 +20,16 @@ Dim ST18, ST19
 'You will also need to add a secondary hit object for each stand up (name sw11o, sw12o, and sw13o on the example Table1)
 'these are inclined primitives to simulate hitting a bent target and should provide so z velocity on high speed impacts
 
-ST10 = Array(sw10, sw10_BM_World, 10, 0)
-ST11 = Array(sw11, sw11_BM_World, 11, 0)
-ST12 = Array(sw12, sw12_BM_World, 12, 0)
-ST18 = Array(sw18, sw18_BM_World, 18, 0)
-ST19 = Array(sw19, sw19_BM_World, 19, 0)
-ST20 = Array(sw20, sw20_BM_World, 20, 0)
-ST21 = Array(sw21, sw21_BM_World, 21, 0)
-ST22 = Array(sw22, sw22_BM_World, 22, 0)
-ST23 = Array(sw23, sw23_BM_World, 23, 0)
-ST25 = Array(sw25, sw25_BM_World, 25, 0)
+ST10 = Array(sw10, BM_sw10, 10, 0)
+ST11 = Array(sw11, BM_sw11, 11, 0)
+ST12 = Array(sw12, BM_sw12, 12, 0)
+ST18 = Array(sw18, BM_sw18, 18, 0)
+ST19 = Array(sw19, BM_sw19, 19, 0)
+ST20 = Array(sw20, BM_sw20, 20, 0)
+ST21 = Array(sw21, BM_sw21, 21, 0)
+ST22 = Array(sw22, BM_sw22, 22, 0)
+ST23 = Array(sw23, BM_sw23, 23, 0)
+ST25 = Array(sw25, BM_sw25, 25, 0)
 
 'Add all the Stand-up Target Arrays to Stand-up Target Animation Array
 ' STAnimationArray = Array(ST1, ST2, ....)

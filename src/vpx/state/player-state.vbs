@@ -1,0 +1,68 @@
+Function GetPlayerState(key)
+    If IsNull(currentPlayer) Then
+        Exit Function
+    End If
+
+    If playerState(currentPlayer).Exists(key)  Then
+        GetPlayerState = playerState(currentPlayer)(key)
+    Else
+        GetPlayerState = Null
+    End If
+End Function
+
+Function SetPlayerState(key, value)
+    If IsNull(currentPlayer) Then
+        Exit Function
+    End If
+
+    If IsArray(value) Then
+        If Join(GetPlayerState(key)) = Join(value) Then
+            Exit Function
+        End If
+        WriteToLog "Player State", key&": "&Join(value)
+    Else
+        If GetPlayerState(key) = value Then
+            Exit Function
+        End If
+        WriteToLog "Player State", key&": "&value
+    End If   
+    
+    
+    If playerState(currentPlayer).Exists(key)  Then
+        playerState(currentPlayer)(key) = value
+    Else
+        playerState(currentPlayer).Add key, value
+    End If
+    If playerEvents.Exists(key) Then
+        Dim x
+        For Each x in playerEvents(key).Keys()
+            If playerEvents(key)(x) = True Then
+                WriteToLog "Firing Player Event", key &": "&x
+                ExecuteGlobal x
+            End If
+        Next
+    End If
+    
+    SetPlayerState = Null
+End Function
+
+Sub RegisterPlayerStateEvent(e, v)
+    If Not playerEvents.Exists(e) Then
+        playerEvents.Add e, CreateObject("Scripting.Dictionary")
+    End If
+    playerEvents(e).Add v, True
+End Sub
+
+Sub EmitAllPlayerEvents()
+    Dim key
+    For Each key in playerState(currentPlayer).Keys()
+        If playerEvents.Exists(key) Then
+            Dim x
+            For Each x in playerEvents(key).Keys()
+                If playerEvents(key)(x) = True Then
+                    ExecuteGlobal x
+                End If
+            Next
+        End If
+    Next
+End Sub

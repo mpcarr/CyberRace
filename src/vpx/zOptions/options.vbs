@@ -1,0 +1,321 @@
+'***********************************************************************
+'* TABLE OPTIONS *******************************************************
+'***********************************************************************
+
+Dim LightLevel : LightLevel = 60			'Level of room lighting (0 to 100), where 0 is dark and 100 is brightest
+Dim ColorLUT : ColorLUT = 3
+Dim OutPostMod : OutPostMod = 1				'Difficulty : 0 = Easy, 1 = Medium, 2 = Hard
+Dim SlingsMod : SlingsMod = 0 				'0 - Blue Slings, 1 = Orange Slings
+Dim VolumeDial : VolumeDial = 0.8			'Overall Mechanical sound effect volume. Recommended values should be no greater than 1.
+Dim BallRollVolume : BallRollVolume = 0.5 	'Level of ball rolling volume. Value between 0 and 1
+Dim RampRollVolume : RampRollVolume = 0.5 	'Level of ramp rolling volume. Value between 0 and 1
+
+'Dim Cabinetmode	: Cabinetmode = 0			'0 - Siderails On, 1 - Siderails Off
+
+Dim VRRoomChoice : VRRoomChoice = 1				'0 - Minimal Room, 1 = Default Room
+
+' Base options
+Const Opt_Light = 0
+Const Opt_LUT = 1
+Const Opt_Volume = 2
+Const Opt_Volume_Ramp = 3
+Const Opt_Volume_Ball = 4
+' Table mods & toys
+'Const Opt_Cabinet = 7
+' Shadow options
+' Informations
+Const Opt_Info_1 = 5
+Const Opt_Info_2 = 6
+
+Const NOptions = 7
+
+Dim OptionDMD: Set OptionDMD = Nothing
+Dim bOptionsMagna, bInOptions : bOptionsMagna = False
+Dim OptPos, OptSelected, OptN, OptTop, OptBot, OptSel
+Dim OptFontHi, OptFontLo
+
+Sub Options_Open
+	bOptionsMagna = False
+	Set OptionDMD = CreateObject("FlexDMD.FlexDMD")
+	If OptionDMD is Nothing Then
+		Debug.Print "FlexDMD is not installed"
+		Debug.Print "Option UI can not be opened"
+		Exit Sub
+	End If
+	Debug.Print "Option UI opened"
+	If ShowDT Then OptionDMDFlasher.RotX = -(Table1.Inclination + Table1.Layback)
+	bInOptions = True
+	OptPos = 0
+	OptSelected = False
+	OptionDMD.Show = False
+	OptionDMD.RenderMode = FlexDMD_RenderMode_DMD_GRAY_4
+	OptionDMD.Width = 128
+	OptionDMD.Height = 32
+	OptionDMD.Clear = True
+	OptionDMD.Run = True
+	Dim a, scene, font
+	Set scene = OptionDMD.NewGroup("Scene")
+	Set OptFontHi = OptionDMD.NewFont("FlexDMD.Resources.teeny_tiny_pixls-5.fnt", vbWhite, vbWhite, 0)
+	Set OptFontLo = OptionDMD.NewFont("FlexDMD.Resources.teeny_tiny_pixls-5.fnt", RGB(100, 100, 100), RGB(100, 100, 100), 0)
+	Set OptSel = OptionDMD.NewGroup("Sel")
+	Set a = OptionDMD.NewLabel(">", OptFontLo, ">>>")
+	a.SetAlignedPosition 1, 16, FlexDMD_Align_Left
+	OptSel.AddActor a
+	Set a = OptionDMD.NewLabel(">", OptFontLo, "<<<")
+	a.SetAlignedPosition 127, 16, FlexDMD_Align_Right
+	OptSel.AddActor a
+	scene.AddActor OptSel
+	OptSel.SetBounds 0, 0, 128, 32
+	OptSel.Visible = False
+	
+	Set a = OptionDMD.NewLabel("Info1", OptFontLo, "MAGNA EXIT/ENTER")
+	a.SetAlignedPosition 1, 32, FlexDMD_Align_BottomLeft
+	scene.AddActor a
+	Set a = OptionDMD.NewLabel("Info2", OptFontLo, "FLIPPER SELECT")
+	a.SetAlignedPosition 127, 32, FlexDMD_Align_BottomRight
+	scene.AddActor a
+	Set OptN = OptionDMD.NewLabel("Pos", OptFontLo, "LINE 1")
+	Set OptTop = OptionDMD.NewLabel("Top", OptFontLo, "LINE 1")
+	Set OptBot = OptionDMD.NewLabel("Bottom", OptFontLo, "LINE 2")
+	scene.AddActor OptN
+	scene.AddActor OptTop
+	scene.AddActor OptBot
+	Options_OnOptChg
+	OptionDMD.LockRenderThread
+	OptionDMD.Stage.AddActor scene
+	OptionDMD.UnlockRenderThread
+	OptionDMDFlasher.Visible = True
+End Sub
+
+Sub Options_UpdateDMD
+	If OptionDMD is Nothing Then Exit Sub
+	Dim DMDp: DMDp = OptionDMD.DmdPixels
+	If Not IsEmpty(DMDp) Then
+		OptionDMDFlasher.DMDWidth = OptionDMD.Width
+		OptionDMDFlasher.DMDHeight = OptionDMD.Height
+		OptionDMDFlasher.DMDPixels = DMDp
+	End If
+End Sub
+
+Sub Options_Close
+	bInOptions = False
+	OptionDMDFlasher.Visible = False
+	If OptionDMD is Nothing Then Exit Sub
+	OptionDMD.Run = False
+	Set OptionDMD = Nothing
+End Sub
+
+Function Options_OnOffText(opt)
+	If opt Then
+		Options_OnOffText = "ON"
+	Else
+		Options_OnOffText = "OFF"
+	End If
+End Function
+
+Sub Options_OnOptChg
+	If OptionDMD is Nothing Then Exit Sub
+	OptionDMD.LockRenderThread
+'	If RenderingMode <> 2 Then
+'		If OptPos < Opt_VRRoomChoice Then
+'			OptN.Text = (OptPos+1) & "/" & (NOptions - 4)
+'		Else
+'			OptN.Text = (OptPos+1 - 4) & "/" & (NOptions - 4)
+'		End If
+'	Else
+'		OptN.Text = (OptPos+1) & "/" & NOptions
+'	End If
+	If OptSelected Then
+		OptTop.Font = OptFontLo
+		OptBot.Font = OptFontHi
+		OptSel.Visible = True
+	Else
+		OptTop.Font = OptFontHi
+		OptBot.Font = OptFontLo
+		OptSel.Visible = False
+	End If
+	If OptPos = Opt_Light Then
+		OptTop.Text = "ROOM LIGHT LEVEL"
+		OptBot.Text = "LEVEL " & LightLevel
+		SaveValue cGameName, "LIGHT", LightLevel
+	ElseIf OptPos = Opt_LUT Then
+		OptTop.Text = "COLOR SATURATION"
+'		OptBot.Text = "LUT " & CInt(ColorLUT)
+		if ColorLUT = 1 Then OptBot.text = "DISABLED"
+		if ColorLUT = 2 Then OptBot.text = "DESATURATED -10%"
+		if ColorLUT = 3 Then OptBot.text = "DESATURATED -20%"
+		if ColorLUT = 4 Then OptBot.text = "DESATURATED -30%"
+		if ColorLUT = 5 Then OptBot.text = "DESATURATED -40%"
+		if ColorLUT = 6 Then OptBot.text = "DESATURATED -50%"
+		if ColorLUT = 7 Then OptBot.text = "DESATURATED -60%"
+		if ColorLUT = 8 Then OptBot.text = "DESATURATED -70%"
+		if ColorLUT = 9 Then OptBot.text = "DESATURATED -80%"
+		if ColorLUT = 10 Then OptBot.text = "DESATURATED -90%"
+		if ColorLUT = 11 Then OptBot.text = "BLACK'N WHITE"
+		SaveValue cGameName, "LUT", ColorLUT
+	ElseIf OptPos = Opt_Volume Then
+		OptTop.Text = "MECH VOLUME"
+		OptBot.Text = "LEVEL " & CInt(VolumeDial * 100)
+		SaveValue cGameName, "VOLUME", VolumeDial
+	ElseIf OptPos = Opt_Volume_Ramp Then
+		OptTop.Text = "RAMP VOLUME"
+		OptBot.Text = "LEVEL " & CInt(RampRollVolume * 100)
+		SaveValue cGameName, "RAMPVOLUME", RampRollVolume
+	ElseIf OptPos = Opt_Volume_Ball Then
+		OptTop.Text = "BALL VOLUME"
+		OptBot.Text = "LEVEL " & CInt(BallRollVolume * 100)
+		SaveValue cGameName, "BALLVOLUME", BallRollVolume
+'	ElseIf OptPos = Opt_Cabinet Then
+'		OptTop.Text = "CABINET MODE"
+'		OptBot.Text = Options_OnOffText(CabinetMode)
+'		SaveValue cGameName, "CABINET", CabinetMode
+	ElseIf OptPos = Opt_Info_1 Then
+		OptTop.Text = "VPX " & VersionMajor & "." & VersionMinor & "." & VersionRevision
+		OptBot.Text = "CYBERRACE " & TableVersion
+	ElseIf OptPos = Opt_Info_2 Then
+		OptTop.Text = "RENDER MODE"
+		If RenderingMode = 0 Then OptBot.Text = "DEFAULT"
+		If RenderingMode = 1 Then OptBot.Text = "STEREO 3D"
+		If RenderingMode = 2 Then OptBot.Text = "VR"
+	End If
+	'OptTop.SetAlignedPosition 127, 1, FlexDMD_Align_TopRight 'bug? not aligning right
+	OptTop.SetAlignedPosition 100, 1, FlexDMD_Align_TopRight
+	OptBot.SetAlignedPosition 64, 16, FlexDMD_Align_Center
+	OptionDMD.UnlockRenderThread
+	UpdateMods
+End Sub
+
+Sub Options_Toggle(amount)
+	If OptionDMD is Nothing Then Exit Sub
+	If OptPos = Opt_Light Then
+		LightLevel = LightLevel + amount * 10
+		If LightLevel < 0 Then LightLevel = 100
+		If LightLevel > 100 Then LightLevel = 0
+	ElseIf OptPos = Opt_LUT Then
+		ColorLUT = ColorLUT + amount * 1
+		If ColorLUT < 1 Then ColorLUT = 11
+		If ColorLUT > 11 Then ColorLUT = 1
+	ElseIf OptPos = Opt_Volume Then
+		VolumeDial = VolumeDial + amount * 0.1
+		If VolumeDial < 0 Then VolumeDial = 1
+		If VolumeDial > 1 Then VolumeDial = 0
+	ElseIf OptPos = Opt_Volume_Ramp Then
+		RampRollVolume = RampRollVolume + amount * 0.1
+		If RampRollVolume < 0 Then RampRollVolume = 1
+		If RampRollVolume > 1 Then RampRollVolume = 0
+	ElseIf OptPos = Opt_Volume_Ball Then
+		BallRollVolume = BallRollVolume + amount * 0.1
+		If BallRollVolume < 0 Then BallRollVolume = 1
+		If BallRollVolume > 1 Then BallRollVolume = 0
+	End If
+End Sub
+
+Sub Options_KeyDown(ByVal keycode)
+	If OptSelected Then
+		If keycode = LeftMagnaSave Then ' Exit / Cancel
+			OptSelected = False
+		ElseIf keycode = RightMagnaSave Then ' Enter / Select
+			OptSelected = False
+		ElseIf keycode = LeftFlipperKey Then ' Next / +
+			Options_Toggle	-1
+		ElseIf keycode = RightFlipperKey Then ' Prev / -
+			Options_Toggle	1
+		End If
+	Else
+		If keycode = LeftMagnaSave Then ' Exit / Cancel
+			Options_Close
+		ElseIf keycode = RightMagnaSave Then ' Enter / Select
+			If OptPos < Opt_Info_1 Then OptSelected = True
+		ElseIf keycode = LeftFlipperKey Then ' Next / +
+			OptPos = OptPos - 1
+'			If OptPos = Opt_VRTopperOn And RenderingMode <> 2 Then OptPos = OptPos - 1 ' Skip VR option in non VR mode
+'			If OptPos = Opt_VRSideBlades And RenderingMode <> 2 Then OptPos = OptPos - 1 ' Skip VR option in non VR mode
+'			If OptPos = Opt_VRBackglassGI And RenderingMode <> 2 Then OptPos = OptPos - 1 ' Skip VR option in non VR mode
+'			If OptPos = Opt_VRRoomChoice And RenderingMode <> 2 Then OptPos = OptPos - 1 ' Skip VR option in non VR mode
+			If OptPos < 0 Then OptPos = NOptions - 1
+		ElseIf keycode = RightFlipperKey Then ' Prev / -
+			OptPos = OptPos + 1
+'			If OptPos = Opt_VRRoomChoice And RenderingMode <> 2 Then OptPos = OptPos + 1 ' Skip VR option in non VR mode
+'			If OptPos = Opt_VRBackglassGI And RenderingMode <> 2 Then OptPos = OptPos + 1 ' Skip VR option in non VR mode
+'			If OptPos = Opt_VRSideBlades And RenderingMode <> 2 Then OptPos = OptPos + 1 ' Skip VR option in non VR mode
+'			If OptPos = Opt_VRTopperOn And RenderingMode <> 2 Then OptPos = OptPos + 1 ' Skip VR option in non VR mode
+			If OptPos >= NOPtions Then OptPos = 0
+		End If
+	End If
+	Options_OnOptChg
+End Sub
+
+Sub Options_Load
+	Dim x
+    x = LoadValue(cGameName, "LIGHT") : If x <> "" Then LightLevel = CInt(x) Else LightLevel = 60
+    x = LoadValue(cGameName, "LUT") : If x <> "" Then ColorLUT = CInt(x) Else ColorLUT = 3
+    x = LoadValue(cGameName, "VOLUME") : If x <> "" Then VolumeDial = CNCDbl(x) Else VolumeDial = 0.8
+    x = LoadValue(cGameName, "RAMPVOLUME") : If x <> "" Then RampRollVolume = CNCDbl(x) Else RampRollVolume = 0.5
+    x = LoadValue(cGameName, "BALLVOLUME") : If x <> "" Then BallRollVolume = CNCDbl(x) Else BallRollVolume = 0.5
+	UpdateMods
+End Sub
+
+
+Sub UpdateMods
+	Dim BL, LM, x, y, c, enabled
+	
+	'*********************
+	'Room light level
+	'*********************
+
+	SetLightLevel LightLevel
+
+	'*********************
+	'Color LUT
+	'*********************
+
+	if ColorLUT = 1 Then Table1.ColorGradeImage = ""
+	if ColorLUT = 2 Then Table1.ColorGradeImage = "colorgradelut256x16-10"
+	if ColorLUT = 3 Then Table1.ColorGradeImage = "colorgradelut256x16-20"
+	if ColorLUT = 4 Then Table1.ColorGradeImage = "colorgradelut256x16-30"
+	if ColorLUT = 5 Then Table1.ColorGradeImage = "colorgradelut256x16-40"
+	if ColorLUT = 6 Then Table1.ColorGradeImage = "colorgradelut256x16-50"
+	if ColorLUT = 7 Then Table1.ColorGradeImage = "colorgradelut256x16-60"
+	if ColorLUT = 8 Then Table1.ColorGradeImage = "colorgradelut256x16-70"
+	if ColorLUT = 9 Then Table1.ColorGradeImage = "colorgradelut256x16-80"
+	if ColorLUT = 10 Then Table1.ColorGradeImage = "colorgradelut256x16-90"
+	if ColorLUT = 11 Then Table1.ColorGradeImage = "colorgradelut256x16-100"
+
+End Sub
+
+
+' Culture neutral string to double conversion (handles situation where you don't know how the string was written)
+Function CNCDbl(str)
+    Dim strt, Sep, i
+    If IsNumeric(str) Then
+        CNCDbl = CDbl(str)
+    Else
+        Sep = Mid(CStr(0.5), 2, 1)
+        Select Case Sep
+        Case "."
+            i = InStr(1, str, ",")
+        Case ","
+            i = InStr(1, str, ".")
+        End Select
+        If i = 0 Then     
+            CNCDbl = Empty
+        Else
+            strt = Mid(str, 1, i - 1) & Sep & Mid(str, i + 1)
+            If IsNumeric(strt) Then
+                CNCDbl = CDbl(strt)
+            Else
+                CNCDbl = Empty
+            End If
+        End If
+    End If
+End Function
+
+'******************
+'Setup Stuff
+'*****************
+
+Sub SetLightLevel(lvl)
+	Dim v
+	v = Int(lvl * 2 + 55)
+	Dim x: For Each x in BM_Room: x.Color = RGB(v, v, v): Next
+End Sub

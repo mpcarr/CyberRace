@@ -1,0 +1,18 @@
+
+'*****************************************************************************************************************************************
+'   Songs
+'*****************************************************************************************************************************************
+
+Dim oPlayer1
+Set oPlayer1 = CreateObject("WMPlayer.OCX")
+
+sub PlaySong(song)
+	StopSong
+	oPlayer1.URL = MusicDirectory & "\" & song
+	oPlayer1.settings.volume = MusicVol*100
+	oPlayer1.controls.play
+end sub
+
+sub StopSong
+	If oPlayer1.playState <> 1 Then oPlayer1.close
+end sub

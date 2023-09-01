@@ -25,7 +25,7 @@ End Sub
 Sub CheckSkillsTrialReady()
     If GetPlayerState(SKILLS_TRIAL_READY) = True AND (ballsInPlay-BallsOnBridge())=1 Then
         SetPlayerState MODE_SKILLS_TRIAL, True
-        SetPlayerState SKILLS_TRIAL_ACTIVATIONS, GetPlayerState(SKILLS_TRIAL_ACTIVATION) + 1
+        SetPlayerState SKILLS_TRIAL_ACTIVATIONS, GetPlayerState(SKILLS_TRIAL_ACTIVATIONS) + 1
         SetPlayerState SKILLS_TRIAL_READY, False
         SetPlayerState SKILLS_TRIAL_SHOT, 1
         'TODO: Light Show.

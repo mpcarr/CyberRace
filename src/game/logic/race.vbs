@@ -31,6 +31,19 @@ End Sub
 
 
 '****************************
+' Race Selection Timer Ended
+' Event Listeners:      
+    RegisterPinEvent GAME_SELECTION_TIMER_ENDED, "RaceSelectionTimerEnded"
+'
+'*****************************
+Sub RaceSelectionTimerEnded()
+    If GetPlayerState(MODE_RACE_SELECT) = True Then
+        RaceSelectConfirm()
+    End If
+End Sub
+
+
+'****************************
 ' RaceSelectCycleLeft
 ' Event Listeners:  
     RegisterPinEvent SWITCH_LEFT_FLIPPER_DOWN, "RaceSelectCycleLeft"
@@ -38,9 +51,6 @@ End Sub
 '*****************************
 Sub RaceSelectCycleLeft()
     If GetPlayerState(MODE_RACE_SELECT) = True Then
-        
-        
-        
         Dim x,i
         x=0
         i = GetPlayerState(RACE_MODE_SELECTION)
@@ -55,7 +65,7 @@ Sub RaceSelectCycleLeft()
             End If
         Loop
         SetPlayerState RACE_MODE_SELECTION, x
-        
+        FlexDMDRaceSelectScene()
     End iF
 End Sub
 
@@ -82,7 +92,7 @@ Sub RaceSelectCycleRight()
             End If
         Loop
         SetPlayerState RACE_MODE_SELECTION, x
-
+        FlexDMDRaceSelectScene()
     End If
 End Sub
 
@@ -100,6 +110,8 @@ Sub RaceSelectConfirm()
             Exit Sub
         End If
         lightCtrl.RemoveAllTableLightSeqs()
+        GameTimers(GAME_SELECTION_TIMER_IDX) = 0
+        DmdQ.RemoveAll()
         raceVuk.TimerEnabled = True
         SetPlayerState MODE_RACE_SELECT, False
         SetPlayerState RACE_MODE_READY, False

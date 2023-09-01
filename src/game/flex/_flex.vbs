@@ -1,5 +1,7 @@
 
 Dim FlexDMD
+Dim DmdWidth : DmdWidth = 128
+Dim DmdHeight : DmdHeight = 32
 ' FlexDMD constants
 Const 	FlexDMD_RenderMode_DMD_GRAY = 0, _
 		FlexDMD_RenderMode_DMD_GRAY_4 = 1, _
@@ -41,8 +43,8 @@ Sub InitFlexDMD()
 		.TableFile = Table1.Filename & ".vpx"
 		.Color = RGB(255, 255, 255)
 		.RenderMode = FlexDMD_RenderMode_DMD_RGB
-		.Width = 256
-		.Height = 64
+		.Width = DmdWidth
+		.Height = DmdHeight
 		.Clear = True
 		.ProjectFolder = "./CyberRaceDMD/"
 		.Run = True
@@ -50,13 +52,10 @@ Sub InitFlexDMD()
 	CreateGameDMD()
 End Sub
 
-Sub DMDFlasher_Timer()
+Sub DMD_Timer()
 	Dim DMDp
 	DMDp = FlexDMD.DmdColoredPixels
 	If Not IsEmpty(DMDp) Then
-		DMDFlasher.DMDWidth = FlexDMD.Width
-		DMDFlasher.DMDHeight = FlexDMD.Height
-		DMDFlasher.DMDColoredPixels = DMDp
 		DMD.DMDWidth = FlexDMD.Width
 		DMD.DMDHeight = FlexDMD.Height
 		DMD.DMDColoredPixels = DMDp
@@ -65,14 +64,6 @@ End Sub
 
 InitFlexDMD()
 'Create Fonts
-Dim font16 : Set font16 = FlexDMD.NewFont("FONTS/arial16.fnt", RGB(255, 255, 255),RGB(255, 255, 255), 0)
-Dim font18 : Set font18 = FlexDMD.NewFont("FONTS/arial18.fnt", RGB(255, 255, 255),RGB(255, 255, 255), 0)
-Dim font18Outline : Set font18Outline = FlexDMD.NewFont("FONTS/arial18-outline.fnt", RGB(255, 255, 255),RGB(255, 255, 255), 0)
-Dim font20 : Set font20 = FlexDMD.NewFont("FONTS/arial20.fnt", RGB(255, 255, 255),RGB(255, 255, 255), 0)
-Dim font20Outline : Set font20Outline = FlexDMD.NewFont("FONTS/arial20-outline.fnt", RGB(255, 255, 255),RGB(255, 255, 255), 0)
-Dim font32 : Set font32 = FlexDMD.NewFont("FONTS/arial32.fnt", RGB(255, 255, 255),RGB(255, 255, 255), 0)
-Dim font32Outline : Set font32Outline = FlexDMD.NewFont("FONTS/arial32-outline.fnt", RGB(255, 255, 255),RGB(255, 255, 255), 0)
-
 Dim DMDWelcomeScene : Set DMDWelcomeScene = FlexDMD.NewGroup("DMDWelcomeScene")
 InitDMDWelcomeScene()
 

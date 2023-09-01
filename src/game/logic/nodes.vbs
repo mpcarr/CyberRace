@@ -191,6 +191,17 @@ Sub NodeCollectPerk()
     End If
 End Sub
 
+'****************************
+' Node Perk Selection Timer Ended
+' Event Listeners:      
+    RegisterPinEvent GAME_SELECTION_TIMER_ENDED, "NodePerkSelectionTimerEnded"
+'
+'*****************************
+Sub NodePerkSelectionTimerEnded()
+    If GetPlayerState(MODE_PERK_SELECT) = True Then
+        NodePerkSelectLeftPerk()
+    End If
+End Sub
 
 '****************************
 ' NodePerkSelectLeftPerk
@@ -218,6 +229,8 @@ Sub NodePerkSelectLeftPerk()
         End Select
         SetPlayerState MODE_PERK_SELECT, False
         NodePerkNextLevel()
+        GameTimers(GAME_SELECTION_TIMER_IDX) = 0
+        DmdQ.RemoveAll()
         lightCtrl.RemoveTableLightSeq "Nodes", lSeqCollectPerk
         sw39.TimerEnabled = True
         DMDModeUpdate.Enabled = 0
@@ -264,6 +277,8 @@ Sub NodePerkSelectRightPerk()
         End Select
         SetPlayerState MODE_PERK_SELECT, False
         NodePerkNextLevel()
+        GameTimers(GAME_SELECTION_TIMER_IDX) = 0
+        DmdQ.RemoveAll()
         sw39.TimerEnabled = True
         DMDModeUpdate.Enabled = 0
         DMDModeUpdate.Enabled = 1

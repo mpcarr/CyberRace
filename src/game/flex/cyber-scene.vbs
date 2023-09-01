@@ -14,9 +14,9 @@ Sub FlexDMDCyberScene()
         .Duration = 2
         .Title = letter
         .Message = ""
-        .Font = FlexDMD.NewFont("FONTS/sendha52.fnt", RGB(255, 255, 255), RGB(0, 0, 0), 0)
-        .StartPos = Array(128,20)
-        .EndPos = Array(128,20)
+        .Font = FontCyber32        
+        .StartPos = Array(DMDWidth/2,DMDHeight*.3)
+        .EndPos = Array(DMDWidth/2,DMDHeight*.3)
         .Action = "blink"
         .BGImage = "noimage"
         .BGVideo = "BGCyber"

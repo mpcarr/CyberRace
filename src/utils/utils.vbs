@@ -11,11 +11,7 @@ Function Min(value, minVal)
 	End If 
 End Function
 
-Function RndNum(min,max)
-	RndNum = Int(Rnd()*(max-min+1))+min     ' Sets a random number between min AND max
-End Function
-
-Function FormatScore(ByVal Num) 'it returns a string with commas
+Function FormatScore2(ByVal Num) 'it returns a string with commas
     dim i
     dim NumString
 
@@ -30,7 +26,7 @@ Function FormatScore(ByVal Num) 'it returns a string with commas
 			end if
 		Next
 	End If
-    FormatScore = NumString
+    FormatScore2 = NumString
 End function
 
 Function BallsOnBridge()

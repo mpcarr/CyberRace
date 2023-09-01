@@ -73,6 +73,7 @@ Class Queue
     Public Sub RemoveAll()
         DMDResetAll()
         Items.RemoveAll()
+        CurrentItem = Null
     End Sub
 
     Public Sub Update()
@@ -144,8 +145,8 @@ Class Queue
         If CurrentItem.Message = "" Then
             FlexDMD.Stage.GetLabel("TextSmalLine1").SetAlignedPosition CurrentItem.StartPos(0) + DMD_ShakePos ,CurrentItem.StartPos(1) - DMD_Slide , FlexDMD_Align_Center
         Elseif Not CurrentItem.Message = "" Then
-            FlexDMD.Stage.GetLabel("TextSmalLine1").SetAlignedPosition CurrentItem.StartPos(0) + DMD_ShakePos ,CurrentItem.StartPos(1)-16 - DMD_Slide , FlexDMD_Align_Center
-            FlexDMD.Stage.GetLabel("TextSmalLine2").SetAlignedPosition CurrentItem.StartPos(0) + DMD_ShakePos ,CurrentItem.StartPos(1)+16 - DMD_Slide , FlexDMD_Align_Center
+            FlexDMD.Stage.GetLabel("TextSmalLine1").SetAlignedPosition CurrentItem.StartPos(0) + DMD_ShakePos ,CurrentItem.StartPos(1)-8 - DMD_Slide , FlexDMD_Align_Center
+            FlexDMD.Stage.GetLabel("TextSmalLine2").SetAlignedPosition CurrentItem.StartPos(0) + DMD_ShakePos ,CurrentItem.StartPos(1)+8 - DMD_Slide , FlexDMD_Align_Center
         End If
 
     End Sub
@@ -154,7 +155,7 @@ Class Queue
         CurrentMSGdone = 1 ' to get it off screen
         Dim label
         DMD_ShakePos = 0 
-        DMD_slide = 64	
+        DMD_slide = DMDHeight	
 
         if CurrentItem.Action = "noslide2" or CurrentItem.Action = "noslide3" Then DMD_slide = 0
         if CurrentItem.Action = "noslide2blink" Then DMD_slide = 0
@@ -182,7 +183,7 @@ Class Queue
             Else
                 label.Text = CurrentItem.Title
             End If
-            label.SetAlignedPosition CurrentItem.StartPos(0),CurrentItem.StartPos(1)-16 - DMD_slide ,FlexDMD_Align_Center
+            label.SetAlignedPosition CurrentItem.StartPos(0),CurrentItem.StartPos(1)-8 - DMD_slide ,FlexDMD_Align_Center
             label.visible = True
 
             Set label = FlexDMD.Stage.GetLabel("TextSmalLine2")
@@ -192,7 +193,7 @@ Class Queue
             Else
                 label.Text = CurrentItem.Message
             End If
-            label.SetAlignedPosition CurrentItem.StartPos(0),CurrentItem.StartPos(1)+16 - DMD_slide ,FlexDMD_Align_Center
+            label.SetAlignedPosition CurrentItem.StartPos(0),CurrentItem.StartPos(1)+8 - DMD_slide ,FlexDMD_Align_Center
             label.visible = True
         End If
     End Sub
@@ -201,7 +202,7 @@ Class Queue
         if  CurrentItem.Action = "noslide" Or  CurrentItem.Action = "noslide2" Or  CurrentItem.Action = "noslideoff" Or  CurrentItem.Action = "noslideoffblink" Then CurrentMSGdone = 0
         If CurrentMSGdone > 0 Then
             DMD_Slide = DMD_Slide - 3 
-            If DMD_Slide < -64 Then CurrentMSGdone = 0
+            If DMD_Slide < -DMDHeight Then CurrentMSGdone = 0
             DMDUpdate()
         Else
             Items.Remove CurrentItem.Name
@@ -210,29 +211,30 @@ Class Queue
         End If
     End Sub
 
-    Sub DMDResetAll
+    Public Sub DMDResetAll
 		
-		FlexDMD.Stage.GetImage("Title").Visible = False 
 		FlexDMD.Stage.GetImage("BG001").Visible=False   ' need all of them
-		FlexDMD.Stage.GetImage("BG002").Visible=False
-		FlexDMD.Stage.GetImage("BG003").Visible=False
-		FlexDMD.Stage.GetImage("BG004").Visible=False
-		FlexDMD.Stage.GetImage("BG005").Visible=False
-		FlexDMD.Stage.GetImage("BG006").Visible=False
-		FlexDMD.Stage.GetImage("BG007").Visible=False
-		FlexDMD.Stage.GetImage("BG008").Visible=False
-		FlexDMD.Stage.GetImage("BG009").Visible=False
-		FlexDMD.Stage.GetImage("BG010").Visible=False
-		FlexDMD.Stage.GetImage("BG011").Visible=False
-		FlexDMD.Stage.GetImage("BG012").Visible=False  
-		FlexDMD.Stage.GetImage("BGwarn").Visible=False
-		FlexDMD.Stage.GetImage("BGtilt").Visible=False
+		FlexDMD.Stage.GetImage("BGEMP").Visible=False
 		FlexDMD.Stage.GetImage("BGRaceReady").Visible=False
         FlexDMD.Stage.GetVideo("BGBoost").Visible=False
+        FlexDMD.Stage.GetVideo("BGCyber").Visible=False
+
 
         FlexDMD.Stage.GetVideo("BGEngine").Visible=False
         FlexDMD.Stage.GetVideo("BGCooling").Visible=False
         FlexDMD.Stage.GetVideo("BGFuel").Visible=False
+        FlexDMD.Stage.GetVideo("BGNode1").Visible=False
+        FlexDMD.Stage.GetVideo("BGNode2").Visible=False
+        FlexDMD.Stage.GetVideo("BGNode3").Visible=False
+        FlexDMD.Stage.GetVideo("BGNode4").Visible=False
+        FlexDMD.Stage.GetVideo("BGNode5").Visible=False
+        FlexDMD.Stage.GetVideo("BGNodeComplete").Visible=False
+
+        FlexDMD.Stage.GetVideo("BGRace1").Visible=False
+        FlexDMD.Stage.GetVideo("BGRace2").Visible=False
+        FlexDMD.Stage.GetVideo("BGRace3").Visible=False
+        FlexDMD.Stage.GetVideo("BGRace4").Visible=False
+        FlexDMD.Stage.GetVideo("BGRaceLocked").Visible=False
 
 		FlexDMD.Stage.GetLabel("TextSmalLine1").Visible=False
 		FlexDMD.Stage.GetLabel("TextSmalLine2").Visible=False

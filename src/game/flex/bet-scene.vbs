@@ -26,8 +26,8 @@ Sub FlexDMDBetBScene()
 			.Title = ""
 			.Message = ""
 			.Font = FontCyber32
-			.StartPos = Array(128,32)
-			.EndPos = Array(128,32)
+			.StartPos = Array(DMDWidth/2,DMDHeight/2)
+			.EndPos = Array(DMDWidth/2,DMDHeight/2)
 			.Action = "blink"
 			.BGImage = "noimage"
 			.BGVideo = vid
@@ -63,8 +63,8 @@ Sub FlexDMDBetEScene()
 			.Title = ""
 			.Message = ""
 			.Font = FontCyber32
-			.StartPos = Array(128,32)
-			.EndPos = Array(128,32)
+			.StartPos = Array(DMDWidth/2,DMDHeight/2)
+			.EndPos = Array(DMDWidth/2,DMDHeight/2)
 			.Action = "blink"
 			.BGImage = "noimage"
 			.BGVideo = vid
@@ -100,8 +100,8 @@ Sub FlexDMDBetTScene()
 			.Title = ""
 			.Message = ""
 			.Font = FontCyber32
-			.StartPos = Array(128,32)
-			.EndPos = Array(128,32)
+			.StartPos = Array(DMDWidth/2,DMDHeight/2)
+			.EndPos = Array(DMDWidth/2,DMDHeight/2)
 			.Action = "blink"
 			.BGImage = "noimage"
 			.BGVideo = vid

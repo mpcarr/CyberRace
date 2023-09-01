@@ -30,7 +30,7 @@ Sub Table1_KeyDown(ByVal Keycode)
    
 
     If gameStarted = False Then
-        If keycode = StartGameKey Then
+        If keycode = StartGameKey And gameBooted = True Then
             AddPlayer()
             StartGame()
         End If
@@ -38,7 +38,7 @@ Sub Table1_KeyDown(ByVal Keycode)
 
         If GameTimers(GAME_BONUS_TIMER_IDX) > 0 Then Exit Sub 
         
-        If keycode = StartGameKey And canAddPlayers = True Then
+        If keycode = StartGameKey Then
             AddPlayer()
         End If
         If keycode = StartGameKey Then

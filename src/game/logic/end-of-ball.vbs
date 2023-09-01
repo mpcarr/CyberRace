@@ -15,6 +15,7 @@ Sub EndOfBall()
 
         PlayCallout("drain")
         DmdQ.RemoveAll()
+        lightCtrl.AddTableLightSeq "GI", lSeqGIOff
         MusicOff
         SetPlayerState MODE_CHOOSE_SKILLSHOT, False
         SetPlayerState MODE_SKILLSHOT_ACTIVE, False
@@ -67,7 +68,7 @@ Sub EndOfBall()
 
         SetPlayerState CURRENT_BALL, GetPlayerState(CURRENT_BALL) + 1
 
-        GameTimers = Array(0,0,0,0,0,0,0)
+        GameTimers = Array(0,0,0,0,0,0,0,0)
 
         lightCtrl.RemoveAllShots()
         lightCtrl.RemoveAllLightSeq "GI"
@@ -96,7 +97,7 @@ Sub EndOfBonus()
     SetPlayerState BONUS_NODES_COMPLETED, 0
     SetPlayerState BONUS_X, 0
     SetPlayerState GI_COLOR, GAME_NORMAL_COLOR
-    
+    lightCtrl.RemoveTableLightSeq "GI", lSeqGIOff
     Select Case currentPlayer
         Case "PLAYER 1":
             If UBound(playerState.Keys()) > 0 Then
@@ -126,22 +127,22 @@ Sub EndOfBonus()
         playerState.RemoveAll()
     Else
         If GetPlayerState(CURRENT_BALL) > 1 Then
-            FlexDMD.Stage.GetImage("BGP1").Visible = False
-            FlexDMD.Stage.GetImage("BGP2").Visible = False
-            FlexDMD.Stage.GetImage("BGP3").Visible = False
-            FlexDMD.Stage.GetImage("BGP4").Visible = False
+            'FlexDMD.Stage.GetImage("BGP1").Visible = False
+            'FlexDMD.Stage.GetImage("BGP2").Visible = False
+            'FlexDMD.Stage.GetImage("BGP3").Visible = False
+            'FlexDMD.Stage.GetImage("BGP4").Visible = False
             Select Case UBound(playerState.Keys())
                 Case 0:
-                    FlexDMD.Stage.GetImage("BGP1").Visible = True
+                    'FlexDMD.Stage.GetImage("BGP1").Visible = True
                     FlexDMD.Stage.GetLabel("Player1").Visible = True
                 Case 1:     
-                    FlexDMD.Stage.GetImage("BGP2").Visible = True
+                    'FlexDMD.Stage.GetImage("BGP2").Visible = True
                     FlexDMD.Stage.GetLabel("Player2").Visible = True
                 Case 2:
-                    FlexDMD.Stage.GetImage("BGP3").Visible = True
+                    'FlexDMD.Stage.GetImage("BGP3").Visible = True
                     FlexDMD.Stage.GetLabel("Player3").Visible = True
                 Case 3:   
-                    FlexDMD.Stage.GetImage("BGP4").Visible = True
+                    'FlexDMD.Stage.GetImage("BGP4").Visible = True
                     FlexDMD.Stage.GetLabel("Player4").Visible = True  
             End Select
         End If

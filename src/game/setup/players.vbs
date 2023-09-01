@@ -35,6 +35,8 @@ Function InitNewPlayer()
 
     Dim state: Set state=CreateObject("Scripting.Dictionary")
     
+    state.Add EMPTY_STR, ""
+
     state.Add GI_STATE, 1
     state.Add GI_COLOR, RGB(255,255,255)
 
@@ -42,7 +44,7 @@ Function InitNewPlayer()
 
     state.Add FLEX_MODE, 0
 
-    state.Add SCORE, 0
+    state.Add SCORE, 1000000000
     state.Add CURRENT_BALL, 1
     state.Add EXTRA_BALLS, 0
 

@@ -17,7 +17,7 @@ Sub SwitchCyberCHit()
         If GetPlayerState(CYBER_C) = 2 Then
             AddScore POINTS_MODE_SHOT
             SetPlayerState MODE_CYBER, False
-            SetPlayerState SHOT_SPINNER1_MULTIPIER, GetPlayerState(SHOT_SPINNER1_MULTIPIER) + 1 
+            SetPlayerState SHOT_SPINNER1_MULTIPLIER, GetPlayerState(SHOT_SPINNER1_MULTIPLIER) + 1 
         End If
     End If
 End Sub
@@ -40,7 +40,7 @@ Sub SwitchCyberYHit()
         If GetPlayerState(CYBER_Y) = 2 Then
             AddScore POINTS_MODE_SHOT
             SetPlayerState MODE_CYBER, False
-            SetPlayerState SHOT_LEFT_ORBIT_MULTIPIER, GetPlayerState(SHOT_LEFT_ORBIT_MULTIPIER) + 1
+            SetPlayerState SHOT_LEFT_ORBIT_MULTIPLIER, GetPlayerState(SHOT_LEFT_ORBIT_MULTIPLIER) + 1
         End If
     End If
 End Sub
@@ -63,7 +63,7 @@ Sub SwitchCyberBHit()
         If GetPlayerState(CYBER_B) = 2 Then
             AddScore POINTS_MODE_SHOT
             SetPlayerState MODE_CYBER, False
-            SetPlayerState SHOT_LEFT_RAMP_MULTIPIER, GetPlayerState(SHOT_LEFT_RAMP_MULTIPIER) + 1
+            SetPlayerState SHOT_LEFT_RAMP_MULTIPLIER, GetPlayerState(SHOT_LEFT_RAMP_MULTIPLIER) + 1
         End If
     End If
 End Sub
@@ -86,7 +86,7 @@ Sub SwitchCyberEHit()
         If GetPlayerState(CYBER_E) = 2 Then
             AddScore POINTS_MODE_SHOT
             SetPlayerState MODE_CYBER, False
-            SetPlayerState SHOT_RIGHT_RAMP_MULTIPIER, GetPlayerState(SHOT_RIGHT_RAMP_MULTIPIER) + 1
+            SetPlayerState SHOT_RIGHT_RAMP_MULTIPLIER, GetPlayerState(SHOT_RIGHT_RAMP_MULTIPLIER) + 1
         End If
     End If
 End Sub
@@ -109,7 +109,7 @@ Sub SwitchCyberRHit()
         If GetPlayerState(CYBER_R) = 2 Then
             AddScore POINTS_MODE_SHOT
             SetPlayerState MODE_CYBER, False
-            SetPlayerState SHOT_RIGHT_ORBIT_MULTIPIER, GetPlayerState(SHOT_RIGHT_ORBIT_MULTIPIER) + 1
+            SetPlayerState SHOT_RIGHT_ORBIT_MULTIPLIER, GetPlayerState(SHOT_RIGHT_ORBIT_MULTIPLIER) + 1
         End If
     End If
 End Sub

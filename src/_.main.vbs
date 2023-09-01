@@ -7,7 +7,8 @@ Const cGameName = "cyberrace"
 'v10: sixtoe: modified prim so it fed the ramp a bit better and adjusted the walls around there a little and set the kickball to something like 0,0,55,0
 'v11: flux: added randomness to top kick. added callouts for locked balls. fixed issue with bridge lock, fixed options menu
 'v12: flux: Added BET mode callouts and GI Light colours. Add Skills Trial Mode.
-
+'v13: flux: Lots of DMD work. fixed some mode issues
+'v14: flux: fix skills trial crash, force dmd label alignments
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -35,6 +36,7 @@ Const IMTime = 1.1        			'Time in seconds for Full Plunge
 
 Dim GrabMag
 Dim plungerIM
+Dim gameBooted : gameBooted = False
 Dim gameStarted : gameStarted = False
 Dim LFlipperDown: LFlipperDown = False
 Dim RFlipperDown: RFlipperDown = False
@@ -63,11 +65,12 @@ Dim DmdQ : Set DmdQ = New Queue
 Dim VRRoom, VRElement
 If RenderingMode = 2 Then VRRoom = VRRoomChoice Else VRRoom = 0
  
-'If RenderingMode = 2 then 
+If RenderingMode = 2 then 
 	For Each VRElement in VRStuff
 		VRElement.Visible = True
-	Next	
-'End If
+	Next
+	DMD.TimerEnabled = True
+End If
 
 
 If debugLogOn = True Then
@@ -107,7 +110,7 @@ Sub Table1_Init()
 
 	lightCtrl.CreateSeqRunner("Attract")
 
-	lightCtrl.LoadLightShows
+	'lightCtrl.LoadLightShows
 	
 	'InitLampsNF 'Init Lampz
 
@@ -155,7 +158,32 @@ Sub Table1_Init()
 		.CreateEvents "plungerIM"
 	End With
 	
-	lightCtrl.AddTableLightSeq "Attract", lSeqAttract3
+	'lightCtrl.AddTableLightSeq "Attract", lSeqAttract3
+	lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm1
+	lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm2
+	lightCtrl.AddTableLightSeq "Attract", lSeqAttFlashers
+	Dim qItem : Set qItem = New QueueItem
+	With qItem
+		.Name = "boot"
+		.Duration = 3
+		.Title = "PLEASE WAIT"
+		.Message = "BOOTING"
+		.Font = FontCyber32		
+		.MessageFont = FontCyber32		
+		.StartPos = Array(DMDWidth/2,DMDHeight/2)
+		.EndPos = Array(DMDWidth/2,DMDHeight/2)
+		.Action = "noslide2blink"
+		.BGImage = "noimage"
+		.BGVideo = "novideo"
+	End With
+	DmdQ.Enqueue qItem
+	
+End Sub
+
+Sub AttractTimer_Timer
+	AttractTimer.Enabled = False
+	gameBooted = True
+	DmdQ.DMDResetAll()
 	DispatchPinEvent GAME_OVER
 End Sub
 

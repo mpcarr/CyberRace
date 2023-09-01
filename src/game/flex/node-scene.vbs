@@ -72,59 +72,57 @@ Sub InitDMDNodePerkCollectScene()
 End Sub
 
 Sub FlexDMDNodeScene()
-    'SetPlayerState FLEX_MODE, 5
     
-    DMDModeUpdate.Enabled = 0
-    DMDModeUpdate.Enabled = 1
-    DMDModeUpdate.Interval = DMDNodeCollected.Length*1000
-    
-    FlexPlayScene(DMDNodeScene)
-	'dmdQ.Add "emp", "FlexPlayScene(DMDNodeScene)", 1, 0, 0, DMDChargeEMP.Length*1000, 0, False
 End Sub
 
 Sub FlexDMDNodePerkCollectScene()
-  '  SetPlayerState FLEX_MODE, 6
-    Dim lblLeftLine1 : Set lblLeftLine1 = DMDNodePerkCollectScene.GetLabel("lblLeftLine1")
-    Dim lblLeftLine2 : Set lblLeftLine2 = DMDNodePerkCollectScene.GetLabel("lblLeftLine2")
-
-    Dim lblRightLine1 : Set lblRightLine1 = DMDNodePerkCollectScene.GetLabel("lblRightLine1")
-    Dim lblRightLine2 : Set lblRightLine2 = DMDNodePerkCollectScene.GetLabel("lblRightLine2")
-
+    DmdQ.RemoveAll()
+    Dim bgVideo
     Select Case GetPlayerState(NODE_LEVEL):
-        Case 2: 'Level 1.  Increase Jackpot 250K OR 5 Million
-            lblLeftLine1.Text = "JACKPOT"
-            lblLeftLine2.Text = "+250K"
-
-            lblRightLine1.Text = "COLLECT"
-            lblRightLine2.Text = "5 MIL"
-        Case 3:'Level 2.  Race Timers + 20 Seconds OR 2x B.E.T Hurry Up
-            lblLeftLine1.Text = "RACE TIMERS"
-            lblLeftLine2.Text = "+20 Secs"
-
-            lblRightLine1.Text = "COLLECT"
-            lblRightLine2.Text = "5x BONUS"
-        Case 4:'Level 3. Collect 5x Bonus OR Instant MB
-            lblLeftLine1.Text = "OUTLANE"
-            lblLeftLine2.Text = "BALL SAVES"
-
-            lblRightLine1.Text = "INSTANT"
-            lblRightLine2.Text = "MULTIBALL"
-        Case 5:'Level 4. Extra Ball
-            lblLeftLine1.Text = "EXTRA"
-            lblLeftLine2.Text = "BALL"
-
-            lblRightLine1.Text = "COLLECT"
-            lblRightLine2.Text = "10x BONUS"
-        Case 6:'Level 5. 5x Playfield (30 secs) OR 10x Bonus
-            lblLeftLine1.Text = "PLAYFIELD"
-            lblLeftLine2.Text = "5x (30 Secs)"
-
-            lblRightLine1.Text = "SPOT"
-            lblRightLine2.Text = "GRAND SLAM"
-        End Select  
-
-    DMDModeUpdate.Enabled = 0
-
-    FlexPlayScene(DMDNodePerkCollectScene)
-	'dmdQ.Add "emp", "FlexPlayScene(DMDNodeScene)", 1, 0, 0, DMDChargeEMP.Length*1000, 0, False
+        Case 2: 
+            bgVideo = "BGNode1"
+        Case 3: 
+            bgVideo = "BGNode2"
+        Case 4: 
+            bgVideo = "BGNode3"
+        Case 5: 
+            bgVideo = "BGNode4"
+        Case 6: 
+            bgVideo = "BGNode5"
+        Case 7: 
+            bgVideo = "BGNodeComplete"
+    End Select  
+    Dim qItem : Set qItem = New QueueItem
+    If bgVideo = "BGNodeComplete" Then
+        With qItem
+            .Name = "nodes"
+            .Duration = 4
+            .Title = ""
+            .Message = ""
+            .Font = FontCyber32            
+            .StartPos = Array(DMDWidth/2,DMDHeight*.3)
+            .EndPos = Array(DMDWidth/2,DMDHeight*.3)
+            .Action = "noblink"
+            .BGImage = "noimage"
+            .BGVideo = bgVideo
+            .Callback = "GameTimers(GAME_SELECTION_TIMER_IDX) = 4"
+        End With
+    Else
+        With qItem
+            .Name = "nodes"
+            .Duration = 15
+            .Title = "<  >"
+            .Message = """Level "" & GetPlayerState(NODE_LEVEL) & "" - "" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10) & """" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)-Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10)*10)"
+            .Font = FontCyber32            
+            .MessageFont = FontCyber32            
+            .StartPos = Array(DMDWidth/2,DMDHeight*.3)
+            .EndPos = Array(DMDWidth/2,DMDHeight*.3)
+            .Action = "noblink"
+            .BGImage = "noimage"
+            .BGVideo = bgVideo
+            .Callback = "GameTimers(GAME_SELECTION_TIMER_IDX) = 15"
+        End With
+    End If
+    DmdQ.Enqueue qItem
+   
 End Sub

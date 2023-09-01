@@ -39,6 +39,7 @@ Sub GameTimersUpdate_Timer()
     activeTimer = ProcessGameTimer(GAME_EMP_TIMER_IDX, activeTimer)
     activeTimer = ProcessGameTimer(GAME_SKILLS_TIMER_IDX, activeTimer)
 	ProcessGameTimer GAME_BONUS_TIMER_IDX, activeTimer
+	ProcessGameTimer GAME_SELECTION_TIMER_IDX, activeTimer
     ClearTimerDisplay
     If activeTimer(0) = 1000 Then
         Exit Sub

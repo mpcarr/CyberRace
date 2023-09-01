@@ -94,8 +94,8 @@ Sub BetModeSpinnerHit()
             .Title = "BET VALUE INCREASED"
             .Message = "GetPlayerState(BET_VALUE)"
             .Font = FontCyber16_HURRYUP_COLOR
-            .StartPos = Array(128,32)
-            .EndPos = Array(128,32)
+            .StartPos = Array(DMDWidth/2,DMDHeight/2)
+            .EndPos = Array(DMDWidth/2,DMDHeight/2)
             .Action = "blink"
             .BGImage = "BG001"
             .BGVideo = "novideo"

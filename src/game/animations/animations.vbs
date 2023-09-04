@@ -1,9 +1,14 @@
 Sub Spinner1_Animate()
-    Dim spinangle:spinangle = -Spinner1.currentangle+90
-	'Dim BL : For Each BL in Spinner_SternFlap_BL : BL.RotX = spinangle: Next
+    Dim el
+	For Each el in BP_Spinner1
+		el.RotX = Spinner1.currentangle
+	Next
+
 End Sub
 
 Sub Spinner2_Animate()
-    Dim spinangle:spinangle = -Spinner2.currentangle+90
-	'Dim BL : For Each BL in Spinner_SternFlap_BL : BL.RotX = spinangle: Next
+    Dim el
+	For Each el in BP_Spinner2
+		el.RotX = Spinner2.currentangle
+	Next
 End Sub

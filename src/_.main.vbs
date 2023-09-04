@@ -65,12 +65,12 @@ Dim DmdQ : Set DmdQ = New Queue
 Dim VRRoom, VRElement
 If RenderingMode = 2 Then VRRoom = VRRoomChoice Else VRRoom = 0
  
-If RenderingMode = 2 then 
+'If RenderingMode = 2 then 
 	For Each VRElement in VRStuff
 		VRElement.Visible = True
 	Next
 	DMD.TimerEnabled = True
-End If
+'End If
 
 
 If debugLogOn = True Then
@@ -157,6 +157,7 @@ Sub Table1_Init()
 		.InitExitSnd SoundFX("Saucer_Kick", DOFContactors), SoundFX("Relay_On", DOFContactors)
 		.CreateEvents "plungerIM"
 	End With
+	Options_Load
 	
 	'lightCtrl.AddTableLightSeq "Attract", lSeqAttract3
 	lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm1

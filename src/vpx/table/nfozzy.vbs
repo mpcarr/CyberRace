@@ -735,21 +735,15 @@ Sub RightFlipper_Collide(parm)
 End Sub
 
 Sub FlipperVisualUpdate
-	Dim lfa: lfa = -145.5 - (123-LeftFlipper.currentangle)
-	Dim rfa: rfa = -34.5 + (123+RightFlipper.currentangle)
-	Dim ufa: ufa = -34.5 + (123+UpRightFlipper.currentangle)
-	BM_FlipperR.RotZ = rfa ' VLM.Props;BM;1;FlipperR
 	Dim el
 	For Each el in BP_FlipperR
-		el.Rotz = BM_FlipperR.Rotz
+		el.Rotz = RightFlipper.currentangle
 	Next
-	BM_FlipperL.RotZ = lfa ' VLM.Props;BM;1;FlipperL
 	For Each el in BP_FlipperL
-		el.Rotz = BM_FlipperL.Rotz
+		el.Rotz = LeftFlipper.currentangle
 	Next
-	BM_FlipperU.RotZ = ufa ' VLM.Props;BM;1;FlipperU
 	For Each el in BP_FlipperU
-		el.Rotz = BM_FlipperU.Rotz
+		el.Rotz = UpRightFlipper.currentangle
 	Next
 End Sub
 

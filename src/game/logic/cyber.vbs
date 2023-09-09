@@ -10,7 +10,7 @@ Sub SwitchCyberCHit()
         If GetPlayerState(CYBER_C) = 0 Then
             AddScore POINTS_BASE
             SetPlayerState CYBER_C, 1
-            FlexDMDCyberScene()
+            FlexDMDCyberScene "blink", "", "", "", ""
             CheckCyberModeActive()
         End If
     Else
@@ -33,7 +33,7 @@ Sub SwitchCyberYHit()
         If GetPlayerState(CYBER_Y) = 0 Then
             AddScore POINTS_BASE
             SetPlayerState CYBER_Y, 1
-            FlexDMDCyberScene()
+            FlexDMDCyberScene "", "blink", "", "", ""
             CheckCyberModeActive()
         End If
     Else
@@ -56,7 +56,7 @@ Sub SwitchCyberBHit()
         If GetPlayerState(CYBER_B) = 0 Then
             AddScore POINTS_BASE
             SetPlayerState CYBER_B, 1
-            FlexDMDCyberScene()
+            FlexDMDCyberScene "", "", "blink", "", ""
             CheckCyberModeActive()
         End If
     Else
@@ -79,7 +79,7 @@ Sub SwitchCyberEHit()
         If GetPlayerState(CYBER_E) = 0 Then
             AddScore POINTS_BASE
             SetPlayerState CYBER_E, 1
-            FlexDMDCyberScene()
+            FlexDMDCyberScene "", "", "", "blink", ""
             CheckCyberModeActive()
         End If
     Else
@@ -102,7 +102,7 @@ Sub SwitchCyberRHit()
         If GetPlayerState(CYBER_R) = 0 Then
             AddScore POINTS_BASE
             SetPlayerState CYBER_R, 1
-            FlexDMDCyberScene()
+            FlexDMDCyberScene "", "", "", "", "blink"
             CheckCyberModeActive()
         End If
     Else

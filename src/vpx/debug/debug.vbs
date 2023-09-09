@@ -75,6 +75,33 @@ Sub TestBonus()
     FlexDMDBonusScene()
 End Sub
 
+
+Sub TestMsg(msg)
+
+	Dim qItem : Set qItem = New QueueItem
+	With qItem
+		.Name = "msg"
+		.Duration = 3
+		.BGImage = "BG003"
+		.BGVideo = "novideo"
+		.Action = "slideup"
+	End With
+	qItem.AddLabel msg, Font7Z, DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, ""
+	DmdQ.Enqueue qItem
+
+End Sub
+
+
+Sub TestHiScore()
+	GameTimers(GAME_SELECTION_TIMER_IDX) = 30
+	SetPlayerState MODE_HISCORE, True
+	SetPlayerState INITIAL_1, "A"
+	FlexDMDHiScoreScene()
+
+End Sub
+
+
+
 Sub TestMB()
 	SetPlayerState MODE_MULTIBALL, True
 	ballsInQ = ballsInQ + 2

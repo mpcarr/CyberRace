@@ -7,12 +7,6 @@ Sub FlexDMDGarageEngineScene()
     With qItem
         .Name = "nye"
         .Duration = 4
-        .Title = ""
-        .Message = ""
-        .Font = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "noblink"
         .BGImage = "noimage"
         .BGVideo = "BGEngine"
     End With
@@ -25,12 +19,6 @@ Sub FlexDMDGarageCoolingScene()
     With qItem
         .Name = "nye"
         .Duration = 4
-        .Title = ""
-        .Message = ""
-        .Font = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "noblink"
         .BGImage = "noimage"
         .BGVideo = "BGCooling"
     End With
@@ -42,12 +30,6 @@ Sub FlexDMDGarageFuelScene()
     With qItem
         .Name = "nye"
         .Duration = 4
-        .Title = ""
-        .Message = ""
-        .Font = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "noblink"
         .BGImage = "noimage"
         .BGVideo = "BGFuel"
     End With

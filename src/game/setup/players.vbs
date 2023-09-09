@@ -44,7 +44,7 @@ Function InitNewPlayer()
 
     state.Add FLEX_MODE, 0
 
-    state.Add SCORE, 1000000000
+    state.Add SCORE, 0
     state.Add CURRENT_BALL, 1
     state.Add EXTRA_BALLS, 0
 
@@ -99,6 +99,15 @@ Function InitNewPlayer()
     state.Add CYBER_E, 0
     state.Add CYBER_R, 0
 
+    state.Add HYPER, 0
+
+    state.Add TT_ORBIT, 0
+    state.Add TT_TARGET, 0
+    state.Add TT_RAMP, 0
+    state.Add TT_CAPTIVE, 0
+    state.Add TT_SHORTCUT, 0
+    state.Add TT_COLLECTED, 0
+
     state.Add GARAGE_ENGINE, 0
     state.Add GARAGE_COOLING, 0
     state.Add GARAGE_HULL, 0
@@ -109,6 +118,7 @@ Function InitNewPlayer()
     state.Add BET_VALUE, 0
     state.Add BET_ACTIVATIONS, 1
     state.Add BET_HITS, 0
+    state.Add BET_MULTIPLIER, 1
 
     state.Add NEON_L, 1
     state.Add NEON_O, 1
@@ -121,6 +131,9 @@ Function InitNewPlayer()
 
     state.Add TURN_TABLE_MOTOR, False
 
+    state.Add OUTLANE_SAVE, False
+    state.Add JACKPOTS_MULTIPLIER, 1
+
     state.Add MODE_CHOOSE_SKILLSHOT, False
     state.Add MODE_SKILLSHOT_ACTIVE, False
     state.Add MODE_EMP, False
@@ -132,6 +145,7 @@ Function InitNewPlayer()
     state.Add MODE_RACE_SELECT, False
     state.Add MODE_PERK_SELECT, False
     state.Add MODE_RACE, False
+    state.Add MODE_HISCORE, False
 
     state.Add RACE_MODE_FINISH, False
 
@@ -160,6 +174,12 @@ Function InitNewPlayer()
     state.Add BONUS_COMBOS_MADE, 0
     state.Add BONUS_RACES_WON, 0
     state.Add BONUS_NODES_COMPLETED, 0
+
+    state.Add INITIAL_1, ""
+    state.Add INITIAL_2, ""
+    state.Add INITIAL_3, ""
+    state.Add INITIAL_POSITION, 0
+    state.Add LETTER_POSITION, 0
 
     Set InitNewPlayer = state
 

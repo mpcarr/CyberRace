@@ -5,8 +5,9 @@ Sub StartGame()
     SetPlayerState ENABLE_BALLSAVER, True
     lightCtrl.RemoveAllTableLightSeqs()
     lightCtrl.RemoveAllLightSeq "Attract"
-    'FlexDMD.Stage.GetImage("BGP1").Visible = False
-    'FlexDMD.Stage.GetImage("BGP2").Visible = False
-    'FlexDMD.Stage.GetImage("BGP3").Visible = False
-    'FlexDMD.Stage.GetImage("BGP4").Visible = True
+    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
+    FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
+    FlexDMD.Stage.GetFrame("VSeparator3").Visible = True
+    FlexDMD.Stage.GetFrame("VSeparator4").Visible = True
+    
 End Sub

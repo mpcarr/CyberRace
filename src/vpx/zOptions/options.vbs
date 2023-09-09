@@ -2,7 +2,7 @@
 '* TABLE OPTIONS *******************************************************
 '***********************************************************************
 
-Dim LightLevel : LightLevel = 60			'Level of room lighting (0 to 100), where 0 is dark and 100 is brightest
+Dim RoomBrightness : RoomBrightness = 60			'Level of room lighting (0 to 100), where 0 is dark and 100 is brightest
 Dim ColorLUT : ColorLUT = 3
 Dim OutPostMod : OutPostMod = 1				'Difficulty : 0 = Easy, 1 = Medium, 2 = Hard
 Dim SlingsMod : SlingsMod = 0 				'0 - Blue Slings, 1 = Orange Slings
@@ -135,9 +135,9 @@ Sub Options_OnOptChg
 		OptSel.Visible = False
 	End If
 	If OptPos = Opt_Light Then
-		OptTop.Text = "ROOM LIGHT LEVEL"
-		OptBot.Text = "LEVEL " & LightLevel
-		SaveValue cGameName, "LIGHT", LightLevel
+		OptTop.Text = "ROOM LIGHT LEVEL1"
+		OptBot.Text = "LEVEL " & RoomBrightness
+		SaveValue cGameName, "LIGHT", RoomBrightness
 	ElseIf OptPos = Opt_LUT Then
 		OptTop.Text = "COLOR SATURATION"
 '		OptBot.Text = "LUT " & CInt(ColorLUT)
@@ -188,9 +188,9 @@ End Sub
 Sub Options_Toggle(amount)
 	If OptionDMD is Nothing Then Exit Sub
 	If OptPos = Opt_Light Then
-		LightLevel = LightLevel + amount * 10
-		If LightLevel < 0 Then LightLevel = 100
-		If LightLevel > 100 Then LightLevel = 0
+		RoomBrightness = RoomBrightness + amount * 10
+		If RoomBrightness < 0 Then RoomBrightness = 100
+		If RoomBrightness > 100 Then RoomBrightness = 0
 	ElseIf OptPos = Opt_LUT Then
 		ColorLUT = ColorLUT + amount * 1
 		If ColorLUT < 1 Then ColorLUT = 11
@@ -247,7 +247,7 @@ End Sub
 
 Sub Options_Load
 	Dim x
-    x = LoadValue(cGameName, "LIGHT") : If x <> "" Then LightLevel = CInt(x) Else LightLevel = 60
+    x = LoadValue(cGameName, "LIGHT") : If x <> "" Then RoomBrightness = CInt(x) Else RoomBrightness = 60
     x = LoadValue(cGameName, "LUT") : If x <> "" Then ColorLUT = CInt(x) Else ColorLUT = 3
     x = LoadValue(cGameName, "VOLUME") : If x <> "" Then VolumeDial = CNCDbl(x) Else VolumeDial = 0.8
     x = LoadValue(cGameName, "RAMPVOLUME") : If x <> "" Then RampRollVolume = CNCDbl(x) Else RampRollVolume = 0.5
@@ -263,7 +263,7 @@ Sub UpdateMods
 	'Room light level
 	'*********************
 
-	SetLightLevel LightLevel
+	SetRoomBrightness RoomBrightness/100
 
 	'*********************
 	'Color LUT
@@ -314,8 +314,61 @@ End Function
 'Setup Stuff
 '*****************
 
-Sub SetLightLevel(lvl)
-	Dim v
-	v = Int(lvl * 2 + 55)
-	Dim x: For Each x in BM_Room: x.Color = RGB(v, v, v): Next
+
+'****************************
+'	Room Brightness
+'****************************
+
+' Update these arrays if you want to change more materials with room light level
+Dim RoomBrightnessMtlArray: RoomBrightnessMtlArray = Array("VLM.Bake.Active","VLM.Bake.Solid")
+Dim SavedMtlColorArray:     SavedMtlColorArray     = Array(0,0,0)
+
+
+Sub SetRoomBrightness(lvl)
+	If lvl > 1 Then lvl = 1
+	If lvl < 0 Then lvl = 0
+
+	' Lighting level
+	Dim v: v=(lvl * 225 + 30)/255
+
+	Dim i: For i = 0 to UBound(RoomBrightnessMtlArray)
+		ModulateMaterialBaseColor RoomBrightnessMtlArray(i), i, v
+	Next
+
+
+End Sub
+
+SaveMtlColors
+Sub SaveMtlColors
+	Dim i: For i = 0 to UBound(RoomBrightnessMtlArray)
+		SaveMaterialBaseColor RoomBrightnessMtlArray(i), i
+	Next
+End Sub
+
+Sub SaveMaterialBaseColor(name, idx)
+    Dim wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
+	GetMaterial name, wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
+	SavedMtlColorArray(idx) = round(base,0)
+End Sub
+
+
+Sub ModulateMaterialBaseColor(name, idx, val)
+    Dim wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
+	Dim red, green, blue, saved_base, new_base
+ 
+	'First get the existing material properties
+	GetMaterial name, wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
+
+	'Get saved color
+	saved_base = SavedMtlColorArray(idx)
+	
+	'Next extract the r,g,b values from the base color
+	red = saved_base And &HFF
+	green = (saved_base \ &H100) And &HFF
+	blue = (saved_base \ &H10000) And &HFF
+	'msgbox red & " " & green & " " & blue
+
+	'Create new color scaled down by 'val', and update the material
+	new_base = RGB(red*val, green*val, blue*val)
+    UpdateMaterial name, wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, new_base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
 End Sub

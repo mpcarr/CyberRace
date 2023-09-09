@@ -63,9 +63,6 @@ Sub DMD_Timer()
 End Sub
 
 InitFlexDMD()
-'Create Fonts
-Dim DMDWelcomeScene : Set DMDWelcomeScene = FlexDMD.NewGroup("DMDWelcomeScene")
-InitDMDWelcomeScene()
 
 Dim DMDEMPScene : Set DMDEMPScene = FlexDMD.NewGroup("DMDEMPScene")
 Dim DMDEMPModeScene : Set DMDEMPModeScene = FlexDMD.NewGroup("DMDEMPModeScene")

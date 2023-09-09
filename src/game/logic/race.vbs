@@ -220,6 +220,16 @@ Sub RaceMode1RampHit()
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_1_HITS, GetPlayerState(RACE_MODE_1_HITS) + 1
+            Dim qItem : Set qItem = New QueueItem
+            With qItem
+                .Name = "racemsg"
+                .Duration = 2
+                .BGImage = "BG004"
+                .BGVideo = "novideo"
+                .Action = "slideup"
+            End With
+            qItem.AddLabel "6-GetPlayerState(RACE_MODE_1_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            DmdQ.Enqueue qItem
         End If
     End If
 End Sub

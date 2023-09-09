@@ -16,6 +16,7 @@ Const GAME_SHOT_RIGHT_ORBIT = "Game Shot Right Oribt"
 Const GAME_SHOT_SHORTCUT = "Game Shot Shortcut"
 Const GAME_SHOT_FINISH = "Game Shot Finish"
 
+Dim GameHiScoreLetters : GameHiScoreLetters = Array("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","0","1","2","3","4","5","6","7","8","9"," ")
 Dim GameShots: GameShots = Array(GAME_SHOT_HYPER_JUMP, GAME_SHOT_LEFT_ORBIT,GAME_SHOT_LEFT_RAMP,GAME_SHOT_SPINNER,GAME_SHOT_BUMPERS,GAME_SHOT_LEFT_RETURN,GAME_SHOT_RIGHT_RAMP,GAME_SHOT_RIGHT_ORBIT,GAME_SHOT_SHORTCUT)
 Dim GameCombos: Set GameCombos = CreateObject("Scripting.Dictionary")
 
@@ -40,6 +41,15 @@ Const GAME_SKILLS_TIMER_ENDED = "Game Skills Timer Ended"
 Const GAME_BONUS_TIMER_ENDED = "Game Bonus Timer Ended"
 Const GAME_SELECTION_TIMER_ENDED = "Game Selection Timer Ended"
 
+Const GAME_BALLSAVE_TIMER_HURRY = "Game Ball Save Timer Hurry"
+Const GAME_RACE_TIMER_HURRY = "Game Race Timer Hurry"
+Const GAME_BET_TIMER_HURRY = "Game Bet Timer Hurry"
+Const GAME_BOOST_TIMER_HURRY = "Game Boost Timer Hurry"
+Const GAME_EMP_TIMER_HURRY = "Game EMP Timer Hurry"
+Const GAME_SKILLS_TIMER_HURRY = "Game Skills Timer Hurry"
+Const GAME_BONUS_TIMER_HURRY = "Game Bonus Timer Hurry"
+Const GAME_SELECTION_TIMER_HURRY = "Game Selection Timer Hurry"
+
 'Modes
 Const GAME_MODE_NORMAL = "Game_Mode_Normal"
 Const GAME_MODE_CHOOSE_SKILLSHOT = "Game_Mode_Choose_Skillshot"
@@ -59,10 +69,11 @@ Dim GAME_SKILLS_COLOR : GAME_SKILLS_COLOR = RGB(255, 191, 0)
 
 Const GAME_BET_MAX_HITS = 20
 
-
 Dim GAME_RACE_MODE_TITLES : GAME_RACE_MODE_TITLES = Array("RYKAR", "MINERVA", "ALLESA", "NYE", "LUKA", "EZRI")
-Dim GAME_RACE_MODE_DESC : GAME_RACE_MODE_DESC = Array("Hit 6 Ramp Shots", "Spin Each Spinner 30 Times", "One Roving Shot Lit, Hit 6 To Complete", "Hit boost targets in order plus roving", "Ramps and boost targets. Hit boost targets, then ramps in order then, roving boost target.", "Shots and spinners. Hit roving shots and 50 spins on each spinner.Shots and spinners. Hit roving shots and 50 spins on each spinner.")
+Dim GAME_RACE_MODE_DESC : GAME_RACE_MODE_DESC = Array("Ramp Shots", "Spinners", "Roving Shot", "Orbits/Nodes", "LOCKED", "LOCKED")
 
+Dim GAME_NODE_PERK_TITLES : GAME_RACE_MODE_TITLES = Array("RYKAR", "MINERVA", "ALLESA", "NYE", "LUKA", "EZRI")
+Dim GAME_NODE_PERK_DESC : GAME_RACE_MODE_DESC = Array("Ramp Shots", "Spinners", "Roving Shot", "Orbits/Nodes", "LOCKED", "LOCKED")
 
 ' Balls Per Game
 Const BALLS_PER_GAME = 3
@@ -86,7 +97,9 @@ Const EMP_BASE_HITS = 10
 Const SKILLS_BASE_SPINS = 20
 
 Dim GameTimers : GameTimers = Array(0,0,0,0,0,0,0,0)
+Dim GameTimersHurry : GameTimersHurry = Array(0,0,0,0,0,0,0,0)
 Dim GameTimerColors : GameTimerColors = Array(GAME_NORMAL_COLOR,GAME_RACE_COLOR,GAME_HURRYUP_COLOR,GAME_MULTIBALL_COLOR,GAME_NORMAL_COLOR,GAME_SKILLS_COLOR, Null, Null)
 Dim GameTimerEndEvent : GameTimerEndEvent = Array(GAME_BALLSAVE_TIMER_ENDED,GAME_RACE_TIMER_ENDED,GAME_BET_TIMER_ENDED,GAME_BOOST_TIMER_ENDED,GAME_EMP_TIMER_ENDED,GAME_SKILLS_TIMER_ENDED, GAME_BONUS_TIMER_ENDED, GAME_SELECTION_TIMER_ENDED)
+Dim GameTimerHurryEvent : GameTimerHurryEvent = Array(GAME_BALLSAVE_TIMER_HURRY,GAME_RACE_TIMER_HURRY,GAME_BET_TIMER_HURRY,GAME_BOOST_TIMER_HURRY,GAME_EMP_TIMER_HURRY,GAME_SKILLS_TIMER_HURRY, GAME_BONUS_TIMER_HURRY, GAME_SELECTION_TIMER_HURRY)
 
 '***********************************************************************************************************************

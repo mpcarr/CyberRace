@@ -1,0 +1,36 @@
+
+'****************************
+' HYPER
+' Event Listeners:          
+    RegisterPlayerStateEvent HYPER, "PS_Hyper"
+'
+'*****************************
+Sub PS_Hyper
+    lightCtrl.LightOff l37
+    lightCtrl.LightOff l38
+    lightCtrl.LightOff l39
+    lightCtrl.LightOff l40
+    lightCtrl.LightOff l41
+    Select Case GetPlayerState(HYPER)
+        Case 1:
+            lightCtrl.FlickerOn l37
+        Case 2:
+            lightCtrl.FlickerOn l37
+            lightCtrl.FlickerOn l38
+        Case 3:
+            lightCtrl.FlickerOn l37
+            lightCtrl.FlickerOn l38
+            lightCtrl.FlickerOn l39
+        Case 4:
+            lightCtrl.FlickerOn l37
+            lightCtrl.FlickerOn l38
+            lightCtrl.FlickerOn l39
+            lightCtrl.FlickerOn l40
+        Case 5:
+            lightCtrl.FlickerOn l37
+            lightCtrl.FlickerOn l38
+            lightCtrl.FlickerOn l39
+            lightCtrl.FlickerOn l40
+            lightCtrl.FlickerOn l41
+        End Select
+End Sub

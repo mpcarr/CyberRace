@@ -7,11 +7,39 @@
 '*****************************
 Sub EndOfBall()
     Debug.print("Balls In Play: "& ballsInPlay)
-
+    Dim qItem 
     Debug.print(ballsInPlay - BallsOnBridge())
+    If ballSaverIgnoreCount > 0 Then
+        ballSaverIgnoreCount = ballSaverIgnoreCount-1
+        Exit Sub
+    End If
     If ballSaver = True Then
         DispatchPinEvent BALL_SAVE
+        Set qItem = New QueueItem
+        With qItem
+            .Name = "ballsave"
+            .Duration = 2
+            .BGImage = "BGBlack"
+            .BGVideo = "novideo"
+        End With
+        qItem.AddLabel "BALL SAVED", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
+        DmdQ.Enqueue qItem
     ElseIf ballsInPlay - BallsOnBridge() = 0 Then
+
+        If GetPlayerState(EXTRA_BALLS) > 0 Then
+            SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) - 1
+            DispatchPinEvent BALL_SAVE
+            Set qItem = New QueueItem
+            With qItem
+                .Name = "shootagain"
+                .Duration = 2
+                .BGImage = "BGBlack"
+                .BGVideo = "novideo"
+            End With
+            qItem.AddLabel "SHOOT AGAIN", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
+            DmdQ.Enqueue qItem
+            Exit Sub
+        End If
 
         PlayCallout("drain")
         DmdQ.RemoveAll()
@@ -98,6 +126,7 @@ Sub EndOfBonus()
     SetPlayerState BONUS_X, 0
     SetPlayerState GI_COLOR, GAME_NORMAL_COLOR
     lightCtrl.RemoveTableLightSeq "GI", lSeqGIOff
+    DmdQ.RemoveAll()
     Select Case currentPlayer
         Case "PLAYER 1":
             If UBound(playerState.Keys()) > 0 Then
@@ -120,29 +149,37 @@ Sub EndOfBonus()
     End Select
 
     If GetPlayerState(CURRENT_BALL) > BALLS_PER_GAME Then
+
+        'Check HI SCORES
         DispatchPinEvent GAME_OVER
         gameStarted = False
-        FlexDMDCWelcomeScene()
-        currentPlayer = Null
-        playerState.RemoveAll()
+        currentPlayer = null
+        
     Else
         If GetPlayerState(CURRENT_BALL) > 1 Then
-            'FlexDMD.Stage.GetImage("BGP1").Visible = False
-            'FlexDMD.Stage.GetImage("BGP2").Visible = False
-            'FlexDMD.Stage.GetImage("BGP3").Visible = False
-            'FlexDMD.Stage.GetImage("BGP4").Visible = False
+            FlexDMD.Stage.GetFrame("VSeparator1").Visible = False
+            FlexDMD.Stage.GetFrame("VSeparator2").Visible = False
+            FlexDMD.Stage.GetFrame("VSeparator3").Visible = False
+            FlexDMD.Stage.GetFrame("VSeparator4").Visible = False
+    
             Select Case UBound(playerState.Keys())
                 Case 0:
-                    'FlexDMD.Stage.GetImage("BGP1").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
                     FlexDMD.Stage.GetLabel("Player1").Visible = True
                 Case 1:     
-                    'FlexDMD.Stage.GetImage("BGP2").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
                     FlexDMD.Stage.GetLabel("Player2").Visible = True
                 Case 2:
-                    'FlexDMD.Stage.GetImage("BGP3").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator3").Visible = True
                     FlexDMD.Stage.GetLabel("Player3").Visible = True
                 Case 3:   
-                    'FlexDMD.Stage.GetImage("BGP4").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator3").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator4").Visible = True
                     FlexDMD.Stage.GetLabel("Player4").Visible = True  
             End Select
         End If

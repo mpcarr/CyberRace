@@ -7,10 +7,12 @@
 '*****************************
 Sub SkillsTrial()
     AddScore POINT_BASE
-    If GetPlayerState(MODE_SKILLS_TRIAL) = False Then
+    If GetPlayerState(MODE_SKILLS_TRIAL) = False And GetPlayerState(SKILLS_TRIAL_READY) = False Then
         SetPlayerState SKILLS_TRIAL_SPINS, GetPlayerState(SKILLS_TRIAL_SPINS) + 1
+        FlexDMDSkillsScene()
         If GetPlayerState(SKILLS_TRIAL_SPINS) > (SKILLS_BASE_SPINS * GetPlayerState(SKILLS_TRIAL_ACTIVATIONS)) Then
             'Start Skills Trial
+            DmdQ.Dequeue "skills"
             SetPlayerState SKILLS_TRIAL_READY, True
         End If
     End If
@@ -28,8 +30,7 @@ Sub CheckSkillsTrialReady()
         SetPlayerState SKILLS_TRIAL_ACTIVATIONS, GetPlayerState(SKILLS_TRIAL_ACTIVATIONS) + 1
         SetPlayerState SKILLS_TRIAL_READY, False
         SetPlayerState SKILLS_TRIAL_SHOT, 1
-        'TODO: Light Show.
-        FlexDMDSkillsScene()
+        SetPlayerState SKILLS_TRIAL_SPINS, 0
         lightCtrl.AddShot "Skills1", l64, GAME_SKILLS_COLOR
         calloutsQ.Add "skills-trial", "PlayCallout(""skills-trial"")", 1, 0, 0, 3000, 0, False
         calloutsQ.Add "heartbeat", "PlaySoundAtLevelStatic ""heartbeat"", SoundFxLevel, sw02", 1, 0, 0, 3900, 0, False        
@@ -58,7 +59,7 @@ Sub SkillsTrialShot1()
         AddScore POINTS_MODE_SHOT
         SetPlayerState SKILLS_TRIAL_SHOT, 2
         GameTimers(GAME_SKILLS_TIMER_IDX) = 15
-        'TODO: Light Show.
+        lightCtrl.AddTableLightSeq "RGB", lSeqBetUp
         lightCtrl.RemoveShot "Skills1", l64
         lightCtrl.AddShot "Skills2", l46, GAME_SKILLS_COLOR
     End If
@@ -75,7 +76,7 @@ Sub SkillsTrialShot2()
         AddScore POINTS_MODE_SHOT
         SetPlayerState SKILLS_TRIAL_SHOT, 3
         GameTimers(GAME_SKILLS_TIMER_IDX) = 15
-        'TODO: Light Show.
+        lightCtrl.AddTableLightSeq "RGB", lSeqBetUp
         lightCtrl.RemoveShot "Skills2", l46
         lightCtrl.AddShot "Skills3", l47, GAME_SKILLS_COLOR
     End If
@@ -93,7 +94,7 @@ Sub SkillsTrialShot3
         SetPlayerState SKILLS_TRIAL_SHOT, 0
         GameTimers(GAME_SKILLS_TIMER_IDX) = 0
         SetPlayerState MODE_SKILLS_TRIAL, False
-        'TODO: Light Show.
+        lightCtrl.AddTableLightSeq "RGB", lSeqBetUp
         lightCtrl.RemoveShot "Skills3", l47
     End If
 End Sub
@@ -129,7 +130,7 @@ Sub GameSkillsTimerEnded()
 	SetPlayerState SKILLS_TRIAL_SHOT, 0
     GameTimers(GAME_SKILLS_TIMER_IDX) = 0
     SetPlayerState MODE_SKILLS_TRIAL, False
-    lightCtrl.RemoveShot "Skills1", l47
-    lightCtrl.RemoveShot "Skills2", l47
+    lightCtrl.RemoveShot "Skills1", l64
+    lightCtrl.RemoveShot "Skills2", l46
     lightCtrl.RemoveShot "Skills3", l47
 End Sub

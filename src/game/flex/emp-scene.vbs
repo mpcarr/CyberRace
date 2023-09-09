@@ -11,18 +11,16 @@ End Sub
 
 Sub FlexDMDEMPScene()
     Dim qItem : Set qItem = New QueueItem
+    Dim font
+    Set font = FlexDMD.NewFont(DMDFontMain, RGB(206, 0, 255), RGB(0, 0, 0), 0)
     With qItem
         .Name = "emp"
         .Duration = 2
-        .Title = "EMP CHARGING"
-        .Message = "(EMP_BASE_HITS * GetPlayerState(EMP_ACTIVATIONS)) - GetPlayerState(EMP_CHARGE) & "" HITS REMAINING"""
-        .Font = FontCyber16_HURRYUP_COLOR
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "blink"
-        .BGImage = "BG001"
-        .BGVideo = "novideo"
+        .BGImage = "noimage"
+        .BGVideo = "BGEmp"
     End With
+    qItem.AddLabel "EMP", 		font, DMDWidth*.25, DMDHeight*.3, DMDWidth*.25, DMDHeight*.3, ""
+    qItem.AddLabel "(EMP_BASE_HITS * GetPlayerState(EMP_ACTIVATIONS)) - GetPlayerState(EMP_CHARGE) & "" HITS""", 		font, DMDWidth*.25, DMDHeight*.8, DMDWidth*.25, DMDHeight*.8, "blink"
     DmdQ.Enqueue qItem
 End Sub
 '

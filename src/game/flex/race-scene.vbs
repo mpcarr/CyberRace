@@ -39,17 +39,16 @@ Sub FlexDMDRaceSelectScene()
     With qItem
         .Name = "raceselect"
         .Duration = 15
-        .Title = "Rykar - 6 Ramps Shots"
-        .Message = "GetPlayerState(EMPTY_STR) & Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10) & """" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)-Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10)*10)"
-        .Font = FontCyber32        
-        .MessageFont = FontCyber5
-        .StartPos = Array(DMDWidth*1.5,DMDHeight/2)
-        .EndPos = Array(0-DMDWidth,DMDHeight/2)
-        .Action = "noslide2blink"
         .BGImage = "BG001"    
         .BGVideo = "novideo"
         .Callback = "GameTimers(GAME_SELECTION_TIMER_IDX) = 15"
     End With
+    qItem.AddLabel GAME_RACE_MODE_TITLES(selection-1), 		    FlexDMD.NewFont(DMDFontMain, RGB(255, 0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.35, DMDWidth/2, DMDHeight*.35, ""
+    qItem.AddLabel "<", 		                                FlexDMD.NewFont(DMDFontSmall, RGB(255, 0,0), RGB(0, 0, 0), 0), DMDWidth*.1, DMDHeight*.3, DMDWidth*.1, DMDHeight*.3, "blink"
+    qItem.AddLabel ">", 		                                FlexDMD.NewFont(DMDFontSmall, RGB(255, 0,0), RGB(0, 0, 0), 0), DMDWidth*.9, DMDHeight*.3, DMDWidth*.9, DMDHeight*.3, "blink"
+    qItem.AddLabel GAME_RACE_MODE_DESC(selection-1), 		                        Font7, DMDWidth/2, DMDHeight*.75, DMDWidth/2, DMDHeight*.75, ""
+    qItem.AddLabel "GetPlayerState(EMPTY_STR) & Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10) & """" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)-Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10)*10)", 		Font7, DMDWidth*.9, DMDHeight*.8, DMDWidth*.9, DMDHeight*.8, ""
+
     DmdQ.Enqueue qItem
 
 End Sub

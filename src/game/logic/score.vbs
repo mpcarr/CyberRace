@@ -1,6 +1,6 @@
 Sub AddScore(v)
     'TODO Apply Any Multipliers
-    SetPlayerState SCORE, GetPlayerState(SCORE) + v + 10000000
+    SetPlayerState SCORE, GetPlayerState(SCORE) + v
 End Sub
 
 Sub AwardJackpot()

@@ -24,7 +24,8 @@ End Sub
 '******************************************
 Sub sw01_Hit()
     If ballSaver = True Then
-        'DispatchPinEvent BALL_SAVE
+        DispatchPinEvent BALL_SAVE
+        ballSaverIgnoreCount = ballSaverIgnoreCount+1
     Else
         PlaySoundAtLevelStatic "drain", SoundFxLevel, sw01
     End If
@@ -52,7 +53,8 @@ End Sub
 '******************************************
 Sub sw04_Hit()
     If ballSaver = True Then
-        'DispatchPinEvent BALL_SAVE
+        DispatchPinEvent BALL_SAVE
+        ballSaverIgnoreCount = ballSaverIgnoreCount+1
     Else
         PlaySoundAtLevelStatic "drain", SoundFxLevel, sw04
     End If
@@ -78,6 +80,7 @@ End Sub
 Sub sw_38_Hit()
     sw_38.TimerEnabled = True
     SoundSaucerLock()
+    DispatchPinEvent SWITCH_HIT_HYPER
 End Sub
 Sub sw_38_Timer() 
     lightCtrl.pulse l143, 0

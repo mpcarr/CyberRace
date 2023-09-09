@@ -190,7 +190,7 @@ Class LStateController
                     Set vpxLight = Lights(idx)
                 End If
                 If Not IsNull(vpxLight) Then
-                    Dim lmStr: lmStr = "lmArr = Array("    
+                    Dim e, lmStr: lmStr = "lmArr = Array("    
                     For Each e in GetElements()
                         If Right(e.Name, Len(vpxLight.Name)+1) = "_" & vpxLight.Name Then
                             Debug.Print(e.Name)
@@ -563,6 +563,16 @@ Class LStateController
         Next
 		For Each light in m_lights.Keys()
             AssignStateForFrame light, (new FrameState)(0, Null, m_lights(light).Idx)
+        Next
+    End Sub
+
+   Public Sub SyncLightMapColors()
+        For Each light in m_lights.Keys()
+            If m_lightmaps.Exists(light) Then
+                For Each lm in m_lightmaps(light)
+                    lm.Color = m_lights(light).Color(0)
+                Next
+            End If
         Next
     End Sub
 
@@ -996,7 +1006,7 @@ Class LStateController
                         Else
                             AssignStateForFrame name, (new FrameState)(lsName(1), color, ls.Idx)
                         End If
-						lcSeq.LastLightState(name) = m_currentFrameState(name)
+                        lcSeq.SetLastLightState name, m_currentFrameState(name) 
                     End If
                 Next       
             Else
@@ -1018,7 +1028,7 @@ Class LStateController
                     Else
                         AssignStateForFrame name, (new FrameState)(lsName(1), color, ls.Idx)
                     End If
-                    lcSeq.LastLightState(name) = m_currentFrameState(name)
+                    lcSeq.SetLastLightState name, m_currentFrameState(name) 
                 End If
             End If
 
@@ -1208,6 +1218,15 @@ Class LCSeq
 			m_lastLightStates.Add light, input
 		End If
     End Property
+
+    Public Sub SetLastLightState(light, input)	
+        If m_lastLightStates.Exists(light) Then	
+            m_lastLightStates.Remove light	
+        End If	
+        If input.level > 0 Then	
+                m_lastLightStates.Add light, input	
+        End If	
+    End Sub
 
     Public Property Get Color()
         Color=m_color

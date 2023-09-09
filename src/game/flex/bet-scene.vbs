@@ -1,111 +1,62 @@
 
-Sub FlexDMDBetBScene()
-	dim bet1,bet2,bet3,vid,l
-	vid = Null
-	l=2
-	bet1 = GetPlayerState(BET_1)
-	bet2 = GetPlayerState(BET_2)
-	bet3 = GetPlayerState(BET_3)
+Sub FlexDMDBetScene(bb,eb,tb)
+    
+	dim b,e,t
+	If GetPlayerState(BET_1) = 1 Then 
+        Set b = FlexDMD.NewFont(DMDFontBig, RGB(1, 244, 255), RGB(0, 0, 0), 0)
+    Else
+        Set b = FlexDMD.NewFont(DMDFontBig, RGB(255, 255, 255), RGB(0, 0, 0), 0)
+    End If
+	
+    If GetPlayerState(BET_2) = 1 Then 
+        Set e = FlexDMD.NewFont(DMDFontBig, RGB(1, 244, 255), RGB(0, 0, 0), 0)
+    Else
+        Set e = FlexDMD.NewFont(DMDFontBig, RGB(255, 255, 255), RGB(0, 0, 0), 0)
+    End If
 
-	If bet1 = 1 And bet2 = 1 And bet3=1 Then
-		vid = "betBET"
-		l=3
-	ElseIf bet2 = 1 And bet3 = 2 Then
-		vid = "betBE"
-	ElseIf bet2 = 2 And bet3 = 2 Then
-		vid = "betB"
-	ElseIf bet2 = 2 And bet3 = 1 Then
-		vid = "betBT"
-	End If
+    If GetPlayerState(BET_3) = 1 Then 
+        Set t = FlexDMD.NewFont(DMDFontBig, RGB(1, 244, 255), RGB(0, 0, 0), 0)
+    Else
+        Set t = FlexDMD.NewFont(DMDFontBig, RGB(255, 255, 255), RGB(0, 0, 0), 0)
+    End If
 
-	If Not IsNull(vid) Then
-		Dim qItem : Set qItem = New QueueItem
-		With qItem
-			.Name = "bet"
-			.Duration = l
-			.Title = ""
-			.Message = ""
-			.Font = FontCyber32
-			.StartPos = Array(DMDWidth/2,DMDHeight/2)
-			.EndPos = Array(DMDWidth/2,DMDHeight/2)
-			.Action = "blink"
-			.BGImage = "noimage"
-			.BGVideo = vid
-		End With
-		DmdQ.Enqueue qItem
-	End If
+ 	Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "bet"
+        .Duration = 2
+        .BGImage = "noimage"
+        .BGVideo = "BGCyber"
+		.Action = "slidedown"
+    End With
+    qItem.AddLabel "B", 		b, DMDWidth*.25, DMDHeight/2, DMDWidth*.25, DMDHeight/2, bb
+    qItem.AddLabel "E", 		e, DMDWidth*.5, DMDHeight/2, DMDWidth*.5, DMDHeight/2, eb
+    qItem.AddLabel "T", 		t, DMDWidth*.75, DMDHeight/2, DMDWidth*.75, DMDHeight/2, tb
+    DmdQ.Enqueue qItem
 End Sub
 
-Sub FlexDMDBetEScene()
-	dim bet1,bet2,bet3,vid,l
-	vid = Null
-	l=2
-	bet1 = GetPlayerState(BET_1)
-	bet2 = GetPlayerState(BET_2)
-	bet3 = GetPlayerState(BET_3)
-
-	If bet1 = 1 And bet2 = 1 And bet3=1 Then
-		vid = "betBET"
-		l=3
-	ElseIf bet1 = 1 And bet3 = 2 Then
-		vid = "betBE"
-	ElseIf bet1 = 2 And bet3 = 2 Then
-		vid = "betE"
-	ElseIf bet1 = 2 And bet3 = 1 Then
-		vid = "betET"
-	End If
-		
-	If Not IsNull(vid) Then
-		Dim qItem : Set qItem = New QueueItem
-		With qItem
-			.Name = "bet"
-			.Duration = l
-			.Title = ""
-			.Message = ""
-			.Font = FontCyber32
-			.StartPos = Array(DMDWidth/2,DMDHeight/2)
-			.EndPos = Array(DMDWidth/2,DMDHeight/2)
-			.Action = "blink"
-			.BGImage = "noimage"
-			.BGVideo = vid
-		End With
-		DmdQ.Enqueue qItem
-	End If
+Sub FlexDMDBetModeScene()
+ 	Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "bet-mode"
+        .Duration = 2
+        .BGImage = "noimage"
+        .BGVideo = "BGBetMode"
+		.Action = "slidedown"
+    End With
+    DmdQ.Enqueue qItem
 End Sub
 
-Sub FlexDMDBetTScene()
-	dim bet1,bet2,bet3,vid,l
-	vid = Null
-	l=2
-	bet1 = GetPlayerState(BET_1)
-	bet2 = GetPlayerState(BET_2)
-	bet3 = GetPlayerState(BET_3)
-
-	If bet1 = 1 And bet2 = 1 And bet3=1 Then
-		vid = "betBET"
-		l=3
-	ElseIf bet1 = 1 And bet2 = 2 Then
-		vid = "betBT"
-	ElseIf bet1 = 2 And bet2 = 2 Then
-		vid = "betT"
-	ElseIf bet1 = 2 And bet2 = 1 Then
-		vid = "betET"
-	End If
-		
-	If Not IsNull(vid) Then
-		Dim qItem : Set qItem = New QueueItem
-		With qItem
-			.Name = "bet"
-			.Duration = l
-			.Title = ""
-			.Message = ""
-			.Font = FontCyber32
-			.StartPos = Array(DMDWidth/2,DMDHeight/2)
-			.EndPos = Array(DMDWidth/2,DMDHeight/2)
-			.Action = "blink"
-			.BGImage = "noimage"
-			.BGVideo = vid
-		End With
-		DmdQ.Enqueue qItem
-	End If
+Sub FlexDMDBetModeCollectedScene()
+	dim bValue : bValue = FormatScore(GetPlayerState(BET_VALUE))
+ 	Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "bet-collected"
+        .Duration = 2
+        .BGImage = "BG001"
+        .BGVideo = "novideo"
+		.Action = "slidedown"
+    End With
+	qItem.AddLabel "BET COLLECTED", 		                        Font5, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, "blink"
+    qItem.AddLabel bValue, 		Font12, DMDWidth/2, DMDHeight*.7, DMDWidth/2, DMDHeight*.7, "blink"
+    DmdQ.Enqueue qItem
 End Sub

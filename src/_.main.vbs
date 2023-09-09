@@ -9,6 +9,7 @@ Const cGameName = "cyberrace"
 'v12: flux: Added BET mode callouts and GI Light colours. Add Skills Trial Mode.
 'v13: flux: Lots of DMD work. fixed some mode issues
 'v14: flux: fix skills trial crash, force dmd label alignments
+'v15: flux: 128x32 dmd changes, enabled vr room (needs work)
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -38,6 +39,7 @@ Dim GrabMag
 Dim plungerIM
 Dim gameBooted : gameBooted = False
 Dim gameStarted : gameStarted = False
+Dim gameEnding : gameEnding = False
 Dim LFlipperDown: LFlipperDown = False
 Dim RFlipperDown: RFlipperDown = False
 Dim currentPlayer : currentPlayer = Null
@@ -45,6 +47,7 @@ Dim ballsInPlay : ballsInPlay = 0
 Dim autoPlunge : autoPlunge = False
 Dim ballInPlungeerLane : ballInPlungerLane = False
 Dim ballSaver : ballSaver = False
+Dim ballSaverIgnoreCount : ballSaverIgnoreCount = 0
 Dim ttSpinner
 Dim pinEvents : Set pinEvents = CreateObject("Scripting.Dictionary")
 Dim gameEvents : Set gameEvents = CreateObject("Scripting.Dictionary")
@@ -65,12 +68,12 @@ Dim DmdQ : Set DmdQ = New Queue
 Dim VRRoom, VRElement
 If RenderingMode = 2 Then VRRoom = VRRoomChoice Else VRRoom = 0
  
-'If RenderingMode = 2 then 
+If RenderingMode = 2 then 
 	For Each VRElement in VRStuff
 		VRElement.Visible = True
 	Next
 	DMD.TimerEnabled = True
-'End If
+End If
 
 
 If debugLogOn = True Then
@@ -110,7 +113,7 @@ Sub Table1_Init()
 
 	lightCtrl.CreateSeqRunner("Attract")
 
-	'lightCtrl.LoadLightShows
+	lightCtrl.LoadLightShows
 	
 	'InitLampsNF 'Init Lampz
 
@@ -167,16 +170,11 @@ Sub Table1_Init()
 	With qItem
 		.Name = "boot"
 		.Duration = 3
-		.Title = "PLEASE WAIT"
-		.Message = "BOOTING"
-		.Font = FontCyber32		
-		.MessageFont = FontCyber32		
-		.StartPos = Array(DMDWidth/2,DMDHeight/2)
-		.EndPos = Array(DMDWidth/2,DMDHeight/2)
-		.Action = "noslide2blink"
-		.BGImage = "noimage"
+		.BGImage = "BGBlack"
 		.BGVideo = "novideo"
 	End With
+	qItem.AddLabel "PLEASE WAIT", 	Font12, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, "blink"
+	qItem.AddLabel "BOOTING", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
 	DmdQ.Enqueue qItem
 	
 End Sub

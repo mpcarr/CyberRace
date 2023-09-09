@@ -9,6 +9,7 @@ Const cGameName = "cyberrace"
 'v12: flux: Added BET mode callouts and GI Light colours. Add Skills Trial Mode.
 'v13: flux: Lots of DMD work. fixed some mode issues
 'v14: flux: fix skills trial crash, force dmd label alignments
+'v15: flux: 128x32 dmd changes, enabled vr room (needs work)
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -38,6 +39,7 @@ Dim GrabMag
 Dim plungerIM
 Dim gameBooted : gameBooted = False
 Dim gameStarted : gameStarted = False
+Dim gameEnding : gameEnding = False
 Dim LFlipperDown: LFlipperDown = False
 Dim RFlipperDown: RFlipperDown = False
 Dim currentPlayer : currentPlayer = Null
@@ -45,6 +47,7 @@ Dim ballsInPlay : ballsInPlay = 0
 Dim autoPlunge : autoPlunge = False
 Dim ballInPlungeerLane : ballInPlungerLane = False
 Dim ballSaver : ballSaver = False
+Dim ballSaverIgnoreCount : ballSaverIgnoreCount = 0
 Dim ttSpinner
 Dim pinEvents : Set pinEvents = CreateObject("Scripting.Dictionary")
 Dim gameEvents : Set gameEvents = CreateObject("Scripting.Dictionary")
@@ -110,7 +113,7 @@ Sub Table1_Init()
 
 	lightCtrl.CreateSeqRunner("Attract")
 
-	'lightCtrl.LoadLightShows
+	lightCtrl.LoadLightShows
 	
 	'InitLampsNF 'Init Lampz
 
@@ -157,6 +160,7 @@ Sub Table1_Init()
 		.InitExitSnd SoundFX("Saucer_Kick", DOFContactors), SoundFX("Relay_On", DOFContactors)
 		.CreateEvents "plungerIM"
 	End With
+	Options_Load
 	
 	'lightCtrl.AddTableLightSeq "Attract", lSeqAttract3
 	lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm1
@@ -166,16 +170,11 @@ Sub Table1_Init()
 	With qItem
 		.Name = "boot"
 		.Duration = 3
-		.Title = "PLEASE WAIT"
-		.Message = "BOOTING"
-		.Font = FontCyber32		
-		.MessageFont = FontCyber32		
-		.StartPos = Array(DMDWidth/2,DMDHeight/2)
-		.EndPos = Array(DMDWidth/2,DMDHeight/2)
-		.Action = "noslide2blink"
-		.BGImage = "noimage"
+		.BGImage = "BGBlack"
 		.BGVideo = "novideo"
 	End With
+	qItem.AddLabel "PLEASE WAIT", 	Font12, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, "blink"
+	qItem.AddLabel "BOOTING", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
 	DmdQ.Enqueue qItem
 	
 End Sub
@@ -231,6 +230,7 @@ Const SWITCH_HIT_LANE_A = "Switches Hit Lane A"
 Const SWITCH_HIT_LEFT_RAMP = "Switches Hit Left Ramp"
 Const SWITCH_HIT_RIGHT_ORBIT = "Switches Hit Right Orbit"
 Const SWITCH_HIT_RAMP_LOCK = "Switch Hit Ramp Lock"
+Const SWITCH_HIT_HYPER = "Switch Hit Hyper"
 
 Const SWITCH_HIT_BOOST1 = "Switches Hit Boost1"
 Const SWITCH_HIT_BOOST2 = "Switches Hit Boost2"
@@ -336,9 +336,6 @@ Sub DMD_Timer()
 End Sub
 
 InitFlexDMD()
-'Create Fonts
-Dim DMDWelcomeScene : Set DMDWelcomeScene = FlexDMD.NewGroup("DMDWelcomeScene")
-InitDMDWelcomeScene()
 
 Dim DMDEMPScene : Set DMDEMPScene = FlexDMD.NewGroup("DMDEMPScene")
 Dim DMDEMPModeScene : Set DMDEMPModeScene = FlexDMD.NewGroup("DMDEMPModeScene")
@@ -383,116 +380,68 @@ Sub FlexPlayScene(ByRef scene)
 	'FlexDMD.UnlockRenderThread
 End Sub
 
-Sub FlexDMDBetBScene()
-	dim bet1,bet2,bet3,vid,l
-	vid = Null
-	l=2
-	bet1 = GetPlayerState(BET_1)
-	bet2 = GetPlayerState(BET_2)
-	bet3 = GetPlayerState(BET_3)
+Sub FlexDMDBetScene(bb,eb,tb)
+    
+	dim b,e,t
+	If GetPlayerState(BET_1) = 1 Then 
+        Set b = FlexDMD.NewFont(DMDFontBig, RGB(1, 244, 255), RGB(0, 0, 0), 0)
+    Else
+        Set b = FlexDMD.NewFont(DMDFontBig, RGB(255, 255, 255), RGB(0, 0, 0), 0)
+    End If
+	
+    If GetPlayerState(BET_2) = 1 Then 
+        Set e = FlexDMD.NewFont(DMDFontBig, RGB(1, 244, 255), RGB(0, 0, 0), 0)
+    Else
+        Set e = FlexDMD.NewFont(DMDFontBig, RGB(255, 255, 255), RGB(0, 0, 0), 0)
+    End If
 
-	If bet1 = 1 And bet2 = 1 And bet3=1 Then
-		vid = "betBET"
-		l=3
-	ElseIf bet2 = 1 And bet3 = 2 Then
-		vid = "betBE"
-	ElseIf bet2 = 2 And bet3 = 2 Then
-		vid = "betB"
-	ElseIf bet2 = 2 And bet3 = 1 Then
-		vid = "betBT"
-	End If
+    If GetPlayerState(BET_3) = 1 Then 
+        Set t = FlexDMD.NewFont(DMDFontBig, RGB(1, 244, 255), RGB(0, 0, 0), 0)
+    Else
+        Set t = FlexDMD.NewFont(DMDFontBig, RGB(255, 255, 255), RGB(0, 0, 0), 0)
+    End If
 
-	If Not IsNull(vid) Then
-		Dim qItem : Set qItem = New QueueItem
-		With qItem
-			.Name = "bet"
-			.Duration = l
-			.Title = ""
-			.Message = ""
-			.Font = FontCyber32
-			.StartPos = Array(DMDWidth/2,DMDHeight/2)
-			.EndPos = Array(DMDWidth/2,DMDHeight/2)
-			.Action = "blink"
-			.BGImage = "noimage"
-			.BGVideo = vid
-		End With
-		DmdQ.Enqueue qItem
-	End If
+ 	Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "bet"
+        .Duration = 2
+        .BGImage = "noimage"
+        .BGVideo = "BGCyber"
+		.Action = "slidedown"
+    End With
+    qItem.AddLabel "B", 		b, DMDWidth*.25, DMDHeight/2, DMDWidth*.25, DMDHeight/2, bb
+    qItem.AddLabel "E", 		e, DMDWidth*.5, DMDHeight/2, DMDWidth*.5, DMDHeight/2, eb
+    qItem.AddLabel "T", 		t, DMDWidth*.75, DMDHeight/2, DMDWidth*.75, DMDHeight/2, tb
+    DmdQ.Enqueue qItem
 End Sub
 
-Sub FlexDMDBetEScene()
-	dim bet1,bet2,bet3,vid,l
-	vid = Null
-	l=2
-	bet1 = GetPlayerState(BET_1)
-	bet2 = GetPlayerState(BET_2)
-	bet3 = GetPlayerState(BET_3)
-
-	If bet1 = 1 And bet2 = 1 And bet3=1 Then
-		vid = "betBET"
-		l=3
-	ElseIf bet1 = 1 And bet3 = 2 Then
-		vid = "betBE"
-	ElseIf bet1 = 2 And bet3 = 2 Then
-		vid = "betE"
-	ElseIf bet1 = 2 And bet3 = 1 Then
-		vid = "betET"
-	End If
-		
-	If Not IsNull(vid) Then
-		Dim qItem : Set qItem = New QueueItem
-		With qItem
-			.Name = "bet"
-			.Duration = l
-			.Title = ""
-			.Message = ""
-			.Font = FontCyber32
-			.StartPos = Array(DMDWidth/2,DMDHeight/2)
-			.EndPos = Array(DMDWidth/2,DMDHeight/2)
-			.Action = "blink"
-			.BGImage = "noimage"
-			.BGVideo = vid
-		End With
-		DmdQ.Enqueue qItem
-	End If
+Sub FlexDMDBetModeScene()
+ 	Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "bet-mode"
+        .Duration = 2
+        .BGImage = "noimage"
+        .BGVideo = "BGBetMode"
+		.Action = "slidedown"
+    End With
+    DmdQ.Enqueue qItem
 End Sub
 
-Sub FlexDMDBetTScene()
-	dim bet1,bet2,bet3,vid,l
-	vid = Null
-	l=2
-	bet1 = GetPlayerState(BET_1)
-	bet2 = GetPlayerState(BET_2)
-	bet3 = GetPlayerState(BET_3)
-
-	If bet1 = 1 And bet2 = 1 And bet3=1 Then
-		vid = "betBET"
-		l=3
-	ElseIf bet1 = 1 And bet2 = 2 Then
-		vid = "betBT"
-	ElseIf bet1 = 2 And bet2 = 2 Then
-		vid = "betT"
-	ElseIf bet1 = 2 And bet2 = 1 Then
-		vid = "betET"
-	End If
-		
-	If Not IsNull(vid) Then
-		Dim qItem : Set qItem = New QueueItem
-		With qItem
-			.Name = "bet"
-			.Duration = l
-			.Title = ""
-			.Message = ""
-			.Font = FontCyber32
-			.StartPos = Array(DMDWidth/2,DMDHeight/2)
-			.EndPos = Array(DMDWidth/2,DMDHeight/2)
-			.Action = "blink"
-			.BGImage = "noimage"
-			.BGVideo = vid
-		End With
-		DmdQ.Enqueue qItem
-	End If
+Sub FlexDMDBetModeCollectedScene()
+	dim bValue : bValue = FormatScore(GetPlayerState(BET_VALUE))
+ 	Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "bet-collected"
+        .Duration = 2
+        .BGImage = "BG001"
+        .BGVideo = "novideo"
+		.Action = "slidedown"
+    End With
+	qItem.AddLabel "BET COLLECTED", 		                        Font5, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, "blink"
+    qItem.AddLabel bValue, 		Font12, DMDWidth/2, DMDHeight*.7, DMDWidth/2, DMDHeight*.7, "blink"
+    DmdQ.Enqueue qItem
 End Sub
+
 
 Sub FlexDMDBonusScene()
     'SetPlayerState FLEX_MODE, 8
@@ -501,80 +450,60 @@ Sub FlexDMDBonusScene()
     With bonusRaces
         .Name = "bonus_races"
         .Duration = 2
-        .Title = """RACES WON: "" & GetPlayerState(BONUS_RACES_WON) & "" x 100K"""
-        .Message = "FormatScore(GetPlayerState(BONUS_RACES_WON) * 100000)"
-        .Font = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "noslide2"
-        .BGImage = "BG001"
-        .BGVideo = "novideo"
+        .BGImage = "noimage"
+        .BGVideo = "BGBonus1"
 		.Callback = "PlaySound(""fx-bonus"") : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus1"
     End With
+    bonusRaces.AddLabel """RACES WON: "" & GetPlayerState(BONUS_RACES_WON) & "" x 100K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
+    bonusRaces.AddLabel "FormatScore(GetPlayerState(BONUS_RACES_WON) * 100000)", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue bonusRaces
 
 	Dim bonusNodes : Set bonusNodes = New QueueItem
     With bonusNodes
         .Name = "bonus_nodes"
         .Duration = 2
-        .Title = """NODES COMPLETED: "" & GetPlayerState(BONUS_NODES_COMPLETED) & "" x 75K"""
-        .Message = "FormatScore(GetPlayerState(BONUS_NODES_COMPLETED) * 75000)"
-        .Font = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "noslide2"
-        .BGImage = "BG001"
-        .BGVideo = "novideo"
+        .BGImage = "noimage"
+        .BGVideo = "BGBonus2"
 		.Callback = "PlaySound(""fx-bonus"") : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus2"
     End With
+    bonusNodes.AddLabel """NODES: "" & GetPlayerState(BONUS_NODES_COMPLETED) & "" x 75K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
+    bonusNodes.AddLabel "FormatScore(GetPlayerState(BONUS_NODES_COMPLETED) * 75000)", 		                   Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue bonusNodes
 
 	Dim bonusSkills : Set bonusSkills = New QueueItem
     With bonusSkills
         .Name = "bonus_skills"
         .Duration = 2
-        .Title = """SKILLS TRAIL: "" & GetPlayerState(BONUS_NODES_COMPLETED) & "" x 75K"""
-        .Message = "xxx"
-        .Font = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "noslide2"
-        .BGImage = "BG001"
-        .BGVideo = "novideo"
+        .BGImage = "noimage"
+        .BGVideo = "BGBonus3"
 		.Callback = "PlaySound(""fx-bonus"") : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus3"
     End With
+    bonusSkills.AddLabel """SKILLS TRAIL: "" & GetPlayerState(BONUS_NODES_COMPLETED) & "" x 75K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
+    bonusSkills.AddLabel "xxx", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue bonusSkills
 
 	Dim bonusTT : Set bonusTT = New QueueItem
     With bonusTT
         .Name = "bonus_tt"
         .Duration = 2
-        .Title = """TIME TRAIL: "" & GetPlayerState(BONUS_NODES_COMPLETED) & "" x 75K"""
-        .Message = "xxx"
-        .Font = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "noslide2"
-        .BGImage = "BG001"
-        .BGVideo = "novideo"
+        .BGImage = "noimage"
+        .BGVideo = "BGBonus4"
 		.Callback = "PlaySound(""fx-bonus"") : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus4"
     End With
+    bonusTT.AddLabel """TIME TRAIL: "" & GetPlayerState(BONUS_NODES_COMPLETED) & "" x 75K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
+    bonusTT.AddLabel "xxx", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue bonusTT
 
 	Dim bonusCombos : Set bonusCombos = New QueueItem
     With bonusCombos
         .Name = "bonus_combos"
         .Duration = 2
-        .Title = """COMBOS: "" & GetPlayerState(BONUS_COMBOS_MADE) & "" x 50K"""
-        .Message = "FormatScore(GetPlayerState(BONUS_COMBOS_MADE) * 50000)"
-        .Font = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "noslide2"
-        .BGImage = "BG001"
-        .BGVideo = "novideo"
+        .BGImage = "noimage"
+        .BGVideo = "BGBonus5"
 		.Callback = "PlaySound(""fx-bonus"") : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus5"
     End With
+    bonusCombos.AddLabel """COMBOS: "" & GetPlayerState(BONUS_COMBOS_MADE) & "" x 50K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
+    bonusCombos.AddLabel "FormatScore(GetPlayerState(BONUS_COMBOS_MADE) * 50000)", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue bonusCombos
 	
 	AddScore(GetPlayerState(BONUS_COMBOS_MADE) * 50000)
@@ -588,18 +517,12 @@ Sub FlexDMDBoostModeScene()
     With qItem
         .Name = "boost"
         .Duration = 2
-        .Title = "JACKPOTS GROW"
-        .Message = "FormatScore(GetPlayerState(JACKPOT_VALUE))"
-        .Font = FontCyber32        
-        .MessageFont = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "blink"
         .BGImage = "noimage"
         .BGVideo = "BGBoost"
     End With
+    qItem.AddLabel "JACKPOTS GROW", 		Font12, DMDWidth/2, DMDHeight*.4, DMDWidth/2, DMDHeight*.4, ""
+    qItem.AddLabel "FormatScore(GetPlayerState(JACKPOT_VALUE))", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
     DmdQ.Enqueue qItem
-
     lightCtrl.AddLightSeq "BoostUp", lSeqBoostUp
     lightCtrl.pulse l140, 0
     lightCtrl.pulse l141, 0
@@ -612,16 +535,11 @@ Sub FlexDMDBoostScene()
     With qItem
         .Name = "boost"
         .Duration = 2
-        .Title = "POINTS BOOST"
-        .Message = "(3 * GetPlayerState(BOOST_ACTIVATIONS)) - GetPlayerState(BOOST_HITS) & "" FOR BOOST MODE"""
-        .Font = FontCyber32        
-        .MessageFont = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight*.6)
-        .EndPos = Array(DMDwidth/2,DMDHeight*.6)
-        .Action = ""
         .BGImage = "noimage"
         .BGVideo = "BGBoost"
     End With
+    qItem.AddLabel "POINTS BOOST", 		Font12, DMDWidth/2, DMDHeight*.4, DMDWidth/2, DMDHeight*.4, ""
+    qItem.AddLabel "(3 * GetPlayerState(BOOST_ACTIVATIONS)) - GetPlayerState(BOOST_HITS) & "" FOR BOOST MODE""", 		Font7, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue qItem
    
     lightCtrl.AddLightSeq "BoostUp", lSeqBoostUp
@@ -632,28 +550,53 @@ Sub FlexDMDBoostScene()
 
 End Sub
 
-Sub FlexDMDCyberScene()
+Sub FlexDMDCyberScene(cb,yb,bb,eb,rb)
     
-	dim letter
-	If GetPlayerState(CYBER_C) = 1 Then letter = letter & " C "
-	If GetPlayerState(CYBER_Y) = 1 Then letter = letter & " Y "
-	If GetPlayerState(CYBER_B) = 1 Then letter = letter & " B "
-	If GetPlayerState(CYBER_E) = 1 Then letter = letter & " E "
-	If GetPlayerState(CYBER_R) = 1 Then letter = letter & " R "
+	dim c,y,b,e,r
+	If GetPlayerState(CYBER_C) = 1 Then 
+        Set c = FlexDMD.NewFont(DMDFontBig, RGB(1, 244, 255), RGB(0, 0, 0), 0)
+    Else
+        Set c = FlexDMD.NewFont(DMDFontBig, RGB(255, 255, 255), RGB(0, 0, 0), 0)
+    End If
 	
+    If GetPlayerState(CYBER_Y) = 1 Then 
+        Set y = FlexDMD.NewFont(DMDFontBig, RGB(1, 244, 255), RGB(0, 0, 0), 0)
+    Else
+        Set y = FlexDMD.NewFont(DMDFontBig, RGB(255, 255, 255), RGB(0, 0, 0), 0)
+    End If
+
+    If GetPlayerState(CYBER_B) = 1 Then 
+        Set b = FlexDMD.NewFont(DMDFontBig, RGB(1, 244, 255), RGB(0, 0, 0), 0)
+    Else
+        Set b = FlexDMD.NewFont(DMDFontBig, RGB(255, 255, 255), RGB(0, 0, 0), 0)
+    End If
+
+    If GetPlayerState(CYBER_E) = 1 Then 
+        Set e = FlexDMD.NewFont(DMDFontBig, RGB(1, 244, 255), RGB(0, 0, 0), 0)
+    Else
+        Set e = FlexDMD.NewFont(DMDFontBig, RGB(255, 255, 255), RGB(0, 0, 0), 0)
+    End If
+
+    If GetPlayerState(CYBER_R) = 1 Then 
+        Set r = FlexDMD.NewFont(DMDFontBig, RGB(1, 244, 255), RGB(0, 0, 0), 0)
+    Else
+        Set r = FlexDMD.NewFont(DMDFontBig, RGB(255, 255, 255), RGB(0, 0, 0), 0)
+    End If
+
+
  	Dim qItem : Set qItem = New QueueItem
     With qItem
         .Name = "cyber"
         .Duration = 2
-        .Title = letter
-        .Message = ""
-        .Font = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight*.3)
-        .EndPos = Array(DMDWidth/2,DMDHeight*.3)
-        .Action = "blink"
         .BGImage = "noimage"
         .BGVideo = "BGCyber"
+        .Action = "slidedown"
     End With
+    qItem.AddLabel "C", 		c, DMDWidth*.166, DMDHeight/2, DMDWidth*.166, DMDHeight/2, cb
+    qItem.AddLabel "Y", 		y, DMDWidth*.333, DMDHeight/2, DMDWidth*.333, DMDHeight/2, yb
+    qItem.AddLabel "B", 		b, DMDWidth*.499, DMDHeight/2, DMDWidth*.499, DMDHeight/2, bb
+    qItem.AddLabel "E", 		e, DMDWidth*.665, DMDHeight/2, DMDWidth*.665, DMDHeight/2, eb
+    qItem.AddLabel "R", 		r, DMDWidth*.831, DMDHeight/2, DMDWidth*.831, DMDHeight/2, rb
     DmdQ.Enqueue qItem
 
     lightCtrl.pulse l29, 0
@@ -678,18 +621,16 @@ End Sub
 
 Sub FlexDMDEMPScene()
     Dim qItem : Set qItem = New QueueItem
+    Dim font
+    Set font = FlexDMD.NewFont(DMDFontMain, RGB(206, 0, 255), RGB(0, 0, 0), 0)
     With qItem
         .Name = "emp"
         .Duration = 2
-        .Title = "EMP CHARGING"
-        .Message = "(EMP_BASE_HITS * GetPlayerState(EMP_ACTIVATIONS)) - GetPlayerState(EMP_CHARGE) & "" HITS REMAINING"""
-        .Font = FontCyber16_HURRYUP_COLOR
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "blink"
-        .BGImage = "BG001"
-        .BGVideo = "novideo"
+        .BGImage = "noimage"
+        .BGVideo = "BGEmp"
     End With
+    qItem.AddLabel "EMP", 		font, DMDWidth*.25, DMDHeight*.3, DMDWidth*.25, DMDHeight*.3, ""
+    qItem.AddLabel "(EMP_BASE_HITS * GetPlayerState(EMP_ACTIVATIONS)) - GetPlayerState(EMP_CHARGE) & "" HITS""", 		font, DMDWidth*.25, DMDHeight*.8, DMDWidth*.25, DMDHeight*.8, "blink"
     DmdQ.Enqueue qItem
 End Sub
 '
@@ -787,12 +728,6 @@ Sub FlexDMDGarageEngineScene()
     With qItem
         .Name = "nye"
         .Duration = 4
-        .Title = ""
-        .Message = ""
-        .Font = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "noblink"
         .BGImage = "noimage"
         .BGVideo = "BGEngine"
     End With
@@ -805,12 +740,6 @@ Sub FlexDMDGarageCoolingScene()
     With qItem
         .Name = "nye"
         .Duration = 4
-        .Title = ""
-        .Message = ""
-        .Font = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "noblink"
         .BGImage = "noimage"
         .BGVideo = "BGCooling"
     End With
@@ -822,15 +751,36 @@ Sub FlexDMDGarageFuelScene()
     With qItem
         .Name = "nye"
         .Duration = 4
-        .Title = ""
-        .Message = ""
-        .Font = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "noblink"
         .BGImage = "noimage"
         .BGVideo = "BGFuel"
     End With
+    DmdQ.Enqueue qItem
+
+End Sub
+
+Sub FlexDMDHiScoreScene()
+    Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "hiscore"
+        .Duration = 30
+        .BGImage = "BGBlack"
+        .BGVideo = "novideo"
+    End With
+    qItem.AddLabel "HI SCORE", 		Font7, DMDWidth/2, DMDHeight*.15, DMDWidth/2, DMDHeight*.15, ""
+    Dim b1,b2,b3
+    b1 = "" : b2 = "" : b3 = ""
+    Select Case GetPlayerState(INITIAL_POSITION):
+        Case 0: 
+            b1 = "blink"
+        Case 1: 
+            b2 = "blink"
+        Case 2: 
+            b3 = "blink"
+    End Select  
+    qItem.AddLabel "GetPlayerState(INITIAL_1)", 		Font12, DMDWidth*.25, DMDHeight/2, DMDWidth*.25, DMDHeight/2, b1
+    qItem.AddLabel "GetPlayerState(INITIAL_2)", 		Font12, DMDWidth*.5, DMDHeight/2, DMDWidth*.5, DMDHeight/2, b2
+    qItem.AddLabel "GetPlayerState(INITIAL_3)", 		Font12, DMDWidth*.75, DMDHeight/2, DMDWidth*.75, DMDHeight/2, b3
+    qItem.AddLabel "GetPlayerState(EMPTY_STR) & Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10) & """" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)-Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10)*10)", 		Font7, DMDWidth*.9, DMDHeight*.8, DMDWidth*.9, DMDHeight*.8, ""
     DmdQ.Enqueue qItem
 
 End Sub
@@ -911,54 +861,66 @@ Sub FlexDMDNodeScene()
     
 End Sub
 
+Sub FlexDMDNodesCompleteScene()
+    Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "nodes-complete"
+        .Duration = 2
+        .BGImage = "noimage"
+        .BGVideo = "BGNodes"
+    End With
+    qItem.AddLabel "NODES", 		Font12, DMDWidth*.75, DMDHeight*.25, DMDWidth*.75, DMDHeight*.25, "blink"
+    qItem.AddLabel "COMPLETE", 		Font12, DMDWidth*.75, DMDHeight*.75, DMDWidth*.75, DMDHeight*.75, "blink"
+    DmdQ.Enqueue qItem
+End Sub
+
 Sub FlexDMDNodePerkCollectScene()
     DmdQ.RemoveAll()
-    Dim bgVideo
+    Dim perkLeftTitle,perkLeftDesc,perkRightTitle,perkRightDesc
     Select Case GetPlayerState(NODE_LEVEL):
         Case 2: 
-            bgVideo = "BGNode1"
+            perkLeftTitle = "JACKPOTS"
+            perkLeftDesc = "+250K"
+            perkRightTitle = "COLLECT"
+            perkRightDesc = "5 MIL"
         Case 3: 
-            bgVideo = "BGNode2"
+            perkLeftTitle = "RACE"
+            perkLeftDesc = "+20 SECS"
+            perkRightTitle = "2X BET"
+            perkRightDesc = "HURRY UP"
         Case 4: 
-            bgVideo = "BGNode3"
+            perkLeftTitle = "OUTLANE"
+            perkLeftDesc = "SAVES"
+            perkRightTitle = "INSTANT"
+            perkRightDesc = "MULTIBALL"
         Case 5: 
-            bgVideo = "BGNode4"
+            perkLeftTitle = "EXTRA"
+            perkLeftDesc = "BALL"
+            perkRightTitle = "JACKPOTS"
+            perkRightDesc = "5X"
         Case 6: 
-            bgVideo = "BGNode5"
-        Case 7: 
-            bgVideo = "BGNodeComplete"
+            perkLeftTitle = "SPOT"
+            perkLeftDesc = "G/SLAM"
+            perkRightTitle = "MINI"
+            perkRightDesc = "WIZARD"
     End Select  
     Dim qItem : Set qItem = New QueueItem
-    If bgVideo = "BGNodeComplete" Then
-        With qItem
-            .Name = "nodes"
-            .Duration = 4
-            .Title = ""
-            .Message = ""
-            .Font = FontCyber32            
-            .StartPos = Array(DMDWidth/2,DMDHeight*.3)
-            .EndPos = Array(DMDWidth/2,DMDHeight*.3)
-            .Action = "noblink"
-            .BGImage = "noimage"
-            .BGVideo = bgVideo
-            .Callback = "GameTimers(GAME_SELECTION_TIMER_IDX) = 4"
-        End With
-    Else
-        With qItem
-            .Name = "nodes"
-            .Duration = 15
-            .Title = "<  >"
-            .Message = """Level "" & GetPlayerState(NODE_LEVEL) & "" - "" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10) & """" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)-Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10)*10)"
-            .Font = FontCyber32            
-            .MessageFont = FontCyber32            
-            .StartPos = Array(DMDWidth/2,DMDHeight*.3)
-            .EndPos = Array(DMDWidth/2,DMDHeight*.3)
-            .Action = "noblink"
-            .BGImage = "noimage"
-            .BGVideo = bgVideo
-            .Callback = "GameTimers(GAME_SELECTION_TIMER_IDX) = 15"
-        End With
-    End If
+    With qItem
+        .Name = "nodes"
+        .Duration = 15
+        .BGImage = "BGBlack"
+        .BGVideo = "BGNode"
+        .Callback = "GameTimers(GAME_SELECTION_TIMER_IDX) = 15"
+    End With
+    qItem.AddLabel perkLeftTitle, 		    font7, DMDWidth*.2, DMDHeight*.35, DMDWidth*.2, DMDHeight*.35, ""
+    qItem.AddLabel perkLeftDesc, 		    font7, DMDWidth*.2, DMDHeight*.65, DMDWidth*.2, DMDHeight*.65, ""
+
+    qItem.AddLabel perkRightTitle, 		    font7, DMDWidth*.8, DMDHeight*.35, DMDWidth*.8, DMDHeight*.35, ""
+    qItem.AddLabel perkRightDesc, 		    font7, DMDWidth*.8, DMDHeight*.65, DMDWidth*.8, DMDHeight*.65, ""
+
+    qItem.AddLabel "<", font7, DMDWidth*.4, DMDHeight*.9, DMDWidth*.4, DMDHeight*.9, "blink"
+    qItem.AddLabel ">", font7, DMDWidth*.6, DMDHeight*.9, DMDWidth*.6, DMDHeight*.9, "blink"
+    qItem.AddLabel "GetPlayerState(EMPTY_STR) & Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10) & """" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)-Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10)*10)", 		Font7, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue qItem
    
 End Sub
@@ -1003,17 +965,16 @@ Sub FlexDMDRaceSelectScene()
     With qItem
         .Name = "raceselect"
         .Duration = 15
-        .Title = "Rykar - 6 Ramps Shots"
-        .Message = "GetPlayerState(EMPTY_STR) & Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10) & """" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)-Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10)*10)"
-        .Font = FontCyber32        
-        .MessageFont = FontCyber5
-        .StartPos = Array(DMDWidth*1.5,DMDHeight/2)
-        .EndPos = Array(0-DMDWidth,DMDHeight/2)
-        .Action = "noslide2blink"
         .BGImage = "BG001"    
         .BGVideo = "novideo"
         .Callback = "GameTimers(GAME_SELECTION_TIMER_IDX) = 15"
     End With
+    qItem.AddLabel GAME_RACE_MODE_TITLES(selection-1), 		    FlexDMD.NewFont(DMDFontMain, RGB(255, 0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.35, DMDWidth/2, DMDHeight*.35, ""
+    qItem.AddLabel "<", 		                                FlexDMD.NewFont(DMDFontSmall, RGB(255, 0,0), RGB(0, 0, 0), 0), DMDWidth*.1, DMDHeight*.3, DMDWidth*.1, DMDHeight*.3, "blink"
+    qItem.AddLabel ">", 		                                FlexDMD.NewFont(DMDFontSmall, RGB(255, 0,0), RGB(0, 0, 0), 0), DMDWidth*.9, DMDHeight*.3, DMDWidth*.9, DMDHeight*.3, "blink"
+    qItem.AddLabel GAME_RACE_MODE_DESC(selection-1), 		                        Font7, DMDWidth/2, DMDHeight*.75, DMDWidth/2, DMDHeight*.75, ""
+    qItem.AddLabel "GetPlayerState(EMPTY_STR) & Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10) & """" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)-Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10)*10)", 		Font7, DMDWidth*.9, DMDHeight*.8, DMDWidth*.9, DMDHeight*.8, ""
+
     DmdQ.Enqueue qItem
 
 End Sub
@@ -1024,33 +985,70 @@ Sub InitDMDSkillsScene()
 End Sub
 
 Sub FlexDMDSkillsScene()	
-	FlexPlayScene(DMDSkillsVid)
-	DMDModeUpdate.Enabled = 0
-    DMDModeUpdate.Enabled = 1
-    DMDModeUpdate.Interval = DMDSkillsVid.Length*1000
+    Dim qItem : Set qItem = New QueueItem
+    Dim font
+    Set font = FlexDMD.NewFont(DMDFontMain, RGB(206, 0, 255), RGB(0, 0, 0), 0)
+    With qItem
+        .Name = "skills"
+        .Duration = 2
+        .BGImage = "BG002"
+        .BGVideo = "novideo"
+    End With
+    qItem.AddLabel "GetPlayerState(SKILLS_TRIAL_SPINS)", 		font12, DMDWidth*.2, DMDHeight/2, DMDWidth*.2, DMDHeight/2, "blink"
+    qItem.AddLabel "SKILLS", 		font12, DMDWidth*.7, DMDHeight*.3, DMDWidth*.7, DMDHeight*.3, ""
+    qItem.AddLabel "(SKILLS_BASE_SPINS * GetPlayerState(SKILLS_TRIAL_ACTIVATIONS)) & "" Spins""", 		font7, DMDWidth*.7, DMDHeight*.8, DMDWidth*.7, DMDHeight*.8, ""
+    DmdQ.Enqueue qItem
 End Sub
 
 Dim FontScoreActive
 Dim FontCyber5
-Dim FontCyber7
-Dim FontCyber32
+Dim Font7
+Dim Font5
+Dim Font12
 Dim FontCyber16_HURRYUP_COLOR
+Dim DMDFontMain
+Dim DMDFontBig
+Dim DMDFontSmall
+Dim DMDFontSmallBold
 
 
 sub CreateGameDMD
 
 	Dim title, af,list
 
-	Set FontScoreActive = FlexDMD.NewFont("FlexDMD.Resources.bm_army-12.fnt", vbWhite, RGB(0, 0, 0), 0)
+	IF DmdWidth = 256 Then 
+		DMDFontMain = "FONTS/sendha32.fnt" 
+	Else 
+		DMDFontMain = "FlexDMD.Resources.udmd-f6by12.fnt"
+	End If
 
+	IF DmdWidth = 256 Then 
+		DMDFontSmall = "FlexDMD.Resources.udmd-f5by7.fnt"
+	Else 
+		DMDFontSmall = "FlexDMD.Resources.udmd-f5by7.fnt"
+	End If
+
+	IF DmdWidth = 256 Then 
+		DMDFontSmallBold = "FlexDMD.Resources.udmd-f7by5.fnt"
+	Else 
+		DMDFontSmallBold = "FlexDMD.Resources.udmd-f7by5.fnt"
+	End If
+
+
+	IF DmdWidth = 256 Then 
+		DMDFontBig = "FONTS/sendha52.fnt" 
+	Else 
+		DMDFontBig = "FONTS/sendha32.fnt" '"FlexDMD.Resources.udmd-f12by24.fnt"
+	End If
+
+	Set FontScoreActive = FlexDMD.NewFont("FlexDMD.Resources.bm_army-12.fnt", vbWhite, RGB(0, 0, 0), 0)
 	Set FontWhite3 = FlexDMD.NewFont("FlexDMD.Resources.teeny_tiny_pixls-5.fnt", vbWhite, RGB(0,0,0), 0)
 	Set FontPurple3 = FlexDMD.NewFont("FlexDMD.Resources.teeny_tiny_pixls-5.fnt", RGB(255,0,255), RGB(0,0,0), 0)
-
-	Set FontCyber16_HURRYUP_COLOR = FlexDMD.NewFont("FlexDMD.Resources.udmd-f6by12.fnt", RGB(255, 240, 33), RGB(0, 0, 0), 0)
-	Set FontCyber32  = FlexDMD.NewFont("FlexDMD.Resources.udmd-f6by12.fnt", vbWhite, RGB(0, 0, 0), 0)
+	Set FontCyber16_HURRYUP_COLOR = FlexDMD.NewFont("FlexDMD.Resources.udmd-f6by12.fnt", RGB(255, 240, 33), RGB(0, 0, 0), 2)
+	Set Font12  = FlexDMD.NewFont("FlexDMD.Resources.udmd-f6by12.fnt", vbWhite, RGB(0, 0, 0), 0)
 	Set FontCyber5  = FlexDMD.NewFont("FlexDMD.Resources.udmd-f4by5.fnt", vbWhite, RGB(0, 0, 0), 0)
-	Set FontCyber7  = FlexDMD.NewFont("FlexDMD.Resources.udmd-f5by7.fnt", vbWhite, RGB(0, 0, 0), 0)
-	
+	Set Font7  = FlexDMD.NewFont(DMDFontSmall, vbWhite, RGB(0, 0, 0), 0)
+	Set Font5  = FlexDMD.NewFont("FlexDMD.Resources.udmd-f7by5.fnt", vbWhite, RGB(0, 0, 0), 0)
 
 	Dim scene 
 	Set scene = FlexDMD.NewGroup("Score")
@@ -1059,7 +1057,6 @@ sub CreateGameDMD
 	Set title = FlexDMD.NewImage("BGP3",		"BGP3.png")			: title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene.AddActor title
 	Set title = FlexDMD.NewImage("BGP4",		"BGP4.png")			: title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene.AddActor title
 	
-
 	scene.SetBounds 0, 0, DmdWidth, DmdHeight
 	scene.AddActor FlexDMD.NewLabel("Ball", FontPurple3, " ")
 	scene.AddActor FlexDMD.NewLabel("Player1", FontWhite3, " ")
@@ -1067,32 +1064,32 @@ sub CreateGameDMD
 	scene.AddActor FlexDMD.NewLabel("Player3", FontWhite3, " ")
 	scene.AddActor FlexDMD.NewLabel("Player4", FontWhite3, " ")
 
-	' scene.AddActor FlexDMD.NewFrame("VSeparator5")
-	' scene.GetFrame("VSeparator5").Thickness = 1
-	' scene.GetFrame("VSeparator5").FillColor = RGB(255,0,255)
-	' scene.GetFrame("VSeparator5").Fill = True
-	' scene.GetFrame("VSeparator5").SetBounds 0, 0, DMDWidth, DMDHeight
-	
 	scene.AddActor FlexDMD.NewFrame("VSeparator1")
 	scene.GetFrame("VSeparator1").Thickness = 1
+	scene.GetFrame("VSeparator1").Visible = False
 	scene.GetFrame("VSeparator1").BorderColor = RGB(255,255,0)
 	scene.GetFrame("VSeparator1").SetBounds 2, 7, (DMDWidth/2)-12, 1
 
 	scene.AddActor FlexDMD.NewFrame("VSeparator2")
 	scene.GetFrame("VSeparator2").Thickness = 1
+	scene.GetFrame("VSeparator2").Visible = False
 	scene.GetFrame("VSeparator2").BorderColor = RGB(255,255,0)
 	scene.GetFrame("VSeparator2").SetBounds (DMDWidth/2)+10, 7, (DMDWidth/2)-12, 1
 
 	scene.AddActor FlexDMD.NewFrame("VSeparator3")
 	scene.GetFrame("VSeparator3").Thickness = 1
+	scene.GetFrame("VSeparator3").Visible = False
 	scene.GetFrame("VSeparator3").BorderColor = RGB(255,255,0)
 	scene.GetFrame("VSeparator3").SetBounds 2, 24, (DMDWidth/2)-12, 1
 
 	scene.AddActor FlexDMD.NewFrame("VSeparator4")
 	scene.GetFrame("VSeparator4").Thickness = 1
+	scene.GetFrame("VSeparator4").Visible = False
 	scene.GetFrame("VSeparator4").BorderColor = RGB(255,255,0)
 	scene.GetFrame("VSeparator4").SetBounds (DMDWidth/2)+10, 24, (DMDWidth/2)-12, 1
 
+
+	
     Set title = FlexDMD.NewLabel("Content_1", FontScoreActive, " ")
 	Set af = title.ActionFactory
 	Set list = af.Sequence()
@@ -1102,31 +1099,27 @@ sub CreateGameDMD
 	Dim scene2 
 	Set scene2 = FlexDMD.NewGroup("Overlay")
 
+	Set title = FlexDMD.NewImage("BGBlack",		"BGBlack.png")	: title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
 	Set title = FlexDMD.NewImage("BG001",		"BG001.png")	: title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
-	Set title = FlexDMD.NewImage("BGEMP",		"cyberEMP.png")		: title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
-	Set title = FlexDMD.NewImage("BGRaceReady",	"cyberRaceReady.png")		: title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
+	Set title = FlexDMD.NewImage("BG002",		"BG002.png")	: title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
+	Set title = FlexDMD.NewImage("BG003",		"BG003.png")	: title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
+	Set title = FlexDMD.NewImage("BG004",		"BG004.png")	: title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
+	Set title = FlexDMD.NewImage("BG005",		"BG005.png")	: title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("vidIntro",	"videos/attract-c.gif")		: title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
 
-	Set title = FlexDMD.NewVideo("betB", "videos/bet-b.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
-	Set title = FlexDMD.NewVideo("betE", "videos/bet-e.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
-	Set title = FlexDMD.NewVideo("betT", "videos/bet-t.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
-	Set title = FlexDMD.NewVideo("betBET", "videos/bet-hurry.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
-	Set title = FlexDMD.NewVideo("betBE", "videos/bet-be.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
-	Set title = FlexDMD.NewVideo("betBT", "videos/bet-bt.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
-	Set title = FlexDMD.NewVideo("betET", "videos/bet-et.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("BGBetMode", "videos/bet-hurry.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
 
 	Set title = FlexDMD.NewVideo("BGBoost", "videos/boost-bg.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGCyber", "videos/cyber-bg.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
-	
+	Set title = FlexDMD.NewVideo("BGEmp", "videos/charge_emp.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("BGNodes", "videos/nodes-complete.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("BGSkills", "videos/skills.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
+
 	Set title = FlexDMD.NewVideo("BGEngine", "videos/garage-engine.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGCooling", "videos/garage-cooling.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGFuel", "videos/garage-fuel.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : scene2.AddActor title
 
-	Set title = FlexDMD.NewVideo("BGNode1", "videos/node1.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
-	Set title = FlexDMD.NewVideo("BGNode2", "videos/node2.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
-	Set title = FlexDMD.NewVideo("BGNode3", "videos/node3.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
-	Set title = FlexDMD.NewVideo("BGNode4", "videos/node4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
-	Set title = FlexDMD.NewVideo("BGNode5", "videos/node5.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("BGNode", "videos/node-bg.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGNodeComplete", "videos/node-complete.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 
 	Set title = FlexDMD.NewVideo("BGRace1", "videos/race1.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
@@ -1135,10 +1128,19 @@ sub CreateGameDMD
 	Set title = FlexDMD.NewVideo("BGRace4", "videos/race4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGRaceLocked", "videos/RaceLocked.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 
-    scene2.AddActor FlexDMD.NewLabel("TextSmalLine4", FontCyber16_HURRYUP_COLOR, " ")
+    Set title = FlexDMD.NewVideo("BGBonus1", "videos/bonus1.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("BGBonus2", "videos/bonus2.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("BGBonus3", "videos/bonus3.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("BGBonus4", "videos/bonus4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("BGBonus5", "videos/bonus5.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+
 	scene2.AddActor FlexDMD.NewLabel("TextSmalLine1", FontCyber16_HURRYUP_COLOR, " ")
 	scene2.AddActor FlexDMD.NewLabel("TextSmalLine2", FontCyber16_HURRYUP_COLOR, " ")
 	scene2.AddActor FlexDMD.NewLabel("TextSmalLine3", FontCyber16_HURRYUP_COLOR, " ")
+	scene2.AddActor FlexDMD.NewLabel("TextSmalLine4", FontCyber16_HURRYUP_COLOR, " ")
+	scene2.AddActor FlexDMD.NewLabel("TextSmalLine5", FontCyber16_HURRYUP_COLOR, " ")
+	scene2.AddActor FlexDMD.NewLabel("TextSmalLine6", FontCyber16_HURRYUP_COLOR, " ")
+	scene2.AddActor FlexDMD.NewLabel("TextSmalLine7", FontCyber16_HURRYUP_COLOR, " ")
 
 	FlexDMD.LockRenderThread
 	FlexDMD.RenderMode =  FlexDMD_RenderMode_DMD_RGB
@@ -1157,15 +1159,16 @@ Sub DMDTimer_Timer
 	
 	
 	FlexDMD.LockRenderThread
+	
 	If gameBooted = False Then
 		'Dim label : Set label = FlexDMD.Stage.GetLabel("TextSmalLine1")
-		'label.Font = FontCyber32
+		'label.Font = Font12
 		'label.Text = "PLEASE WAIT"
 		'label.SetAlignedPosition 128,32,FlexDMD_Align_Center
 		'label.visible = True
 
 		'Set label = FlexDMD.Stage.GetLabel("TextSmalLine2")
-		'label.Font = FontCyber32
+		'label.Font = Font12
 		'label.Text = "BOOTING"
 		'label.SetAlignedPosition CurrentItem.StartPos(0),CurrentItem.StartPos(1)+16 - DMD_slide ,FlexDMD_Align_Center
 		'label.visible = True
@@ -1174,7 +1177,7 @@ Sub DMDTimer_Timer
 		Exit Sub	
 	End If
 
-	If gameStarted = False Then
+	If gameStarted = False and  UBound(playerState.Keys()) = -1 Then
 		FlexDMD.Stage.GetVideo("vidIntro").Visible = True
 		FlexDMD.UnLockRenderThread
 		Exit Sub
@@ -1246,58 +1249,22 @@ Sub DMDTimer_Timer
 			If currentBall = 1 Then FlexDMD.Stage.GetLabel("Player4").Text = "P/START" : FlexDMD.Stage.GetLabel("Player4").SetAlignedPosition 100, 29, FlexDMD_Align_Center Else FlexDMD.Stage.GetLabel("Player4").Text = ""
 		End If
 
-		FlexDMD.Stage.GetLabel("Ball").SetAlignedPosition 64, 30, FlexDMD_Align_Center
-		
-		FlexDMD.Stage.GetLabel("Content_1").Font = FontScoreActive
-		FlexDMD.Stage.GetLabel("Content_1").Text = FormatScore(GetPlayerState(SCORE))
+		If IsNull(currentPlayer) Then
+			FlexDMD.Stage.GetLabel("Ball").Visible = False
+			FlexDMD.Stage.GetLabel("Content_1").Text = "GAME OVER"
+		Else
+			FlexDMD.Stage.GetLabel("Ball").Visible = True
+			FlexDMD.Stage.GetLabel("Ball").SetAlignedPosition 64, 30, FlexDMD_Align_Center
+			FlexDMD.Stage.GetLabel("Content_1").Font = FontScoreActive
+			FlexDMD.Stage.GetLabel("Content_1").Text = FormatScore(GetPlayerState(SCORE))
+		End If
 		FlexDMD.Stage.GetLabel("Content_1").SetAlignedPosition 64, 17, FlexDMD_Align_Center
-
+		
 		DmdQ.Update()
 
 	End If
 	FlexDMD.UnLockRenderThread
 
-End Sub
-
-Sub DMD_Update
-	Exit Sub
-	dim tmp
-	If DMD_Slide > 0 Then DMD_slide = DMD_slide - 2
-	If frame mod 3 = 1 Then
-		If DMDDisplay(20,7) = "shake" And Not DMD_ShakePos = 0 Then ' shaking
-			If DMD_ShakePos < 0 Then DMD_ShakePos = ABS(DMD_ShakePos) - 1 Else DMD_ShakePos = - DMD_ShakePos + 1
-		End If
-	End If
-	If DMDDisplay(20,7) = "blink" or DMDDisplay(20,7) = "noslide2blink" or DMDDisplay(20,7) = "noslideoffblink" Then ' blinking
-		If frame mod 30 > 15 Then
-			FlexDMD.Stage.GetLabel("TextSmalLine1").visible = False
-			If DMDDisplay(20,11) > 1 Then  FlexDMD.Stage.GetLabel("TextSmalLine2").visible = False
-		Else
-			FlexDMD.Stage.GetLabel("TextSmalLine1").visible = True
-			If DMDDisplay(20,11) > 1 Then  FlexDMD.Stage.GetLabel("TextSmalLine2").visible = True
-		End If
-	End If
-	'Marque
-    If DMDDisplay(20,3) < DMDDisplay(20,5) Then DMDDisplay(20,3) = DMDDisplay(20,3) + 2
-    If DMDDisplay(20,3) > DMDDisplay(20,5) Then DMDDisplay(20,3) = DMDDisplay(20,3) - 2
-    If DMDDisplay(20,4) < DMDDisplay(20,6) Then DMDDisplay(20,4) = DMDDisplay(20,4) + 2
-    If DMDDisplay(20,4) > DMDDisplay(20,6) Then DMDDisplay(20,4) = DMDDisplay(20,4) - 2
-	'Shake
-	If DMDDisplay(20,11) = 1 Then
-		FlexDMD.Stage.GetLabel("TextSmalLine1").SetAlignedPosition DMDDisplay(20,3) + DMD_ShakePos ,DMDDisplay(20,4) - DMD_Slide , FlexDMD_Align_Center
-	Elseif DMDDisplay(20,11) = 2 Then
-		FlexDMD.Stage.GetLabel("TextSmalLine1").SetAlignedPosition DMDDisplay(20,3) + DMD_ShakePos ,DMDDisplay(20,4)-16 - DMD_Slide , FlexDMD_Align_Center
-		FlexDMD.Stage.GetLabel("TextSmalLine2").SetAlignedPosition DMDDisplay(20,3) + DMD_ShakePos ,DMDDisplay(20,4)+16 - DMD_Slide , FlexDMD_Align_Center
-	End If
- 
-	If DMDDisplay(20, 9) <> "noimage"  Then FlexDMD.Stage.GetImage(DMDDisplay(20, 9)).SetPosition 0, - DMD_slide
-	If DMDDisplay(20,10) <> "novideo" Then FlexDMD.Stage.GetVideo(DMDDisplay(20,10)).SetPosition 0, - DMD_slide
-
-
-	Set label = FlexDMD.Stage.GetLabel("TextSmalLine2")
-	If InStr(1, DMDDisplay(20,1), "GetPlayerState") > 0 Then
-		label.Text = Eval(DMDDisplay(20,1))
-	End If
 End Sub
 
 Sub DMD_Flasher
@@ -1321,22 +1288,6 @@ End function
 
 
 
-Sub InitDMDWelcomeScene()
-	Dim vid : Set vid = FlexDMD.NewVideo("vidIntro", "videos/attract-c.gif")
-	DMDWelcomeScene.AddActor vid
-End Sub
-
-Sub FlexDMDCWelcomeScene()
-	
-	'Dim vid : Set vid = DMDWelcomeScene.GetVideo("vidIntro") 
-	'vid.Seek(0)
-	'FlexDMD.LockRenderThread
-	'FlexDMD.RenderMode = FlexDMD_RenderMode_DMD_RGB
-	'FlexDMD.Stage.RemoveAll
-	'FlexDMD.Stage.AddActor DMDWelcomeScene
-	'FlexDMD.Show = True
-	'FlexDMD.UnlockRenderThread
-End Sub
 
 '****************************
 ' Attract
@@ -1837,6 +1788,21 @@ RegisterPlayerStateEvent CYBER_R, "PS_CyberR"
 Sub PS_CyberR
     lightCtrl.LightState l33, GetPlayerState(CYBER_R)
 End Sub
+
+'****************************
+' Extra Balls
+' Event Listeners:          
+    RegisterPlayerStateEvent EXTRA_BALLS, "PS_ExtraBalls"
+'
+'*****************************
+Sub PS_ExtraBalls()
+    If GetPlayerState(EXTRA_BALLS) > 0 Then
+        lightCtrl.LightOn l16
+    ElseIf ballSaver = false Then
+        lightCtrl.LightOff l16
+    End If
+End Sub
+
 '****************************
 ' GI State
 ' Event Listeners:  
@@ -1868,6 +1834,43 @@ Sub GIState()
         lightCtrl.LightLevel light, 100
     Next
 End Sub
+
+'****************************
+' HYPER
+' Event Listeners:          
+    RegisterPlayerStateEvent HYPER, "PS_Hyper"
+'
+'*****************************
+Sub PS_Hyper
+    lightCtrl.LightOff l37
+    lightCtrl.LightOff l38
+    lightCtrl.LightOff l39
+    lightCtrl.LightOff l40
+    lightCtrl.LightOff l41
+    Select Case GetPlayerState(HYPER)
+        Case 1:
+            lightCtrl.FlickerOn l37
+        Case 2:
+            lightCtrl.FlickerOn l37
+            lightCtrl.FlickerOn l38
+        Case 3:
+            lightCtrl.FlickerOn l37
+            lightCtrl.FlickerOn l38
+            lightCtrl.FlickerOn l39
+        Case 4:
+            lightCtrl.FlickerOn l37
+            lightCtrl.FlickerOn l38
+            lightCtrl.FlickerOn l39
+            lightCtrl.FlickerOn l40
+        Case 5:
+            lightCtrl.FlickerOn l37
+            lightCtrl.FlickerOn l38
+            lightCtrl.FlickerOn l39
+            lightCtrl.FlickerOn l40
+            lightCtrl.FlickerOn l41
+        End Select
+End Sub
+
 '****************************
 ' Lane Lights R
 ' Event Listeners:  
@@ -7101,7 +7104,11 @@ End Sub
 Sub BallSaverTimerExpired_Timer()
     If ballSaverInGrace = False Then
         BallSaverTimerExpired.Interval = 3000
-		lightCtrl.LightOff l16
+		If GetPlayerState(EXTRA_BALLS) > 0 Then
+			lightCtrl.LightOff l16
+		Else
+			lightCtrl.LightOn l16
+		End If
 		ballSaverInGrace = True
     Else
         BallSaverTimerExpired.Enabled = False
@@ -7122,7 +7129,7 @@ Sub SwitchBet1Hit()
         SetPlayerState BET_1, 1
         PlaySoundAtLevelStatic "fx_bet", SoundFxLevel, sw21
         lightCtrl.AddLightSeq "BoostUp", lSeqBetHit
-        FlexDMDBetBScene()
+        FlexDMDBetScene "blink", "", ""
         SetPlayerState BET_HITS, GetPlayerState(BET_HITS) + 1
     End If
 End Sub
@@ -7138,7 +7145,7 @@ Sub SwitchBet2Hit()
         SetPlayerState BET_2, 1
         PlaySoundAtLevelStatic "fx_bet", SoundFxLevel, sw22
         lightCtrl.AddLightSeq "BoostUp", lSeqBetHit
-        FlexDMDBetEScene()
+        FlexDMDBetScene "", "blink", ""
         SetPlayerState BET_HITS, GetPlayerState(BET_HITS) + 1
     End If
 End Sub
@@ -7154,7 +7161,7 @@ Sub SwitchBet3Hit()
         SetPlayerState BET_3, 1
         PlaySoundAtLevelStatic "fx_bet", SoundFxLevel, sw23
         lightCtrl.AddLightSeq "BoostUp", lSeqBetHit
-        FlexDMDBetTScene()
+        FlexDMDBetScene "", "", "blink"
         SetPlayerState BET_HITS, GetPlayerState(BET_HITS) + 1
     End If
 End Sub
@@ -7170,6 +7177,8 @@ Sub CheckBetHits()
     If GetPlayerState(MODE_BET) = False Then
         If GetPlayerState(BET_HITS) = (3 * GetPlayerState(BET_ACTIVATIONS)) Then
             SetPlayerState MODE_BET, True
+            GameTimers(GAME_BET_TIMER_IDX) = 30
+            FlexDMDBetModeScene()
             calloutsQ.Add "bet-hurry", "PlayCallout(""bet-hurry-mode"")", 1, 0, 0, 4000, 0, False
             lightCtrl.AddLightSeq "BetMode", lSeqBetMode
             SetPlayerState BET_HITS, 0
@@ -7178,6 +7187,7 @@ Sub CheckBetHits()
             SetPlayerState BET_1, 0
             SetPlayerState BET_2, 0
             SetPlayerState BET_3, 0
+            DmdQ.Dequeue "betmsg"
             lightCtrl.AddShot "BetSpinner1",    l48, RGB(255,242,5)
             lightCtrl.AddShot "BetSpinner2",    l23, RGB(255,242,5)
             lightCtrl.AddShot "BetCollect",     l64, RGB(255,242,5)
@@ -7185,6 +7195,16 @@ Sub CheckBetHits()
             SetPlayerState BET_1, 2
             SetPlayerState BET_2, 2
             SetPlayerState BET_3, 2
+           	Dim qItem : Set qItem = New QueueItem
+            With qItem
+                .Name = "betmsg"
+                .Duration = 4
+                .BGImage = "BG003"
+                .BGVideo = "novideo"
+                .Action = "slideup"
+            End With
+            qItem.AddLabel "(3*GetPlayerState(BET_ACTIVATIONS))-GetPlayerState(BET_HITS) & "" MORE HITS FOR MODE""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            DmdQ.Enqueue qItem
         End If
     End If
 End Sub
@@ -7201,17 +7221,14 @@ Sub BetModeSpinnerHit()
         SetPlayerState BET_VALUE, GetPlayerState(BET_VALUE) + POINTS_BET_SPIN
         Dim qItem : Set qItem = New QueueItem
         With qItem
-            .Name = "betmode"
+            .Name = "bet-mode"
             .Duration = 2
-            .Title = "BET VALUE INCREASED"
-            .Message = "GetPlayerState(BET_VALUE)"
-            .Font = FontCyber16_HURRYUP_COLOR
-            .StartPos = Array(DMDWidth/2,DMDHeight/2)
-            .EndPos = Array(DMDWidth/2,DMDHeight/2)
-            .Action = "blink"
             .BGImage = "BG001"
             .BGVideo = "novideo"
         End With
+        qItem.AddLabel "BET INCREASED", 		                        Font5, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
+        qItem.AddLabel "FormatScore(GetPlayerState(BET_VALUE))", 		Font12, DMDWidth/2, DMDHeight*.7, DMDWidth/2, DMDHeight*.7, "blink"
+   
         DmdQ.Enqueue qItem
     End If
 End Sub
@@ -7225,7 +7242,10 @@ End Sub
 Sub BetModeCollect()
     If GetPlayerState(MODE_BET) = True Then
         AddScore GetPlayerState(BET_VALUE)
+        FlexDMDBetModeCollectedScene()
         SetPlayerState BET_VALUE, 0
+        GameTimers(GAME_BET_TIMER_IDX) = 0        
+        DmdQ.Dequeue "betmsg"
         SetPlayerState BET_1, 2
         SetPlayerState BET_2, 2
         SetPlayerState BET_3, 2
@@ -7233,7 +7253,46 @@ Sub BetModeCollect()
         lightCtrl.RemoveShot "BetSpinner1", l48
         lightCtrl.RemoveShot "BetSpinner2", l23
         lightCtrl.RemoveShot "BetCollect", l64
+        lightCtrl.AddTableLightSeq "RGB", lSeqBetUp
     End If
+End Sub
+
+
+'****************************
+' BetModeTimerHurry
+' Event Listeners:          
+    RegisterPinEvent GAME_BET_TIMER_HURRY, "BetModeTimerHurry"
+'
+'*****************************
+Sub BetModeTimerHurry()
+	Dim qItem : Set qItem = New QueueItem
+	With qItem
+		.Name = "betmsg"
+		.Duration = 10
+		.BGImage = "BG003"
+		.BGVideo = "novideo"
+        .Action = "slideup"
+	End With
+	qItem.AddLabel "HURRY UP", FlexDMD.NewFont(DMDFontSmallBold, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+	DmdQ.Enqueue qItem
+End Sub
+
+'****************************
+' BetModeTimerEnded
+' Event Listeners:          
+    RegisterPinEvent GAME_BET_TIMER_ENDED, "BetModeTimerEnded"
+'
+'*****************************
+Sub BetModeTimerEnded()
+    SetPlayerState BET_VALUE, 0
+    SetPlayerState BET_1, 2
+    SetPlayerState BET_2, 2
+    SetPlayerState BET_3, 2
+    SetPlayerState MODE_BET, False
+    lightCtrl.RemoveShot "BetSpinner1", l48
+    lightCtrl.RemoveShot "BetSpinner2", l23
+    lightCtrl.RemoveShot "BetCollect", l64
+    DmdQ.Dequeue "betmsg"
 End Sub
 
 Function CalculateBonus
@@ -7557,7 +7616,7 @@ Sub SwitchCyberCHit()
         If GetPlayerState(CYBER_C) = 0 Then
             AddScore POINTS_BASE
             SetPlayerState CYBER_C, 1
-            FlexDMDCyberScene()
+            FlexDMDCyberScene "blink", "", "", "", ""
             CheckCyberModeActive()
         End If
     Else
@@ -7580,7 +7639,7 @@ Sub SwitchCyberYHit()
         If GetPlayerState(CYBER_Y) = 0 Then
             AddScore POINTS_BASE
             SetPlayerState CYBER_Y, 1
-            FlexDMDCyberScene()
+            FlexDMDCyberScene "", "blink", "", "", ""
             CheckCyberModeActive()
         End If
     Else
@@ -7603,7 +7662,7 @@ Sub SwitchCyberBHit()
         If GetPlayerState(CYBER_B) = 0 Then
             AddScore POINTS_BASE
             SetPlayerState CYBER_B, 1
-            FlexDMDCyberScene()
+            FlexDMDCyberScene "", "", "blink", "", ""
             CheckCyberModeActive()
         End If
     Else
@@ -7626,7 +7685,7 @@ Sub SwitchCyberEHit()
         If GetPlayerState(CYBER_E) = 0 Then
             AddScore POINTS_BASE
             SetPlayerState CYBER_E, 1
-            FlexDMDCyberScene()
+            FlexDMDCyberScene "", "", "", "blink", ""
             CheckCyberModeActive()
         End If
     Else
@@ -7649,7 +7708,7 @@ Sub SwitchCyberRHit()
         If GetPlayerState(CYBER_R) = 0 Then
             AddScore POINTS_BASE
             SetPlayerState CYBER_R, 1
-            FlexDMDCyberScene()
+            FlexDMDCyberScene "", "", "", "", "blink"
             CheckCyberModeActive()
         End If
     Else
@@ -7697,11 +7756,39 @@ End Sub
 '*****************************
 Sub EndOfBall()
     Debug.print("Balls In Play: "& ballsInPlay)
-
+    Dim qItem 
     Debug.print(ballsInPlay - BallsOnBridge())
+    If ballSaverIgnoreCount > 0 Then
+        ballSaverIgnoreCount = ballSaverIgnoreCount-1
+        Exit Sub
+    End If
     If ballSaver = True Then
         DispatchPinEvent BALL_SAVE
+        Set qItem = New QueueItem
+        With qItem
+            .Name = "ballsave"
+            .Duration = 2
+            .BGImage = "BGBlack"
+            .BGVideo = "novideo"
+        End With
+        qItem.AddLabel "BALL SAVED", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
+        DmdQ.Enqueue qItem
     ElseIf ballsInPlay - BallsOnBridge() = 0 Then
+
+        If GetPlayerState(EXTRA_BALLS) > 0 Then
+            SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) - 1
+            DispatchPinEvent BALL_SAVE
+            Set qItem = New QueueItem
+            With qItem
+                .Name = "shootagain"
+                .Duration = 2
+                .BGImage = "BGBlack"
+                .BGVideo = "novideo"
+            End With
+            qItem.AddLabel "SHOOT AGAIN", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
+            DmdQ.Enqueue qItem
+            Exit Sub
+        End If
 
         PlayCallout("drain")
         DmdQ.RemoveAll()
@@ -7788,6 +7875,7 @@ Sub EndOfBonus()
     SetPlayerState BONUS_X, 0
     SetPlayerState GI_COLOR, GAME_NORMAL_COLOR
     lightCtrl.RemoveTableLightSeq "GI", lSeqGIOff
+    DmdQ.RemoveAll()
     Select Case currentPlayer
         Case "PLAYER 1":
             If UBound(playerState.Keys()) > 0 Then
@@ -7810,29 +7898,37 @@ Sub EndOfBonus()
     End Select
 
     If GetPlayerState(CURRENT_BALL) > BALLS_PER_GAME Then
+
+        'Check HI SCORES
         DispatchPinEvent GAME_OVER
         gameStarted = False
-        FlexDMDCWelcomeScene()
-        currentPlayer = Null
-        playerState.RemoveAll()
+        currentPlayer = null
+        
     Else
         If GetPlayerState(CURRENT_BALL) > 1 Then
-            'FlexDMD.Stage.GetImage("BGP1").Visible = False
-            'FlexDMD.Stage.GetImage("BGP2").Visible = False
-            'FlexDMD.Stage.GetImage("BGP3").Visible = False
-            'FlexDMD.Stage.GetImage("BGP4").Visible = False
+            FlexDMD.Stage.GetFrame("VSeparator1").Visible = False
+            FlexDMD.Stage.GetFrame("VSeparator2").Visible = False
+            FlexDMD.Stage.GetFrame("VSeparator3").Visible = False
+            FlexDMD.Stage.GetFrame("VSeparator4").Visible = False
+    
             Select Case UBound(playerState.Keys())
                 Case 0:
-                    'FlexDMD.Stage.GetImage("BGP1").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
                     FlexDMD.Stage.GetLabel("Player1").Visible = True
                 Case 1:     
-                    'FlexDMD.Stage.GetImage("BGP2").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
                     FlexDMD.Stage.GetLabel("Player2").Visible = True
                 Case 2:
-                    'FlexDMD.Stage.GetImage("BGP3").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator3").Visible = True
                     FlexDMD.Stage.GetLabel("Player3").Visible = True
                 Case 3:   
-                    'FlexDMD.Stage.GetImage("BGP4").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator3").Visible = True
+                    FlexDMD.Stage.GetFrame("VSeparator4").Visible = True
                     FlexDMD.Stage.GetLabel("Player4").Visible = True  
             End Select
         End If
@@ -7903,8 +7999,10 @@ Sub GameTimersUpdate_Timer()
 
 End Sub
 
+
+
 Function ProcessGameTimer(timer, activeTimer)
-    Dim a, b
+    Dim a, b,dbstime
     a = activeTimer(0)
     b = activeTimer(1)
     If GameTimers(timer) > 0 Then
@@ -7912,14 +8010,110 @@ Function ProcessGameTimer(timer, activeTimer)
             a = GameTimers(timer)
             b = GameTimerColors(timer)
         End If
-        GameTimers(timer) = GameTimers(timer) - dbsdelta
-        If GameTimers(timer) < 0 Then
+        dbstime = GameTimers(timer) - dbsdelta
+		GameTimers(timer) = dbstime
+		If dbstime < 10 And GameTimersHurry(timer) = 0 Then
+			GameTimersHurry(timer) = 1
+			DispatchPinEvent GameTimerHurryEvent(timer)
+		End If
+		If dbstime < 0 Then
             GameTimers(timer) = 0
+			GameTimersHurry(timer) = 0
 			DispatchPinEvent GameTimerEndEvent(timer)
         End If
     End If
     ProcessGameTimer = Array(a,b)
 End Function
+
+'****************************
+' HiScore Selection Timer Ended
+' Event Listeners:      
+RegisterPinEvent GAME_SELECTION_TIMER_ENDED, "HiScoreSelectionTimerEnded"
+'
+'*****************************
+Sub HiScoreSelectionTimerEnded()
+    If GetPlayerState(MODE_HISCORE) = True Then
+        
+    End If
+End Sub
+
+
+'****************************
+' HiScoreCycleLeft
+' Event Listeners:  
+    RegisterPinEvent SWITCH_LEFT_FLIPPER_DOWN, "HiScoreCycleLeft"
+'
+'*****************************
+Sub HiScoreCycleLeft()
+    If GetPlayerState(MODE_HISCORE) = True Then
+        If GetPlayerState(LETTER_POSITION) = 0 Then
+            SetPlayerState LETTER_POSITION, 36
+        Else
+            SetPlayerState LETTER_POSITION, GetPlayerState(LETTER_POSITION) - 1
+        End If
+        Select Case GetPlayerState(INITIAL_POSITION):
+            Case 0: 
+                SetPlayerState INITIAL_1, GameHiScoreLetters(GetPlayerState(LETTER_POSITION))
+            Case 1: 
+                SetPlayerState INITIAL_2, GameHiScoreLetters(GetPlayerState(LETTER_POSITION))
+            Case 2: 
+                SetPlayerState INITIAL_3, GameHiScoreLetters(GetPlayerState(LETTER_POSITION))
+        End Select  
+    End IF
+End Sub
+
+'****************************
+' HiScoreCycleRight
+' Event Listeners:  
+RegisterPinEvent SWITCH_RIGHT_FLIPPER_DOWN, "HiScoreCycleRight"
+'
+'*****************************
+Sub HiScoreCycleRight()
+    If GetPlayerState(MODE_HISCORE) = True Then
+        If GetPlayerState(LETTER_POSITION) = 36 Then
+            SetPlayerState LETTER_POSITION, 0
+        Else
+            SetPlayerState LETTER_POSITION, GetPlayerState(LETTER_POSITION) + 1
+        End If
+        Select Case GetPlayerState(INITIAL_POSITION):
+            Case 0: 
+                SetPlayerState INITIAL_1, GameHiScoreLetters(GetPlayerState(LETTER_POSITION))
+            Case 1: 
+                SetPlayerState INITIAL_2, GameHiScoreLetters(GetPlayerState(LETTER_POSITION))
+            Case 2: 
+                SetPlayerState INITIAL_3, GameHiScoreLetters(GetPlayerState(LETTER_POSITION))
+        End Select  
+    End If
+End Sub
+
+'****************************
+' HiScoreConfirm
+' Event Listeners:  
+    RegisterPinEvent SWITCH_SELECT_EVENT_KEY, "HiScoreConfirm"
+'
+'*****************************
+Sub HiScoreConfirm()
+    SetPlayerState INITIAL_POSITION, GetPlayerState(INITIAL_POSITION)+1
+    If GetPlayerState(INITIAL_POSITION) = 3 Then
+        DmdQ.RemoveAll()
+    End If
+End Sub
+
+'****************************
+' Hyper Hit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_HYPER, "SwitchHyper"
+'
+'*****************************
+Sub SwitchHyper()
+    SetPlayerState HYPER, GetPlayerState(HYPER) + 1
+    AddScore POINTS_BASE
+    If GetPlayerState(HYPER) = 5 Then
+        'TODO - Start Hyper
+        SetPlayerState HYPER, 0
+    End If
+End Sub
+
 
 '****************************
 ' Rotate Lane Lights Clockwise
@@ -8424,6 +8618,7 @@ Sub CheckNodesComplete
     If GetPlayerState(NODE_COMPLETED) = False And GetPlayerState(NODE_LEVEL_UP_READY) = False Then
         lightCtrl.AddTableLightSeq "Nodes", lSeqNodesComplete
         SetPlayerState NODE_LEVEL_UP_READY, True
+        FlexDMDNodesCompleteScene()
         calloutsQ.Add "node-complete", "PlayCallout(""node-complete"")", 1, 0, 0, 3113, 0, False
     End If
 End Sub
@@ -8469,30 +8664,45 @@ RegisterPinEvent SWITCH_LEFT_FLIPPER_DOWN, "NodePerkSelectLeftPerk"
 Sub NodePerkSelectLeftPerk()
 
     If GetPlayerState(MODE_PERK_SELECT) = True Then
+        Dim qItem
         Select Case GetPlayerState(NODE_LEVEL):
-            Case 2: 'Level 1.  Increase Jackpot 250K OR 5 Million
+            Case 2: 'Level 2.  Increase Jackpot 250K OR 5 Million
                 SetPlayerState JACKPOT_VALUE, GetPlayerState(JACKPOT_VALUE) + 250000
-            Case 3:'Level 2.  Race Timers + 20 Seconds OR Instant MB
+                Set qItem = New QueueItem
+                With qItem
+                    .Name = "nodemsg"
+                    .Duration = 3
+                    .BGImage = "BG005"
+                    .BGVideo = "novideo"
+                    .Action = "slideup"
+                End With
+                qItem.AddLabel """JACKPOTS: "" & FormatScore(GetPlayerState(JACKPOT_VALUE))", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+                DmdQ.Enqueue qItem
+            Case 3:'Level 3.  Race Timers + 20 Seconds OR 2x Bet Hurry
                 SetPlayerState RACE_TIMERS, 80
-            Case 4:'Level 3. Outlane BallSave OR Award Ball Lock
-                'TODO Code outlane ball saves.
-            Case 5:'Level 4. Extra Ball
+                Set qItem = New QueueItem
+                With qItem
+                    .Name = "nodemsg"
+                    .Duration = 3
+                    .BGImage = "BG005"
+                    .BGVideo = "novideo"
+                    .Action = "slideup"
+                End With
+                qItem.AddLabel """RACE TIMERS: "" & GetPlayerState(RACE_TIMERS) & "" Secs""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+                DmdQ.Enqueue qItem
+            Case 4:'Level 4. Outlane BallSave OR Instant MB
+                SetPlayerState OUTLANE_SAVE, True
+            Case 5:'Level 5. Extra Ball
                 SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) + 1
-            Case 6:'Level 5. 5x Playfield (30 secs) OR Add a Ball
-                SetPlayerState PF_MULTIPLIER, 5
-            Case 7:'Level 6. Node Grid Wizard Mode
-                'TODO - Node Grid Wizard Mode
-                SetPlayerState NODE_COMPLETED, True
+            Case 6:'Level 6. Spot Grand Slam
+                ' TODO Code Spot Grand Slam
         End Select
         SetPlayerState MODE_PERK_SELECT, False
         NodePerkNextLevel()
         GameTimers(GAME_SELECTION_TIMER_IDX) = 0
-        DmdQ.RemoveAll()
+        DmdQ.Dequeue "nodes"
         lightCtrl.RemoveTableLightSeq "Nodes", lSeqCollectPerk
         sw39.TimerEnabled = True
-        DMDModeUpdate.Enabled = 0
-        DMDModeUpdate.Enabled = 1
-        DMDModeUpdate.Interval = 100
     End iF
 
 End Sub
@@ -8509,9 +8719,7 @@ Sub NodePerkSelectRightPerk()
             Case 2: 'Level 1.  Increase Jackpot 250K OR 5 Million
                 AddScore 5000000
             Case 3:'Level 2.  Race Timers + 20 Seconds OR 5x Bonus
-                AddScore((GetPlayerState(BONUS_COMBOS_MADE) * 50000) *5)
-	            AddScore((GetPlayerState(BONUS_RACES_WON) * 100000) * 5)
-	            AddScore((GetPlayerState(BONUS_NODES_COMPLETED) * 75000) * 5)
+                 SetPlayerState BET_MULTIPLIER, 2
             Case 4:'Level 3. Collect 5x Bonus OR Instant MB
                 SetPlayerState MODE_MULTIBALL, True
                 ballsInQ = ballsInQ + 2
@@ -8522,24 +8730,17 @@ Sub NodePerkSelectRightPerk()
                 lightCtrl.AddShot "MBRightRamp", l64, RGB(0,255,0)
                 lightCtrl.AddShot "MBRightOrbit", l63, RGB(0,255,0)
                 EnableBallSaver 15
-            Case 5:'Level 4. Extra Ball
-                AddScore((GetPlayerState(BONUS_COMBOS_MADE) * 50000) * 10)
-	            AddScore((GetPlayerState(BONUS_RACES_WON) * 100000) * 10)
-	            AddScore((GetPlayerState(BONUS_NODES_COMPLETED) * 75000) * 10)
-            Case 6:'Level 5. 5x Playfield (30 secs) OR 10x Bonus
-                ' TODO Code Spot Grand Slam
-            Case 7:'Level 6. Node Grid Wizard Mode
-                'TODO - Node Grid Wizard Mode
-                SetPlayerState NODE_COMPLETED, True
+            Case 5:'Level 5. 5X Jackpots
+                SetPlayerState JACKPOTS_MULTIPLIER, 5    
+            Case 6:'Level 6. Mini Wizard
+                ' TODO Code Mini Wizard
         End Select
         SetPlayerState MODE_PERK_SELECT, False
         NodePerkNextLevel()
         GameTimers(GAME_SELECTION_TIMER_IDX) = 0
-        DmdQ.RemoveAll()
+        DmdQ.Dequeue "nodes"
         sw39.TimerEnabled = True
-        DMDModeUpdate.Enabled = 0
-        DMDModeUpdate.Enabled = 1
-        DMDModeUpdate.Interval = 100
+
         lightCtrl.RemoveTableLightSeq "Nodes", lSeqCollectPerk
     End If
 End Sub
@@ -8547,27 +8748,23 @@ End Sub
 Sub NodePerkNextLevel
 
     Select Case GetPlayerState(NODE_LEVEL):
-        Case 2: 'Level 1.  Increase Jackpot 250K OR 5 Million
+        Case 2: 
             SetPlayerState NODE_ROW_A, Array(0,1,0,1,0)
             SetPlayerState NODE_ROW_B, Array(0,1,1,0,1)
             SetPlayerState NODE_ROW_C, Array(0,0,1,0,0)
-        Case 3:'Level 2.  Race Timers + 20 Seconds OR Instant MB
+        Case 3:
             SetPlayerState NODE_ROW_A, Array(0,1,0,1,1)
             SetPlayerState NODE_ROW_B, Array(1,1,1,0,0)
             SetPlayerState NODE_ROW_C, Array(0,0,1,0,1)
-        Case 4:'Level 3. Collect 5x Bonus OR Award Ball Lock
+        Case 4:
             SetPlayerState NODE_ROW_A, Array(1,1,0,1,1)
             SetPlayerState NODE_ROW_B, Array(1,1,1,0,1)
             SetPlayerState NODE_ROW_C, Array(0,1,1,0,1)
-        Case 5:'Level 4. Extra Ball
+        Case 5:
             SetPlayerState NODE_ROW_A, Array(1,1,1,1,1)
             SetPlayerState NODE_ROW_B, Array(1,1,1,1,1)
             SetPlayerState NODE_ROW_C, Array(0,1,1,0,1)
-        Case 6:'Level 5. 5x Playfield (30 secs) OR Add a Ball
-            SetPlayerState NODE_ROW_A, Array(1,1,1,1,1)
-            SetPlayerState NODE_ROW_B, Array(1,1,1,1,1)
-            SetPlayerState NODE_ROW_C, Array(1,1,1,1,1)
-        Case 7:'Level 6. Node Grid Wizard Mode
+        Case 6:
             SetPlayerState NODE_ROW_A, Array(2,2,2,2,2)
             SetPlayerState NODE_ROW_B, Array(2,2,2,2,2)
             SetPlayerState NODE_ROW_C, Array(2,2,2,2,2)
@@ -8874,6 +9071,16 @@ Sub RaceMode1RampHit()
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_1_HITS, GetPlayerState(RACE_MODE_1_HITS) + 1
+            Dim qItem : Set qItem = New QueueItem
+            With qItem
+                .Name = "racemsg"
+                .Duration = 2
+                .BGImage = "BG004"
+                .BGVideo = "novideo"
+                .Action = "slideup"
+            End With
+            qItem.AddLabel "6-GetPlayerState(RACE_MODE_1_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            DmdQ.Enqueue qItem
         End If
     End If
 End Sub
@@ -9284,7 +9491,7 @@ Sub RaceMode4HitsCheck()
 End Sub
 Sub AddScore(v)
     'TODO Apply Any Multipliers
-    SetPlayerState SCORE, GetPlayerState(SCORE) + v + 10000000
+    SetPlayerState SCORE, GetPlayerState(SCORE) + v
 End Sub
 
 Sub AwardJackpot()
@@ -9362,10 +9569,12 @@ End Sub
 '*****************************
 Sub SkillsTrial()
     AddScore POINT_BASE
-    If GetPlayerState(MODE_SKILLS_TRIAL) = False Then
+    If GetPlayerState(MODE_SKILLS_TRIAL) = False And GetPlayerState(SKILLS_TRIAL_READY) = False Then
         SetPlayerState SKILLS_TRIAL_SPINS, GetPlayerState(SKILLS_TRIAL_SPINS) + 1
+        FlexDMDSkillsScene()
         If GetPlayerState(SKILLS_TRIAL_SPINS) > (SKILLS_BASE_SPINS * GetPlayerState(SKILLS_TRIAL_ACTIVATIONS)) Then
             'Start Skills Trial
+            DmdQ.Dequeue "skills"
             SetPlayerState SKILLS_TRIAL_READY, True
         End If
     End If
@@ -9383,8 +9592,7 @@ Sub CheckSkillsTrialReady()
         SetPlayerState SKILLS_TRIAL_ACTIVATIONS, GetPlayerState(SKILLS_TRIAL_ACTIVATIONS) + 1
         SetPlayerState SKILLS_TRIAL_READY, False
         SetPlayerState SKILLS_TRIAL_SHOT, 1
-        'TODO: Light Show.
-        FlexDMDSkillsScene()
+        SetPlayerState SKILLS_TRIAL_SPINS, 0
         lightCtrl.AddShot "Skills1", l64, GAME_SKILLS_COLOR
         calloutsQ.Add "skills-trial", "PlayCallout(""skills-trial"")", 1, 0, 0, 3000, 0, False
         calloutsQ.Add "heartbeat", "PlaySoundAtLevelStatic ""heartbeat"", SoundFxLevel, sw02", 1, 0, 0, 3900, 0, False        
@@ -9413,7 +9621,7 @@ Sub SkillsTrialShot1()
         AddScore POINTS_MODE_SHOT
         SetPlayerState SKILLS_TRIAL_SHOT, 2
         GameTimers(GAME_SKILLS_TIMER_IDX) = 15
-        'TODO: Light Show.
+        lightCtrl.AddTableLightSeq "RGB", lSeqBetUp
         lightCtrl.RemoveShot "Skills1", l64
         lightCtrl.AddShot "Skills2", l46, GAME_SKILLS_COLOR
     End If
@@ -9430,7 +9638,7 @@ Sub SkillsTrialShot2()
         AddScore POINTS_MODE_SHOT
         SetPlayerState SKILLS_TRIAL_SHOT, 3
         GameTimers(GAME_SKILLS_TIMER_IDX) = 15
-        'TODO: Light Show.
+        lightCtrl.AddTableLightSeq "RGB", lSeqBetUp
         lightCtrl.RemoveShot "Skills2", l46
         lightCtrl.AddShot "Skills3", l47, GAME_SKILLS_COLOR
     End If
@@ -9448,7 +9656,7 @@ Sub SkillsTrialShot3
         SetPlayerState SKILLS_TRIAL_SHOT, 0
         GameTimers(GAME_SKILLS_TIMER_IDX) = 0
         SetPlayerState MODE_SKILLS_TRIAL, False
-        'TODO: Light Show.
+        lightCtrl.AddTableLightSeq "RGB", lSeqBetUp
         lightCtrl.RemoveShot "Skills3", l47
     End If
 End Sub
@@ -9484,10 +9692,61 @@ Sub GameSkillsTimerEnded()
 	SetPlayerState SKILLS_TRIAL_SHOT, 0
     GameTimers(GAME_SKILLS_TIMER_IDX) = 0
     SetPlayerState MODE_SKILLS_TRIAL, False
-    lightCtrl.RemoveShot "Skills1", l47
-    lightCtrl.RemoveShot "Skills2", l47
+    lightCtrl.RemoveShot "Skills1", l64
+    lightCtrl.RemoveShot "Skills2", l46
     lightCtrl.RemoveShot "Skills3", l47
 End Sub
+
+'****************************
+' TT ORBIT
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "SwitchTTOrbitHit"
+'
+'*****************************
+Sub SwitchTTOrbitHit()
+    
+End Sub
+
+'****************************
+' TT Ramp
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchTTRampHit"
+'
+'*****************************
+Sub SwitchTTRampHit()
+    
+End Sub
+
+'****************************
+' TT Target
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchTTTargetHit"
+'
+'*****************************
+Sub SwitchTTTargetHit()
+    
+End Sub
+
+'****************************
+' TT Captive
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchTTCaptiveHit"
+'
+'*****************************
+Sub SwitchTTCaptiveHit()
+    
+End Sub
+
+'****************************
+' TT Shortcut
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchTTShortcutHit"
+'
+'*****************************
+Sub SwitchTTShortcutHit()
+    
+End Sub
+
 
 '****************************
 ' Turn Table Off
@@ -9559,10 +9818,11 @@ Sub StartGame()
     SetPlayerState ENABLE_BALLSAVER, True
     lightCtrl.RemoveAllTableLightSeqs()
     lightCtrl.RemoveAllLightSeq "Attract"
-    'FlexDMD.Stage.GetImage("BGP1").Visible = False
-    'FlexDMD.Stage.GetImage("BGP2").Visible = False
-    'FlexDMD.Stage.GetImage("BGP3").Visible = False
-    'FlexDMD.Stage.GetImage("BGP4").Visible = True
+    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
+    FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
+    FlexDMD.Stage.GetFrame("VSeparator3").Visible = True
+    FlexDMD.Stage.GetFrame("VSeparator4").Visible = True
+    
 End Sub
 Sub AddPlayer()
     'FlexDMD.Stage.GetImage("BGP1").Visible = False
@@ -9610,7 +9870,7 @@ Function InitNewPlayer()
 
     state.Add FLEX_MODE, 0
 
-    state.Add SCORE, 1000000000
+    state.Add SCORE, 0
     state.Add CURRENT_BALL, 1
     state.Add EXTRA_BALLS, 0
 
@@ -9665,6 +9925,15 @@ Function InitNewPlayer()
     state.Add CYBER_E, 0
     state.Add CYBER_R, 0
 
+    state.Add HYPER, 0
+
+    state.Add TT_ORBIT, 0
+    state.Add TT_TARGET, 0
+    state.Add TT_RAMP, 0
+    state.Add TT_CAPTIVE, 0
+    state.Add TT_SHORTCUT, 0
+    state.Add TT_COLLECTED, 0
+
     state.Add GARAGE_ENGINE, 0
     state.Add GARAGE_COOLING, 0
     state.Add GARAGE_HULL, 0
@@ -9675,6 +9944,7 @@ Function InitNewPlayer()
     state.Add BET_VALUE, 0
     state.Add BET_ACTIVATIONS, 1
     state.Add BET_HITS, 0
+    state.Add BET_MULTIPLIER, 1
 
     state.Add NEON_L, 1
     state.Add NEON_O, 1
@@ -9687,6 +9957,9 @@ Function InitNewPlayer()
 
     state.Add TURN_TABLE_MOTOR, False
 
+    state.Add OUTLANE_SAVE, False
+    state.Add JACKPOTS_MULTIPLIER, 1
+
     state.Add MODE_CHOOSE_SKILLSHOT, False
     state.Add MODE_SKILLSHOT_ACTIVE, False
     state.Add MODE_EMP, False
@@ -9698,6 +9971,7 @@ Function InitNewPlayer()
     state.Add MODE_RACE_SELECT, False
     state.Add MODE_PERK_SELECT, False
     state.Add MODE_RACE, False
+    state.Add MODE_HISCORE, False
 
     state.Add RACE_MODE_FINISH, False
 
@@ -9726,6 +10000,12 @@ Function InitNewPlayer()
     state.Add BONUS_COMBOS_MADE, 0
     state.Add BONUS_RACES_WON, 0
     state.Add BONUS_NODES_COMPLETED, 0
+
+    state.Add INITIAL_1, ""
+    state.Add INITIAL_2, ""
+    state.Add INITIAL_3, ""
+    state.Add INITIAL_POSITION, 0
+    state.Add LETTER_POSITION, 0
 
     Set InitNewPlayer = state
 
@@ -9760,6 +10040,7 @@ Const GAME_SHOT_RIGHT_ORBIT = "Game Shot Right Oribt"
 Const GAME_SHOT_SHORTCUT = "Game Shot Shortcut"
 Const GAME_SHOT_FINISH = "Game Shot Finish"
 
+Dim GameHiScoreLetters : GameHiScoreLetters = Array("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","0","1","2","3","4","5","6","7","8","9"," ")
 Dim GameShots: GameShots = Array(GAME_SHOT_HYPER_JUMP, GAME_SHOT_LEFT_ORBIT,GAME_SHOT_LEFT_RAMP,GAME_SHOT_SPINNER,GAME_SHOT_BUMPERS,GAME_SHOT_LEFT_RETURN,GAME_SHOT_RIGHT_RAMP,GAME_SHOT_RIGHT_ORBIT,GAME_SHOT_SHORTCUT)
 Dim GameCombos: Set GameCombos = CreateObject("Scripting.Dictionary")
 
@@ -9784,6 +10065,15 @@ Const GAME_SKILLS_TIMER_ENDED = "Game Skills Timer Ended"
 Const GAME_BONUS_TIMER_ENDED = "Game Bonus Timer Ended"
 Const GAME_SELECTION_TIMER_ENDED = "Game Selection Timer Ended"
 
+Const GAME_BALLSAVE_TIMER_HURRY = "Game Ball Save Timer Hurry"
+Const GAME_RACE_TIMER_HURRY = "Game Race Timer Hurry"
+Const GAME_BET_TIMER_HURRY = "Game Bet Timer Hurry"
+Const GAME_BOOST_TIMER_HURRY = "Game Boost Timer Hurry"
+Const GAME_EMP_TIMER_HURRY = "Game EMP Timer Hurry"
+Const GAME_SKILLS_TIMER_HURRY = "Game Skills Timer Hurry"
+Const GAME_BONUS_TIMER_HURRY = "Game Bonus Timer Hurry"
+Const GAME_SELECTION_TIMER_HURRY = "Game Selection Timer Hurry"
+
 'Modes
 Const GAME_MODE_NORMAL = "Game_Mode_Normal"
 Const GAME_MODE_CHOOSE_SKILLSHOT = "Game_Mode_Choose_Skillshot"
@@ -9803,10 +10093,11 @@ Dim GAME_SKILLS_COLOR : GAME_SKILLS_COLOR = RGB(255, 191, 0)
 
 Const GAME_BET_MAX_HITS = 20
 
-
 Dim GAME_RACE_MODE_TITLES : GAME_RACE_MODE_TITLES = Array("RYKAR", "MINERVA", "ALLESA", "NYE", "LUKA", "EZRI")
-Dim GAME_RACE_MODE_DESC : GAME_RACE_MODE_DESC = Array("Hit 6 Ramp Shots", "Spin Each Spinner 30 Times", "One Roving Shot Lit, Hit 6 To Complete", "Hit boost targets in order plus roving", "Ramps and boost targets. Hit boost targets, then ramps in order then, roving boost target.", "Shots and spinners. Hit roving shots and 50 spins on each spinner.Shots and spinners. Hit roving shots and 50 spins on each spinner.")
+Dim GAME_RACE_MODE_DESC : GAME_RACE_MODE_DESC = Array("Ramp Shots", "Spinners", "Roving Shot", "Orbits/Nodes", "LOCKED", "LOCKED")
 
+Dim GAME_NODE_PERK_TITLES : GAME_RACE_MODE_TITLES = Array("RYKAR", "MINERVA", "ALLESA", "NYE", "LUKA", "EZRI")
+Dim GAME_NODE_PERK_DESC : GAME_RACE_MODE_DESC = Array("Ramp Shots", "Spinners", "Roving Shot", "Orbits/Nodes", "LOCKED", "LOCKED")
 
 ' Balls Per Game
 Const BALLS_PER_GAME = 3
@@ -9830,8 +10121,10 @@ Const EMP_BASE_HITS = 10
 Const SKILLS_BASE_SPINS = 20
 
 Dim GameTimers : GameTimers = Array(0,0,0,0,0,0,0,0)
+Dim GameTimersHurry : GameTimersHurry = Array(0,0,0,0,0,0,0,0)
 Dim GameTimerColors : GameTimerColors = Array(GAME_NORMAL_COLOR,GAME_RACE_COLOR,GAME_HURRYUP_COLOR,GAME_MULTIBALL_COLOR,GAME_NORMAL_COLOR,GAME_SKILLS_COLOR, Null, Null)
 Dim GameTimerEndEvent : GameTimerEndEvent = Array(GAME_BALLSAVE_TIMER_ENDED,GAME_RACE_TIMER_ENDED,GAME_BET_TIMER_ENDED,GAME_BOOST_TIMER_ENDED,GAME_EMP_TIMER_ENDED,GAME_SKILLS_TIMER_ENDED, GAME_BONUS_TIMER_ENDED, GAME_SELECTION_TIMER_ENDED)
+Dim GameTimerHurryEvent : GameTimerHurryEvent = Array(GAME_BALLSAVE_TIMER_HURRY,GAME_RACE_TIMER_HURRY,GAME_BET_TIMER_HURRY,GAME_BOOST_TIMER_HURRY,GAME_EMP_TIMER_HURRY,GAME_SKILLS_TIMER_HURRY, GAME_BONUS_TIMER_HURRY, GAME_SELECTION_TIMER_HURRY)
 
 '***********************************************************************************************************************
 
@@ -9921,6 +10214,16 @@ Const CYBER_B = "Cyber B"
 Const CYBER_E = "Cyber E"
 Const CYBER_R = "Cyber R"
 
+'HYPER
+Const HYPER = "Hyper"
+
+Const TT_ORBIT = "TT ORBIT"
+Const TT_TARGET = "TT TARGET"
+Const TT_RAMP = "TT RAMP"
+Const TT_CAPTIVE = "TT CAPTIVE"
+Const TT_SHORTCUT = "TT SHORTCUT"
+Const TT_COLLECTED = "TT COLLECTED"
+
 'Secret Garagew
 Const GARAGE_ENGINE = "Garage Engine"
 Const GARAGE_COOLING = "Garage Cooling"
@@ -9932,6 +10235,7 @@ Const BET_2 = "Bet 2"
 Const BET_3 = "Bet 3"
 Const BET_ACTIVATIONS = "BET Activations"
 Const BET_VALUE = "Bet Value"
+Const BET_MULTIPLIER = "Bet Multiplier"
 Const BET_HITS = "Bet Hits"
 
 'Shot Multipliers
@@ -9974,10 +10278,20 @@ Const RACE_4 = "Race 4 Complete"
 Const RACE_5 = "Race 5 Complete"
 Const RACE_6 = "Race 6 Complete"
 
+Const OUTLANE_SAVE = "Outlane Save"
+Const JACKPOTS_MULTIPLIER = "Jackpots Multiplier"
+
 'Bonus
 Const BONUS_COMBOS_MADE = "Bonus Combos Make"
 Const BONUS_RACES_WON = "Bonus Races Won"
 Const BONUS_NODES_COMPLETED = "Bonus Nodes Completed"
+
+'HI Score
+Const INITIAL_1 = "Initial 1"
+Const INITIAL_2 = "Initial 2"
+Const INITIAL_3 = "Initial 3"
+Const INITIAL_POSITION = "Initial Position"
+Const LETTER_POSITION = "Letter Position"
 
 
 Const RACE_MODE_FINISH = "Race Mode Finish"
@@ -9989,6 +10303,7 @@ Const MODE_MULTIBALL = "Game_Mode_Multiball"
 Const MODE_HURRYUP = "Game_Mode_Hurry Up"
 Const MODE_RACE_SELECT = "Game Mode Race Select"
 Const MODE_PERK_SELECT = "Game Mode Perk Select"
+Const MODE_HISCORE = "Game Mode Hi Score"
 
 
 Const MODE_RACE = "Game Mode Race"
@@ -10149,7 +10464,8 @@ End Sub
 '******************************************
 Sub sw01_Hit()
     If ballSaver = True Then
-        'DispatchPinEvent BALL_SAVE
+        DispatchPinEvent BALL_SAVE
+        ballSaverIgnoreCount = ballSaverIgnoreCount+1
     Else
         PlaySoundAtLevelStatic "drain", SoundFxLevel, sw01
     End If
@@ -10177,7 +10493,8 @@ End Sub
 '******************************************
 Sub sw04_Hit()
     If ballSaver = True Then
-        'DispatchPinEvent BALL_SAVE
+        DispatchPinEvent BALL_SAVE
+        ballSaverIgnoreCount = ballSaverIgnoreCount+1
     Else
         PlaySoundAtLevelStatic "drain", SoundFxLevel, sw04
     End If
@@ -10203,6 +10520,7 @@ End Sub
 Sub sw_38_Hit()
     sw_38.TimerEnabled = True
     SoundSaucerLock()
+    DispatchPinEvent SWITCH_HIT_HYPER
 End Sub
 Sub sw_38_Timer() 
     lightCtrl.pulse l143, 0
@@ -10592,6 +10910,33 @@ Sub TestBonus()
     'PlayFlexDMD End Of Ball Bonus
     FlexDMDBonusScene()
 End Sub
+
+
+Sub TestMsg(msg)
+
+	Dim qItem : Set qItem = New QueueItem
+	With qItem
+		.Name = "msg"
+		.Duration = 3
+		.BGImage = "BG003"
+		.BGVideo = "novideo"
+		.Action = "slideup"
+	End With
+	qItem.AddLabel msg, Font7Z, DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, ""
+	DmdQ.Enqueue qItem
+
+End Sub
+
+
+Sub TestHiScore()
+	GameTimers(GAME_SELECTION_TIMER_IDX) = 30
+	SetPlayerState MODE_HISCORE, True
+	SetPlayerState INITIAL_1, "A"
+	FlexDMDHiScoreScene()
+
+End Sub
+
+
 
 Sub TestMB()
 	SetPlayerState MODE_MULTIBALL, True
@@ -11861,7 +12206,7 @@ Class LStateController
                     Set vpxLight = Lights(idx)
                 End If
                 If Not IsNull(vpxLight) Then
-                    Dim lmStr: lmStr = "lmArr = Array("    
+                    Dim e, lmStr: lmStr = "lmArr = Array("    
                     For Each e in GetElements()
                         If Right(e.Name, Len(vpxLight.Name)+1) = "_" & vpxLight.Name Then
                             Debug.Print(e.Name)
@@ -12234,6 +12579,16 @@ Class LStateController
         Next
 		For Each light in m_lights.Keys()
             AssignStateForFrame light, (new FrameState)(0, Null, m_lights(light).Idx)
+        Next
+    End Sub
+
+   Public Sub SyncLightMapColors()
+        For Each light in m_lights.Keys()
+            If m_lightmaps.Exists(light) Then
+                For Each lm in m_lightmaps(light)
+                    lm.Color = m_lights(light).Color(0)
+                Next
+            End If
         Next
     End Sub
 
@@ -12667,7 +13022,7 @@ Class LStateController
                         Else
                             AssignStateForFrame name, (new FrameState)(lsName(1), color, ls.Idx)
                         End If
-						lcSeq.LastLightState(name) = m_currentFrameState(name)
+                        lcSeq.SetLastLightState name, m_currentFrameState(name) 
                     End If
                 Next       
             Else
@@ -12689,7 +13044,7 @@ Class LStateController
                     Else
                         AssignStateForFrame name, (new FrameState)(lsName(1), color, ls.Idx)
                     End If
-                    lcSeq.LastLightState(name) = m_currentFrameState(name)
+                    lcSeq.SetLastLightState name, m_currentFrameState(name) 
                 End If
             End If
 
@@ -12879,6 +13234,15 @@ Class LCSeq
 			m_lastLightStates.Add light, input
 		End If
     End Property
+
+    Public Sub SetLastLightState(light, input)	
+        If m_lastLightStates.Exists(light) Then	
+            m_lastLightStates.Remove light	
+        End If	
+        If input.level > 0 Then	
+                m_lastLightStates.Add light, input	
+        End If	
+    End Sub
 
     Public Property Get Color()
         Color=m_color
@@ -14720,6 +15084,7 @@ Sub Table1_KeyDown(ByVal Keycode)
 
     If gameStarted = False Then
         If keycode = StartGameKey And gameBooted = True Then
+            playerState.RemoveAll()
             AddPlayer()
             StartGame()
         End If
@@ -15586,20 +15951,52 @@ End Sub
 Class QueueItem
     Public Name
     Public Duration
-    Public Title
-    Public Message
-    Public Font
-    Public MessageFont
-    public StartPos
-    public EndPos
     public Action
     public BGImage
     public BGVideo
     public Callback
+    public Label1
+    public Label2
+    public Label3
+    public Label4
+    public Label5
+    public Label6
+    public Label7
+    private LabelIdx
 
     Private Sub Class_Initialize()
         Callback = Null
-        MessageFont = Null
+        Label1 = Null
+        Label2 = Null
+        Label3 = Null
+        Label4 = Null
+        Label5 = Null
+        Label6 = Null
+        Label7 = Null
+        LabelIdx = 1
+        Action = ""
+    End Sub
+
+    Public Sub AddLabel(msg, font, sposX, sposY, eposX, eposY, action)
+        If LabelIdx = 8 Then Exit Sub
+        Dim params : params = Array(msg, font, sposX, sposY, eposX, eposY, action)
+        Select Case LabelIdx
+			Case 1:
+                Label1 = params
+            Case 2:
+                Label2 = params
+            Case 3:
+                Label3 = params
+            Case 4:
+                Label4 = params
+            Case 5:
+                Label5 = params
+            Case 6:
+                Label6 = params
+            Case 7:
+                Label7 = params
+        End Select
+        LabelIdx = LabelIdx + 1
     End Sub
 End Class
 
@@ -15609,7 +16006,6 @@ Class Queue
     Private PreviousItemExecutedTime
     private Frame
     private CurrentMSGdone
-    private DMD_ShakePos
     private DMD_slide
 
     Private Sub Class_Initialize()
@@ -15619,20 +16015,18 @@ Class Queue
 
     Public Sub Enqueue(queueItem)
 
-        If IsNull(queueItem.MessageFont) Then 
-            queueItem.MessageFont = queueItem.Font
-        End If
         If Items.Exists(queueItem.Name) Then
             Dim item : Set item = Items(queueItem.Name)
             item.Duration = queueItem.Duration
-            item.Title = queueItem.Title
-            item.Message = queueItem.Message
-            item.Font = queueItem.Font
-            item.MessageFont = queueItem.MessageFont
-            item.StartPos = queueItem.StartPos
-            item.EndPos = queueItem.EndPos
             item.Action = queueItem.Action
             item.callback = queueItem.Callback
+            item.Label1 = queueItem.Label1
+            item.Label2 = queueItem.Label2
+            item.Label3 = queueItem.Label3
+            item.Label4 = queueItem.Label4
+            item.Label5 = queueItem.Label5
+            item.Label6 = queueItem.Label6
+            item.Label7 = queueItem.Label7
             If IsObject(CurrentItem) Then
 				If item.Name = CurrentItem.Name Then
 					If CurrentItem.BGImage <> "noimage"  Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).Visible = False
@@ -15661,6 +16055,22 @@ Class Queue
         CurrentItem = Null
     End Sub
 
+    Public Sub Dequeue(name)
+        If Items.Exists(name) Then
+            If IsObject(CurrentItem) Then
+                If CurrentItem.Name = name Then
+                    Items.Remove CurrentItem.Name
+                    DMDResetAll()
+                    CurrentItem = Null
+                Else
+                    Items.Remove name
+                End If
+            Else
+                Items.Remove name
+            End If
+        End If
+    End Sub
+
     Public Sub Update()
 
         frame=frame+1
@@ -15686,105 +16096,111 @@ Class Queue
 
     Public Sub DMDUpdate
 
-        dim tmp
-        If DMD_Slide > 0 Then DMD_slide = DMD_slide - 2
-        If frame mod 3 = 1 Then
-            If CurrentItem.Action = "shake" And Not DMD_ShakePos = 0 Then ' shaking
-                If DMD_ShakePos < 0 Then DMD_ShakePos = ABS(DMD_ShakePos) - 1 Else DMD_ShakePos = - DMD_ShakePos + 1
-            End If
+        dim tmp, flabel
+        if CurrentItem.Action = "slidedown" Then
+            If DMD_Slide > 0 Then DMD_slide = DMD_slide - 2
         End If
-        If CurrentItem.Action = "blink" or CurrentItem.Action = "noslide2blink" or CurrentItem.Action = "noslideoffblink" Then ' blinking
-            If frame mod 30 > 15 Then
-                FlexDMD.Stage.GetLabel("TextSmalLine1").visible = False
-                If Not CurrentItem.Message = "" Then  FlexDMD.Stage.GetLabel("TextSmalLine2").visible = False
-            Else
-                FlexDMD.Stage.GetLabel("TextSmalLine1").visible = True
-                If Not CurrentItem.Message = "" Then  FlexDMD.Stage.GetLabel("TextSmalLine2").visible = True
-            End If
+        if CurrentItem.Action = "slideup" Then
+            If DMD_Slide < 0 Then DMD_slide = DMD_slide + 2
         End If
-        'Marque
-        If CurrentItem.StartPos(0) < CurrentItem.EndPos(0) Then CurrentItem.StartPos(0) = CurrentItem.StartPos(0) + 2
-        If CurrentItem.StartPos(0) > CurrentItem.EndPos(0) Then CurrentItem.StartPos(0) = CurrentItem.StartPos(0) - 2
-        If CurrentItem.StartPos(1) < CurrentItem.EndPos(1) Then CurrentItem.StartPos(1) = CurrentItem.StartPos(1) + 2
-        If CurrentItem.StartPos(1) > CurrentItem.EndPos(1) Then CurrentItem.StartPos(1) = CurrentItem.StartPos(1) - 2
-        'Shake
 
-    
         If CurrentItem.BGImage <> "noimage"  Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
         If CurrentItem.BGVideo <> "novideo" Then FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide
 
-        Set label = FlexDMD.Stage.GetLabel("TextSmalLine1")
-        label.Font =  CurrentItem.Font
-        If InStr(1, CurrentItem.Title, "GetPlayerState") > 0 Then
-            label.Text = Eval(CurrentItem.Title)
-        Else
-            label.Text = CurrentItem.Title
-        End If
+        Dim i
+        For i = 1 to 7
+            dim label : label = Eval("CurrentItem.Label"&CStr(i))
+            If Not IsNull(label) Then
 
-        Set label = FlexDMD.Stage.GetLabel("TextSmalLine2")
-        label.Font =  CurrentItem.MessageFont
-        If InStr(1,  CurrentItem.Message, "GetPlayerState") > 0 Then
-            label.Text = Eval(CurrentItem.Message)
-        End If
+                Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
+                flabel.Font = label(1)
+                flabel.visible = True
+                If InStr(1, label(0), "GetPlayerState") > 0 Then
+                    flabel.Text = Eval(label(0))
+                Else
+                    flabel.Text = label(0)
+                End If
 
-        If CurrentItem.Message = "" Then
-            FlexDMD.Stage.GetLabel("TextSmalLine1").SetAlignedPosition CurrentItem.StartPos(0) + DMD_ShakePos ,CurrentItem.StartPos(1) - DMD_Slide , FlexDMD_Align_Center
-        Elseif Not CurrentItem.Message = "" Then
-            FlexDMD.Stage.GetLabel("TextSmalLine1").SetAlignedPosition CurrentItem.StartPos(0) + DMD_ShakePos ,CurrentItem.StartPos(1)-8 - DMD_Slide , FlexDMD_Align_Center
-            FlexDMD.Stage.GetLabel("TextSmalLine2").SetAlignedPosition CurrentItem.StartPos(0) + DMD_ShakePos ,CurrentItem.StartPos(1)+8 - DMD_Slide , FlexDMD_Align_Center
-        End If
+                If label(6) = "blink" Then ' blinking
+                    If frame mod 30 > 15 Then
+                        flabel.visible = False
+                    Else
+                        flabel.visible = True
+                    End If
+                End If
+
+                If label(2) < label(4) Then label(2) = label(2) + 1
+                If label(2) > label(4) Then label(2) = label(2) - 1
+                If label(3) < label(5) Then label(3) = label(3) + 1
+                If label(3) > label(5) Then label(3) = label(3) - 1
+                
+
+                Select Case i
+                    Case 1:
+                        CurrentItem.Label1(2) = label(2)
+                        CurrentItem.Label1(3) = label(3)
+                    Case 2:
+                        CurrentItem.Label2(2) = label(2)
+                        CurrentItem.Label2(3) = label(3)
+                    Case 3:
+                        CurrentItem.Label3(2) = label(2)
+                        CurrentItem.Label3(3) = label(3)
+                    Case 4:
+                        CurrentItem.Label4(2) = label(2)
+                        CurrentItem.Label4(3) = label(3)
+                    Case 5:
+                        CurrentItem.Label5(2) = label(2)
+                        CurrentItem.Label5(3) = label(3)
+                    Case 6:
+                        CurrentItem.Label6(2) = label(2)
+                        CurrentItem.Label6(3) = label(3)
+                    Case 7:
+                        CurrentItem.Label7(2) = label(2)
+                        CurrentItem.Label7(3) = label(3)                        
+                End Select
+
+                flabel.SetAlignedPosition label(2),label(3) - DMD_slide ,FlexDMD_Align_Center
+                '
+
+            End If
+        Next
 
     End Sub
 
     Sub DMDNewOverlay
         CurrentMSGdone = 1 ' to get it off screen
-        Dim label
-        DMD_ShakePos = 0 
-        DMD_slide = DMDHeight	
+        Dim flabel
+        DMD_slide = 0
 
-        if CurrentItem.Action = "noslide2" or CurrentItem.Action = "noslide3" Then DMD_slide = 0
-        if CurrentItem.Action = "noslide2blink" Then DMD_slide = 0
+        if CurrentItem.Action = "slidedown" Then DMD_slide = DMDHeight
+        if CurrentItem.Action = "slideup" Then DMD_slide = -DMDHeight
 
         If CurrentItem.BGImage  <> "noimage" Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).Visible=True : FlexDMD.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
         If CurrentItem.BGVideo <> "novideo" Then FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).Visible=True : FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide * 1.5 : FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).Seek(0)
-        If CurrentItem.Message = "" Then
-            Set label = FlexDMD.Stage.GetLabel("TextSmalLine1")
-            label.Font =  CurrentItem.Font
-            If InStr(1, CurrentItem.Title, "GetPlayerState") > 0 Then
-                label.Text = Eval(CurrentItem.Title)
-            Else
-                label.Text = CurrentItem.Title
-            End If
+        
+        Dim i
+        For i = 1 to 7
+            dim label : label = Eval("CurrentItem.Label"&CStr(i))
+            If Not IsNull(label) Then
 
-            label.SetAlignedPosition CurrentItem.StartPos(0),CurrentItem.StartPos(1) - DMD_slide ,FlexDMD_Align_Center
-            label.visible = True
-        End If
-        If Not CurrentItem.Message = "" Then
+                Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
+                flabel.Font = label(1)
+                If InStr(1, label(0), "GetPlayerState") > 0 Then
+                    flabel.Text = Eval(label(0))
+                Else
+                    flabel.Text = label(0)
+                End If
 
-            Set label = FlexDMD.Stage.GetLabel("TextSmalLine1")
-            label.Font =  CurrentItem.Font
-            If InStr(1, CurrentItem.Title, "GetPlayerState") > 0 Then
-                label.Text = Eval(CurrentItem.Title)
-            Else
-                label.Text = CurrentItem.Title
-            End If
-            label.SetAlignedPosition CurrentItem.StartPos(0),CurrentItem.StartPos(1)-8 - DMD_slide ,FlexDMD_Align_Center
-            label.visible = True
+                flabel.SetAlignedPosition label(2),label(3) - DMD_slide ,FlexDMD_Align_Center
+                flabel.visible = True
 
-            Set label = FlexDMD.Stage.GetLabel("TextSmalLine2")
-            label.Font =  CurrentItem.MessageFont
-            If InStr(1, CurrentItem.Message, "GetPlayerState") > 0 Then
-                label.Text = Eval(CurrentItem.Message)
-            Else
-                label.Text = CurrentItem.Message
             End If
-            label.SetAlignedPosition CurrentItem.StartPos(0),CurrentItem.StartPos(1)+8 - DMD_slide ,FlexDMD_Align_Center
-            label.visible = True
-        End If
+        Next
+     
     End Sub
 
     Sub DMDSlideOff
-        if  CurrentItem.Action = "noslide" Or  CurrentItem.Action = "noslide2" Or  CurrentItem.Action = "noslideoff" Or  CurrentItem.Action = "noslideoffblink" Then CurrentMSGdone = 0
+        If CurrentItem.Action = "" Then CurrentMSGdone = 0
         If CurrentMSGdone > 0 Then
             DMD_Slide = DMD_Slide - 3 
             If DMD_Slide < -DMDHeight Then CurrentMSGdone = 0
@@ -15798,33 +16214,48 @@ Class Queue
 
     Public Sub DMDResetAll
 		
-		FlexDMD.Stage.GetImage("BG001").Visible=False   ' need all of them
-		FlexDMD.Stage.GetImage("BGEMP").Visible=False
-		FlexDMD.Stage.GetImage("BGRaceReady").Visible=False
+        FlexDMD.Stage.GetImage("BGBlack").Visible=False 
+		FlexDMD.Stage.GetImage("BG001").Visible=False
+        FlexDMD.Stage.GetImage("BG002").Visible=False 
+        FlexDMD.Stage.GetImage("BG003").Visible=False 
+        FlexDMD.Stage.GetImage("BG004").Visible=False 
+        FlexDMD.Stage.GetImage("BG005").Visible=False 
+        FlexDMD.Stage.GetVideo("BGBoost").Visible=False
+
+        FlexDMD.Stage.GetVideo("BGBetMode").Visible=False
         FlexDMD.Stage.GetVideo("BGBoost").Visible=False
         FlexDMD.Stage.GetVideo("BGCyber").Visible=False
-
+        FlexDMD.Stage.GetVideo("BGEmp").Visible=False
+        FlexDMD.Stage.GetVideo("BGNodes").Visible=False
+        FlexDMD.Stage.GetVideo("BGSkills").Visible=False
 
         FlexDMD.Stage.GetVideo("BGEngine").Visible=False
         FlexDMD.Stage.GetVideo("BGCooling").Visible=False
         FlexDMD.Stage.GetVideo("BGFuel").Visible=False
-        FlexDMD.Stage.GetVideo("BGNode1").Visible=False
-        FlexDMD.Stage.GetVideo("BGNode2").Visible=False
-        FlexDMD.Stage.GetVideo("BGNode3").Visible=False
-        FlexDMD.Stage.GetVideo("BGNode4").Visible=False
-        FlexDMD.Stage.GetVideo("BGNode5").Visible=False
+
+        FlexDMD.Stage.GetVideo("BGNode").Visible=False
         FlexDMD.Stage.GetVideo("BGNodeComplete").Visible=False
 
+        
         FlexDMD.Stage.GetVideo("BGRace1").Visible=False
         FlexDMD.Stage.GetVideo("BGRace2").Visible=False
         FlexDMD.Stage.GetVideo("BGRace3").Visible=False
         FlexDMD.Stage.GetVideo("BGRace4").Visible=False
         FlexDMD.Stage.GetVideo("BGRaceLocked").Visible=False
 
+        FlexDMD.Stage.GetVideo("BGBonus1").Visible=False
+        FlexDMD.Stage.GetVideo("BGBonus2").Visible=False
+        FlexDMD.Stage.GetVideo("BGBonus3").Visible=False
+        FlexDMD.Stage.GetVideo("BGBonus4").Visible=False
+        FlexDMD.Stage.GetVideo("BGBonus5").Visible=False
+        
 		FlexDMD.Stage.GetLabel("TextSmalLine1").Visible=False
 		FlexDMD.Stage.GetLabel("TextSmalLine2").Visible=False
 		FlexDMD.Stage.GetLabel("TextSmalLine3").Visible=False
 		FlexDMD.Stage.GetLabel("TextSmalLine4").Visible=False
+        FlexDMD.Stage.GetLabel("TextSmalLine5").Visible=False
+        FlexDMD.Stage.GetLabel("TextSmalLine6").Visible=False
+        FlexDMD.Stage.GetLabel("TextSmalLine7").Visible=False
     End Sub
 
 
@@ -16456,7 +16887,7 @@ End Sub
 '* TABLE OPTIONS *******************************************************
 '***********************************************************************
 
-Dim LightLevel : LightLevel = 60			'Level of room lighting (0 to 100), where 0 is dark and 100 is brightest
+Dim RoomBrightness : RoomBrightness = 60			'Level of room lighting (0 to 100), where 0 is dark and 100 is brightest
 Dim ColorLUT : ColorLUT = 3
 Dim OutPostMod : OutPostMod = 1				'Difficulty : 0 = Easy, 1 = Medium, 2 = Hard
 Dim SlingsMod : SlingsMod = 0 				'0 - Blue Slings, 1 = Orange Slings
@@ -16589,9 +17020,9 @@ Sub Options_OnOptChg
 		OptSel.Visible = False
 	End If
 	If OptPos = Opt_Light Then
-		OptTop.Text = "ROOM LIGHT LEVEL"
-		OptBot.Text = "LEVEL " & LightLevel
-		SaveValue cGameName, "LIGHT", LightLevel
+		OptTop.Text = "ROOM LIGHT LEVEL1"
+		OptBot.Text = "LEVEL " & RoomBrightness
+		SaveValue cGameName, "LIGHT", RoomBrightness
 	ElseIf OptPos = Opt_LUT Then
 		OptTop.Text = "COLOR SATURATION"
 '		OptBot.Text = "LUT " & CInt(ColorLUT)
@@ -16642,9 +17073,9 @@ End Sub
 Sub Options_Toggle(amount)
 	If OptionDMD is Nothing Then Exit Sub
 	If OptPos = Opt_Light Then
-		LightLevel = LightLevel + amount * 10
-		If LightLevel < 0 Then LightLevel = 100
-		If LightLevel > 100 Then LightLevel = 0
+		RoomBrightness = RoomBrightness + amount * 10
+		If RoomBrightness < 0 Then RoomBrightness = 100
+		If RoomBrightness > 100 Then RoomBrightness = 0
 	ElseIf OptPos = Opt_LUT Then
 		ColorLUT = ColorLUT + amount * 1
 		If ColorLUT < 1 Then ColorLUT = 11
@@ -16701,7 +17132,7 @@ End Sub
 
 Sub Options_Load
 	Dim x
-    x = LoadValue(cGameName, "LIGHT") : If x <> "" Then LightLevel = CInt(x) Else LightLevel = 60
+    x = LoadValue(cGameName, "LIGHT") : If x <> "" Then RoomBrightness = CInt(x) Else RoomBrightness = 60
     x = LoadValue(cGameName, "LUT") : If x <> "" Then ColorLUT = CInt(x) Else ColorLUT = 3
     x = LoadValue(cGameName, "VOLUME") : If x <> "" Then VolumeDial = CNCDbl(x) Else VolumeDial = 0.8
     x = LoadValue(cGameName, "RAMPVOLUME") : If x <> "" Then RampRollVolume = CNCDbl(x) Else RampRollVolume = 0.5
@@ -16717,7 +17148,7 @@ Sub UpdateMods
 	'Room light level
 	'*********************
 
-	SetLightLevel LightLevel
+	SetRoomBrightness RoomBrightness/100
 
 	'*********************
 	'Color LUT
@@ -16768,8 +17199,61 @@ End Function
 'Setup Stuff
 '*****************
 
-Sub SetLightLevel(lvl)
-	Dim v
-	v = Int(lvl * 2 + 55)
-	Dim x: For Each x in BM_Room: x.Color = RGB(v, v, v): Next
+
+'****************************
+'	Room Brightness
+'****************************
+
+' Update these arrays if you want to change more materials with room light level
+Dim RoomBrightnessMtlArray: RoomBrightnessMtlArray = Array("VLM.Bake.Active","VLM.Bake.Solid")
+Dim SavedMtlColorArray:     SavedMtlColorArray     = Array(0,0,0)
+
+
+Sub SetRoomBrightness(lvl)
+	If lvl > 1 Then lvl = 1
+	If lvl < 0 Then lvl = 0
+
+	' Lighting level
+	Dim v: v=(lvl * 225 + 30)/255
+
+	Dim i: For i = 0 to UBound(RoomBrightnessMtlArray)
+		ModulateMaterialBaseColor RoomBrightnessMtlArray(i), i, v
+	Next
+
+
+End Sub
+
+SaveMtlColors
+Sub SaveMtlColors
+	Dim i: For i = 0 to UBound(RoomBrightnessMtlArray)
+		SaveMaterialBaseColor RoomBrightnessMtlArray(i), i
+	Next
+End Sub
+
+Sub SaveMaterialBaseColor(name, idx)
+    Dim wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
+	GetMaterial name, wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
+	SavedMtlColorArray(idx) = round(base,0)
+End Sub
+
+
+Sub ModulateMaterialBaseColor(name, idx, val)
+    Dim wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
+	Dim red, green, blue, saved_base, new_base
+ 
+	'First get the existing material properties
+	GetMaterial name, wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
+
+	'Get saved color
+	saved_base = SavedMtlColorArray(idx)
+	
+	'Next extract the r,g,b values from the base color
+	red = saved_base And &HFF
+	green = (saved_base \ &H100) And &HFF
+	blue = (saved_base \ &H10000) And &HFF
+	'msgbox red & " " & green & " " & blue
+
+	'Create new color scaled down by 'val', and update the material
+	new_base = RGB(red*val, green*val, blue*val)
+    UpdateMaterial name, wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, new_base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
 End Sub

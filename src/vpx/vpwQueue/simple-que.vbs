@@ -1,20 +1,52 @@
 Class QueueItem
     Public Name
     Public Duration
-    Public Title
-    Public Message
-    Public Font
-    Public MessageFont
-    public StartPos
-    public EndPos
     public Action
     public BGImage
     public BGVideo
     public Callback
+    public Label1
+    public Label2
+    public Label3
+    public Label4
+    public Label5
+    public Label6
+    public Label7
+    private LabelIdx
 
     Private Sub Class_Initialize()
         Callback = Null
-        MessageFont = Null
+        Label1 = Null
+        Label2 = Null
+        Label3 = Null
+        Label4 = Null
+        Label5 = Null
+        Label6 = Null
+        Label7 = Null
+        LabelIdx = 1
+        Action = ""
+    End Sub
+
+    Public Sub AddLabel(msg, font, sposX, sposY, eposX, eposY, action)
+        If LabelIdx = 8 Then Exit Sub
+        Dim params : params = Array(msg, font, sposX, sposY, eposX, eposY, action)
+        Select Case LabelIdx
+			Case 1:
+                Label1 = params
+            Case 2:
+                Label2 = params
+            Case 3:
+                Label3 = params
+            Case 4:
+                Label4 = params
+            Case 5:
+                Label5 = params
+            Case 6:
+                Label6 = params
+            Case 7:
+                Label7 = params
+        End Select
+        LabelIdx = LabelIdx + 1
     End Sub
 End Class
 
@@ -24,7 +56,6 @@ Class Queue
     Private PreviousItemExecutedTime
     private Frame
     private CurrentMSGdone
-    private DMD_ShakePos
     private DMD_slide
 
     Private Sub Class_Initialize()
@@ -34,20 +65,18 @@ Class Queue
 
     Public Sub Enqueue(queueItem)
 
-        If IsNull(queueItem.MessageFont) Then 
-            queueItem.MessageFont = queueItem.Font
-        End If
         If Items.Exists(queueItem.Name) Then
             Dim item : Set item = Items(queueItem.Name)
             item.Duration = queueItem.Duration
-            item.Title = queueItem.Title
-            item.Message = queueItem.Message
-            item.Font = queueItem.Font
-            item.MessageFont = queueItem.MessageFont
-            item.StartPos = queueItem.StartPos
-            item.EndPos = queueItem.EndPos
             item.Action = queueItem.Action
             item.callback = queueItem.Callback
+            item.Label1 = queueItem.Label1
+            item.Label2 = queueItem.Label2
+            item.Label3 = queueItem.Label3
+            item.Label4 = queueItem.Label4
+            item.Label5 = queueItem.Label5
+            item.Label6 = queueItem.Label6
+            item.Label7 = queueItem.Label7
             If IsObject(CurrentItem) Then
 				If item.Name = CurrentItem.Name Then
 					If CurrentItem.BGImage <> "noimage"  Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).Visible = False
@@ -76,6 +105,22 @@ Class Queue
         CurrentItem = Null
     End Sub
 
+    Public Sub Dequeue(name)
+        If Items.Exists(name) Then
+            If IsObject(CurrentItem) Then
+                If CurrentItem.Name = name Then
+                    Items.Remove CurrentItem.Name
+                    DMDResetAll()
+                    CurrentItem = Null
+                Else
+                    Items.Remove name
+                End If
+            Else
+                Items.Remove name
+            End If
+        End If
+    End Sub
+
     Public Sub Update()
 
         frame=frame+1
@@ -101,105 +146,111 @@ Class Queue
 
     Public Sub DMDUpdate
 
-        dim tmp
-        If DMD_Slide > 0 Then DMD_slide = DMD_slide - 2
-        If frame mod 3 = 1 Then
-            If CurrentItem.Action = "shake" And Not DMD_ShakePos = 0 Then ' shaking
-                If DMD_ShakePos < 0 Then DMD_ShakePos = ABS(DMD_ShakePos) - 1 Else DMD_ShakePos = - DMD_ShakePos + 1
-            End If
+        dim tmp, flabel
+        if CurrentItem.Action = "slidedown" Then
+            If DMD_Slide > 0 Then DMD_slide = DMD_slide - 2
         End If
-        If CurrentItem.Action = "blink" or CurrentItem.Action = "noslide2blink" or CurrentItem.Action = "noslideoffblink" Then ' blinking
-            If frame mod 30 > 15 Then
-                FlexDMD.Stage.GetLabel("TextSmalLine1").visible = False
-                If Not CurrentItem.Message = "" Then  FlexDMD.Stage.GetLabel("TextSmalLine2").visible = False
-            Else
-                FlexDMD.Stage.GetLabel("TextSmalLine1").visible = True
-                If Not CurrentItem.Message = "" Then  FlexDMD.Stage.GetLabel("TextSmalLine2").visible = True
-            End If
+        if CurrentItem.Action = "slideup" Then
+            If DMD_Slide < 0 Then DMD_slide = DMD_slide + 2
         End If
-        'Marque
-        If CurrentItem.StartPos(0) < CurrentItem.EndPos(0) Then CurrentItem.StartPos(0) = CurrentItem.StartPos(0) + 2
-        If CurrentItem.StartPos(0) > CurrentItem.EndPos(0) Then CurrentItem.StartPos(0) = CurrentItem.StartPos(0) - 2
-        If CurrentItem.StartPos(1) < CurrentItem.EndPos(1) Then CurrentItem.StartPos(1) = CurrentItem.StartPos(1) + 2
-        If CurrentItem.StartPos(1) > CurrentItem.EndPos(1) Then CurrentItem.StartPos(1) = CurrentItem.StartPos(1) - 2
-        'Shake
 
-    
         If CurrentItem.BGImage <> "noimage"  Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
         If CurrentItem.BGVideo <> "novideo" Then FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide
 
-        Set label = FlexDMD.Stage.GetLabel("TextSmalLine1")
-        label.Font =  CurrentItem.Font
-        If InStr(1, CurrentItem.Title, "GetPlayerState") > 0 Then
-            label.Text = Eval(CurrentItem.Title)
-        Else
-            label.Text = CurrentItem.Title
-        End If
+        Dim i
+        For i = 1 to 7
+            dim label : label = Eval("CurrentItem.Label"&CStr(i))
+            If Not IsNull(label) Then
 
-        Set label = FlexDMD.Stage.GetLabel("TextSmalLine2")
-        label.Font =  CurrentItem.MessageFont
-        If InStr(1,  CurrentItem.Message, "GetPlayerState") > 0 Then
-            label.Text = Eval(CurrentItem.Message)
-        End If
+                Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
+                flabel.Font = label(1)
+                flabel.visible = True
+                If InStr(1, label(0), "GetPlayerState") > 0 Then
+                    flabel.Text = Eval(label(0))
+                Else
+                    flabel.Text = label(0)
+                End If
 
-        If CurrentItem.Message = "" Then
-            FlexDMD.Stage.GetLabel("TextSmalLine1").SetAlignedPosition CurrentItem.StartPos(0) + DMD_ShakePos ,CurrentItem.StartPos(1) - DMD_Slide , FlexDMD_Align_Center
-        Elseif Not CurrentItem.Message = "" Then
-            FlexDMD.Stage.GetLabel("TextSmalLine1").SetAlignedPosition CurrentItem.StartPos(0) + DMD_ShakePos ,CurrentItem.StartPos(1)-8 - DMD_Slide , FlexDMD_Align_Center
-            FlexDMD.Stage.GetLabel("TextSmalLine2").SetAlignedPosition CurrentItem.StartPos(0) + DMD_ShakePos ,CurrentItem.StartPos(1)+8 - DMD_Slide , FlexDMD_Align_Center
-        End If
+                If label(6) = "blink" Then ' blinking
+                    If frame mod 30 > 15 Then
+                        flabel.visible = False
+                    Else
+                        flabel.visible = True
+                    End If
+                End If
+
+                If label(2) < label(4) Then label(2) = label(2) + 1
+                If label(2) > label(4) Then label(2) = label(2) - 1
+                If label(3) < label(5) Then label(3) = label(3) + 1
+                If label(3) > label(5) Then label(3) = label(3) - 1
+                
+
+                Select Case i
+                    Case 1:
+                        CurrentItem.Label1(2) = label(2)
+                        CurrentItem.Label1(3) = label(3)
+                    Case 2:
+                        CurrentItem.Label2(2) = label(2)
+                        CurrentItem.Label2(3) = label(3)
+                    Case 3:
+                        CurrentItem.Label3(2) = label(2)
+                        CurrentItem.Label3(3) = label(3)
+                    Case 4:
+                        CurrentItem.Label4(2) = label(2)
+                        CurrentItem.Label4(3) = label(3)
+                    Case 5:
+                        CurrentItem.Label5(2) = label(2)
+                        CurrentItem.Label5(3) = label(3)
+                    Case 6:
+                        CurrentItem.Label6(2) = label(2)
+                        CurrentItem.Label6(3) = label(3)
+                    Case 7:
+                        CurrentItem.Label7(2) = label(2)
+                        CurrentItem.Label7(3) = label(3)                        
+                End Select
+
+                flabel.SetAlignedPosition label(2),label(3) - DMD_slide ,FlexDMD_Align_Center
+                '
+
+            End If
+        Next
 
     End Sub
 
     Sub DMDNewOverlay
         CurrentMSGdone = 1 ' to get it off screen
-        Dim label
-        DMD_ShakePos = 0 
-        DMD_slide = DMDHeight	
+        Dim flabel
+        DMD_slide = 0
 
-        if CurrentItem.Action = "noslide2" or CurrentItem.Action = "noslide3" Then DMD_slide = 0
-        if CurrentItem.Action = "noslide2blink" Then DMD_slide = 0
+        if CurrentItem.Action = "slidedown" Then DMD_slide = DMDHeight
+        if CurrentItem.Action = "slideup" Then DMD_slide = -DMDHeight
 
         If CurrentItem.BGImage  <> "noimage" Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).Visible=True : FlexDMD.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
         If CurrentItem.BGVideo <> "novideo" Then FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).Visible=True : FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide * 1.5 : FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).Seek(0)
-        If CurrentItem.Message = "" Then
-            Set label = FlexDMD.Stage.GetLabel("TextSmalLine1")
-            label.Font =  CurrentItem.Font
-            If InStr(1, CurrentItem.Title, "GetPlayerState") > 0 Then
-                label.Text = Eval(CurrentItem.Title)
-            Else
-                label.Text = CurrentItem.Title
-            End If
+        
+        Dim i
+        For i = 1 to 7
+            dim label : label = Eval("CurrentItem.Label"&CStr(i))
+            If Not IsNull(label) Then
 
-            label.SetAlignedPosition CurrentItem.StartPos(0),CurrentItem.StartPos(1) - DMD_slide ,FlexDMD_Align_Center
-            label.visible = True
-        End If
-        If Not CurrentItem.Message = "" Then
+                Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
+                flabel.Font = label(1)
+                If InStr(1, label(0), "GetPlayerState") > 0 Then
+                    flabel.Text = Eval(label(0))
+                Else
+                    flabel.Text = label(0)
+                End If
 
-            Set label = FlexDMD.Stage.GetLabel("TextSmalLine1")
-            label.Font =  CurrentItem.Font
-            If InStr(1, CurrentItem.Title, "GetPlayerState") > 0 Then
-                label.Text = Eval(CurrentItem.Title)
-            Else
-                label.Text = CurrentItem.Title
-            End If
-            label.SetAlignedPosition CurrentItem.StartPos(0),CurrentItem.StartPos(1)-8 - DMD_slide ,FlexDMD_Align_Center
-            label.visible = True
+                flabel.SetAlignedPosition label(2),label(3) - DMD_slide ,FlexDMD_Align_Center
+                flabel.visible = True
 
-            Set label = FlexDMD.Stage.GetLabel("TextSmalLine2")
-            label.Font =  CurrentItem.MessageFont
-            If InStr(1, CurrentItem.Message, "GetPlayerState") > 0 Then
-                label.Text = Eval(CurrentItem.Message)
-            Else
-                label.Text = CurrentItem.Message
             End If
-            label.SetAlignedPosition CurrentItem.StartPos(0),CurrentItem.StartPos(1)+8 - DMD_slide ,FlexDMD_Align_Center
-            label.visible = True
-        End If
+        Next
+     
     End Sub
 
     Sub DMDSlideOff
-        if  CurrentItem.Action = "noslide" Or  CurrentItem.Action = "noslide2" Or  CurrentItem.Action = "noslideoff" Or  CurrentItem.Action = "noslideoffblink" Then CurrentMSGdone = 0
+        If CurrentItem.Action = "" Then CurrentMSGdone = 0
         If CurrentMSGdone > 0 Then
             DMD_Slide = DMD_Slide - 3 
             If DMD_Slide < -DMDHeight Then CurrentMSGdone = 0
@@ -213,33 +264,48 @@ Class Queue
 
     Public Sub DMDResetAll
 		
-		FlexDMD.Stage.GetImage("BG001").Visible=False   ' need all of them
-		FlexDMD.Stage.GetImage("BGEMP").Visible=False
-		FlexDMD.Stage.GetImage("BGRaceReady").Visible=False
+        FlexDMD.Stage.GetImage("BGBlack").Visible=False 
+		FlexDMD.Stage.GetImage("BG001").Visible=False
+        FlexDMD.Stage.GetImage("BG002").Visible=False 
+        FlexDMD.Stage.GetImage("BG003").Visible=False 
+        FlexDMD.Stage.GetImage("BG004").Visible=False 
+        FlexDMD.Stage.GetImage("BG005").Visible=False 
+        FlexDMD.Stage.GetVideo("BGBoost").Visible=False
+
+        FlexDMD.Stage.GetVideo("BGBetMode").Visible=False
         FlexDMD.Stage.GetVideo("BGBoost").Visible=False
         FlexDMD.Stage.GetVideo("BGCyber").Visible=False
-
+        FlexDMD.Stage.GetVideo("BGEmp").Visible=False
+        FlexDMD.Stage.GetVideo("BGNodes").Visible=False
+        FlexDMD.Stage.GetVideo("BGSkills").Visible=False
 
         FlexDMD.Stage.GetVideo("BGEngine").Visible=False
         FlexDMD.Stage.GetVideo("BGCooling").Visible=False
         FlexDMD.Stage.GetVideo("BGFuel").Visible=False
-        FlexDMD.Stage.GetVideo("BGNode1").Visible=False
-        FlexDMD.Stage.GetVideo("BGNode2").Visible=False
-        FlexDMD.Stage.GetVideo("BGNode3").Visible=False
-        FlexDMD.Stage.GetVideo("BGNode4").Visible=False
-        FlexDMD.Stage.GetVideo("BGNode5").Visible=False
+
+        FlexDMD.Stage.GetVideo("BGNode").Visible=False
         FlexDMD.Stage.GetVideo("BGNodeComplete").Visible=False
 
+        
         FlexDMD.Stage.GetVideo("BGRace1").Visible=False
         FlexDMD.Stage.GetVideo("BGRace2").Visible=False
         FlexDMD.Stage.GetVideo("BGRace3").Visible=False
         FlexDMD.Stage.GetVideo("BGRace4").Visible=False
         FlexDMD.Stage.GetVideo("BGRaceLocked").Visible=False
 
+        FlexDMD.Stage.GetVideo("BGBonus1").Visible=False
+        FlexDMD.Stage.GetVideo("BGBonus2").Visible=False
+        FlexDMD.Stage.GetVideo("BGBonus3").Visible=False
+        FlexDMD.Stage.GetVideo("BGBonus4").Visible=False
+        FlexDMD.Stage.GetVideo("BGBonus5").Visible=False
+        
 		FlexDMD.Stage.GetLabel("TextSmalLine1").Visible=False
 		FlexDMD.Stage.GetLabel("TextSmalLine2").Visible=False
 		FlexDMD.Stage.GetLabel("TextSmalLine3").Visible=False
 		FlexDMD.Stage.GetLabel("TextSmalLine4").Visible=False
+        FlexDMD.Stage.GetLabel("TextSmalLine5").Visible=False
+        FlexDMD.Stage.GetLabel("TextSmalLine6").Visible=False
+        FlexDMD.Stage.GetLabel("TextSmalLine7").Visible=False
     End Sub
 
 

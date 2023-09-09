@@ -84,6 +84,16 @@ Const CYBER_B = "Cyber B"
 Const CYBER_E = "Cyber E"
 Const CYBER_R = "Cyber R"
 
+'HYPER
+Const HYPER = "Hyper"
+
+Const TT_ORBIT = "TT ORBIT"
+Const TT_TARGET = "TT TARGET"
+Const TT_RAMP = "TT RAMP"
+Const TT_CAPTIVE = "TT CAPTIVE"
+Const TT_SHORTCUT = "TT SHORTCUT"
+Const TT_COLLECTED = "TT COLLECTED"
+
 'Secret Garagew
 Const GARAGE_ENGINE = "Garage Engine"
 Const GARAGE_COOLING = "Garage Cooling"
@@ -95,6 +105,7 @@ Const BET_2 = "Bet 2"
 Const BET_3 = "Bet 3"
 Const BET_ACTIVATIONS = "BET Activations"
 Const BET_VALUE = "Bet Value"
+Const BET_MULTIPLIER = "Bet Multiplier"
 Const BET_HITS = "Bet Hits"
 
 'Shot Multipliers
@@ -137,10 +148,20 @@ Const RACE_4 = "Race 4 Complete"
 Const RACE_5 = "Race 5 Complete"
 Const RACE_6 = "Race 6 Complete"
 
+Const OUTLANE_SAVE = "Outlane Save"
+Const JACKPOTS_MULTIPLIER = "Jackpots Multiplier"
+
 'Bonus
 Const BONUS_COMBOS_MADE = "Bonus Combos Make"
 Const BONUS_RACES_WON = "Bonus Races Won"
 Const BONUS_NODES_COMPLETED = "Bonus Nodes Completed"
+
+'HI Score
+Const INITIAL_1 = "Initial 1"
+Const INITIAL_2 = "Initial 2"
+Const INITIAL_3 = "Initial 3"
+Const INITIAL_POSITION = "Initial Position"
+Const LETTER_POSITION = "Letter Position"
 
 
 Const RACE_MODE_FINISH = "Race Mode Finish"
@@ -152,6 +173,7 @@ Const MODE_MULTIBALL = "Game_Mode_Multiball"
 Const MODE_HURRYUP = "Game_Mode_Hurry Up"
 Const MODE_RACE_SELECT = "Game Mode Race Select"
 Const MODE_PERK_SELECT = "Game Mode Perk Select"
+Const MODE_HISCORE = "Game Mode Hi Score"
 
 
 Const MODE_RACE = "Game Mode Race"

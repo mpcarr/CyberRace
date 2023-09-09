@@ -31,6 +31,7 @@ Sub Table1_KeyDown(ByVal Keycode)
 
     If gameStarted = False Then
         If keycode = StartGameKey And gameBooted = True Then
+            playerState.RemoveAll()
             AddPlayer()
             StartGame()
         End If

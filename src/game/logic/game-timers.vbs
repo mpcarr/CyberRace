@@ -60,8 +60,10 @@ Sub GameTimersUpdate_Timer()
 
 End Sub
 
+
+
 Function ProcessGameTimer(timer, activeTimer)
-    Dim a, b
+    Dim a, b,dbstime
     a = activeTimer(0)
     b = activeTimer(1)
     If GameTimers(timer) > 0 Then
@@ -69,9 +71,15 @@ Function ProcessGameTimer(timer, activeTimer)
             a = GameTimers(timer)
             b = GameTimerColors(timer)
         End If
-        GameTimers(timer) = GameTimers(timer) - dbsdelta
-        If GameTimers(timer) < 0 Then
+        dbstime = GameTimers(timer) - dbsdelta
+		GameTimers(timer) = dbstime
+		If dbstime < 10 And GameTimersHurry(timer) = 0 Then
+			GameTimersHurry(timer) = 1
+			DispatchPinEvent GameTimerHurryEvent(timer)
+		End If
+		If dbstime < 0 Then
             GameTimers(timer) = 0
+			GameTimersHurry(timer) = 0
 			DispatchPinEvent GameTimerEndEvent(timer)
         End If
     End If

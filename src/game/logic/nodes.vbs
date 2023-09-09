@@ -167,6 +167,7 @@ Sub CheckNodesComplete
     If GetPlayerState(NODE_COMPLETED) = False And GetPlayerState(NODE_LEVEL_UP_READY) = False Then
         lightCtrl.AddTableLightSeq "Nodes", lSeqNodesComplete
         SetPlayerState NODE_LEVEL_UP_READY, True
+        FlexDMDNodesCompleteScene()
         calloutsQ.Add "node-complete", "PlayCallout(""node-complete"")", 1, 0, 0, 3113, 0, False
     End If
 End Sub
@@ -212,30 +213,45 @@ RegisterPinEvent SWITCH_LEFT_FLIPPER_DOWN, "NodePerkSelectLeftPerk"
 Sub NodePerkSelectLeftPerk()
 
     If GetPlayerState(MODE_PERK_SELECT) = True Then
+        Dim qItem
         Select Case GetPlayerState(NODE_LEVEL):
-            Case 2: 'Level 1.  Increase Jackpot 250K OR 5 Million
+            Case 2: 'Level 2.  Increase Jackpot 250K OR 5 Million
                 SetPlayerState JACKPOT_VALUE, GetPlayerState(JACKPOT_VALUE) + 250000
-            Case 3:'Level 2.  Race Timers + 20 Seconds OR Instant MB
+                Set qItem = New QueueItem
+                With qItem
+                    .Name = "nodemsg"
+                    .Duration = 3
+                    .BGImage = "BG005"
+                    .BGVideo = "novideo"
+                    .Action = "slideup"
+                End With
+                qItem.AddLabel """JACKPOTS: "" & FormatScore(GetPlayerState(JACKPOT_VALUE))", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+                DmdQ.Enqueue qItem
+            Case 3:'Level 3.  Race Timers + 20 Seconds OR 2x Bet Hurry
                 SetPlayerState RACE_TIMERS, 80
-            Case 4:'Level 3. Outlane BallSave OR Award Ball Lock
-                'TODO Code outlane ball saves.
-            Case 5:'Level 4. Extra Ball
+                Set qItem = New QueueItem
+                With qItem
+                    .Name = "nodemsg"
+                    .Duration = 3
+                    .BGImage = "BG005"
+                    .BGVideo = "novideo"
+                    .Action = "slideup"
+                End With
+                qItem.AddLabel """RACE TIMERS: "" & GetPlayerState(RACE_TIMERS) & "" Secs""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+                DmdQ.Enqueue qItem
+            Case 4:'Level 4. Outlane BallSave OR Instant MB
+                SetPlayerState OUTLANE_SAVE, True
+            Case 5:'Level 5. Extra Ball
                 SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) + 1
-            Case 6:'Level 5. 5x Playfield (30 secs) OR Add a Ball
-                SetPlayerState PF_MULTIPLIER, 5
-            Case 7:'Level 6. Node Grid Wizard Mode
-                'TODO - Node Grid Wizard Mode
-                SetPlayerState NODE_COMPLETED, True
+            Case 6:'Level 6. Spot Grand Slam
+                ' TODO Code Spot Grand Slam
         End Select
         SetPlayerState MODE_PERK_SELECT, False
         NodePerkNextLevel()
         GameTimers(GAME_SELECTION_TIMER_IDX) = 0
-        DmdQ.RemoveAll()
+        DmdQ.Dequeue "nodes"
         lightCtrl.RemoveTableLightSeq "Nodes", lSeqCollectPerk
         sw39.TimerEnabled = True
-        DMDModeUpdate.Enabled = 0
-        DMDModeUpdate.Enabled = 1
-        DMDModeUpdate.Interval = 100
     End iF
 
 End Sub
@@ -252,9 +268,7 @@ Sub NodePerkSelectRightPerk()
             Case 2: 'Level 1.  Increase Jackpot 250K OR 5 Million
                 AddScore 5000000
             Case 3:'Level 2.  Race Timers + 20 Seconds OR 5x Bonus
-                AddScore((GetPlayerState(BONUS_COMBOS_MADE) * 50000) *5)
-	            AddScore((GetPlayerState(BONUS_RACES_WON) * 100000) * 5)
-	            AddScore((GetPlayerState(BONUS_NODES_COMPLETED) * 75000) * 5)
+                 SetPlayerState BET_MULTIPLIER, 2
             Case 4:'Level 3. Collect 5x Bonus OR Instant MB
                 SetPlayerState MODE_MULTIBALL, True
                 ballsInQ = ballsInQ + 2
@@ -265,24 +279,17 @@ Sub NodePerkSelectRightPerk()
                 lightCtrl.AddShot "MBRightRamp", l64, RGB(0,255,0)
                 lightCtrl.AddShot "MBRightOrbit", l63, RGB(0,255,0)
                 EnableBallSaver 15
-            Case 5:'Level 4. Extra Ball
-                AddScore((GetPlayerState(BONUS_COMBOS_MADE) * 50000) * 10)
-	            AddScore((GetPlayerState(BONUS_RACES_WON) * 100000) * 10)
-	            AddScore((GetPlayerState(BONUS_NODES_COMPLETED) * 75000) * 10)
-            Case 6:'Level 5. 5x Playfield (30 secs) OR 10x Bonus
-                ' TODO Code Spot Grand Slam
-            Case 7:'Level 6. Node Grid Wizard Mode
-                'TODO - Node Grid Wizard Mode
-                SetPlayerState NODE_COMPLETED, True
+            Case 5:'Level 5. 5X Jackpots
+                SetPlayerState JACKPOTS_MULTIPLIER, 5    
+            Case 6:'Level 6. Mini Wizard
+                ' TODO Code Mini Wizard
         End Select
         SetPlayerState MODE_PERK_SELECT, False
         NodePerkNextLevel()
         GameTimers(GAME_SELECTION_TIMER_IDX) = 0
-        DmdQ.RemoveAll()
+        DmdQ.Dequeue "nodes"
         sw39.TimerEnabled = True
-        DMDModeUpdate.Enabled = 0
-        DMDModeUpdate.Enabled = 1
-        DMDModeUpdate.Interval = 100
+
         lightCtrl.RemoveTableLightSeq "Nodes", lSeqCollectPerk
     End If
 End Sub
@@ -290,27 +297,23 @@ End Sub
 Sub NodePerkNextLevel
 
     Select Case GetPlayerState(NODE_LEVEL):
-        Case 2: 'Level 1.  Increase Jackpot 250K OR 5 Million
+        Case 2: 
             SetPlayerState NODE_ROW_A, Array(0,1,0,1,0)
             SetPlayerState NODE_ROW_B, Array(0,1,1,0,1)
             SetPlayerState NODE_ROW_C, Array(0,0,1,0,0)
-        Case 3:'Level 2.  Race Timers + 20 Seconds OR Instant MB
+        Case 3:
             SetPlayerState NODE_ROW_A, Array(0,1,0,1,1)
             SetPlayerState NODE_ROW_B, Array(1,1,1,0,0)
             SetPlayerState NODE_ROW_C, Array(0,0,1,0,1)
-        Case 4:'Level 3. Collect 5x Bonus OR Award Ball Lock
+        Case 4:
             SetPlayerState NODE_ROW_A, Array(1,1,0,1,1)
             SetPlayerState NODE_ROW_B, Array(1,1,1,0,1)
             SetPlayerState NODE_ROW_C, Array(0,1,1,0,1)
-        Case 5:'Level 4. Extra Ball
+        Case 5:
             SetPlayerState NODE_ROW_A, Array(1,1,1,1,1)
             SetPlayerState NODE_ROW_B, Array(1,1,1,1,1)
             SetPlayerState NODE_ROW_C, Array(0,1,1,0,1)
-        Case 6:'Level 5. 5x Playfield (30 secs) OR Add a Ball
-            SetPlayerState NODE_ROW_A, Array(1,1,1,1,1)
-            SetPlayerState NODE_ROW_B, Array(1,1,1,1,1)
-            SetPlayerState NODE_ROW_C, Array(1,1,1,1,1)
-        Case 7:'Level 6. Node Grid Wizard Mode
+        Case 6:
             SetPlayerState NODE_ROW_A, Array(2,2,2,2,2)
             SetPlayerState NODE_ROW_B, Array(2,2,2,2,2)
             SetPlayerState NODE_ROW_C, Array(2,2,2,2,2)

@@ -4,18 +4,12 @@ Sub FlexDMDBoostModeScene()
     With qItem
         .Name = "boost"
         .Duration = 2
-        .Title = "JACKPOTS GROW"
-        .Message = "FormatScore(GetPlayerState(JACKPOT_VALUE))"
-        .Font = FontCyber32        
-        .MessageFont = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight/2)
-        .EndPos = Array(DMDWidth/2,DMDHeight/2)
-        .Action = "blink"
         .BGImage = "noimage"
         .BGVideo = "BGBoost"
     End With
+    qItem.AddLabel "JACKPOTS GROW", 		Font12, DMDWidth/2, DMDHeight*.4, DMDWidth/2, DMDHeight*.4, ""
+    qItem.AddLabel "FormatScore(GetPlayerState(JACKPOT_VALUE))", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
     DmdQ.Enqueue qItem
-
     lightCtrl.AddLightSeq "BoostUp", lSeqBoostUp
     lightCtrl.pulse l140, 0
     lightCtrl.pulse l141, 0
@@ -28,16 +22,11 @@ Sub FlexDMDBoostScene()
     With qItem
         .Name = "boost"
         .Duration = 2
-        .Title = "POINTS BOOST"
-        .Message = "(3 * GetPlayerState(BOOST_ACTIVATIONS)) - GetPlayerState(BOOST_HITS) & "" FOR BOOST MODE"""
-        .Font = FontCyber32        
-        .MessageFont = FontCyber32        
-        .StartPos = Array(DMDWidth/2,DMDHeight*.6)
-        .EndPos = Array(DMDwidth/2,DMDHeight*.6)
-        .Action = ""
         .BGImage = "noimage"
         .BGVideo = "BGBoost"
     End With
+    qItem.AddLabel "POINTS BOOST", 		Font12, DMDWidth/2, DMDHeight*.4, DMDWidth/2, DMDHeight*.4, ""
+    qItem.AddLabel "(3 * GetPlayerState(BOOST_ACTIVATIONS)) - GetPlayerState(BOOST_HITS) & "" FOR BOOST MODE""", 		Font7, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue qItem
    
     lightCtrl.AddLightSeq "BoostUp", lSeqBoostUp

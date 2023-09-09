@@ -22,6 +22,7 @@ Const SWITCH_HIT_LANE_A = "Switches Hit Lane A"
 Const SWITCH_HIT_LEFT_RAMP = "Switches Hit Left Ramp"
 Const SWITCH_HIT_RIGHT_ORBIT = "Switches Hit Right Orbit"
 Const SWITCH_HIT_RAMP_LOCK = "Switch Hit Ramp Lock"
+Const SWITCH_HIT_HYPER = "Switch Hit Hyper"
 
 Const SWITCH_HIT_BOOST1 = "Switches Hit Boost1"
 Const SWITCH_HIT_BOOST2 = "Switches Hit Boost2"

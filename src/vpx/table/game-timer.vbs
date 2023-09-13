@@ -22,7 +22,7 @@ Sub FrameTimer_Timer()
 	For Each el in BP_Disc
 		el.Rotz = a		
 	Next
-	FlipperVisualUpdate()
+	
 
 	For Each el in BP_Disc
 		el.Rotz = a		

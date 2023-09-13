@@ -747,6 +747,16 @@ Sub FlipperVisualUpdate
 	Next
 End Sub
 
+Function Gray2RGB(gray)
+	if gray < 0 then gray = 0
+	if gray > 255 Then gray = 255
+	Gray2RGB = RGB(gray, gray, gray)
+End Function
+
+
+
+
+
 '######################### Add new FlippersD Profile
 '#########################    Adjust these values to increase or lessen the elasticity
 

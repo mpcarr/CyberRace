@@ -567,10 +567,14 @@ Class LStateController
     End Sub
 
    Public Sub SyncLightMapColors()
+        dim light,lm
         For Each light in m_lights.Keys()
             If m_lightmaps.Exists(light) Then
                 For Each lm in m_lightmaps(light)
-                    lm.Color = m_lights(light).Color(0)
+                    dim color : color = m_lights(light).Color
+                    If not IsNull(lm) Then
+						lm.Color = color(0)
+					End If
                 Next
             End If
         Next

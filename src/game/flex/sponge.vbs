@@ -133,6 +133,8 @@ sub CreateGameDMD
 	Set title = FlexDMD.NewVideo("BGBonus4", "videos/bonus4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGBonus5", "videos/bonus5.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 
+	Set title = FlexDMD.NewVideo("BGJackpot", "videos/jackpot.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+
 	scene2.AddActor FlexDMD.NewLabel("TextSmalLine1", FontCyber16_HURRYUP_COLOR, " ")
 	scene2.AddActor FlexDMD.NewLabel("TextSmalLine2", FontCyber16_HURRYUP_COLOR, " ")
 	scene2.AddActor FlexDMD.NewLabel("TextSmalLine3", FontCyber16_HURRYUP_COLOR, " ")

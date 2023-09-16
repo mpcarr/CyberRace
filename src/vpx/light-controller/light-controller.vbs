@@ -540,6 +540,9 @@ Class LStateController
     End Sub
 
     Public Sub RemoveTableLightSeq(name, lcSeq)
+        If Not m_seqOverrideRunners.Exists(name) Then
+            Exit Sub
+        End If
         m_seqOverrideRunners(name).RemoveItem lcSeq
         Dim seqOverride, hasOverride
         hasOverride = False

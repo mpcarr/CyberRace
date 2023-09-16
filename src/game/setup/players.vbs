@@ -100,6 +100,8 @@ Function InitNewPlayer()
     state.Add CYBER_R, 0
 
     state.Add HYPER, 0
+    state.Add HYPER_LEVEL, 0
+    state.Add HYPER_PLAYED, False
 
     state.Add TT_ORBIT, 0
     state.Add TT_TARGET, 0
@@ -125,7 +127,6 @@ Function InitNewPlayer()
     state.Add NEON_C, 1
     state.Add NEON_K, 2
     state.Add LOCK_HITS, 3
-    state.Add LOCK_ACTIVATIONS, 1
     state.Add LOCK_LIT, False
     state.Add BALLS_LOCKED, 0
 

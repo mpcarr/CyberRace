@@ -299,6 +299,8 @@ Class Queue
         FlexDMD.Stage.GetVideo("BGBonus4").Visible=False
         FlexDMD.Stage.GetVideo("BGBonus5").Visible=False
         
+        FlexDMD.Stage.GetVideo("BGJackpot").Visible=False
+
 		FlexDMD.Stage.GetLabel("TextSmalLine1").Visible=False
 		FlexDMD.Stage.GetLabel("TextSmalLine2").Visible=False
 		FlexDMD.Stage.GetLabel("TextSmalLine3").Visible=False

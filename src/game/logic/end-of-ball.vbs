@@ -7,6 +7,12 @@
 '*****************************
 Sub EndOfBall()
     Debug.print("Balls In Play: "& ballsInPlay)
+    
+    If gameStarted = False Then
+        Exit Sub
+    End If
+
+
     Dim qItem 
     Debug.print(ballsInPlay - BallsOnBridge())
     If ballSaverIgnoreCount > 0 Then
@@ -82,6 +88,9 @@ Sub EndOfBall()
         SetPlayerState BET_VALUE, 0
         SetPlayerState MODE_BET, False
 
+        SetPlayerState HYPER_PLAYED, False
+        SetPlayerState PF_MULTIPLIER, 0
+
         SetPlayerState MODE_MULTIBALL, False
 
         If GetPlayerState(MODE_RACE) = True Then
@@ -96,7 +105,7 @@ Sub EndOfBall()
 
         SetPlayerState CURRENT_BALL, GetPlayerState(CURRENT_BALL) + 1
 
-        GameTimers = Array(0,0,0,0,0,0,0,0)
+        GameTimers = Array(0,0,0,0,0,0,0,0,0)
 
         lightCtrl.RemoveAllShots()
         lightCtrl.RemoveAllLightSeq "GI"
@@ -152,6 +161,9 @@ Sub EndOfBonus()
 
         'Check HI SCORES
         DispatchPinEvent GAME_OVER
+        calloutsQ.Add "bridgeRelease1", "LockPin1.IsDropped = 1", 1, 0, 0, 1000, 0, False
+        calloutsQ.Add "bridgeRelease2", "LockPin2.IsDropped = 1", 1, 0, 0, 1000, 0, False
+        calloutsQ.Add "bridgeRelease3", "LockPin3.IsDropped = 1", 1, 0, 0, 1000, 0, False
         gameStarted = False
         currentPlayer = null
         

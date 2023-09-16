@@ -80,13 +80,14 @@ End Sub
 Sub sw_38_Hit()
     sw_38.TimerEnabled = True
     SoundSaucerLock()
-    DispatchPinEvent SWITCH_HIT_HYPER
+    
 End Sub
 Sub sw_38_Timer() 
-    lightCtrl.pulse l143, 0
-    sw_38.Kick 0, 60, 1.36
+    DispatchPinEvent SWITCH_HIT_HYPER
+    'lightCtrl.pulse l143, 0
+    'sw_38.Kick 0, 60, 1.36
     sw_38.TimerEnabled = False
-    SoundSaucerKick 1, sw_38
+    'SoundSaucerKick 1, sw_38
 End Sub
 '******************************************
 Sub sw39_Hit()

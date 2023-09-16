@@ -10,6 +10,7 @@ Const cGameName = "cyberrace"
 'v13: flux: Lots of DMD work. fixed some mode issues
 'v14: flux: fix skills trial crash, force dmd label alignments
 'v15: flux: 128x32 dmd changes, enabled vr room (needs work)
+'v16: flux: more dmd updates, added hyper mode, added multiball callouts and lights
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -113,7 +114,7 @@ Sub Table1_Init()
 
 	lightCtrl.CreateSeqRunner("Attract")
 
-	lightCtrl.LoadLightShows
+	'lightCtrl.LoadLightShows
 	
 	'InitLampsNF 'Init Lampz
 

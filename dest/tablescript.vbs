@@ -11,6 +11,7 @@ Const cGameName = "cyberrace"
 'v14: flux: fix skills trial crash, force dmd label alignments
 'v15: flux: 128x32 dmd changes, enabled vr room (needs work)
 'v16: flux: more dmd updates, added hyper mode, added multiball callouts and lights
+'v17: Primetime5k: Added staged flipper support; staged flipper menu option
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -15505,16 +15506,32 @@ Sub Table1_KeyDown(ByVal Keycode)
         End If
         
         If keycode = RightFlipperKey Then 
-            UpRightFlipper.RotateToEnd
+            'UpRightFlipper.RotateToEnd
             FlipperActivate RightFlipper, RFPress
             RF.Fire
             RFlipperDown = True
+			If StagedFlipperMod <> 1 Then
+				UpRightFlipper.RotateToEnd
+				End If
             If RightFlipper.currentangle > RightFlipper.endangle - ReflipAngle Then
                 RandomSoundReflipUpRight RightFlipper
             Else 
                 SoundFlipperUpAttackRight RightFlipper
                 RandomSoundFlipperUpRight RightFlipper
             End If
+            DispatchPinEvent(SWITCH_RIGHT_FLIPPER_DOWN)
+        End If
+
+	If StagedFlipperMod = 1 Then
+		If keycode = 40 Then 
+            UpRightFlipper.RotateToEnd
+            If UpRightFlipper.currentangle > UpRightFlipper.endangle - ReflipAngle Then
+                RandomSoundReflipUpRight UpRightFlipper
+            Else 
+                SoundFlipperUpAttackRight UpRightFlipper
+                RandomSoundFlipperUpRight UpRightFlipper
+            End If
+		End If
             DispatchPinEvent(SWITCH_RIGHT_FLIPPER_DOWN)
         End If
     End If    
@@ -15551,15 +15568,24 @@ Sub Table1_KeyUp(ByVal keycode)
         If keycode = RightFlipperKey Then
             RFlipperDown = False
             FlipperDeActivate RightFlipper, RFPress
-            UpRightFlipper.RotateToStart
             RightFlipper.RotateToStart
+			If StagedFlipperMod <> 1 Then
+				UpRightFlipper.RotateToStart
+				End If
+            End If	
             If RightFlipper.currentangle > RightFlipper.startAngle + 5 Then
                 RandomSoundFlipperDownRight RightFlipper
-            End If	
             FlipperRightHitParm = FlipperUpSoundLevel
             DispatchPinEvent(SWITCH_RIGHT_FLIPPER_UP)
         End If
-    'End If
+	If StagedFlipperMod = 1 Then
+        If keycode = 40 Then
+            UpRightFlipper.RotateToStart
+            If UpRightFlipper.currentangle > UpRightFlipper.startAngle + 5 Then
+                RandomSoundFlipperDownRight UpRightFlipper
+            End If	
+        End If
+    End If
 End Sub
 
 '***********************************************************************************************************************
@@ -17276,6 +17302,7 @@ Dim SlingsMod : SlingsMod = 0 				'0 - Blue Slings, 1 = Orange Slings
 Dim VolumeDial : VolumeDial = 0.8			'Overall Mechanical sound effect volume. Recommended values should be no greater than 1.
 Dim BallRollVolume : BallRollVolume = 0.5 	'Level of ball rolling volume. Value between 0 and 1
 Dim RampRollVolume : RampRollVolume = 0.5 	'Level of ramp rolling volume. Value between 0 and 1
+Dim StagedFlipperMod
 
 'Dim Cabinetmode	: Cabinetmode = 0			'0 - Siderails On, 1 - Siderails Off
 
@@ -17288,11 +17315,12 @@ Const Opt_Volume = 2
 Const Opt_Volume_Ramp = 3
 Const Opt_Volume_Ball = 4
 ' Table mods & toys
-'Const Opt_Cabinet = 7
+'Const Opt_Cabinet = 8
+Const Opt_Staged_Flipper = 5
 ' Shadow options
 ' Informations
-Const Opt_Info_1 = 5
-Const Opt_Info_2 = 6
+Const Opt_Info_1 = 6
+Const Opt_Info_2 = 7
 
 Const NOptions = 7
 
@@ -17432,6 +17460,10 @@ Sub Options_OnOptChg
 		OptTop.Text = "BALL VOLUME"
 		OptBot.Text = "LEVEL " & CInt(BallRollVolume * 100)
 		SaveValue cGameName, "BALLVOLUME", BallRollVolume
+	ElseIf OptPos = Opt_Staged_Flipper Then
+		OptTop.Text = "STAGED FLIPPER"
+		OptBot.Text = Options_OnOffText(StagedFlipperMod)
+		SaveValue cGameName, "STAGED", StagedFlipperMod
 '	ElseIf OptPos = Opt_Cabinet Then
 '		OptTop.Text = "CABINET MODE"
 '		OptBot.Text = Options_OnOffText(CabinetMode)
@@ -17474,6 +17506,8 @@ Sub Options_Toggle(amount)
 		BallRollVolume = BallRollVolume + amount * 0.1
 		If BallRollVolume < 0 Then BallRollVolume = 1
 		If BallRollVolume > 1 Then BallRollVolume = 0
+	ElseIf OptPos = Opt_Staged_Flipper Then
+		StagedFlipperMod = 1 - StagedFlipperMod
 	End If
 End Sub
 
@@ -17519,6 +17553,7 @@ Sub Options_Load
     x = LoadValue(cGameName, "VOLUME") : If x <> "" Then VolumeDial = CNCDbl(x) Else VolumeDial = 0.8
     x = LoadValue(cGameName, "RAMPVOLUME") : If x <> "" Then RampRollVolume = CNCDbl(x) Else RampRollVolume = 0.5
     x = LoadValue(cGameName, "BALLVOLUME") : If x <> "" Then BallRollVolume = CNCDbl(x) Else BallRollVolume = 0.5
+    x = LoadValue(cGameName, "STAGED") : If x <> "" Then StagedFlipperMod = CInt(x) Else StagedFlipperMod = 0
 	UpdateMods
 End Sub
 

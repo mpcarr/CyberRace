@@ -41,5 +41,5 @@ Function BallsOnBridge()
 End Function
 
 Function RealBallsInPlay()
-	RealBallsInPlay = (ballsInPlay - BallsOnBridge())
+	RealBallsInPlay = (5-BallsInTrough) - BallsOnBridge()
 End Function

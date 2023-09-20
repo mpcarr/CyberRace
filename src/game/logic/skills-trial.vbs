@@ -25,7 +25,7 @@ End Sub
 '
 '*****************************
 Sub CheckSkillsTrialReady()
-    If GetPlayerState(SKILLS_TRIAL_READY) = True AND (ballsInPlay-BallsOnBridge())=1 Then
+    If GetPlayerState(SKILLS_TRIAL_READY) = True AND RealBallsInPlay=1 Then
         SetPlayerState MODE_SKILLS_TRIAL, True
         SetPlayerState SKILLS_TRIAL_ACTIVATIONS, GetPlayerState(SKILLS_TRIAL_ACTIVATIONS) + 1
         SetPlayerState SKILLS_TRIAL_READY, False

@@ -225,7 +225,7 @@ RegisterPinEvent BALL_DRAIN, "MBEnd"
 '
 '*****************************
 Sub MBEnd
-    If GetPlayerState(MODE_MULTIBALL) = True AND (ballsInPlay - BallsOnBridge()) = 1 AND ballSaver = False Then
+    If GetPlayerState(MODE_MULTIBALL) = True AND RealBallsInPlay = 1 AND ballSaver = False Then
         SetPlayerState MODE_MULTIBALL, False
         SetPlayerState LOCK_HITS, 1
         lightCtrl.RemoveShot "MBSpinner", l48

@@ -358,6 +358,19 @@ Class LStateController
         End If
     End Sub       
 
+    Public Sub PulseWithState(pulse)
+        
+        If m_lights.Exists(pulse.Light) Then
+            If m_off.Exists(pulse.Light) Then 
+                m_off.Remove(pulse.Light)
+            End If
+            If m_pulse.Exists(pulse.Light) Then 
+                Exit Sub
+            End If
+            m_pulse.Add name, pulse
+        End If
+    End Sub
+
     Public Sub LightLevel(light, lvl)
         If m_lights.Exists(light.name) Then
             m_lights(light.name).Level = lvl
@@ -421,6 +434,8 @@ Class LStateController
         If m_lights.Exists(light.name) Then
 
             If m_seqs.Exists(light.name & "Blink") Then
+                m_seqs(light.name & "Blink").ResetInterval
+                m_seqs(light.name & "Blink").CurrentIdx = 0
                 m_seqRunners("lSeqRunner"&CStr(light.name)).AddItem m_seqs(light.name & "Blink")
             Else
                 Dim seq : Set seq = new LCSeq
@@ -1264,7 +1279,7 @@ Class LCSeq
 
     Public Property Let UpdateInterval(input)
         m_updateInterval = input
-        m_Frames = input
+        'm_Frames = input
     End Property
 
     Public Property Get Repeat()

@@ -10,6 +10,43 @@ Function GetPlayerState(key)
     End If
 End Function
 
+Function GetPlayerScore(player)
+    dim p
+    Select Case player
+        Case 1:
+            p = "PLAYER 1"
+        Case 2:
+            p = "PLAYER 2"
+        Case 3:
+            p = "PLAYER 3"
+        Case 4:
+            p = "PLAYER 4"
+    End Select
+
+    If playerState.Exists(p) Then
+        GetPlayerScore = playerState(p)(SCORE)
+    Else
+        GetPlayerScore = 0
+    End If
+End Function
+
+
+Function GetCurrentPlayerNumber()
+    
+    Select Case currentPlayer
+        Case "PLAYER 1":
+            GetCurrentPlayerNumber = 1
+        Case "PLAYER 2":
+            GetCurrentPlayerNumber = 2
+        Case "PLAYER 3":
+            GetCurrentPlayerNumber = 3
+        Case "PLAYER 4":
+            GetCurrentPlayerNumber = 4
+    End Select
+End Function
+
+
+
 Function SetPlayerState(key, value)
     If IsNull(currentPlayer) Then
         Exit Function

@@ -3,6 +3,8 @@
 '*****                                                                                                              ****
 '***********************************************************************************************************************
 
+Dim bFlippersPressed : bFlippersPressed = False
+
 Sub Table1_KeyDown(ByVal Keycode)
 
     If bInOptions Then
@@ -37,6 +39,7 @@ Sub Table1_KeyDown(ByVal Keycode)
         End If
     Else
 
+
         If GameTimers(GAME_BONUS_TIMER_IDX) > 0 Then Exit Sub 
         
         If keycode = StartGameKey Then
@@ -60,6 +63,7 @@ Sub Table1_KeyDown(ByVal Keycode)
 
         If keycode = LeftFlipperKey Then
             LFlipperDown = True   
+            If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
             FlipperActivate LeftFlipper,LFPress
             LF.Fire    
             If LeftFlipper.currentangle < LeftFlipper.endangle + ReflipAngle Then 
@@ -76,9 +80,10 @@ Sub Table1_KeyDown(ByVal Keycode)
             FlipperActivate RightFlipper, RFPress
             RF.Fire
             RFlipperDown = True
+            If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
 			If StagedFlipperMod <> 1 Then
 				UpRightFlipper.RotateToEnd
-				End If
+			End If
             If RightFlipper.currentangle > RightFlipper.endangle - ReflipAngle Then
                 RandomSoundReflipUpRight RightFlipper
             Else 
@@ -88,17 +93,16 @@ Sub Table1_KeyDown(ByVal Keycode)
             DispatchPinEvent(SWITCH_RIGHT_FLIPPER_DOWN)
         End If
 
-	If StagedFlipperMod = 1 Then
-		If keycode = 40 Then 
-            UpRightFlipper.RotateToEnd
-            If UpRightFlipper.currentangle > UpRightFlipper.endangle - ReflipAngle Then
-                RandomSoundReflipUpRight UpRightFlipper
-            Else 
-                SoundFlipperUpAttackRight UpRightFlipper
-                RandomSoundFlipperUpRight UpRightFlipper
+	    If StagedFlipperMod = 1 Then
+            If keycode = 40 Then 
+                UpRightFlipper.RotateToEnd
+                If UpRightFlipper.currentangle > UpRightFlipper.endangle - ReflipAngle Then
+                    RandomSoundReflipUpRight UpRightFlipper
+                Else 
+                    SoundFlipperUpAttackRight UpRightFlipper
+                    RandomSoundFlipperUpRight UpRightFlipper
+                End If
             End If
-		End If
-            DispatchPinEvent(SWITCH_RIGHT_FLIPPER_DOWN)
         End If
     End If    
 End Sub

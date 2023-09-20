@@ -16,6 +16,7 @@ Sub RotateLaneLightsClockwise()
     SetPlayerState LANE_BO, GetPlayerState(LANE_US)
     SetPlayerState LANE_US, GetPlayerState(LANE_N)
     SetPlayerState LANE_N, temp
+
 End Sub
 
 '****************************

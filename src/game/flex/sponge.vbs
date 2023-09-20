@@ -11,6 +11,8 @@ Dim DMDFontSmall
 Dim DMDFontSmallBold
 
 
+
+
 sub CreateGameDMD
 
 	Dim title, af,list

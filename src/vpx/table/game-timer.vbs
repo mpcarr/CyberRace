@@ -13,6 +13,12 @@ Sub GameTimer_timer()
 	cor.update
 	Options_UpdateDMD
 	TargetMovableHelper
+	'lightCtrl.Update
+End Sub
+
+
+Sub LightTimer_timer()
+	lightCtrl.Update
 End Sub
 
 Sub FrameTimer_Timer()
@@ -28,7 +34,7 @@ Sub FrameTimer_Timer()
 		el.Rotz = a		
 	Next
 
-	lightCtrl.Update
+	
 	calloutsQ.Tick
 	
 

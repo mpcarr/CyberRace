@@ -9,5 +9,4 @@
 Sub ReleaseBall()
     swTrough1.kick 90, 10
     RandomSoundBallRelease swTrough1
-    ballsInPlay = ballsInPlay + 1
 End Sub

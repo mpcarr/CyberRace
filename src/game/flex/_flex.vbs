@@ -1,5 +1,6 @@
 
 Dim FlexDMD
+Dim FlexDMDScorbit : FlexDMDScorbit = Null
 Dim DmdWidth : DmdWidth = 128
 Dim DmdHeight : DmdHeight = 32
 ' FlexDMD constants
@@ -52,6 +53,7 @@ Sub InitFlexDMD()
 	CreateGameDMD()
 End Sub
 
+
 Sub DMD_Timer()
 	Dim DMDp
 	DMDp = FlexDMD.DmdColoredPixels
@@ -61,6 +63,8 @@ Sub DMD_Timer()
 		DMD.DMDColoredPixels = DMDp
 	End If
 End Sub
+
+
 
 InitFlexDMD()
 

@@ -358,6 +358,19 @@ Class LStateController
         End If
     End Sub       
 
+    Public Sub PulseWithState(pulse)
+        
+        If m_lights.Exists(pulse.Light) Then
+            If m_off.Exists(pulse.Light) Then 
+                m_off.Remove(pulse.Light)
+            End If
+            If m_pulse.Exists(pulse.Light) Then 
+                Exit Sub
+            End If
+            m_pulse.Add name, pulse
+        End If
+    End Sub
+
     Public Sub LightLevel(light, lvl)
         If m_lights.Exists(light.name) Then
             m_lights(light.name).Level = lvl
@@ -421,6 +434,8 @@ Class LStateController
         If m_lights.Exists(light.name) Then
 
             If m_seqs.Exists(light.name & "Blink") Then
+                m_seqs(light.name & "Blink").ResetInterval
+                m_seqs(light.name & "Blink").CurrentIdx = 0
                 m_seqRunners("lSeqRunner"&CStr(light.name)).AddItem m_seqs(light.name & "Blink")
             Else
                 Dim seq : Set seq = new LCSeq
@@ -540,6 +555,9 @@ Class LStateController
     End Sub
 
     Public Sub RemoveTableLightSeq(name, lcSeq)
+        If Not m_seqOverrideRunners.Exists(name) Then
+            Exit Sub
+        End If
         m_seqOverrideRunners(name).RemoveItem lcSeq
         Dim seqOverride, hasOverride
         hasOverride = False
@@ -567,10 +585,14 @@ Class LStateController
     End Sub
 
    Public Sub SyncLightMapColors()
+        dim light,lm
         For Each light in m_lights.Keys()
             If m_lightmaps.Exists(light) Then
                 For Each lm in m_lightmaps(light)
-                    lm.Color = m_lights(light).Color(0)
+                    dim color : color = m_lights(light).Color
+                    If not IsNull(lm) Then
+						lm.Color = color(0)
+					End If
                 Next
             End If
         Next
@@ -1257,7 +1279,7 @@ Class LCSeq
 
     Public Property Let UpdateInterval(input)
         m_updateInterval = input
-        m_Frames = input
+        'm_Frames = input
     End Property
 
     Public Property Get Repeat()

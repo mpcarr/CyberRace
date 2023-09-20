@@ -1,5 +1,5 @@
 Const cGameName = "cyberrace"
-
+Const myVersion = "0.0.17"
 
 'v7 - flux: end of ball bonus, end of game bug fixes. Added lightshows for race mode, various bug fixes. 
 'v8 - flux: fix duplicate sub name, update VR cab
@@ -10,6 +10,12 @@ Const cGameName = "cyberrace"
 'v13: flux: Lots of DMD work. fixed some mode issues
 'v14: flux: fix skills trial crash, force dmd label alignments
 'v15: flux: 128x32 dmd changes, enabled vr room (needs work)
+'v16: flux: more dmd updates, added hyper mode, added multiball callouts and lights
+'v17: Primetime5k: Added staged flipper support; staged flipper menu option
+'v18: flux: initial scorbit integration
+'v19: flux: debugging fps issues
+'v20: flux: made ball sit lowerr in scoop, hopefully fixed scoop rejection from left flipper
+
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -43,7 +49,6 @@ Dim gameEnding : gameEnding = False
 Dim LFlipperDown: LFlipperDown = False
 Dim RFlipperDown: RFlipperDown = False
 Dim currentPlayer : currentPlayer = Null
-Dim ballsInPlay : ballsInPlay = 0
 Dim autoPlunge : autoPlunge = False
 Dim ballInPlungeerLane : ballInPlungerLane = False
 Dim ballSaver : ballSaver = False
@@ -55,6 +60,7 @@ Dim playerEvents : Set playerEvents = CreateObject("Scripting.Dictionary")
 Dim gameState : Set gameState = CreateObject("Scripting.Dictionary")
 Dim playerState : Set playerState = CreateObject("Scripting.Dictionary")
 Dim DMDDisplay(20,20)
+Dim NumberOfPlayers : NumberOfPlayers=0
 
 Dim lightCtrl : Set lightCtrl = new LStateController
 
@@ -75,6 +81,10 @@ If RenderingMode = 2 then
 	DMD.TimerEnabled = True
 End If
 
+'/////////////////////-----Scorbit Options-----////////////////////
+dim TablesDir : TablesDir = GetTablesFolder
+
+Const     ScorbitAlternateUUID  = 0 	' Force Alternate UUID from Windows Machine and saves it in VPX Users directory (C:\Visual Pinball\User\ScorbitUUID.dat)	
 
 If debugLogOn = True Then
 	debugLog.WriteToLog "Game Started", "", 2
@@ -113,7 +123,7 @@ Sub Table1_Init()
 
 	lightCtrl.CreateSeqRunner("Attract")
 
-	lightCtrl.LoadLightShows
+	'lightCtrl.LoadLightShows
 	
 	'InitLampsNF 'Init Lampz
 
@@ -176,7 +186,7 @@ Sub Table1_Init()
 	qItem.AddLabel "PLEASE WAIT", 	Font12, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, "blink"
 	qItem.AddLabel "BOOTING", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
 	DmdQ.Enqueue qItem
-	
+	'StartScorbit
 End Sub
 
 Sub AttractTimer_Timer
@@ -195,5 +205,10 @@ Sub Table1_Exit
 		FlexDMD.Show = False
 		FlexDMD.Run = False
 		FlexDMD = NULL
+    End If
+	If Not IsNull(FlexDMDScorbit) Then
+		FlexDMDScorbit.Show = False
+		FlexDMDScorbit.Run = False
+		FlexDMDScorbit = NULL
     End If
 End Sub

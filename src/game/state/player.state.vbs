@@ -86,6 +86,8 @@ Const CYBER_R = "Cyber R"
 
 'HYPER
 Const HYPER = "Hyper"
+Const HYPER_LEVEL = "Hyper Level"
+Const HYPER_PLAYED = "Hyper Played"
 
 Const TT_ORBIT = "TT ORBIT"
 Const TT_TARGET = "TT TARGET"
@@ -121,7 +123,6 @@ Const NEON_O = "Neon O"
 Const NEON_C = "Neon C"
 Const NEON_K = "Neon K"
 Const LOCK_HITS = "Lock Hits"
-Const LOCK_ACTIVATIONS = "Lock Activations"
 Const LOCK_LIT = "Lock Lit"
 Const BALLS_LOCKED = "Balls Locked"
 

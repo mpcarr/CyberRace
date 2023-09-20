@@ -4,7 +4,6 @@ Sub Drain_Hit
     debug.print("drain hit")
     RandomSoundDrain Drain
     UpdateTrough()
-    ballsInPlay = ballsInPlay - 1
     DispatchPinEvent BALL_DRAIN
 End Sub
 
@@ -80,13 +79,14 @@ End Sub
 Sub sw_38_Hit()
     sw_38.TimerEnabled = True
     SoundSaucerLock()
-    DispatchPinEvent SWITCH_HIT_HYPER
+    
 End Sub
 Sub sw_38_Timer() 
-    lightCtrl.pulse l143, 0
-    sw_38.Kick 0, 60, 1.36
+    DispatchPinEvent SWITCH_HIT_HYPER
+    'lightCtrl.pulse l143, 0
+    'sw_38.Kick 0, 60, 1.36
     sw_38.TimerEnabled = False
-    SoundSaucerKick 1, sw_38
+    'SoundSaucerKick 1, sw_38
 End Sub
 '******************************************
 Sub sw39_Hit()
@@ -100,7 +100,7 @@ End Sub
 Sub sw39_Timer()
 	sw39.TimerEnabled = False
     SoundSaucerKick 1, sw39
-    KickBall KickerBall39, 0, 0, 55, 0
+    KickBall KickerBall39, 0, 0, 55, 10
 End Sub
 '******************************************
 Sub sw37_Hit()
@@ -230,3 +230,12 @@ End Sub
 Sub RPin_Hit()
 	DispatchPinEvent SWITCH_HIT_RAMP_PIN
 End Sub
+'******************************************
+Sub ScoopBackWall_Hit()
+	debug.print "velz: " & activeball.velz
+    debug.print "velx: " & activeball.velx
+    debug.print "vely: " & activeball.vely
+    activeball.vely = 1
+    activeball.velx = 1
+End Sub
+

@@ -64,7 +64,8 @@ Class Queue
     End Sub
 
     Public Sub Enqueue(queueItem)
-
+        'queueItem.Action = ""
+        'queueItem.BGVideo = "novideo"
         If Items.Exists(queueItem.Name) Then
             Dim item : Set item = Items(queueItem.Name)
             item.Duration = queueItem.Duration
@@ -158,62 +159,62 @@ Class Queue
         If CurrentItem.BGVideo <> "novideo" Then FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide
 
         Dim i
-        For i = 1 to 7
-            dim label : label = Eval("CurrentItem.Label"&CStr(i))
-            If Not IsNull(label) Then
+         For i = 1 to 7
+            '  dim label : label = Eval("CurrentItem.Label"&CStr(i))
+            ' If Not IsNull(label) Then
 
-                Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
-                flabel.Font = label(1)
-                flabel.visible = True
-                If InStr(1, label(0), "GetPlayerState") > 0 Then
-                    flabel.Text = Eval(label(0))
-                Else
-                    flabel.Text = label(0)
-                End If
+            '     Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
+            '     flabel.Font = label(1)
+            '     flabel.visible = True
+            '     If InStr(1, label(0), "GetPlayerState") > 0 Then
+            '         flabel.Text = Eval(label(0))
+            '     Else
+            '         flabel.Text = label(0)
+            '     End If
 
-                If label(6) = "blink" Then ' blinking
-                    If frame mod 30 > 15 Then
-                        flabel.visible = False
-                    Else
-                        flabel.visible = True
-                    End If
-                End If
+            '     If label(6) = "blink" Then ' blinking
+            '         If frame mod 30 > 15 Then
+            '             flabel.visible = False
+            '         Else
+            '             flabel.visible = True
+            '         End If
+            '     End If
 
-                If label(2) < label(4) Then label(2) = label(2) + 1
-                If label(2) > label(4) Then label(2) = label(2) - 1
-                If label(3) < label(5) Then label(3) = label(3) + 1
-                If label(3) > label(5) Then label(3) = label(3) - 1
+            '     If label(2) < label(4) Then label(2) = label(2) + 1
+            '     If label(2) > label(4) Then label(2) = label(2) - 1
+            '     If label(3) < label(5) Then label(3) = label(3) + 1
+            '     If label(3) > label(5) Then label(3) = label(3) - 1
                 
 
-                Select Case i
-                    Case 1:
-                        CurrentItem.Label1(2) = label(2)
-                        CurrentItem.Label1(3) = label(3)
-                    Case 2:
-                        CurrentItem.Label2(2) = label(2)
-                        CurrentItem.Label2(3) = label(3)
-                    Case 3:
-                        CurrentItem.Label3(2) = label(2)
-                        CurrentItem.Label3(3) = label(3)
-                    Case 4:
-                        CurrentItem.Label4(2) = label(2)
-                        CurrentItem.Label4(3) = label(3)
-                    Case 5:
-                        CurrentItem.Label5(2) = label(2)
-                        CurrentItem.Label5(3) = label(3)
-                    Case 6:
-                        CurrentItem.Label6(2) = label(2)
-                        CurrentItem.Label6(3) = label(3)
-                    Case 7:
-                        CurrentItem.Label7(2) = label(2)
-                        CurrentItem.Label7(3) = label(3)                        
-                End Select
+            '     Select Case i
+            '         Case 1:
+            '             CurrentItem.Label1(2) = label(2)
+            '             CurrentItem.Label1(3) = label(3)
+            '         Case 2:
+            '             CurrentItem.Label2(2) = label(2)
+            '             CurrentItem.Label2(3) = label(3)
+            '         Case 3:
+            '             CurrentItem.Label3(2) = label(2)
+            '             CurrentItem.Label3(3) = label(3)
+            '         Case 4:
+            '             CurrentItem.Label4(2) = label(2)
+            '             CurrentItem.Label4(3) = label(3)
+            '         Case 5:
+            '             CurrentItem.Label5(2) = label(2)
+            '             CurrentItem.Label5(3) = label(3)
+            '         Case 6:
+            '             CurrentItem.Label6(2) = label(2)
+            '             CurrentItem.Label6(3) = label(3)
+            '         Case 7:
+            '             CurrentItem.Label7(2) = label(2)
+            '             CurrentItem.Label7(3) = label(3)                        
+            '     End Select
 
-                flabel.SetAlignedPosition label(2),label(3) - DMD_slide ,FlexDMD_Align_Center
-                '
+            '     flabel.SetAlignedPosition label(2),label(3) - DMD_slide ,FlexDMD_Align_Center
+            '     '
 
-            End If
-        Next
+            ' End If
+       Next
 
     End Sub
 
@@ -299,6 +300,8 @@ Class Queue
         FlexDMD.Stage.GetVideo("BGBonus4").Visible=False
         FlexDMD.Stage.GetVideo("BGBonus5").Visible=False
         
+        FlexDMD.Stage.GetVideo("BGJackpot").Visible=False
+
 		FlexDMD.Stage.GetLabel("TextSmalLine1").Visible=False
 		FlexDMD.Stage.GetLabel("TextSmalLine2").Visible=False
 		FlexDMD.Stage.GetLabel("TextSmalLine3").Visible=False

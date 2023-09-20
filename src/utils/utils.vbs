@@ -39,3 +39,7 @@ Function BallsOnBridge()
     End If
 	BallsOnBridge = lockPinsUp
 End Function
+
+Function RealBallsInPlay()
+	RealBallsInPlay = (5-BallsInTrough) - BallsOnBridge()
+End Function

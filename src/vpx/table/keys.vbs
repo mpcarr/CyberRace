@@ -3,6 +3,8 @@
 '*****                                                                                                              ****
 '***********************************************************************************************************************
 
+Dim bFlippersPressed : bFlippersPressed = False
+
 Sub Table1_KeyDown(ByVal Keycode)
 
     If bInOptions Then
@@ -37,6 +39,7 @@ Sub Table1_KeyDown(ByVal Keycode)
         End If
     Else
 
+
         If GameTimers(GAME_BONUS_TIMER_IDX) > 0 Then Exit Sub 
         
         If keycode = StartGameKey Then
@@ -60,6 +63,7 @@ Sub Table1_KeyDown(ByVal Keycode)
 
         If keycode = LeftFlipperKey Then
             LFlipperDown = True   
+            If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
             FlipperActivate LeftFlipper,LFPress
             LF.Fire    
             If LeftFlipper.currentangle < LeftFlipper.endangle + ReflipAngle Then 
@@ -72,10 +76,14 @@ Sub Table1_KeyDown(ByVal Keycode)
         End If
         
         If keycode = RightFlipperKey Then 
-            UpRightFlipper.RotateToEnd
+            'UpRightFlipper.RotateToEnd
             FlipperActivate RightFlipper, RFPress
             RF.Fire
             RFlipperDown = True
+            If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
+			If StagedFlipperMod <> 1 Then
+				UpRightFlipper.RotateToEnd
+			End If
             If RightFlipper.currentangle > RightFlipper.endangle - ReflipAngle Then
                 RandomSoundReflipUpRight RightFlipper
             Else 
@@ -83,6 +91,18 @@ Sub Table1_KeyDown(ByVal Keycode)
                 RandomSoundFlipperUpRight RightFlipper
             End If
             DispatchPinEvent(SWITCH_RIGHT_FLIPPER_DOWN)
+        End If
+
+	    If StagedFlipperMod = 1 Then
+            If keycode = 40 Then 
+                UpRightFlipper.RotateToEnd
+                If UpRightFlipper.currentangle > UpRightFlipper.endangle - ReflipAngle Then
+                    RandomSoundReflipUpRight UpRightFlipper
+                Else 
+                    SoundFlipperUpAttackRight UpRightFlipper
+                    RandomSoundFlipperUpRight UpRightFlipper
+                End If
+            End If
         End If
     End If    
 End Sub
@@ -118,15 +138,24 @@ Sub Table1_KeyUp(ByVal keycode)
         If keycode = RightFlipperKey Then
             RFlipperDown = False
             FlipperDeActivate RightFlipper, RFPress
-            UpRightFlipper.RotateToStart
             RightFlipper.RotateToStart
+			If StagedFlipperMod <> 1 Then
+				UpRightFlipper.RotateToStart
+				End If
+            End If	
             If RightFlipper.currentangle > RightFlipper.startAngle + 5 Then
                 RandomSoundFlipperDownRight RightFlipper
-            End If	
             FlipperRightHitParm = FlipperUpSoundLevel
             DispatchPinEvent(SWITCH_RIGHT_FLIPPER_UP)
         End If
-    'End If
+	If StagedFlipperMod = 1 Then
+        If keycode = 40 Then
+            UpRightFlipper.RotateToStart
+            If UpRightFlipper.currentangle > UpRightFlipper.startAngle + 5 Then
+                RandomSoundFlipperDownRight UpRightFlipper
+            End If	
+        End If
+    End If
 End Sub
 
 '***********************************************************************************************************************

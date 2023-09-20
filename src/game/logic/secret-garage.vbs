@@ -1,5 +1,19 @@
 
 '****************************
+' SecretGarageSkip
+' Event Listeners:          
+    RegisterPinEvent SWITCH_BOTH_FLIPPERS_PRESSED, "SecretGarageSkip"
+'
+'*****************************
+Sub SecretGarageEnter()
+    If RPin.TimerEnabled = True Then
+        RPin.TimerEnabled = False
+        RPin.TimerEnabled = True
+        RPin.TimerInterval = 100
+    End If
+End Sub
+
+'****************************
 ' SecretGarageEnter
 ' Event Listeners:          
     RegisterPinEvent SWITCH_HIT_RAMP_PIN, "SecretGarageEnter"
@@ -7,7 +21,7 @@
 '*****************************
 Sub SecretGarageEnter()
 
-    If ballsInPlay - BallsOnBridge() > 1 Then
+    If RealBallsInPlay > 1 Then
         RPin.TimerEnabled = False
         RPin.TimerEnabled = True
         RPin.TimerInterval = 100
@@ -46,6 +60,7 @@ Sub SecretGarageEnter()
         RPin.TimerInterval = 4000
     End If
 End Sub
+
 
 
 Sub RPin_Timer()

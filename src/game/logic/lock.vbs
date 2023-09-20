@@ -7,28 +7,10 @@
 '*****************************
 Sub SwitchHitCaptive()
     If GetPlayerState(LOCK_LIT) = False AND GetPlayerState(MODE_MULTIBALL) = False Then
-        If Not GetPlayerState(NEON_L) = 1 Then
-            SetPlayerState NEON_L, 1
-            SetPlayerState NEON_O, 2
-        ElseIf Not GetPlayerState(NEON_O) = 1 Then
-            SetPlayerState NEON_O, 1
-            SetPlayerState NEON_C, 2
-        ElseIf Not GetPlayerState(NEON_C) = 1 Then
-            SetPlayerState NEON_C, 1
-            SetPlayerState NEON_K, 2
-        ElseIf Not GetPlayerState(NEON_K) = 1 Then
-            SetPlayerState NEON_K, 1
-        Else
-            lightCtrl.Pulse l69, 0
-            lightCtrl.Pulse l70, 0
-            lightCtrl.Pulse l71, 0
-            lightCtrl.Pulse l72, 0
-            SetPlayerState NEON_L, 2
-            SetPlayerState NEON_O, 0
-            SetPlayerState NEON_C, 0
-            SetPlayerState NEON_K, 0
+        SetPlayerState LOCK_HITS, GetPlayerState(LOCK_HITS) + 1
+        If GetPlayerState(LOCK_HITS) = 4 Then
+            calloutsQ.Add "lock-lit", "PlayCallout(""locks-lit"")", 1, 0, 0, 1300, 0, False         
         End If
-        SetPlayerState LOCK_HITS, GetPlayerState(LOCK_HITS) + 1            
     End If
 End Sub
 
@@ -54,12 +36,12 @@ Sub SwitchHitRampLockGate()
     Select Case GetPlayerState(BALLS_LOCKED)
         Case 0:
             SetPlayerState BALLS_LOCKED, 1
-            calloutsQ.Add "fuelUpgrade", "PlayCallout(""ball1locked"")", 1, 0, 0, 3500, 0, False
+            calloutsQ.Add "balllocked", "PlayCallout(""ball1locked"")", 1, 0, 0, 3500, 0, False
         Case 1:
             SetPlayerState BALLS_LOCKED, 2
-            calloutsQ.Add "fuelUpgrade", "PlayCallout(""ball2locked"")", 1, 0, 0, 3500, 0, False
+            calloutsQ.Add "balllocked", "PlayCallout(""ball2locked"")", 1, 0, 0, 3500, 0, False
         Case 2:
-            calloutsQ.Add "fuelUpgrade", "PlayCallout(""ball3locked"")", 1, 0, 0, 3500, 0, False
+            calloutsQ.Add "balllocked", "PlayCallout(""ball3locked"")", 1, 0, 0, 3500, 0, False
             calloutsQ.Add "prepareformb", "PlayCallout(""prepareformb"")", 1, 0, 0, 3500, 0, False
             SetPlayerState LOCK_LIT, False
             lSeqMBStart.Repeat = True
@@ -136,9 +118,8 @@ End Sub
 
 Sub CheckLockHits()
     If GetPlayerState(MODE_MULTIBALL) = False Then
-        If GetPlayerState(LOCK_HITS) = (4 * GetPlayerState(LOCK_ACTIVATIONS)) Then
+        If GetPlayerState(LOCK_HITS) = 4 Then
             SetPlayerState LOCK_LIT, True
-            SetPlayerState LOCK_ACTIVATIONS, GetPlayerState(LOCK_ACTIVATIONS) + 1
         End If
     End If
 End Sub
@@ -244,8 +225,9 @@ RegisterPinEvent BALL_DRAIN, "MBEnd"
 '
 '*****************************
 Sub MBEnd
-    If GetPlayerState(MODE_MULTIBALL) = True AND (ballsInPlay - BallsOnBridge()) = 1 AND ballSaver = False Then
+    If GetPlayerState(MODE_MULTIBALL) = True AND RealBallsInPlay = 1 AND ballSaver = False Then
         SetPlayerState MODE_MULTIBALL, False
+        SetPlayerState LOCK_HITS, 1
         lightCtrl.RemoveShot "MBSpinner", l48
         lightCtrl.RemoveShot "MBLeftOrbit", l46
         lightCtrl.RemoveShot "MBLeftRamp", l47

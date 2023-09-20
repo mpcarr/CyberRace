@@ -8,23 +8,27 @@ Sub AddPlayer()
         Case -1:
             playerState.Add "PLAYER 1", InitNewPlayer()
             currentPlayer = "PLAYER 1"
+            NumberOfPlayers=1
      '       FlexDMD.Stage.GetImage("BGP1").Visible = True
       '      FlexDMD.Stage.GetLabel("Player1").Visible = True
         Case 0:     
             If GetPlayerState(CURRENT_BALL) = 1 Then
                 playerState.Add "PLAYER 2", InitNewPlayer()
+                NumberOfPlayers=2
        '         FlexDMD.Stage.GetImage("BGP2").Visible = True
         '        FlexDMD.Stage.GetLabel("Player2").Visible = True
             End If
         Case 1:
             If GetPlayerState(CURRENT_BALL) = 1 Then
                 playerState.Add "PLAYER 3", InitNewPlayer()
+                NumberOfPlayers=3
          '       FlexDMD.Stage.GetImage("BGP3").Visible = True
           '      FlexDMD.Stage.GetLabel("Player3").Visible = True
             End If     
         Case 2:   
             If GetPlayerState(CURRENT_BALL) = 1 Then
                 playerState.Add "PLAYER 4", InitNewPlayer()
+                NumberOfPlayers=4
            '     FlexDMD.Stage.GetImage("BGP4").Visible = True
             '    FlexDMD.Stage.GetLabel("Player4").Visible = True
             End If  
@@ -100,6 +104,8 @@ Function InitNewPlayer()
     state.Add CYBER_R, 0
 
     state.Add HYPER, 0
+    state.Add HYPER_LEVEL, 0
+    state.Add HYPER_PLAYED, False
 
     state.Add TT_ORBIT, 0
     state.Add TT_TARGET, 0
@@ -125,7 +131,6 @@ Function InitNewPlayer()
     state.Add NEON_C, 1
     state.Add NEON_K, 2
     state.Add LOCK_HITS, 3
-    state.Add LOCK_ACTIVATIONS, 1
     state.Add LOCK_LIT, False
     state.Add BALLS_LOCKED, 0
 

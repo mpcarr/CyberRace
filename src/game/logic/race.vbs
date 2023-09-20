@@ -6,7 +6,7 @@
 '
 '*****************************
 Sub CheckRaceReady()
-    If GetPlayerState(RACE_MODE_READY) = True And GetPlayerState(MODE_MULTIBALL) = False Then
+    If GetPlayerState(RACE_MODE_READY) = True And RealBallsInPlay = 1 Then
         FlexDMDRaceSelectScene()
         Dim x,i
         x = 0
@@ -28,7 +28,6 @@ Sub CheckRaceReady()
         raceVuk.TimerEnabled = True
     End If
 End Sub
-
 
 '****************************
 ' Race Selection Timer Ended
@@ -70,7 +69,7 @@ Sub RaceSelectCycleLeft()
 End Sub
 
 '****************************
-' NodePerkSelectRightPerk
+' RaceSelectCycleRight
 ' Event Listeners:  
     RegisterPinEvent SWITCH_RIGHT_FLIPPER_DOWN, "RaceSelectCycleRight"
 '
@@ -311,6 +310,16 @@ Sub RaceMode1SpinnerHit()
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_2_SPIN1, GetPlayerState(RACE_MODE_2_SPIN1) + 1
+            Dim qItem : Set qItem = New QueueItem
+            With qItem
+                .Name = "racemsg"
+                .Duration = 2
+                .BGImage = "BG004"
+                .BGVideo = "novideo"
+                .Action = "slideup"
+            End With
+            qItem.AddLabel "GetPlayerState(RACE_MODE_2_SPIN1) & ""/ 30 Spins to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            DmdQ.Enqueue qItem
         End If
     End If
 End Sub
@@ -327,6 +336,16 @@ Sub RaceMode2SpinnerHit()
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_2_SPIN2, GetPlayerState(RACE_MODE_2_SPIN2) + 1
+            Dim qItem : Set qItem = New QueueItem
+            With qItem
+                .Name = "racemsg"
+                .Duration = 2
+                .BGImage = "BG004"
+                .BGVideo = "novideo"
+                .Action = "slideup"
+            End With
+            qItem.AddLabel "GetPlayerState(RACE_MODE_2_SPIN2) & ""/ 30 Spins to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            DmdQ.Enqueue qItem
         End If
     End If
 End Sub
@@ -400,6 +419,32 @@ Sub RaceModeFinish()
 End Sub
 
 
+Sub RaceMode3DmdMsg()
+    Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "racemsg"
+        .Duration = 2
+        .BGImage = "BG004"
+        .BGVideo = "novideo"
+        .Action = "slideup"
+    End With
+    qItem.AddLabel "GetPlayerState(RACE_MODE_3_HITS) & ""/ 6 Shots to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+    DmdQ.Enqueue qItem
+End Sub
+
+Sub RaceMode4DmdMsg()
+    Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "racemsg"
+        .Duration = 2
+        .BGImage = "BG004"
+        .BGVideo = "novideo"
+        .Action = "slideup"
+    End With
+    qItem.AddLabel "GetPlayerState(RACE_MODE_$_HITS) & ""/ 6 Shots to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+    DmdQ.Enqueue qItem
+End Sub
+
 '****************************
 ' RaceMode3Spinner1Hit
 ' Event Listeners:          
@@ -412,6 +457,7 @@ Sub RaceMode3Spinner1Hit()
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
+            RaceMode3DmdMsg()
         End If
     End If
 End Sub
@@ -428,6 +474,7 @@ Sub RaceMode3LeftOrbitHit()
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
+            RaceMode3DmdMsg()
         End If
     End If
 End Sub
@@ -444,6 +491,7 @@ Sub RaceMode3LeftRampHit()
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
+            RaceMode3DmdMsg()
         End If
     End If
 End Sub
@@ -460,6 +508,7 @@ Sub RaceMode3Spinner2Hit()
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
+            RaceMode3DmdMsg()
         End If
     End If
 End Sub
@@ -476,6 +525,7 @@ Sub RaceMode3RightRampHit()
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
+            RaceMode3DmdMsg()
         End If
     End If
 End Sub
@@ -492,6 +542,7 @@ Sub RaceMode3RightOrbitHit()
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
+            RaceMode3DmdMsg()
         End If
     End If
 End Sub
@@ -568,6 +619,7 @@ Sub RaceMode4LeftOrbitHit()
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_4_HITS, GetPlayerState(RACE_MODE_4_HITS) + 1
+            RaceMode4DmdMsg()
         End If
     End If
 End Sub
@@ -584,6 +636,7 @@ Sub RaceMode4RightOrbitHit()
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_4_HITS, GetPlayerState(RACE_MODE_4_HITS) + 1
+            RaceMode4DmdMsg()
         End If
     End If
 End Sub
@@ -602,6 +655,7 @@ Sub RaceMode4NodesHit()
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_4_HITS, GetPlayerState(RACE_MODE_4_HITS) + 1
+            RaceMode4DmdMsg()
         End If
     End If
 End Sub

@@ -30,3 +30,14 @@ Sub UpdateTroughTimer_Timer
 	If swTrough4.BallCntOver = 0 Then swTrough5.kick 50, 10
 	UpdateTroughTimer.Enabled = 0
 End Sub
+
+Function BallsInTrough()
+	dim bInTrough : bInTrough = 0
+	If Drain.BallCntOver = 1 Then bInTrough = bInTrough + 1
+	If swTrough1.BallCntOver = 1 Then bInTrough = bInTrough + 1
+	If swTrough2.BallCntOver = 1 Then bInTrough = bInTrough + 1
+	If swTrough3.BallCntOver = 1 Then bInTrough = bInTrough + 1
+	If swTrough4.BallCntOver = 1 Then bInTrough = bInTrough + 1
+	If swTrough5.BallCntOver = 1 Then bInTrough = bInTrough + 1
+	BallsInTrough = bInTrough
+End Function

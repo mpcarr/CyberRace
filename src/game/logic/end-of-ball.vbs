@@ -6,9 +6,15 @@
 '
 '*****************************
 Sub EndOfBall()
-    Debug.print("Balls In Play: "& ballsInPlay)
+    Debug.print("Balls In Play: "& RealBallsInPlay)
+    
+    If gameStarted = False Then
+        Exit Sub
+    End If
+
+
     Dim qItem 
-    Debug.print(ballsInPlay - BallsOnBridge())
+    Debug.print(RealBallsInPlay)
     If ballSaverIgnoreCount > 0 Then
         ballSaverIgnoreCount = ballSaverIgnoreCount-1
         Exit Sub
@@ -24,7 +30,7 @@ Sub EndOfBall()
         End With
         qItem.AddLabel "BALL SAVED", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
         DmdQ.Enqueue qItem
-    ElseIf ballsInPlay - BallsOnBridge() = 0 Then
+    ElseIf RealBallsInPlay = 0 Then
 
         If GetPlayerState(EXTRA_BALLS) > 0 Then
             SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) - 1
@@ -82,6 +88,9 @@ Sub EndOfBall()
         SetPlayerState BET_VALUE, 0
         SetPlayerState MODE_BET, False
 
+        SetPlayerState HYPER_PLAYED, False
+        SetPlayerState PF_MULTIPLIER, 0
+
         SetPlayerState MODE_MULTIBALL, False
 
         If GetPlayerState(MODE_RACE) = True Then
@@ -94,9 +103,8 @@ Sub EndOfBall()
         SetPlayerState RACE_MODE_SELECTION, 1
         SetPlayerState RACE_MODE_FINISH, False
 
-        SetPlayerState CURRENT_BALL, GetPlayerState(CURRENT_BALL) + 1
-
-        GameTimers = Array(0,0,0,0,0,0,0,0)
+        
+        GameTimers = Array(0,0,0,0,0,0,0,0,0)
 
         lightCtrl.RemoveAllShots()
         lightCtrl.RemoveAllLightSeq "GI"
@@ -127,6 +135,26 @@ Sub EndOfBonus()
     SetPlayerState GI_COLOR, GAME_NORMAL_COLOR
     lightCtrl.RemoveTableLightSeq "GI", lSeqGIOff
     DmdQ.RemoveAll()
+
+
+    If GetPlayerState(CURRENT_BALL) = BALLS_PER_GAME And (GetCurrentPlayerNumber()=NumberOfPlayers) Then
+        'Check HI SCORES
+        DispatchPinEvent GAME_OVER
+        calloutsQ.Add "bridgeRelease1", "LockPin1.IsDropped = 1", 1, 0, 0, 1000, 0, False
+        calloutsQ.Add "bridgeRelease2", "LockPin2.IsDropped = 1", 1, 0, 0, 1000, 0, False
+        calloutsQ.Add "bridgeRelease3", "LockPin3.IsDropped = 1", 1, 0, 0, 1000, 0, False
+        gameStarted = False
+        currentPlayer = null
+        If Not IsNull(Scorebit) Then
+            Scorbit.StopSession GetPlayerScore(1), GetPlayerScore(2), GetPlayerScore(3), GetPlayerScore(4), NumberOfPlayers
+        End If
+        NumberOfPlayers=0
+        Exit Sub
+    End If
+
+    If GetPlayerState(CURRENT_BALL) < BALLS_PER_GAME Then
+        SetPlayerState CURRENT_BALL, GetPlayerState(CURRENT_BALL) + 1
+    End If
     Select Case currentPlayer
         Case "PLAYER 1":
             If UBound(playerState.Keys()) > 0 Then
@@ -148,43 +176,35 @@ Sub EndOfBonus()
             currentPlayer = "PLAYER 1"
     End Select
 
-    If GetPlayerState(CURRENT_BALL) > BALLS_PER_GAME Then
+    If GetPlayerState(CURRENT_BALL) > 1 Then
+        FlexDMD.Stage.GetFrame("VSeparator1").Visible = False
+        FlexDMD.Stage.GetFrame("VSeparator2").Visible = False
+        FlexDMD.Stage.GetFrame("VSeparator3").Visible = False
+        FlexDMD.Stage.GetFrame("VSeparator4").Visible = False
 
-        'Check HI SCORES
-        DispatchPinEvent GAME_OVER
-        gameStarted = False
-        currentPlayer = null
-        
-    Else
-        If GetPlayerState(CURRENT_BALL) > 1 Then
-            FlexDMD.Stage.GetFrame("VSeparator1").Visible = False
-            FlexDMD.Stage.GetFrame("VSeparator2").Visible = False
-            FlexDMD.Stage.GetFrame("VSeparator3").Visible = False
-            FlexDMD.Stage.GetFrame("VSeparator4").Visible = False
-    
-            Select Case UBound(playerState.Keys())
-                Case 0:
-                    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
-                    FlexDMD.Stage.GetLabel("Player1").Visible = True
-                Case 1:     
-                    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
-                    FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
-                    FlexDMD.Stage.GetLabel("Player2").Visible = True
-                Case 2:
-                    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
-                    FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
-                    FlexDMD.Stage.GetFrame("VSeparator3").Visible = True
-                    FlexDMD.Stage.GetLabel("Player3").Visible = True
-                Case 3:   
-                    FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
-                    FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
-                    FlexDMD.Stage.GetFrame("VSeparator3").Visible = True
-                    FlexDMD.Stage.GetFrame("VSeparator4").Visible = True
-                    FlexDMD.Stage.GetLabel("Player4").Visible = True  
-            End Select
-        End If
-        SetPlayerState ENABLE_BALLSAVER, True
-        SetPlayerState FLEX_MODE, 0
-        DispatchPinEvent NEXT_PLAYER
+        Select Case UBound(playerState.Keys())
+            Case 0:
+                FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
+                FlexDMD.Stage.GetLabel("Player1").Visible = True
+            Case 1:     
+                FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
+                FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
+                FlexDMD.Stage.GetLabel("Player2").Visible = True
+            Case 2:
+                FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
+                FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
+                FlexDMD.Stage.GetFrame("VSeparator3").Visible = True
+                FlexDMD.Stage.GetLabel("Player3").Visible = True
+            Case 3:   
+                FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
+                FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
+                FlexDMD.Stage.GetFrame("VSeparator3").Visible = True
+                FlexDMD.Stage.GetFrame("VSeparator4").Visible = True
+                FlexDMD.Stage.GetLabel("Player4").Visible = True  
+        End Select
     End If
+    SetPlayerState ENABLE_BALLSAVER, True
+    SetPlayerState FLEX_MODE, 0
+    DispatchPinEvent NEXT_PLAYER
+
 End Sub

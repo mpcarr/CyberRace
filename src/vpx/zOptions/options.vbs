@@ -4,11 +4,13 @@
 
 Dim RoomBrightness : RoomBrightness = 60			'Level of room lighting (0 to 100), where 0 is dark and 100 is brightest
 Dim ColorLUT : ColorLUT = 3
+Dim ScorbitActive : ScorbitActive = 0
 Dim OutPostMod : OutPostMod = 1				'Difficulty : 0 = Easy, 1 = Medium, 2 = Hard
 Dim SlingsMod : SlingsMod = 0 				'0 - Blue Slings, 1 = Orange Slings
 Dim VolumeDial : VolumeDial = 0.8			'Overall Mechanical sound effect volume. Recommended values should be no greater than 1.
 Dim BallRollVolume : BallRollVolume = 0.5 	'Level of ball rolling volume. Value between 0 and 1
 Dim RampRollVolume : RampRollVolume = 0.5 	'Level of ramp rolling volume. Value between 0 and 1
+Dim StagedFlipperMod
 
 'Dim Cabinetmode	: Cabinetmode = 0			'0 - Siderails On, 1 - Siderails Off
 
@@ -17,17 +19,19 @@ Dim VRRoomChoice : VRRoomChoice = 1				'0 - Minimal Room, 1 = Default Room
 ' Base options
 Const Opt_Light = 0
 Const Opt_LUT = 1
-Const Opt_Volume = 2
-Const Opt_Volume_Ramp = 3
-Const Opt_Volume_Ball = 4
+Const Opt_Scorbit = 2
+Const Opt_Volume = 3
+Const Opt_Volume_Ramp = 4
+Const Opt_Volume_Ball = 5
 ' Table mods & toys
-'Const Opt_Cabinet = 7
+'Const Opt_Cabinet = 8
+Const Opt_Staged_Flipper = 6
 ' Shadow options
 ' Informations
-Const Opt_Info_1 = 5
-Const Opt_Info_2 = 6
+Const Opt_Info_1 = 7
+Const Opt_Info_2 = 8
 
-Const NOptions = 7
+Const NOptions = 9
 
 Dim OptionDMD: Set OptionDMD = Nothing
 Dim bOptionsMagna, bInOptions : bOptionsMagna = False
@@ -100,6 +104,20 @@ End Sub
 Sub Options_Close
 	bInOptions = False
 	OptionDMDFlasher.Visible = False
+	DMDScorebit.Visible = False
+	DMDScorebit.TimerEnabled = False
+	If Not IsNull(Scorbit) Then
+		If Scorbit.bNeedsPairing = True Then
+			Scorbit = Null
+			tmrScorbit.Enabled=False
+			ScorbitActive = 0
+			If Not IsNull(FlexDMDScorbit) Then
+				FlexDMDScorbit.Show = False
+				FlexDMDScorbit.Run = False
+				FlexDMDScorbit = NULL
+			End If
+		End If
+	End If
 	If OptionDMD is Nothing Then Exit Sub
 	OptionDMD.Run = False
 	Set OptionDMD = Nothing
@@ -116,6 +134,15 @@ End Function
 Sub Options_OnOptChg
 	If OptionDMD is Nothing Then Exit Sub
 	OptionDMD.LockRenderThread
+
+
+	If Not OptPos=2 And Not IsNull(FlexDMDScorbit) Then
+		FlexDMDScorbit.Show = False
+		FlexDMDScorbit.Run = False
+		FlexDMDScorbit = NULL
+		DMDScorebit.Visible = False
+		DMDScorebit.TimerEnabled = False
+	End If
 '	If RenderingMode <> 2 Then
 '		If OptPos < Opt_VRRoomChoice Then
 '			OptN.Text = (OptPos+1) & "/" & (NOptions - 4)
@@ -153,6 +180,11 @@ Sub Options_OnOptChg
 		if ColorLUT = 10 Then OptBot.text = "DESATURATED -90%"
 		if ColorLUT = 11 Then OptBot.text = "BLACK'N WHITE"
 		SaveValue cGameName, "LUT", ColorLUT
+	ElseIf OptPos = Opt_Scorbit Then
+		OptTop.Text = "SCORBIT"
+		if ScorbitActive = 0 Then OptBot.text = "OFF"
+		if ScorbitActive = 1 Then OptBot.text = "ACTIVE" : InitFlexScorbitDMD
+		SaveValue cGameName, "SCORBIT", ScorbitActive
 	ElseIf OptPos = Opt_Volume Then
 		OptTop.Text = "MECH VOLUME"
 		OptBot.Text = "LEVEL " & CInt(VolumeDial * 100)
@@ -165,6 +197,10 @@ Sub Options_OnOptChg
 		OptTop.Text = "BALL VOLUME"
 		OptBot.Text = "LEVEL " & CInt(BallRollVolume * 100)
 		SaveValue cGameName, "BALLVOLUME", BallRollVolume
+	ElseIf OptPos = Opt_Staged_Flipper Then
+		OptTop.Text = "STAGED FLIPPER"
+		OptBot.Text = Options_OnOffText(StagedFlipperMod)
+		SaveValue cGameName, "STAGED", StagedFlipperMod
 '	ElseIf OptPos = Opt_Cabinet Then
 '		OptTop.Text = "CABINET MODE"
 '		OptBot.Text = Options_OnOffText(CabinetMode)
@@ -187,6 +223,7 @@ End Sub
 
 Sub Options_Toggle(amount)
 	If OptionDMD is Nothing Then Exit Sub
+
 	If OptPos = Opt_Light Then
 		RoomBrightness = RoomBrightness + amount * 10
 		If RoomBrightness < 0 Then RoomBrightness = 100
@@ -195,6 +232,13 @@ Sub Options_Toggle(amount)
 		ColorLUT = ColorLUT + amount * 1
 		If ColorLUT < 1 Then ColorLUT = 11
 		If ColorLUT > 11 Then ColorLUT = 1
+	ElseIf OptPos = Opt_Scorbit Then
+		If ScorbitActive = 1 Then 
+			ScorbitActive = 0 
+		Else 
+			ScorbitActive = 1
+			InitFlexScorbitDMD 
+		End If
 	ElseIf OptPos = Opt_Volume Then
 		VolumeDial = VolumeDial + amount * 0.1
 		If VolumeDial < 0 Then VolumeDial = 1
@@ -207,6 +251,8 @@ Sub Options_Toggle(amount)
 		BallRollVolume = BallRollVolume + amount * 0.1
 		If BallRollVolume < 0 Then BallRollVolume = 1
 		If BallRollVolume > 1 Then BallRollVolume = 0
+	ElseIf OptPos = Opt_Staged_Flipper Then
+		StagedFlipperMod = 1 - StagedFlipperMod
 	End If
 End Sub
 
@@ -249,9 +295,11 @@ Sub Options_Load
 	Dim x
     x = LoadValue(cGameName, "LIGHT") : If x <> "" Then RoomBrightness = CInt(x) Else RoomBrightness = 60
     x = LoadValue(cGameName, "LUT") : If x <> "" Then ColorLUT = CInt(x) Else ColorLUT = 3
+	x = LoadValue(cGameName, "SCORBIT") : If x <> "" Then ScorbitActive = CInt(x) Else ScorbitActive = 0
     x = LoadValue(cGameName, "VOLUME") : If x <> "" Then VolumeDial = CNCDbl(x) Else VolumeDial = 0.8
     x = LoadValue(cGameName, "RAMPVOLUME") : If x <> "" Then RampRollVolume = CNCDbl(x) Else RampRollVolume = 0.5
     x = LoadValue(cGameName, "BALLVOLUME") : If x <> "" Then BallRollVolume = CNCDbl(x) Else BallRollVolume = 0.5
+    x = LoadValue(cGameName, "STAGED") : If x <> "" Then StagedFlipperMod = CInt(x) Else StagedFlipperMod = 0
 	UpdateMods
 End Sub
 
@@ -281,6 +329,20 @@ Sub UpdateMods
 	if ColorLUT = 10 Then Table1.ColorGradeImage = "colorgradelut256x16-90"
 	if ColorLUT = 11 Then Table1.ColorGradeImage = "colorgradelut256x16-100"
 
+	'MsgBox(ScorbitActive)
+	If ScorbitActive = 1 Then
+		StartScorbit
+	Else
+		DMDScorebit.Visible = False
+		DMDScorebit.TimerEnabled = False
+		Scorbit = Null
+		tmrScorbit.Enabled=False
+		If Not IsNull(FlexDMDScorbit) Then
+			FlexDMDScorbit.Show = False
+			FlexDMDScorbit.Run = False
+			FlexDMDScorbit = NULL
+		End If
+	End IF
 End Sub
 
 
@@ -321,7 +383,7 @@ End Function
 
 ' Update these arrays if you want to change more materials with room light level
 Dim RoomBrightnessMtlArray: RoomBrightnessMtlArray = Array("VLM.Bake.Active","VLM.Bake.Solid")
-Dim SavedMtlColorArray:     SavedMtlColorArray     = Array(0,0,0)
+Dim SavedMtlColorArray:     SavedMtlColorArray     = Array(0,0)
 
 
 Sub SetRoomBrightness(lvl)

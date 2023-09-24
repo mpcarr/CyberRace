@@ -145,7 +145,8 @@ Sub Table1_Init()
 	LockPin1.IsDropped = 1
 	LockPin2.IsDropped = 1
 	LockPin3.IsDropped = 1
-	LockPin4.IsDropped = 1
+	LockPin4.IsDropped = True
+	AnimateLockPin()
 
 	Set ttSpinner = New cvpmTurntable
 	ttSpinner.InitTurntable TurnTable, 100

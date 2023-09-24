@@ -111,11 +111,13 @@ Sub SkillsTrialLockPin
     Else
         LockPin4.IsDropped = True
     End If
+    AnimateLockPin()
 End Sub
 
 Sub LockPin4_Timer()
     LockPin4.TimerEnabled = False
     LockPin4.IsDropped = True
+    AnimateLockPin()
     lightCtrl.RemoveTableLightSeq "All", lSeqHeartBeat
 End Sub
 

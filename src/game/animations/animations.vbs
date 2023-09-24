@@ -151,3 +151,18 @@ Sub UpRightFlipper_Animate
 	Next
 
 End Sub
+
+Sub AnimateLockPin()
+	Dim el
+	For Each el in BP_LockPin4
+		If LockPin4.IsDropped = True Then el.Visible=True Else el.Visible = False End If
+	Next
+	For Each el in BP_LockPin4UP
+		If LockPin4.IsDropped = True Then el.Visible=False Else el.Visible = True End If
+	Next
+	If LockPin4.IsDropped = True Then
+		PlaySoundAtLevelStatic "Flipper_Left_Down_4", SoundFxLevel, sw02
+	Else
+		PlaySoundAtLevelStatic "lipper_L04", SoundFxLevel, sw02
+	End If
+End Sub

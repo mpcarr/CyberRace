@@ -15,7 +15,7 @@ Const myVersion = "0.0.17"
 'v18: flux: initial scorbit integration
 'v19: flux: debugging fps issues
 'v20: flux: made ball sit lowerr in scoop, hopefully fixed scoop rejection from left flipper
-
+'v21: flux: scorbit testing
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -61,7 +61,6 @@ Dim gameState : Set gameState = CreateObject("Scripting.Dictionary")
 Dim playerState : Set playerState = CreateObject("Scripting.Dictionary")
 Dim DMDDisplay(20,20)
 Dim NumberOfPlayers : NumberOfPlayers=0
-
 Dim lightCtrl : Set lightCtrl = new LStateController
 
 Dim debugLog : Set debugLog = new DebugLogFile
@@ -74,12 +73,12 @@ Dim DmdQ : Set DmdQ = New Queue
 Dim VRRoom, VRElement
 If RenderingMode = 2 Then VRRoom = VRRoomChoice Else VRRoom = 0
  
-If RenderingMode = 2 then 
+'If RenderingMode = 2 then 
 	For Each VRElement in VRStuff
 		VRElement.Visible = True
 	Next
 	DMD.TimerEnabled = True
-End If
+'End If
 
 '/////////////////////-----Scorbit Options-----////////////////////
 dim TablesDir : TablesDir = GetTablesFolder
@@ -211,5 +210,10 @@ Sub Table1_Exit
 		FlexDMDScorbit.Show = False
 		FlexDMDScorbit.Run = False
 		FlexDMDScorbit = NULL
+    End If
+	If Not IsNull(FlexDMDScorbitClaim) Then
+		FlexDMDScorbitClaim.Show = False
+		FlexDMDScorbitClaim.Run = False
+		FlexDMDScorbitClaim = NULL
     End If
 End Sub

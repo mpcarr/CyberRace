@@ -15,7 +15,7 @@ Const myVersion = "0.0.17"
 'v18: flux: initial scorbit integration
 'v19: flux: debugging fps issues
 'v20: flux: made ball sit lowerr in scoop, hopefully fixed scoop rejection from left flipper
-
+'v21: flux: scorbit testing
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -61,7 +61,6 @@ Dim gameState : Set gameState = CreateObject("Scripting.Dictionary")
 Dim playerState : Set playerState = CreateObject("Scripting.Dictionary")
 Dim DMDDisplay(20,20)
 Dim NumberOfPlayers : NumberOfPlayers=0
-
 Dim lightCtrl : Set lightCtrl = new LStateController
 
 Dim debugLog : Set debugLog = new DebugLogFile
@@ -74,12 +73,12 @@ Dim DmdQ : Set DmdQ = New Queue
 Dim VRRoom, VRElement
 If RenderingMode = 2 Then VRRoom = VRRoomChoice Else VRRoom = 0
  
-If RenderingMode = 2 then 
+'If RenderingMode = 2 then 
 	For Each VRElement in VRStuff
 		VRElement.Visible = True
 	Next
 	DMD.TimerEnabled = True
-End If
+'End If
 
 '/////////////////////-----Scorbit Options-----////////////////////
 dim TablesDir : TablesDir = GetTablesFolder
@@ -211,6 +210,11 @@ Sub Table1_Exit
 		FlexDMDScorbit.Run = False
 		FlexDMDScorbit = NULL
     End If
+	If Not IsNull(FlexDMDScorbitClaim) Then
+		FlexDMDScorbitClaim.Show = False
+		FlexDMDScorbitClaim.Run = False
+		FlexDMDScorbitClaim = NULL
+    End If
 End Sub
 Sub Spinner1_Animate()
     Dim spinangle:spinangle = -Spinner1.currentangle+90
@@ -290,6 +294,7 @@ Const SWITCH_SELECT_EVENT_KEY = "Switches Select Event Key"
 
 Dim FlexDMD
 Dim FlexDMDScorbit : FlexDMDScorbit = Null
+Dim FlexDMDScorbitClaim : FlexDMDScorbitClaim = Null
 Dim DmdWidth : DmdWidth = 128
 Dim DmdHeight : DmdHeight = 32
 ' FlexDMD constants
@@ -1232,7 +1237,11 @@ Sub DMDTimer_Timer
 		FlexDMD.Stage.GetLabel("Ball").Text = "BALL " & currentBall 'BallInPlay
 		If playerState.Exists("PLAYER 1") Then
 			If currentPlayer = "PLAYER 1" Then
-				FlexDMD.Stage.GetLabel("Player1").Text = "Player 1"
+				If GetPlayerState(PLAYER_NAME) = "" Then
+					FlexDMD.Stage.GetLabel("Player1").Text = "Player 1"
+				Else
+					FlexDMD.Stage.GetLabel("Player1").Text = GetPlayerState(PLAYER_NAME)
+				End If
 				FlexDMD.Stage.GetLabel("Player1").SetAlignedPosition 28, 5, FlexDMD_Align_Center
 			Else
 				FlexDMD.Stage.GetLabel("Player1").Text = FormatScore(PlayerState("PLAYER 1")(SCORE))
@@ -1289,16 +1298,6 @@ Sub DMDTimer_Timer
 	End If
 	FlexDMD.UnLockRenderThread
 
-End Sub
-
-Sub DMD_Flasher
-	Dim DMDp
-		DMDp = FlexDMD.DmdColoredPixels
-		If Not IsEmpty(DMDp) Then
-			DMDWidth = FlexDMD.Width
-			DMDHeight = FlexDMD.Height
-			DMDColoredPixels = DMDp
-		End If
 End Sub
 
 Function FormatScore(ByVal Num)
@@ -8148,7 +8147,7 @@ Sub EndOfBonus()
         calloutsQ.Add "bridgeRelease3", "LockPin3.IsDropped = 1", 1, 0, 0, 1000, 0, False
         gameStarted = False
         currentPlayer = null
-        If Not IsNull(Scorebit) Then
+        If Not IsNull(Scorbit) Then
             Scorbit.StopSession GetPlayerScore(1), GetPlayerScore(2), GetPlayerScore(3), GetPlayerScore(4), NumberOfPlayers
         End If
         NumberOfPlayers=0
@@ -8184,7 +8183,7 @@ Sub EndOfBonus()
         FlexDMD.Stage.GetFrame("VSeparator2").Visible = False
         FlexDMD.Stage.GetFrame("VSeparator3").Visible = False
         FlexDMD.Stage.GetFrame("VSeparator4").Visible = False
-
+        CloseFlexScorbitClaimDMD()
         Select Case UBound(playerState.Keys())
             Case 0:
                 FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
@@ -9897,7 +9896,7 @@ End Sub
     RegisterPinEvent SWITCH_BOTH_FLIPPERS_PRESSED, "SecretGarageSkip"
 '
 '*****************************
-Sub SecretGarageEnter()
+Sub SecretGarageSkip()
     If RPin.TimerEnabled = True Then
         RPin.TimerEnabled = False
         RPin.TimerEnabled = True
@@ -10232,6 +10231,7 @@ Sub StartGame()
     FlexDMD.Stage.GetFrame("VSeparator4").Visible = True
     If Not IsNull(Scorbit) Then
         If ScorbitActive = 1 And Scorbit.bNeedsPairing = False Then
+            InitFlexScorbitClaimDMD()
             Scorbit.StartSession()
         End If
     End If
@@ -10285,6 +10285,7 @@ Function InitNewPlayer()
     state.Add JACKPOT_VALUE, POINTS_JACKPOT
 
     state.Add FLEX_MODE, 0
+    state.Add PLAYER_NAME, ""
 
     state.Add SCORE, 0
     state.Add CURRENT_BALL, 1
@@ -10560,7 +10561,7 @@ Const GI_COLOR = "GI Color"
 
 'Flex
 Const FLEX_MODE = "Flex Mode"
-
+Const PLAYER_NAME = "Player Name"
 'Score 
 Const SCORE = "Player Score"
 
@@ -10976,13 +10977,13 @@ Sub sw37_Timer()
 End Sub
 '******************************************
 Sub Spinner1_Spin()
-    PlaySound("fx_spinner")
+    SoundSpinner(Spinner1)
     lightCtrl.pulse l143, 0
     DispatchPinEvent SWITCH_HIT_SPINNER1
 End Sub
 '******************************************
 Sub Spinner2_Spin()
-    PlaySound("fx_spinner")
+    SoundSpinner(Spinner2)
     lightCtrl.pulse l141, 0
     DispatchPinEvent SWITCH_HIT_SPINNER2
 End Sub
@@ -13256,6 +13257,8 @@ End Sub
 
 
 
+
+
 Sub StartScorbit
 	If IsNull(Scorbit) Then
 		If ScorbitActive = 1 then 
@@ -13313,6 +13316,54 @@ Sub InitFlexScorbitDMD()
 
 End Sub
 
+
+Sub InitFlexScorbitClaimDMD()
+	If IsNull(FlexDMDScorbitClaim) Then
+		Set FlexDMDScorbitClaim = CreateObject("FlexDMD.FlexDMD")
+		If FlexDMDScorbitClaim is Nothing Then
+			MsgBox "No FlexDMD found. This table will NOT run without it."
+			Exit Sub
+		End If
+		With FlexDMDScorbitClaim
+			.ProjectFolder = TablesDir & "\CRQR"
+		End With
+		FlexDMDScorbitClaim.RenderMode = FlexDMD_RenderMode_DMD_GRAY_4
+		FlexDMDScorbitClaim.Width = 256
+		FlexDMDScorbitClaim.Height = 256
+		FlexDMDScorbitClaim.Clear = True
+		FlexDMDScorbitClaim.Show = False
+		FlexDMDScorbitClaim.Run = False
+
+		dim scene
+		Set scene = FlexDMDScorbitClaim.NewGroup("scene")
+		dim qrImage
+		Set qrImage = FlexDMDScorbitClaim.NewImage("QRClaim",		"QRClaim.png")	: qrImage.SetBounds 0, 0, 256, 256 : qrImage.Visible = True : scene.AddActor qrImage
+		FlexDMDScorbitClaim.LockRenderThread
+		FlexDMDScorbitClaim.RenderMode =  FlexDMD_RenderMode_DMD_RGB
+		FlexDMDScorbitClaim.Stage.RemoveAll
+		FlexDMDScorbitClaim.Stage.AddActor scene
+		FlexDMDScorbitClaim.Show = False
+		FlexDMDScorbitClaim.Run = True
+		FlexDMDScorbitClaim.UnlockRenderThread
+		'Flasher
+		DMDScorebitClaim.Visible = True
+		DMDScorebitClaim.TimerEnabled = True
+		If ShowDT Then DMDScorebitClaim.RotX = -(Table1.Inclination + Table1.Layback)
+	End If
+End Sub
+
+Sub CloseFlexScorbitClaimDMD()
+
+	If Not IsNull(FlexDMDScorbitClaim) Then
+		FlexDMDScorbitClaim.Show = False
+		FlexDMDScorbitClaim.Run = False
+		FlexDMDScorbitClaim = NULL
+		DMDScorebitClaim.TimerEnabled = False
+		DMDScorebitClaim.Visible = False
+    End If
+
+End Sub
+
 Sub DMDScorebit_Timer()
 	Dim DMDScoreBitp
 	DMDScoreBitp = FlexDMDScorbit.DmdColoredPixels
@@ -13322,6 +13373,17 @@ Sub DMDScorebit_Timer()
 		DMDScorebit.DMDColoredPixels = DMDScoreBitp
 	End If
 End Sub
+
+Sub DMDScorebitClaim_Timer()
+	Dim DMDScoreBitp
+	DMDScoreBitp = FlexDMDScorbitClaim.DmdColoredPixels
+	If Not IsEmpty(DMDScoreBitp) Then
+		DMDScorebitClaim.DMDWidth = FlexDMDScorbitClaim.Width
+		DMDScorebitClaim.DMDHeight = FlexDMDScorbitClaim.Height
+		DMDScorebitClaim.DMDColoredPixels = DMDScoreBitp
+	End If
+End Sub
+
 
 Sub CreateScorebitLoadingDMD
 
@@ -13377,28 +13439,6 @@ Sub CreateScorebitPairingDMD
 
 End Sub
 
-Sub CreateScorebitGameDMDClaim
-
-	FlexDMDScorbit.LockRenderThread
-
-	dim scene, qrImage
-	Set scene = FlexDMDScorbit.Stage.GetGroup("scene")
-	If scene.HasChild("QRClaim") = False Then
-		Set qrImage = FlexDMDScorbit.NewImage("QRClaim",		"QRClaim.png")	: qrImage.SetBounds 0, 0, 512, 512 : qrImage.Visible = False : scene.AddActor qrImage
-	End If
-	
-
-	FlexDMDScorbit.Stage.GetLabel("Loading").Visible = False
-	If scene.HasChild("QRPairing") = True Then
-		FlexDMDScorbit.Stage.GetImage("QRPairing").Visible = False
-	End If
-	If scene.HasChild("QRClaim") Then
-		FlexDMDScorbit.Stage.GetImage("QRClaim").Visible = True
-	End If
-	
-	FlexDMDScorbit.UnlockRenderThread
-
-End Sub
 
 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ' X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  
@@ -13461,12 +13501,24 @@ Sub Scorbit_Paired()								' Scorbit callback when new machine is paired
 		CreateScorebitLoadingDMD()
 	End If
 	
+	If gameStarted = True Then
+		If GetPlayerState(CURRENT_BALL) = 1 Then
+			If Not IsNull(Scorbit) Then
+				If ScorbitActive = 1 And Scorbit.bNeedsPairing = False Then
+					InitFlexScorbitClaimDMD()
+					Scorbit.StartSession()
+				End If
+			End If
+		End If
+	End If
+
+
 End Sub 
 
 Sub Scorbit_PlayerClaimed(PlayerNum, PlayerName)	' Scorbit callback when QR Is Claimed 
 
-    MsgBox("Scorbit LOGIN: " & PlayerNum & " - " & PlayerName)
-	
+    'MsgBox("Scorbit LOGIN: " & PlayerNum & " - " & PlayerName)
+	SetPlayerState PLAYER_NAME, PlayerName
 'debug.print "Scorbit LOGIN: " & PlayerNum & " - " & PlayerName
 	'PlaySound "scorbit_login",0,CalloutVol,0,0,1,1,1
 	'ScorbitClaimQR(False)
@@ -13569,7 +13621,7 @@ Sub ScorbitBuildGameModes()		' Custom function to build the game modes for bette
 	' 	GameModeStr=GameModeStr&"WM{orange}:Galdor Defeated"
 	' End if 
 
-	'Scorbit.SetGameMode(GameModeStr)
+	'Scorbit.SetGameMode(GameModeStr)"NA{green}:The Hunt
 
 End Sub 
 
@@ -16662,60 +16714,60 @@ Class Queue
 
         Dim i
          For i = 1 to 7
-            '  dim label : label = Eval("CurrentItem.Label"&CStr(i))
-            ' If Not IsNull(label) Then
+             dim label : label = Eval("CurrentItem.Label"&CStr(i))
+            If Not IsNull(label) Then
 
-            '     Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
-            '     flabel.Font = label(1)
-            '     flabel.visible = True
-            '     If InStr(1, label(0), "GetPlayerState") > 0 Then
-            '         flabel.Text = Eval(label(0))
-            '     Else
-            '         flabel.Text = label(0)
-            '     End If
+                Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
+                flabel.Font = label(1)
+                flabel.visible = True
+                If InStr(1, label(0), "GetPlayerState") > 0 Then
+                    flabel.Text = Eval(label(0))
+                Else
+                    flabel.Text = label(0)
+                End If
 
-            '     If label(6) = "blink" Then ' blinking
-            '         If frame mod 30 > 15 Then
-            '             flabel.visible = False
-            '         Else
-            '             flabel.visible = True
-            '         End If
-            '     End If
+                If label(6) = "blink" Then ' blinking
+                    If frame mod 30 > 15 Then
+                        flabel.visible = False
+                    Else
+                        flabel.visible = True
+                    End If
+                End If
 
-            '     If label(2) < label(4) Then label(2) = label(2) + 1
-            '     If label(2) > label(4) Then label(2) = label(2) - 1
-            '     If label(3) < label(5) Then label(3) = label(3) + 1
-            '     If label(3) > label(5) Then label(3) = label(3) - 1
+                If label(2) < label(4) Then label(2) = label(2) + 1
+                If label(2) > label(4) Then label(2) = label(2) - 1
+                If label(3) < label(5) Then label(3) = label(3) + 1
+                If label(3) > label(5) Then label(3) = label(3) - 1
                 
 
-            '     Select Case i
-            '         Case 1:
-            '             CurrentItem.Label1(2) = label(2)
-            '             CurrentItem.Label1(3) = label(3)
-            '         Case 2:
-            '             CurrentItem.Label2(2) = label(2)
-            '             CurrentItem.Label2(3) = label(3)
-            '         Case 3:
-            '             CurrentItem.Label3(2) = label(2)
-            '             CurrentItem.Label3(3) = label(3)
-            '         Case 4:
-            '             CurrentItem.Label4(2) = label(2)
-            '             CurrentItem.Label4(3) = label(3)
-            '         Case 5:
-            '             CurrentItem.Label5(2) = label(2)
-            '             CurrentItem.Label5(3) = label(3)
-            '         Case 6:
-            '             CurrentItem.Label6(2) = label(2)
-            '             CurrentItem.Label6(3) = label(3)
-            '         Case 7:
-            '             CurrentItem.Label7(2) = label(2)
-            '             CurrentItem.Label7(3) = label(3)                        
-            '     End Select
+                Select Case i
+                    Case 1:
+                        CurrentItem.Label1(2) = label(2)
+                        CurrentItem.Label1(3) = label(3)
+                    Case 2:
+                        CurrentItem.Label2(2) = label(2)
+                        CurrentItem.Label2(3) = label(3)
+                    Case 3:
+                        CurrentItem.Label3(2) = label(2)
+                        CurrentItem.Label3(3) = label(3)
+                    Case 4:
+                        CurrentItem.Label4(2) = label(2)
+                        CurrentItem.Label4(3) = label(3)
+                    Case 5:
+                        CurrentItem.Label5(2) = label(2)
+                        CurrentItem.Label5(3) = label(3)
+                    Case 6:
+                        CurrentItem.Label6(2) = label(2)
+                        CurrentItem.Label6(3) = label(3)
+                    Case 7:
+                        CurrentItem.Label7(2) = label(2)
+                        CurrentItem.Label7(3) = label(3)                        
+                End Select
 
-            '     flabel.SetAlignedPosition label(2),label(3) - DMD_slide ,FlexDMD_Align_Center
-            '     '
+                flabel.SetAlignedPosition label(2),label(3) - DMD_slide ,FlexDMD_Align_Center
+                '
 
-            ' End If
+            End If
        Next
 
     End Sub
@@ -17556,6 +17608,7 @@ Sub Options_Close
 				FlexDMDScorbit.Run = False
 				FlexDMDScorbit = NULL
 			End If
+			CloseFlexScorbitClaimDMD()
 		End If
 	End If
 	If OptionDMD is Nothing Then Exit Sub
@@ -17674,7 +17727,8 @@ Sub Options_Toggle(amount)
 		If ColorLUT > 11 Then ColorLUT = 1
 	ElseIf OptPos = Opt_Scorbit Then
 		If ScorbitActive = 1 Then 
-			ScorbitActive = 0 
+			ScorbitActive = 0
+			CloseFlexScorbitClaimDMD
 		Else 
 			ScorbitActive = 1
 			InitFlexScorbitDMD 
@@ -17782,6 +17836,7 @@ Sub UpdateMods
 			FlexDMDScorbit.Run = False
 			FlexDMDScorbit = NULL
 		End If
+		CloseFlexScorbitClaimDMD()
 	End IF
 End Sub
 

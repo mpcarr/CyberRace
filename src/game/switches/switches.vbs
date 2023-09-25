@@ -115,13 +115,13 @@ Sub sw37_Timer()
 End Sub
 '******************************************
 Sub Spinner1_Spin()
-    PlaySound("fx_spinner")
+    SoundSpinner(Spinner1)
     lightCtrl.pulse l143, 0
     DispatchPinEvent SWITCH_HIT_SPINNER1
 End Sub
 '******************************************
 Sub Spinner2_Spin()
-    PlaySound("fx_spinner")
+    SoundSpinner(Spinner2)
     lightCtrl.pulse l141, 0
     DispatchPinEvent SWITCH_HIT_SPINNER2
 End Sub

@@ -5,7 +5,7 @@
     RegisterPinEvent SWITCH_BOTH_FLIPPERS_PRESSED, "SecretGarageSkip"
 '
 '*****************************
-Sub SecretGarageEnter()
+Sub SecretGarageSkip()
     If RPin.TimerEnabled = True Then
         RPin.TimerEnabled = False
         RPin.TimerEnabled = True

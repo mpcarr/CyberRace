@@ -47,6 +47,7 @@ Function InitNewPlayer()
     state.Add JACKPOT_VALUE, POINTS_JACKPOT
 
     state.Add FLEX_MODE, 0
+    state.Add PLAYER_NAME, ""
 
     state.Add SCORE, 0
     state.Add CURRENT_BALL, 1

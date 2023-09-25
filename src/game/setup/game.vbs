@@ -11,6 +11,7 @@ Sub StartGame()
     FlexDMD.Stage.GetFrame("VSeparator4").Visible = True
     If Not IsNull(Scorbit) Then
         If ScorbitActive = 1 And Scorbit.bNeedsPairing = False Then
+            InitFlexScorbitClaimDMD()
             Scorbit.StartSession()
         End If
     End If

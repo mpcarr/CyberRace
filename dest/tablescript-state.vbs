@@ -76,6 +76,7 @@ Const SWITCH_SELECT_EVENT_KEY = "Switches Select Event Key"
 
 Dim FlexDMD
 Dim FlexDMDScorbit : FlexDMDScorbit = Null
+Dim FlexDMDScorbitClaim : FlexDMDScorbitClaim = Null
 Dim DmdWidth : DmdWidth = 128
 Dim DmdHeight : DmdHeight = 32
 ' FlexDMD constants
@@ -1018,7 +1019,11 @@ Sub DMDTimer_Timer
 		FlexDMD.Stage.GetLabel("Ball").Text = "BALL " & currentBall 'BallInPlay
 		If playerState.Exists("PLAYER 1") Then
 			If currentPlayer = "PLAYER 1" Then
-				FlexDMD.Stage.GetLabel("Player1").Text = "Player 1"
+				If GetPlayerState(PLAYER_NAME) = "" Then
+					FlexDMD.Stage.GetLabel("Player1").Text = "Player 1"
+				Else
+					FlexDMD.Stage.GetLabel("Player1").Text = GetPlayerState(PLAYER_NAME)
+				End If
 				FlexDMD.Stage.GetLabel("Player1").SetAlignedPosition 28, 5, FlexDMD_Align_Center
 			Else
 				FlexDMD.Stage.GetLabel("Player1").Text = FormatScore(PlayerState("PLAYER 1")(SCORE))
@@ -1075,16 +1080,6 @@ Sub DMDTimer_Timer
 	End If
 	FlexDMD.UnLockRenderThread
 
-End Sub
-
-Sub DMD_Flasher
-	Dim DMDp
-		DMDp = FlexDMD.DmdColoredPixels
-		If Not IsEmpty(DMDp) Then
-			DMDWidth = FlexDMD.Width
-			DMDHeight = FlexDMD.Height
-			DMDColoredPixels = DMDp
-		End If
 End Sub
 
 Function FormatScore(ByVal Num)
@@ -7934,7 +7929,7 @@ Sub EndOfBonus()
         calloutsQ.Add "bridgeRelease3", "LockPin3.IsDropped = 1", 1, 0, 0, 1000, 0, False
         gameStarted = False
         currentPlayer = null
-        If Not IsNull(Scorebit) Then
+        If Not IsNull(Scorbit) Then
             Scorbit.StopSession GetPlayerScore(1), GetPlayerScore(2), GetPlayerScore(3), GetPlayerScore(4), NumberOfPlayers
         End If
         NumberOfPlayers=0
@@ -7970,7 +7965,7 @@ Sub EndOfBonus()
         FlexDMD.Stage.GetFrame("VSeparator2").Visible = False
         FlexDMD.Stage.GetFrame("VSeparator3").Visible = False
         FlexDMD.Stage.GetFrame("VSeparator4").Visible = False
-
+        CloseFlexScorbitClaimDMD()
         Select Case UBound(playerState.Keys())
             Case 0:
                 FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
@@ -9683,7 +9678,7 @@ End Sub
     RegisterPinEvent SWITCH_BOTH_FLIPPERS_PRESSED, "SecretGarageSkip"
 '
 '*****************************
-Sub SecretGarageEnter()
+Sub SecretGarageSkip()
     If RPin.TimerEnabled = True Then
         RPin.TimerEnabled = False
         RPin.TimerEnabled = True
@@ -10018,6 +10013,7 @@ Sub StartGame()
     FlexDMD.Stage.GetFrame("VSeparator4").Visible = True
     If Not IsNull(Scorbit) Then
         If ScorbitActive = 1 And Scorbit.bNeedsPairing = False Then
+            InitFlexScorbitClaimDMD()
             Scorbit.StartSession()
         End If
     End If
@@ -10071,6 +10067,7 @@ Function InitNewPlayer()
     state.Add JACKPOT_VALUE, POINTS_JACKPOT
 
     state.Add FLEX_MODE, 0
+    state.Add PLAYER_NAME, ""
 
     state.Add SCORE, 0
     state.Add CURRENT_BALL, 1
@@ -10346,7 +10343,7 @@ Const GI_COLOR = "GI Color"
 
 'Flex
 Const FLEX_MODE = "Flex Mode"
-
+Const PLAYER_NAME = "Player Name"
 'Score 
 Const SCORE = "Player Score"
 
@@ -10762,13 +10759,13 @@ Sub sw37_Timer()
 End Sub
 '******************************************
 Sub Spinner1_Spin()
-    PlaySound("fx_spinner")
+    SoundSpinner(Spinner1)
     lightCtrl.pulse l143, 0
     DispatchPinEvent SWITCH_HIT_SPINNER1
 End Sub
 '******************************************
 Sub Spinner2_Spin()
-    PlaySound("fx_spinner")
+    SoundSpinner(Spinner2)
     lightCtrl.pulse l141, 0
     DispatchPinEvent SWITCH_HIT_SPINNER2
 End Sub

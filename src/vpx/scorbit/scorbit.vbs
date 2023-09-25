@@ -1,5 +1,7 @@
 
 
+
+
 Sub StartScorbit
 	If IsNull(Scorbit) Then
 		If ScorbitActive = 1 then 
@@ -57,6 +59,54 @@ Sub InitFlexScorbitDMD()
 
 End Sub
 
+
+Sub InitFlexScorbitClaimDMD()
+	If IsNull(FlexDMDScorbitClaim) Then
+		Set FlexDMDScorbitClaim = CreateObject("FlexDMD.FlexDMD")
+		If FlexDMDScorbitClaim is Nothing Then
+			MsgBox "No FlexDMD found. This table will NOT run without it."
+			Exit Sub
+		End If
+		With FlexDMDScorbitClaim
+			.ProjectFolder = TablesDir & "\CRQR"
+		End With
+		FlexDMDScorbitClaim.RenderMode = FlexDMD_RenderMode_DMD_GRAY_4
+		FlexDMDScorbitClaim.Width = 256
+		FlexDMDScorbitClaim.Height = 256
+		FlexDMDScorbitClaim.Clear = True
+		FlexDMDScorbitClaim.Show = False
+		FlexDMDScorbitClaim.Run = False
+
+		dim scene
+		Set scene = FlexDMDScorbitClaim.NewGroup("scene")
+		dim qrImage
+		Set qrImage = FlexDMDScorbitClaim.NewImage("QRClaim",		"QRClaim.png")	: qrImage.SetBounds 0, 0, 256, 256 : qrImage.Visible = True : scene.AddActor qrImage
+		FlexDMDScorbitClaim.LockRenderThread
+		FlexDMDScorbitClaim.RenderMode =  FlexDMD_RenderMode_DMD_RGB
+		FlexDMDScorbitClaim.Stage.RemoveAll
+		FlexDMDScorbitClaim.Stage.AddActor scene
+		FlexDMDScorbitClaim.Show = False
+		FlexDMDScorbitClaim.Run = True
+		FlexDMDScorbitClaim.UnlockRenderThread
+		'Flasher
+		DMDScorebitClaim.Visible = True
+		DMDScorebitClaim.TimerEnabled = True
+		If ShowDT Then DMDScorebitClaim.RotX = -(Table1.Inclination + Table1.Layback)
+	End If
+End Sub
+
+Sub CloseFlexScorbitClaimDMD()
+
+	If Not IsNull(FlexDMDScorbitClaim) Then
+		FlexDMDScorbitClaim.Show = False
+		FlexDMDScorbitClaim.Run = False
+		FlexDMDScorbitClaim = NULL
+		DMDScorebitClaim.TimerEnabled = False
+		DMDScorebitClaim.Visible = False
+    End If
+
+End Sub
+
 Sub DMDScorebit_Timer()
 	Dim DMDScoreBitp
 	DMDScoreBitp = FlexDMDScorbit.DmdColoredPixels
@@ -66,6 +116,17 @@ Sub DMDScorebit_Timer()
 		DMDScorebit.DMDColoredPixels = DMDScoreBitp
 	End If
 End Sub
+
+Sub DMDScorebitClaim_Timer()
+	Dim DMDScoreBitp
+	DMDScoreBitp = FlexDMDScorbitClaim.DmdColoredPixels
+	If Not IsEmpty(DMDScoreBitp) Then
+		DMDScorebitClaim.DMDWidth = FlexDMDScorbitClaim.Width
+		DMDScorebitClaim.DMDHeight = FlexDMDScorbitClaim.Height
+		DMDScorebitClaim.DMDColoredPixels = DMDScoreBitp
+	End If
+End Sub
+
 
 Sub CreateScorebitLoadingDMD
 
@@ -121,28 +182,6 @@ Sub CreateScorebitPairingDMD
 
 End Sub
 
-Sub CreateScorebitGameDMDClaim
-
-	FlexDMDScorbit.LockRenderThread
-
-	dim scene, qrImage
-	Set scene = FlexDMDScorbit.Stage.GetGroup("scene")
-	If scene.HasChild("QRClaim") = False Then
-		Set qrImage = FlexDMDScorbit.NewImage("QRClaim",		"QRClaim.png")	: qrImage.SetBounds 0, 0, 512, 512 : qrImage.Visible = False : scene.AddActor qrImage
-	End If
-	
-
-	FlexDMDScorbit.Stage.GetLabel("Loading").Visible = False
-	If scene.HasChild("QRPairing") = True Then
-		FlexDMDScorbit.Stage.GetImage("QRPairing").Visible = False
-	End If
-	If scene.HasChild("QRClaim") Then
-		FlexDMDScorbit.Stage.GetImage("QRClaim").Visible = True
-	End If
-	
-	FlexDMDScorbit.UnlockRenderThread
-
-End Sub
 
 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ' X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  
@@ -205,12 +244,24 @@ Sub Scorbit_Paired()								' Scorbit callback when new machine is paired
 		CreateScorebitLoadingDMD()
 	End If
 	
+	If gameStarted = True Then
+		If GetPlayerState(CURRENT_BALL) = 1 Then
+			If Not IsNull(Scorbit) Then
+				If ScorbitActive = 1 And Scorbit.bNeedsPairing = False Then
+					InitFlexScorbitClaimDMD()
+					Scorbit.StartSession()
+				End If
+			End If
+		End If
+	End If
+
+
 End Sub 
 
 Sub Scorbit_PlayerClaimed(PlayerNum, PlayerName)	' Scorbit callback when QR Is Claimed 
 
-    MsgBox("Scorbit LOGIN: " & PlayerNum & " - " & PlayerName)
-	
+    'MsgBox("Scorbit LOGIN: " & PlayerNum & " - " & PlayerName)
+	SetPlayerState PLAYER_NAME, PlayerName
 'debug.print "Scorbit LOGIN: " & PlayerNum & " - " & PlayerName
 	'PlaySound "scorbit_login",0,CalloutVol,0,0,1,1,1
 	'ScorbitClaimQR(False)
@@ -313,7 +364,7 @@ Sub ScorbitBuildGameModes()		' Custom function to build the game modes for bette
 	' 	GameModeStr=GameModeStr&"WM{orange}:Galdor Defeated"
 	' End if 
 
-	'Scorbit.SetGameMode(GameModeStr)
+	'Scorbit.SetGameMode(GameModeStr)"NA{green}:The Hunt
 
 End Sub 
 

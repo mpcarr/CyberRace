@@ -1,6 +1,7 @@
 
 Dim FlexDMD
 Dim FlexDMDScorbit : FlexDMDScorbit = Null
+Dim FlexDMDScorbitClaim : FlexDMDScorbitClaim = Null
 Dim DmdWidth : DmdWidth = 128
 Dim DmdHeight : DmdHeight = 32
 ' FlexDMD constants

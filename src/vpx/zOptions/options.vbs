@@ -116,6 +116,7 @@ Sub Options_Close
 				FlexDMDScorbit.Run = False
 				FlexDMDScorbit = NULL
 			End If
+			CloseFlexScorbitClaimDMD()
 		End If
 	End If
 	If OptionDMD is Nothing Then Exit Sub
@@ -234,7 +235,8 @@ Sub Options_Toggle(amount)
 		If ColorLUT > 11 Then ColorLUT = 1
 	ElseIf OptPos = Opt_Scorbit Then
 		If ScorbitActive = 1 Then 
-			ScorbitActive = 0 
+			ScorbitActive = 0
+			CloseFlexScorbitClaimDMD
 		Else 
 			ScorbitActive = 1
 			InitFlexScorbitDMD 
@@ -342,6 +344,7 @@ Sub UpdateMods
 			FlexDMDScorbit.Run = False
 			FlexDMDScorbit = NULL
 		End If
+		CloseFlexScorbitClaimDMD()
 	End IF
 End Sub
 

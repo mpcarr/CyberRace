@@ -10,7 +10,7 @@ Const GI_COLOR = "GI Color"
 
 'Flex
 Const FLEX_MODE = "Flex Mode"
-
+Const PLAYER_NAME = "Player Name"
 'Score 
 Const SCORE = "Player Score"
 

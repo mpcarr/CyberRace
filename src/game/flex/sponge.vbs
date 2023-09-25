@@ -211,7 +211,11 @@ Sub DMDTimer_Timer
 		FlexDMD.Stage.GetLabel("Ball").Text = "BALL " & currentBall 'BallInPlay
 		If playerState.Exists("PLAYER 1") Then
 			If currentPlayer = "PLAYER 1" Then
-				FlexDMD.Stage.GetLabel("Player1").Text = "Player 1"
+				If GetPlayerState(PLAYER_NAME) = "" Then
+					FlexDMD.Stage.GetLabel("Player1").Text = "Player 1"
+				Else
+					FlexDMD.Stage.GetLabel("Player1").Text = GetPlayerState(PLAYER_NAME)
+				End If
 				FlexDMD.Stage.GetLabel("Player1").SetAlignedPosition 28, 5, FlexDMD_Align_Center
 			Else
 				FlexDMD.Stage.GetLabel("Player1").Text = FormatScore(PlayerState("PLAYER 1")(SCORE))
@@ -268,16 +272,6 @@ Sub DMDTimer_Timer
 	End If
 	FlexDMD.UnLockRenderThread
 
-End Sub
-
-Sub DMD_Flasher
-	Dim DMDp
-		DMDp = FlexDMD.DmdColoredPixels
-		If Not IsEmpty(DMDp) Then
-			DMDWidth = FlexDMD.Width
-			DMDHeight = FlexDMD.Height
-			DMDColoredPixels = DMDp
-		End If
 End Sub
 
 Function FormatScore(ByVal Num)

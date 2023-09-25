@@ -145,7 +145,7 @@ Sub EndOfBonus()
         calloutsQ.Add "bridgeRelease3", "LockPin3.IsDropped = 1", 1, 0, 0, 1000, 0, False
         gameStarted = False
         currentPlayer = null
-        If Not IsNull(Scorebit) Then
+        If Not IsNull(Scorbit) Then
             Scorbit.StopSession GetPlayerScore(1), GetPlayerScore(2), GetPlayerScore(3), GetPlayerScore(4), NumberOfPlayers
         End If
         NumberOfPlayers=0
@@ -181,7 +181,7 @@ Sub EndOfBonus()
         FlexDMD.Stage.GetFrame("VSeparator2").Visible = False
         FlexDMD.Stage.GetFrame("VSeparator3").Visible = False
         FlexDMD.Stage.GetFrame("VSeparator4").Visible = False
-
+        CloseFlexScorbitClaimDMD()
         Select Case UBound(playerState.Keys())
             Case 0:
                 FlexDMD.Stage.GetFrame("VSeparator1").Visible = True

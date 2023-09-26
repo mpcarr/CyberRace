@@ -129,7 +129,6 @@ Sub InitFlexDMD()
 	CreateGameDMD()
 End Sub
 
-
 Sub DMD_Timer()
 	Dim DMDp
 	DMDp = FlexDMD.DmdColoredPixels
@@ -140,52 +139,7 @@ Sub DMD_Timer()
 	End If
 End Sub
 
-
-
 InitFlexDMD()
-
-Dim DMDEMPScene : Set DMDEMPScene = FlexDMD.NewGroup("DMDEMPScene")
-Dim DMDEMPModeScene : Set DMDEMPModeScene = FlexDMD.NewGroup("DMDEMPModeScene")
-Dim DMDChargeEMP : Set DMDChargeEMP = FlexDMD.NewVideo("DMDChargeEMP", "videos/charge_emp.gif")
-InitDMDEMPScene()
-InitDMDEMPModeScene()
-
-
-Dim DMDNodeScene : Set DMDNodeScene = FlexDMD.NewGroup("DMDNodeScene")
-Dim DMDNodePerkCollectScene : Set DMDNodePerkCollectScene = FlexDMD.NewGroup("DMDNodePerkCollectScene")
-Dim DMDNodeCollected : Set DMDNodeCollected = FlexDMD.NewVideo("DMDNodeCollected", "videos/node-collected.gif")
-InitDMDNodeScene()
-InitDMDNodePerkCollectScene()
-
-Dim DMDRaceReadyScene : Set DMDRaceReadyScene = FlexDMD.NewGroup("DMDRaceReadyScene")
-Dim DMDRaceReadyVid : Set DMDRaceReadyVid = FlexDMD.NewVideo("DMDRaceReadyVid", "videos/race-ready.gif")
-InitDMDRaceReadyScene()
-
-Dim DMDRaceSelectScene : Set DMDRaceSelectScene = FlexDMD.NewGroup("DMDRaceSelectScene")
-InitDMDRaceSelectScene()
-
-
-Dim DMDSkillsScene : Set DMDSkillsScene = FlexDMD.NewGroup("DMDSkillsScene")
-Dim DMDSkillsVid : Set DMDSkillsVid = FlexDMD.NewVideo("DMDSkillsVid", "videos/skills-trial.gif")
-InitDMDSkillsScene()
-
-Dim DMDNormalScene : Set DMDNormalScene = FlexDMD.NewGroup("GameModeNormal")
-InitDMDGameSceneNormal()
-
-Dim dmdTimePassed : dmdTimePassed = 0
-
-Sub DMDModeUpdate_Timer
-	
-End Sub
-
-Sub FlexPlayScene(ByRef scene)
-	'FlexDMD.LockRenderThread
-	'FlexDMD.RenderMode = FlexDMD_RenderMode_DMD_RGB
-	'FlexDMD.Stage.RemoveAll
-	'FlexDMD.Stage.AddActor scene
-	'FlexDMD.Show = True
-	'FlexDMD.UnlockRenderThread
-End Sub
 
 Sub FlexDMDBetScene(bb,eb,tb)
     
@@ -416,16 +370,6 @@ End Sub
 
 
 
-Sub InitDMDEMPScene()
-    Dim lbl1 : Set lbl1 = FlexDMD.NewLabel("lblCharge", font20Outline, "EMP CHARGING")
-    Dim lbl2 : Set lbl2 = FlexDMD.NewLabel("lblCharge2", font20Outline, "HITS REMAINING")
-	lbl1.SetAlignedPosition 128, 24, FlexDMD_Align_Center
-    lbl2.SetAlignedPosition 128, 42, FlexDMD_Align_Center
-    DMDEMPScene.AddActor DMDChargeEMP
-    DMDEMPScene.AddActor lbl1
-    DMDEMPScene.AddActor lbl2
-End Sub
-
 Sub FlexDMDEMPScene()
     Dim qItem : Set qItem = New QueueItem
     Dim font
@@ -484,32 +428,6 @@ Sub FlexModeUpdate_Timer()
 	If gameStarted = True Then
 		Dim flexMode, label
 		flexMode = GetPlayerState(FLEX_MODE)
-
-		Select Case flexMode
-			Case 0: 'SCORE
-				Dim flexScoreLabel: Set flexScoreLabel = DMDNormalScene.GetLabel("lblScore")
-				If lenScore>6 Then
-					flexScoreLabel.Font = font32
-				End If
-				flexScoreLabel.Text = FormatScore(GetPlayerState(SCORE))
-				flexScoreLabel.SetAlignedPosition 128, 32, FlexDMD_Align_Center
-			Case 1: 'EMP SCENE
-				Dim chargeLabel: Set chargeLabel = DMDEMPScene.GetLabel("lblCharge2")
-				chargeLabel.Text =  (EMP_BASE_HITS * GetPlayerState(EMP_ACTIVATIONS)) - GetPlayerState(EMP_CHARGE) & " HITS REMAINING"
-				chargeLabel.SetAlignedPosition 128, 42, FlexDMD_Align_Center			
-			Case 3: 'BOOST SCENE
-				'Set label = DMDBoostScene.GetLabel("lblBoost")
-				'label.Text =  ((3 * GetPlayerState(BOOST_ACTIVATIONS)) - GetPlayerState(BOOST_HITS))  & " HITS REMAINING"
-				'label.SetAlignedPosition 128, 32, FlexDMD_Align_Center			
-			Case 7: 'RACE MODE SELECTION SCENE
-				Dim labelTitle : Set labelTitle = DMDRaceSelectScene.GetLabel("lblRaceTitle")
-				Dim labelDescription : Set labelDescription = DMDRaceSelectScene.GetLabel("lblRaceDescription")
-				Dim selection : selection = GetPlayerState(RACE_MODE_SELECTION)
-				labelTitle.Text =  "RACE " & selection & " -VS- " & GAME_RACE_MODE_TITLES(selection-1)
-				labelDescription.Text =  GAME_RACE_MODE_DESC(selection-1)
-				labelTitle.SetAlignedPosition 128, 24, FlexDMD_Align_Center
-				labelDescription.SetAlignedPosition 128, 42, FlexDMD_Align_Center
-		End Select
 	End If
 End Sub
 
@@ -593,81 +511,6 @@ Sub FlexDMDHiScoreScene()
 End Sub
 
 
-Sub InitDMDNodeScene()
-    'Dim lbl1 : Set lbl1 = FlexDMD.NewLabel("lblCharge", font20Outline, "EMP CHARGING")
-    'Dim lbl2 : Set lbl2 = FlexDMD.NewLabel("lblCharge2", font20Outline, "HITS REMAINING")
-	'lbl1.SetAlignedPosition 128, 24, FlexDMD_Align_Center
-    'lbl2.SetAlignedPosition 128, 42, FlexDMD_Align_Center
-    DMDNodeScene.AddActor DMDNodeCollected
-    'DMDNodeScene.AddActor lbl1
-    'DMDNodeScene.AddActor lbl2
-End Sub
-
-Sub InitDMDNodePerkCollectScene()
-    Dim lblLeftLine1 : Set lblLeftLine1 = FlexDMD.NewLabel("lblLeftLine1", font16, "")
-    Dim lblLeftLine2 : Set lblLeftLine2 = FlexDMD.NewLabel("lblLeftLine2", font16, "")
-    Dim lblRightLine1 : Set lblRightLine1 = FlexDMD.NewLabel("lblRightLine1", font16, "")
-    Dim lblRightLine2 : Set lblRightLine2 = FlexDMD.NewLabel("lblRightLine2", font16, "")
-    
-	lblLeftLine1.SetAlignedPosition 69, 24, FlexDMD_Align_Center
-    lblLeftLine2.SetAlignedPosition 69, 40, FlexDMD_Align_Center
-    
-    lblRightLine1.SetAlignedPosition 187, 24, FlexDMD_Align_Center
-    lblRightLine2.SetAlignedPosition 187, 40, FlexDMD_Align_Center
-    
-    Dim border : Set border = FlexDMD.NewFrame("border")
-    border.Thickness = 2
-    border.SetBounds 0,0,256,64
-
-    Dim leftBorder : Set leftBorder = FlexDMD.NewFrame("leftBorder")
-    leftBorder.Thickness = 2
-    leftBorder.SetBounds 20,10,98,44
-
-    Dim rightBorder : Set rightBorder = FlexDMD.NewFrame("rightBorder")
-    rightBorder.Thickness = 2
-    rightBorder.SetBounds 138,10,98,44
-
-
-    Dim lblLeftArrow : Set lblLeftArrow = FlexDMD.NewLabel("lblLeftArrow", font18, "<")
-    Dim lblRightArrow : Set lblRightArrow = FlexDMD.NewLabel("lblRightArrow", font18, ">")
-	lblLeftArrow.SetAlignedPosition 6, 64, FlexDMD_Align_BottomLeft
-	lblRightArrow.SetAlignedPosition 250, 64, FlexDMD_Align_BottomRight
-	
-	Dim af
-	Set af = lblLeftArrow.ActionFactory
-	dim blinkLeft : Set blinkLeft = af.Sequence()
-	blinkLeft.Add af.Show(False)
-	blinkLeft.Add af.Wait(0.5)
-	blinkLeft.Add af.Show(True)
-	blinkLeft.Add af.Wait(0.5)
-	lblLeftArrow.AddAction af.Repeat(blinkLeft, -1)
-
-	Set af = lblRightArrow.ActionFactory
-	dim blinkRight : Set blinkRight = af.Sequence()
-	blinkRight.Add af.Show(True)
-	blinkRight.Add af.Wait(0.5)
-	blinkRight.Add af.Show(False)
-	blinkRight.Add af.Wait(0.5)
-	lblRightArrow.AddAction af.Repeat(blinkRight, -1)
-
-
-    'DMDNodeScene.AddActor DMDNodeCollected
-    DMDNodePerkCollectScene.AddActor border
-    DMDNodePerkCollectScene.AddActor leftBorder
-    DMDNodePerkCollectScene.AddActor rightBorder
-    DMDNodePerkCollectScene.AddActor lblLeftArrow
-    DMDNodePerkCollectScene.AddActor lblRightArrow
-    DMDNodePerkCollectScene.AddActor lblLeftLine1
-    DMDNodePerkCollectScene.AddActor lblLeftLine2
-    DMDNodePerkCollectScene.AddActor lblRightLine1
-    DMDNodePerkCollectScene.AddActor lblRightLine2
-    
-End Sub
-
-Sub FlexDMDNodeScene()
-    
-End Sub
-
 Sub FlexDMDNodesCompleteScene()
     Dim qItem : Set qItem = New QueueItem
     With qItem
@@ -733,22 +576,7 @@ Sub FlexDMDNodePerkCollectScene()
 End Sub
 
 
-Sub InitDMDRaceReadyScene()
-    DMDRaceReadyScene.AddActor DMDRaceReadyVid
-End Sub
 
-Sub InitDMDRaceSelectScene()
-    Dim lbl1 : Set lbl1 = FlexDMD.NewLabel("lblRaceTitle", font20Outline, "RACE X VS RIDLEY")
-    Dim lbl2 : Set lbl2 = FlexDMD.NewLabel("lblRaceDescription", font20Outline, "Hit 6 Ramp Shots")
-	lbl1.SetAlignedPosition 128, 24, FlexDMD_Align_Center
-    lbl2.SetAlignedPosition 128, 42, FlexDMD_Align_Center
-    DMDRaceSelectScene.AddActor lbl1
-    DMDRaceSelectScene.AddActor lbl2
-End Sub
-
-Sub FlexDMDRaceReadyScene()
-   
-End Sub
 
 
 Sub FlexDMDRaceSelectScene()
@@ -788,8 +616,6 @@ End Sub
 
 
 
-Sub InitDMDSkillsScene()
-End Sub
 
 Sub FlexDMDSkillsScene()	
     Dim qItem : Set qItem = New QueueItem
@@ -817,9 +643,6 @@ Dim DMDFontMain
 Dim DMDFontBig
 Dim DMDFontSmall
 Dim DMDFontSmallBold
-
-
-
 
 sub CreateGameDMD
 
@@ -877,25 +700,25 @@ sub CreateGameDMD
 	scene.GetFrame("VSeparator1").Thickness = 1
 	scene.GetFrame("VSeparator1").Visible = False
 	scene.GetFrame("VSeparator1").BorderColor = RGB(255,255,0)
-	scene.GetFrame("VSeparator1").SetBounds 2, 7, (DMDWidth/2)-12, 1
+	scene.GetFrame("VSeparator1").SetBounds 2, 7, ((DMDWidth/2)-12), 1
 
 	scene.AddActor FlexDMD.NewFrame("VSeparator2")
 	scene.GetFrame("VSeparator2").Thickness = 1
 	scene.GetFrame("VSeparator2").Visible = False
 	scene.GetFrame("VSeparator2").BorderColor = RGB(255,255,0)
-	scene.GetFrame("VSeparator2").SetBounds (DMDWidth/2)+10, 7, (DMDWidth/2)-12, 1
+	scene.GetFrame("VSeparator2").SetBounds ((DMDWidth/2)+10), 7, ((DMDWidth/2)-12), 1
 
 	scene.AddActor FlexDMD.NewFrame("VSeparator3")
 	scene.GetFrame("VSeparator3").Thickness = 1
 	scene.GetFrame("VSeparator3").Visible = False
 	scene.GetFrame("VSeparator3").BorderColor = RGB(255,255,0)
-	scene.GetFrame("VSeparator3").SetBounds 2, 24, (DMDWidth/2)-12, 1
+	scene.GetFrame("VSeparator3").SetBounds 2, 24, ((DMDWidth/2)-12), 1
 
 	scene.AddActor FlexDMD.NewFrame("VSeparator4")
 	scene.GetFrame("VSeparator4").Thickness = 1
 	scene.GetFrame("VSeparator4").Visible = False
 	scene.GetFrame("VSeparator4").BorderColor = RGB(255,255,0)
-	scene.GetFrame("VSeparator4").SetBounds (DMDWidth/2)+10, 24, (DMDWidth/2)-12, 1
+	scene.GetFrame("VSeparator4").SetBounds ((DMDWidth/2)+10), 24, ((DMDWidth/2)-12), 1
 
 
 	
@@ -1005,13 +828,7 @@ Sub DMDTimer_Timer
 	If flexMode > 0 Then
 		Select Case flexMode
 			Case 7: 'RACE MODE SELECTION SCENE
-				'Dim labelTitle : Set labelTitle = DMDRaceSelectScene.GetLabel("lblRaceTitle")
-				'Dim labelDescription : Set labelDescription = DMDRaceSelectScene.GetLabel("lblRaceDescription")
-				'Dim selection : selection = GetPlayerState(RACE_MODE_SELECTION)
-				'labelTitle.Text =  "RACE " & selection & " -VS- " & GAME_RACE_MODE_TITLES(selection-1)
-				'labelDescription.Text =  GAME_RACE_MODE_DESC(selection-1)
-				'labelTitle.SetAlignedPosition 128, 24, FlexDMD_Align_Center
-				'labelDescription.SetAlignedPosition 128, 42, FlexDMD_Align_Center
+
 		End Select
 	Else
 		Dim currentBall : currentBall = GetPlayerState(CURRENT_BALL)
@@ -8598,7 +8415,6 @@ Sub NodeARowHit()
     If success = True Then
         PlaySoundAt "fx_node_grid_hit", ActiveBall
         SetPlayerState BONUS_NODES_COMPLETED, GetPlayerState(BONUS_NODES_COMPLETED) + 1
-        FlexDMDNodeScene()
     Else
        'PlaySoundAt "fx_node_grid_fail", ActiveBall
     End If
@@ -8646,7 +8462,6 @@ Sub NodeBRowHit()
     If success = True Then
         PlaySoundAt "fx_node_grid_hit", ActiveBall
         SetPlayerState BONUS_NODES_COMPLETED, GetPlayerState(BONUS_NODES_COMPLETED) + 1
-        FlexDMDNodeScene()
     Else
        'PlaySoundAt "fx_node_grid_fail", ActiveBall
     End If
@@ -8694,7 +8509,6 @@ Sub NodeCRowHit()
     If success = True Then
         PlaySoundAt "fx_node_grid_hit", ActiveBall
         SetPlayerState BONUS_NODES_COMPLETED, GetPlayerState(BONUS_NODES_COMPLETED) + 1
-        FlexDMDNodeScene()
     Else
        'PlaySoundAt "fx_node_grid_fail", ActiveBall
     End If

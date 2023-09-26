@@ -134,7 +134,8 @@ Class Queue
         End If
 
         If Not IsObject(CurrentItem) And Items.Count > 0 Then
-            Set CurrentItem = Items.Items()(0)
+            Dim mItems : mItems = Items.Items()
+            Set CurrentItem = mItems(0)
             PreviousItemExecutedTime = gameTime
             If Not IsNull(CurrentItem.Callback) Then
                 ExecuteGlobal CurrentItem.Callback

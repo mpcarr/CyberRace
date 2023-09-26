@@ -1,14 +1,4 @@
 
-Sub InitDMDEMPScene()
-    Dim lbl1 : Set lbl1 = FlexDMD.NewLabel("lblCharge", font20Outline, "EMP CHARGING")
-    Dim lbl2 : Set lbl2 = FlexDMD.NewLabel("lblCharge2", font20Outline, "HITS REMAINING")
-	lbl1.SetAlignedPosition 128, 24, FlexDMD_Align_Center
-    lbl2.SetAlignedPosition 128, 42, FlexDMD_Align_Center
-    DMDEMPScene.AddActor DMDChargeEMP
-    DMDEMPScene.AddActor lbl1
-    DMDEMPScene.AddActor lbl2
-End Sub
-
 Sub FlexDMDEMPScene()
     Dim qItem : Set qItem = New QueueItem
     Dim font

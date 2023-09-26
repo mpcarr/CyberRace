@@ -54,7 +54,6 @@ Sub InitFlexDMD()
 	CreateGameDMD()
 End Sub
 
-
 Sub DMD_Timer()
 	Dim DMDp
 	DMDp = FlexDMD.DmdColoredPixels
@@ -65,49 +64,4 @@ Sub DMD_Timer()
 	End If
 End Sub
 
-
-
 InitFlexDMD()
-
-Dim DMDEMPScene : Set DMDEMPScene = FlexDMD.NewGroup("DMDEMPScene")
-Dim DMDEMPModeScene : Set DMDEMPModeScene = FlexDMD.NewGroup("DMDEMPModeScene")
-Dim DMDChargeEMP : Set DMDChargeEMP = FlexDMD.NewVideo("DMDChargeEMP", "videos/charge_emp.gif")
-InitDMDEMPScene()
-InitDMDEMPModeScene()
-
-
-Dim DMDNodeScene : Set DMDNodeScene = FlexDMD.NewGroup("DMDNodeScene")
-Dim DMDNodePerkCollectScene : Set DMDNodePerkCollectScene = FlexDMD.NewGroup("DMDNodePerkCollectScene")
-Dim DMDNodeCollected : Set DMDNodeCollected = FlexDMD.NewVideo("DMDNodeCollected", "videos/node-collected.gif")
-InitDMDNodeScene()
-InitDMDNodePerkCollectScene()
-
-Dim DMDRaceReadyScene : Set DMDRaceReadyScene = FlexDMD.NewGroup("DMDRaceReadyScene")
-Dim DMDRaceReadyVid : Set DMDRaceReadyVid = FlexDMD.NewVideo("DMDRaceReadyVid", "videos/race-ready.gif")
-InitDMDRaceReadyScene()
-
-Dim DMDRaceSelectScene : Set DMDRaceSelectScene = FlexDMD.NewGroup("DMDRaceSelectScene")
-InitDMDRaceSelectScene()
-
-
-Dim DMDSkillsScene : Set DMDSkillsScene = FlexDMD.NewGroup("DMDSkillsScene")
-Dim DMDSkillsVid : Set DMDSkillsVid = FlexDMD.NewVideo("DMDSkillsVid", "videos/skills-trial.gif")
-InitDMDSkillsScene()
-
-Dim DMDNormalScene : Set DMDNormalScene = FlexDMD.NewGroup("GameModeNormal")
-InitDMDGameSceneNormal()
-
-Dim dmdTimePassed : dmdTimePassed = 0
-
-Sub DMDModeUpdate_Timer
-	
-End Sub
-
-Sub FlexPlayScene(ByRef scene)
-	'FlexDMD.LockRenderThread
-	'FlexDMD.RenderMode = FlexDMD_RenderMode_DMD_RGB
-	'FlexDMD.Stage.RemoveAll
-	'FlexDMD.Stage.AddActor scene
-	'FlexDMD.Show = True
-	'FlexDMD.UnlockRenderThread
-End Sub

@@ -29,32 +29,6 @@ Sub FlexModeUpdate_Timer()
 	If gameStarted = True Then
 		Dim flexMode, label
 		flexMode = GetPlayerState(FLEX_MODE)
-
-		Select Case flexMode
-			Case 0: 'SCORE
-				Dim flexScoreLabel: Set flexScoreLabel = DMDNormalScene.GetLabel("lblScore")
-				If lenScore>6 Then
-					flexScoreLabel.Font = font32
-				End If
-				flexScoreLabel.Text = FormatScore(GetPlayerState(SCORE))
-				flexScoreLabel.SetAlignedPosition 128, 32, FlexDMD_Align_Center
-			Case 1: 'EMP SCENE
-				Dim chargeLabel: Set chargeLabel = DMDEMPScene.GetLabel("lblCharge2")
-				chargeLabel.Text =  (EMP_BASE_HITS * GetPlayerState(EMP_ACTIVATIONS)) - GetPlayerState(EMP_CHARGE) & " HITS REMAINING"
-				chargeLabel.SetAlignedPosition 128, 42, FlexDMD_Align_Center			
-			Case 3: 'BOOST SCENE
-				'Set label = DMDBoostScene.GetLabel("lblBoost")
-				'label.Text =  ((3 * GetPlayerState(BOOST_ACTIVATIONS)) - GetPlayerState(BOOST_HITS))  & " HITS REMAINING"
-				'label.SetAlignedPosition 128, 32, FlexDMD_Align_Center			
-			Case 7: 'RACE MODE SELECTION SCENE
-				Dim labelTitle : Set labelTitle = DMDRaceSelectScene.GetLabel("lblRaceTitle")
-				Dim labelDescription : Set labelDescription = DMDRaceSelectScene.GetLabel("lblRaceDescription")
-				Dim selection : selection = GetPlayerState(RACE_MODE_SELECTION)
-				labelTitle.Text =  "RACE " & selection & " -VS- " & GAME_RACE_MODE_TITLES(selection-1)
-				labelDescription.Text =  GAME_RACE_MODE_DESC(selection-1)
-				labelTitle.SetAlignedPosition 128, 24, FlexDMD_Align_Center
-				labelDescription.SetAlignedPosition 128, 42, FlexDMD_Align_Center
-		End Select
 	End If
 End Sub
 

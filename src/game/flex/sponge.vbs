@@ -10,9 +10,6 @@ Dim DMDFontBig
 Dim DMDFontSmall
 Dim DMDFontSmallBold
 
-
-
-
 sub CreateGameDMD
 
 	Dim title, af,list
@@ -69,25 +66,25 @@ sub CreateGameDMD
 	scene.GetFrame("VSeparator1").Thickness = 1
 	scene.GetFrame("VSeparator1").Visible = False
 	scene.GetFrame("VSeparator1").BorderColor = RGB(255,255,0)
-	scene.GetFrame("VSeparator1").SetBounds 2, 7, (DMDWidth/2)-12, 1
+	scene.GetFrame("VSeparator1").SetBounds 2, 7, ((DMDWidth/2)-12), 1
 
 	scene.AddActor FlexDMD.NewFrame("VSeparator2")
 	scene.GetFrame("VSeparator2").Thickness = 1
 	scene.GetFrame("VSeparator2").Visible = False
 	scene.GetFrame("VSeparator2").BorderColor = RGB(255,255,0)
-	scene.GetFrame("VSeparator2").SetBounds (DMDWidth/2)+10, 7, (DMDWidth/2)-12, 1
+	scene.GetFrame("VSeparator2").SetBounds ((DMDWidth/2)+10), 7, ((DMDWidth/2)-12), 1
 
 	scene.AddActor FlexDMD.NewFrame("VSeparator3")
 	scene.GetFrame("VSeparator3").Thickness = 1
 	scene.GetFrame("VSeparator3").Visible = False
 	scene.GetFrame("VSeparator3").BorderColor = RGB(255,255,0)
-	scene.GetFrame("VSeparator3").SetBounds 2, 24, (DMDWidth/2)-12, 1
+	scene.GetFrame("VSeparator3").SetBounds 2, 24, ((DMDWidth/2)-12), 1
 
 	scene.AddActor FlexDMD.NewFrame("VSeparator4")
 	scene.GetFrame("VSeparator4").Thickness = 1
 	scene.GetFrame("VSeparator4").Visible = False
 	scene.GetFrame("VSeparator4").BorderColor = RGB(255,255,0)
-	scene.GetFrame("VSeparator4").SetBounds (DMDWidth/2)+10, 24, (DMDWidth/2)-12, 1
+	scene.GetFrame("VSeparator4").SetBounds ((DMDWidth/2)+10), 24, ((DMDWidth/2)-12), 1
 
 
 	
@@ -197,13 +194,7 @@ Sub DMDTimer_Timer
 	If flexMode > 0 Then
 		Select Case flexMode
 			Case 7: 'RACE MODE SELECTION SCENE
-				'Dim labelTitle : Set labelTitle = DMDRaceSelectScene.GetLabel("lblRaceTitle")
-				'Dim labelDescription : Set labelDescription = DMDRaceSelectScene.GetLabel("lblRaceDescription")
-				'Dim selection : selection = GetPlayerState(RACE_MODE_SELECTION)
-				'labelTitle.Text =  "RACE " & selection & " -VS- " & GAME_RACE_MODE_TITLES(selection-1)
-				'labelDescription.Text =  GAME_RACE_MODE_DESC(selection-1)
-				'labelTitle.SetAlignedPosition 128, 24, FlexDMD_Align_Center
-				'labelDescription.SetAlignedPosition 128, 42, FlexDMD_Align_Center
+
 		End Select
 	Else
 		Dim currentBall : currentBall = GetPlayerState(CURRENT_BALL)

@@ -39,7 +39,6 @@ Sub NodeARowHit()
     If success = True Then
         PlaySoundAt "fx_node_grid_hit", ActiveBall
         SetPlayerState BONUS_NODES_COMPLETED, GetPlayerState(BONUS_NODES_COMPLETED) + 1
-        FlexDMDNodeScene()
     Else
        'PlaySoundAt "fx_node_grid_fail", ActiveBall
     End If
@@ -87,7 +86,6 @@ Sub NodeBRowHit()
     If success = True Then
         PlaySoundAt "fx_node_grid_hit", ActiveBall
         SetPlayerState BONUS_NODES_COMPLETED, GetPlayerState(BONUS_NODES_COMPLETED) + 1
-        FlexDMDNodeScene()
     Else
        'PlaySoundAt "fx_node_grid_fail", ActiveBall
     End If
@@ -135,7 +133,6 @@ Sub NodeCRowHit()
     If success = True Then
         PlaySoundAt "fx_node_grid_hit", ActiveBall
         SetPlayerState BONUS_NODES_COMPLETED, GetPlayerState(BONUS_NODES_COMPLETED) + 1
-        FlexDMDNodeScene()
     Else
        'PlaySoundAt "fx_node_grid_fail", ActiveBall
     End If

@@ -64,12 +64,11 @@ Function SetPlayerState(key, value)
         WriteToLog "Player State", key&": "&value
     End If   
     
-    
-    If playerState(currentPlayer).Exists(key)  Then
-        playerState(currentPlayer)(key) = value
-    Else
-        playerState(currentPlayer).Add key, value
+    If playerState(currentPlayer).Exists(key) Then
+       playerState(currentPlayer).Remove key
     End If
+    playerState(currentPlayer).Add key, value
+
     If playerEvents.Exists(key) Then
         Dim x
         For Each x in playerEvents(key).Keys()

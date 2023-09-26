@@ -16347,12 +16347,11 @@ Function SetPlayerState(key, value)
         WriteToLog "Player State", key&": "&value
     End If   
     
-    
-    If playerState(currentPlayer).Exists(key)  Then
-        playerState(currentPlayer)(key) = value
-    Else
-        playerState(currentPlayer).Add key, value
+    If playerState(currentPlayer).Exists(key) Then
+       playerState(currentPlayer).Remove key
     End If
+    playerState(currentPlayer).Add key, value
+
     If playerEvents.Exists(key) Then
         Dim x
         For Each x in playerEvents(key).Keys()
@@ -17428,6 +17427,14 @@ Class QueueItem
         End Select
         LabelIdx = LabelIdx + 1
     End Sub
+
+    Public Function GetLabel(idx)
+       GetLabel = eval("Label"&idx)
+       If typename(GetLabel) = "Empty" Then
+          Debug.Print "EMPTY"
+          GetLabel = Null
+       End If
+    End Function
 End Class
 
 Class Queue
@@ -17541,7 +17548,8 @@ Class Queue
 
         Dim i
          For i = 1 to 7
-             dim label : label = Eval("CurrentItem.Label"&CStr(i))
+             
+             dim label : label = CurrentItem.GetLabel(i)
             If Not IsNull(label) Then
 
                 Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
@@ -17612,7 +17620,8 @@ Class Queue
         
         Dim i
         For i = 1 to 7
-            dim label : label = Eval("CurrentItem.Label"&CStr(i))
+            
+            dim label : label = CurrentItem.GetLabel(i)
             If Not IsNull(label) Then
 
                 Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))

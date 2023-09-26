@@ -216,6 +216,7 @@ Sub Table1_Exit
 		FlexDMDScorbitClaim = NULL
     End If
 End Sub
+
 Sub Spinner1_Animate()
     Dim spinangle:spinangle = -Spinner1.currentangle+90
 	'Dim BL : For Each BL in Spinner_SternFlap_BL : BL.RotX = spinangle: Next
@@ -232,6 +233,7 @@ Const NEXT_PLAYER = "Next Player"
 Const BALL_DRAIN = "Ball Drain"
 Const BALL_SAVE = "Ball Save"
 Const GAME_OVER = "Game Over"
+Const ADD_BALL = "Add Ball"
 Const SWITCH_HIT_NODE_A = "Switch Hit Node A"
 Const SWITCH_HIT_NODE_B = "Switch Hit Node B"
 Const SWITCH_HIT_NODE_C = "Switch Hit Node C"
@@ -9999,7 +10001,6 @@ Const MUSIC5 =  "Karl Casey - White Bat I - 07 Self Inflicted"
 Const MUSIC6 =  "Karl Casey - White Bat I - 08 B.F.G."
 Const MUSIC7 =  "Karl Casey - White Bat I - 09 The Witch"
 Const MUSIC8 = "Karl Casey - White Bat I - 10 The Traveler"
-
 Const MUSIC_RACE = "Karl Casey - White Bat I - 03 Anima"
 Const MUSIC_MULTIBALL =  "Karl Casey - White Bat I - 06 Last Man Standing"
 

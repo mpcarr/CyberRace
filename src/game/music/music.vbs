@@ -7,7 +7,6 @@ Const MUSIC5 =  "Karl Casey - White Bat I - 07 Self Inflicted"
 Const MUSIC6 =  "Karl Casey - White Bat I - 08 B.F.G."
 Const MUSIC7 =  "Karl Casey - White Bat I - 09 The Witch"
 Const MUSIC8 = "Karl Casey - White Bat I - 10 The Traveler"
-
 Const MUSIC_RACE = "Karl Casey - White Bat I - 03 Anima"
 Const MUSIC_MULTIBALL =  "Karl Casey - White Bat I - 06 Last Man Standing"
 

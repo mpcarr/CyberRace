@@ -52,7 +52,6 @@ Class QueueItem
     Public Function GetLabel(idx)
        GetLabel = eval("Label"&idx)
        If typename(GetLabel) = "Empty" Then
-          Debug.Print "EMPTY"
           GetLabel = Null
        End If
     End Function

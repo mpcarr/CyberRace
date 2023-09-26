@@ -8610,7 +8610,7 @@ Sub HitInLanes(lane)
             lSeqRGBCircle.Color = GAME_RACE_COLOR
             lightCtrl.AddTableLightSeq "RaceReady", lSeqRGBCircle
             calloutsQ.Add "raceready", "PlayCallout(""raceready"")", 1, 0, 0, 2500, 0, False
-            FlexDMDRaceReadyScene()
+            'FlexDMDRaceReadyScene()
         End If
     End If
 End Sub
@@ -17393,7 +17393,6 @@ Class QueueItem
     Public Function GetLabel(idx)
        GetLabel = eval("Label"&idx)
        If typename(GetLabel) = "Empty" Then
-          Debug.Print "EMPTY"
           GetLabel = Null
        End If
     End Function

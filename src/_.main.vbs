@@ -16,6 +16,7 @@ Const myVersion = "0.0.17"
 'v19: flux: debugging fps issues
 'v20: flux: made ball sit lowerr in scoop, hopefully fixed scoop rejection from left flipper
 'v21: flux: scorbit testing
+'v22: jsm/flux: lots of standalone fixes
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1

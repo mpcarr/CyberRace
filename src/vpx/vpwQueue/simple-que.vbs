@@ -49,11 +49,38 @@ Class QueueItem
         LabelIdx = LabelIdx + 1
     End Sub
 
-    Public Function GetLabel(idx)
-       GetLabel = eval("Label"&idx)
-       If typename(GetLabel) = "Empty" Then
-          GetLabel = Null
-       End If
+   Public Function GetLabel(LabelIdx)
+       GetLabel = Null
+       Select Case LabelIdx
+          Case 1:
+             If Not IsNull(Label1) Then
+                GetLabel = Label1
+             End If
+          Case 2:
+             If Not IsNull(Label2) Then
+                GetLabel = Label2
+             End If
+          Case 3:
+             If Not IsNull(Label3) Then
+                GetLabel = Label3
+             End If
+          Case 4:
+             If Not IsNull(Label4) Then
+                GetLabel = Label4
+             End If
+          Case 5:
+             If Not IsNull(Label5) Then
+                GetLabel = Label5
+             End If
+          Case 6:
+             If Not IsNull(Label6) Then
+                GetLabel = Label6
+             End If
+          Case 7:
+             If Not IsNull(Label7) Then
+                GetLabel = Label7
+             End If
+        End Select
     End Function
 End Class
 

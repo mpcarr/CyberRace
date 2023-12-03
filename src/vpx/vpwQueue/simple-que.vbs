@@ -48,6 +48,40 @@ Class QueueItem
         End Select
         LabelIdx = LabelIdx + 1
     End Sub
+
+   Public Function GetLabel(LabelIdx)
+       GetLabel = Null
+       Select Case LabelIdx
+          Case 1:
+             If Not IsNull(Label1) Then
+                GetLabel = Label1
+             End If
+          Case 2:
+             If Not IsNull(Label2) Then
+                GetLabel = Label2
+             End If
+          Case 3:
+             If Not IsNull(Label3) Then
+                GetLabel = Label3
+             End If
+          Case 4:
+             If Not IsNull(Label4) Then
+                GetLabel = Label4
+             End If
+          Case 5:
+             If Not IsNull(Label5) Then
+                GetLabel = Label5
+             End If
+          Case 6:
+             If Not IsNull(Label6) Then
+                GetLabel = Label6
+             End If
+          Case 7:
+             If Not IsNull(Label7) Then
+                GetLabel = Label7
+             End If
+        End Select
+    End Function
 End Class
 
 Class Queue
@@ -134,7 +168,8 @@ Class Queue
         End If
 
         If Not IsObject(CurrentItem) And Items.Count > 0 Then
-            Set CurrentItem = Items.Items()(0)
+            Dim mItems : mItems = Items.Items()
+            Set CurrentItem = mItems(0)
             PreviousItemExecutedTime = gameTime
             If Not IsNull(CurrentItem.Callback) Then
                 ExecuteGlobal CurrentItem.Callback
@@ -160,7 +195,8 @@ Class Queue
 
         Dim i
          For i = 1 to 7
-             dim label : label = Eval("CurrentItem.Label"&CStr(i))
+             
+             dim label : label = CurrentItem.GetLabel(i)
             If Not IsNull(label) Then
 
                 Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
@@ -231,7 +267,8 @@ Class Queue
         
         Dim i
         For i = 1 to 7
-            dim label : label = Eval("CurrentItem.Label"&CStr(i))
+            
+            dim label : label = CurrentItem.GetLabel(i)
             If Not IsNull(label) Then
 
                 Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))

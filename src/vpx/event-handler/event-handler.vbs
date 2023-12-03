@@ -7,6 +7,7 @@ Sub DispatchPinEvent(e)
         If pinEvents(e)(x) = True Then
             WriteToLog "Dispatching Pin Event", e &": "&x
             ExecuteGlobal x
+            AdvDebug.SendPinEvent e &": "&x
         End If
     Next
 End Sub

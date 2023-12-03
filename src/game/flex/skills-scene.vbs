@@ -1,8 +1,6 @@
 
 
 
-Sub InitDMDSkillsScene()
-End Sub
 
 Sub FlexDMDSkillsScene()	
     Dim qItem : Set qItem = New QueueItem

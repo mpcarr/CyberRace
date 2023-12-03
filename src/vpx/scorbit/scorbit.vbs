@@ -31,7 +31,7 @@ Sub InitFlexScorbitDMD()
 		End With
 		FlexDMDScorbit.RenderMode = FlexDMD_RenderMode_DMD_GRAY_4
 		FlexDMDScorbit.Width = 400
-		FlexDMDScorbit.Height = 100
+		FlexDMDScorbit.Height = 200
 		FlexDMDScorbit.Clear = True
 		FlexDMDScorbit.Show = False
 		FlexDMDScorbit.Run = False
@@ -161,14 +161,14 @@ Sub CreateScorebitPairingDMD
 	dim scene, qrImage
 	Set scene = FlexDMDScorbit.Stage.GetGroup("scene")
 	If scene.HasChild("QRPairing") = False Then
-		Set qrImage = FlexDMDScorbit.NewImage("QRPairing",		"QRCode.png")	: qrImage.SetBounds 0, 0, 100, 100 : qrImage.Visible = False : scene.AddActor qrImage
+		Set qrImage = FlexDMDScorbit.NewImage("QRPairing",		"QRCode.png")	: qrImage.SetBounds 0, 0, 200, 200 : qrImage.Visible = False : scene.AddActor qrImage
 	End If
 	If Scorbit.bNeedsPairing = True Then
 		FlexDMDScorbit.Stage.GetLabel("Loading").Text = "MACHINE NEEDS PAIRING"
 	Else
 		FlexDMDScorbit.Stage.GetLabel("Loading").Text = "PAIRED"
 	End If
-	FlexDMDScorbit.Stage.GetLabel("Loading").SetAlignedPosition 250, 50, FlexDMD_Align_Center
+	FlexDMDScorbit.Stage.GetLabel("Loading").SetAlignedPosition 300, 50, FlexDMD_Align_Center
 	FlexDMDScorbit.Stage.GetLabel("Loading").Visible = True
 	If scene.HasChild("QRPairing") = True Then
 		FlexDMDScorbit.Stage.GetImage("QRPairing").Visible = True

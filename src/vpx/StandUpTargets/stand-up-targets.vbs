@@ -4,8 +4,33 @@
 '		STAND-UP TARGET INITIALIZATION
 '******************************************************
 
+Class StandupTarget
+  Private m_primary, m_prim, m_sw, m_animate
+
+  Public Property Get Primary(): Set Primary = m_primary: End Property
+  Public Property Let Primary(input): Set m_primary = input: End Property
+
+  Public Property Get Prim(): Set Prim = m_prim: End Property
+  Public Property Let Prim(input): Set m_prim = input: End Property
+
+  Public Property Get Sw(): Sw = m_sw: End Property
+  Public Property Let Sw(input): m_sw = input: End Property
+
+  Public Property Get Animate(): Animate = m_animate: End Property
+  Public Property Let Animate(input): m_animate = input: End Property
+
+  Public default Function init(primary, prim, sw, animate)
+    Set m_primary = primary
+    Set m_prim = prim
+    m_sw = sw
+    m_animate = animate
+
+    Set Init = Me
+  End Function
+End Class
+
 'Define a variable for each stand-up target
-Dim ST18, ST19
+Dim ST10, ST11, ST12, ST18, ST19, ST20, ST21, ST22, ST23, ST25
 
 'Set array with stand-up target objects
 '
@@ -20,16 +45,16 @@ Dim ST18, ST19
 'You will also need to add a secondary hit object for each stand up (name sw11o, sw12o, and sw13o on the example Table1)
 'these are inclined primitives to simulate hitting a bent target and should provide so z velocity on high speed impacts
 
-ST10 = Array(sw10, BM_sw10, 10, 0)
-ST11 = Array(sw11, BM_sw11, 11, 0)
-ST12 = Array(sw12, BM_sw12, 12, 0)
-ST18 = Array(sw18, BM_sw18, 18, 0)
-ST19 = Array(sw19, BM_sw19, 19, 0)
-ST20 = Array(sw20, BM_sw20, 20, 0)
-ST21 = Array(sw21, BM_sw21, 21, 0)
-ST22 = Array(sw22, BM_sw22, 22, 0)
-ST23 = Array(sw23, BM_sw23, 23, 0)
-ST25 = Array(sw25, BM_sw25, 25, 0)
+Set ST10 = (new StandupTarget)(sw10, BM_sw10, 10, 0)
+Set ST11 = (new StandupTarget)(sw11, BM_sw11, 11, 0)
+Set ST12 = (new StandupTarget)(sw12, BM_sw12, 12, 0)
+Set ST18 = (new StandupTarget)(sw18, BM_sw18, 18, 0)
+Set ST19 = (new StandupTarget)(sw19, BM_sw19, 19, 0)
+Set ST20 = (new StandupTarget)(sw20, BM_sw20, 20, 0)
+Set ST21 = (new StandupTarget)(sw21, BM_sw21, 21, 0)
+Set ST22 = (new StandupTarget)(sw22, BM_sw22, 22, 0)
+Set ST23 = (new StandupTarget)(sw23, BM_sw23, 23, 0)
+Set ST25 = (new StandupTarget)(sw25, BM_sw25, 25, 0)
 
 'Add all the Stand-up Target Arrays to Stand-up Target Animation Array
 ' STAnimationArray = Array(ST1, ST2, ....)
@@ -51,10 +76,10 @@ Sub STHit(switch)
 	i = STArrayID(switch)
 
 	PlayTargetSound
-	STArray(i)(3) =  STCheckHit(Activeball,STArray(i)(0))
+	STArray(i).animate =  STCheckHit(Activeball,STArray(i).primary)
 
-	If STArray(i)(3) <> 0 Then
-		DTBallPhysics Activeball, STArray(i)(0).orientation, STMass
+	If STArray(i).animate <> 0 Then
+		DTBallPhysics Activeball, STArray(i).primary.orientation, STMass
 	End If
 	DoSTAnim
 End Sub
@@ -62,7 +87,7 @@ End Sub
 Function STArrayID(switch)
 	Dim i
 	For i = 0 to uBound(STArray) 
-		If STArray(i)(2) = switch Then STArrayID = i:Exit Function 
+		If STArray(i).sw = switch Then STArrayID = i:Exit Function 
 	Next
 End Function
 
@@ -91,7 +116,7 @@ End Function
 Sub DoSTAnim()
 	Dim i
 	For i=0 to Ubound(STArray)
-		STArray(i)(3) = STAnimate(STArray(i)(0),STArray(i)(1),STArray(i)(2),STArray(i)(3))
+		STArray(i).animate = STAnimate(STArray(i).primary,STArray(i).prim,STArray(i).sw,STArray(i).animate)
 	Next
 End Sub
 

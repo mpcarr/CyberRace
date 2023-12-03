@@ -187,6 +187,8 @@ Sub Table1_Init()
 	qItem.AddLabel "BOOTING", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
 	DmdQ.Enqueue qItem
 	'StartScorbit
+
+	InitDebugger()
 End Sub
 
 Sub AttractTimer_Timer

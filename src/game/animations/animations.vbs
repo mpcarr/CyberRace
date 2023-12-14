@@ -63,6 +63,14 @@ Sub sw08_Animate
 	Dim el : For Each el in BP_sw08 : el.transz = z: Next
 End Sub
 
+Sub BIPL_Animate
+	Dim z : z = BIPL.CurrentAnimOffset
+	Dim el : For Each el in BP_BIPL : el.transz = z: Next
+End Sub
+
+Sub Bumper1_Animate: Dim a, x: a = Bumper1.CurrentRingOffset: For Each x in BP_BR1: x.Z = a: Next: End Sub
+Sub Bumper2_Animate: Dim a, x: a = Bumper2.CurrentRingOffset: For Each x in BP_BR2: x.Z = a: Next: End Sub
+Sub Bumper3_Animate: Dim a, x: a = Bumper3.CurrentRingOffset: For Each x in BP_BR3: x.Z = a: Next: End Sub
 
 Sub Gate002_Animate()
     Dim el

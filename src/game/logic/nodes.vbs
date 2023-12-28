@@ -176,16 +176,21 @@ End Sub
 '
 '*****************************
 Sub NodeCollectPerk()
-    If GetPlayerState(NODE_LEVEL_UP_READY) = True And GetPlayerState(MODE_MULTIBALL) = False Then
+    If GetPlayerState(NODE_LEVEL_UP_READY) = True And RealBallsInPlay = 1 Then
         SetPlayerState NODE_LEVEL_UP_READY, False
         SetPlayerState NODE_LEVEL, GetPlayerState(NODE_LEVEL) + 1
-        'TODO: Award Perk
-        'TODO: Light Show
-        lSeqCollectPerk.Repeat = True
-        calloutsQ.Add "nodes-choose-perk", "PlayCallout(""nodes-choose-perk"")", 1, 0, 0, 1660, 0, False
-        lightCtrl.AddTableLightSeq "Nodes", lSeqCollectPerk
-        SetPlayerState MODE_PERK_SELECT, True
-        FlexDMDNodePerkCollectScene()
+        If GetPlayerState(NODE_LEVEL) = 6 Then
+            'COMPLETE
+            Debounce "nodesCompleteed", "sw39.TimerEnabled = True", 4000
+            SetPlayerState GRANDSLAM_NODES, True
+            PlayGrandSlamSeq()
+        Else
+            lSeqCollectPerk.Repeat = True
+            calloutsQ.Add "nodes-choose-perk", "PlayCallout(""nodes-choose-perk"")", 1, 0, 0, 1660, 0, False
+            lightCtrl.AddTableLightSeq "Nodes", lSeqCollectPerk
+            SetPlayerState MODE_PERK_SELECT, True
+            FlexDMDNodePerkCollectScene()
+        End If
     End If
 End Sub
 
@@ -240,8 +245,9 @@ Sub NodePerkSelectLeftPerk()
                 SetPlayerState OUTLANE_SAVE, True
             Case 5:'Level 5. Extra Ball
                 SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) + 1
-            Case 6:'Level 6. Spot Grand Slam
-                ' TODO Code Spot Grand Slam
+                FlexExtraBallScene()
+                PlayExtraBallSeq()
+                calloutsQ.Add "extraball", "PlayCallout(""extraball"")", 1, 0, 0, 1000, 0, False
         End Select
         SetPlayerState MODE_PERK_SELECT, False
         NodePerkNextLevel()
@@ -266,7 +272,7 @@ Sub NodePerkSelectRightPerk()
                 AddScore 5000000
             Case 3:'Level 2.  Race Timers + 20 Seconds OR 5x Bonus
                  SetPlayerState BET_MULTIPLIER, 2
-            Case 4:'Level 3. Collect 5x Bonus OR Instant MB
+            Case 4:'Level 3. outlane save OR Instant MB
                 SetPlayerState MODE_MULTIBALL, True
                 ballsInQ = ballsInQ + 2
         		BallReleaseTimer.Enabled = True
@@ -277,9 +283,7 @@ Sub NodePerkSelectRightPerk()
                 lightCtrl.AddShot "MBRightOrbit", l63, RGB(0,255,0)
                 EnableBallSaver 15
             Case 5:'Level 5. 5X Jackpots
-                SetPlayerState JACKPOTS_MULTIPLIER, 5    
-            Case 6:'Level 6. Mini Wizard
-                ' TODO Code Mini Wizard
+                SetPlayerState JACKPOTS_MULTIPLIER, 5
         End Select
         SetPlayerState MODE_PERK_SELECT, False
         NodePerkNextLevel()

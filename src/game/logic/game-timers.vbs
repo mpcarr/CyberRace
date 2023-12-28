@@ -32,19 +32,25 @@ End Sub
 
 Sub GameTimersUpdate_Timer()
 	Dim activeTimer : activeTimer = Array(1000, 0)
-    activeTimer = ProcessGameTimer(GAME_BALLSAVE_TIMER_IDX, activeTimer)
+    ProcessGameTimer GAME_BALLSAVE_TIMER_IDX, activeTimer
     activeTimer = ProcessGameTimer(GAME_RACE_TIMER_IDX, activeTimer)
     activeTimer = ProcessGameTimer(GAME_BET_TIMER_IDX, activeTimer)
     activeTimer = ProcessGameTimer(GAME_BOOST_TIMER_IDX, activeTimer)
     activeTimer = ProcessGameTimer(GAME_EMP_TIMER_IDX, activeTimer)
     activeTimer = ProcessGameTimer(GAME_SKILLS_TIMER_IDX, activeTimer)
+	activeTimer = ProcessGameTimer(GAME_TT_TIMER_IDX, activeTimer)
 	ProcessGameTimer GAME_BONUS_TIMER_IDX, activeTimer
 	ProcessGameTimer GAME_SELECTION_TIMER_IDX, activeTimer
 	ProcessGameTimer GAME_MULTIPLIER_TIMER_IDX, activeTimer
     ClearTimerDisplay
     If activeTimer(0) = 1000 Then
-        Exit Sub
+		If GameTimers(GAME_BALLSAVE_TIMER_IDX) > 0 Then
+			activeTimer = Array(GameTimers(GAME_BALLSAVE_TIMER_IDX), GameTimerColors(GAME_BALLSAVE_TIMER_IDX))
+        End If
     End If
+	If activeTimer(0) = 1000 Then
+		Exit Sub
+	End If
     dbstime = activeTimer(0)
     Dim tmp
     'debug.print(activeTimer(1))
@@ -78,7 +84,7 @@ Function ProcessGameTimer(timer, activeTimer)
 			GameTimersHurry(timer) = 1
 			DispatchPinEvent GameTimerHurryEvent(timer)
 		End If
-		If dbstime < 0 Then
+		If dbstime <= 0 Then
             GameTimers(timer) = 0
 			GameTimersHurry(timer) = 0
 			DispatchPinEvent GameTimerEndEvent(timer)

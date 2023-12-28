@@ -4,6 +4,7 @@
 ' Event Listeners:  
     RegisterPinEvent START_GAME,    "ReleaseBall"
     RegisterPinEvent NEXT_PLAYER,   "ReleaseBall"
+    RegisterPinEvent RELEASE_BALL,   "ReleaseBall"
 '
 '*****************************
 Sub ReleaseBall()

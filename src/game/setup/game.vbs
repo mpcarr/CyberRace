@@ -1,3 +1,4 @@
+
 Sub StartGame()
     gameStarted = True
     FlexDMD.Stage.GetVideo("vidIntro").Visible = False

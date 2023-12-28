@@ -7,6 +7,16 @@ Sub LightSeqGI_PlayDone()
 	lightCtrl.StopSyncWithVpxLights()
 End Sub
 
+Sub PlayShootAgainSeq
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqRandom,40,,1000
+	LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqDownOff,25,2
+
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(127,127,0)
+End Sub
+
 Dim lSeqRaceMode1On : Set lSeqRaceMode1On = New LCSeq
 lSeqRaceMode1On.Name = "lSeqRaceMode1On"
 lSeqRaceMode1On.Sequence = Array( Array("l53|100|FF0000"))
@@ -91,14 +101,16 @@ lSeqRaceMode4Nodes.Repeat = True
 
 Dim lSeqRaceModeSelection5 : Set lSeqRaceModeSelection5 = New LCSeq
 lSeqRaceModeSelection5.Name = "lSeqRaceModeSelection5"
-lSeqRaceModeSelection5.Sequence = Array(Array())
+lSeqRaceModeSelection5.Sequence = Array(Array("l47|100|FF0000","l64|100|FF0000", "l57|100|FF0000", "l01|100|FF0000", "l02|100|FF0000", "l03|100|FF0000", "l04|100|FF0000", "l05|100|FF0000", "l06|100|FF0000", "l07|100|FF0000", "l08|100|FF0000", "l09|100|FF0000", "l10|100|FF0000", "l11|100|FF0000", "l12|100|FF0000", "l13|100|FF0000", "l14|100|FF0000", "l15|100|FF0000"), _
+Array("l47|0|FF0000","l64|0|FF0000", "l57|0|FF0000", "l01|0|FF0000", "l02|0|FF0000", "l03|0|FF0000", "l04|0|FF0000", "l05|0|FF0000", "l06|0|FF0000", "l07|0|FF0000", "l08|0|FF0000", "l09|0|FF0000", "l10|0|FF0000", "l11|0|FF0000", "l12|0|FF0000", "l13|0|FF0000", "l14|0|FF0000", "l15|0|FF0000"))
 lSeqRaceModeSelection5.UpdateInterval = 180
 lSeqRaceModeSelection5.Color = GAME_RACE_COLOR
 lSeqRaceModeSelection5.Repeat = True
 
 Dim lSeqRaceModeSelection6 : Set lSeqRaceModeSelection6 = New LCSeq
 lSeqRaceModeSelection6.Name = "lSeqRaceModeSelection6"
-lSeqRaceModeSelection6.Sequence = Array(Array())
+lSeqRaceModeSelection6.Sequence = Array(Array("l23|100|FF0000","l58|100|FF0000","l46|100|FF0000","l47|100|FF0000", "l48|100|FF0000", "l64|100|FF0000", "l63|100|FF0000"), _
+Array("l23|0|FF0000","l58|0|FF0000","l46|0|FF0000","l47|0|FF0000", "l48|0|FF0000", "l64|0|FF0000", "l63|0|FF0000"))
 lSeqRaceModeSelection6.UpdateInterval = 180
 lSeqRaceModeSelection6.Color = GAME_RACE_COLOR
 lSeqRaceModeSelection6.Repeat = True
@@ -2051,7 +2063,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus1.UpdateInterval = 20
+lSeqBonus1.UpdateInterval = 16
 lSeqBonus1.Color = Null
 lSeqBonus1.Repeat = False
 
@@ -2117,7 +2129,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus2.UpdateInterval = 20
+lSeqBonus2.UpdateInterval = 16
 lSeqBonus2.Color = Null
 lSeqBonus2.Repeat = False
 
@@ -2183,7 +2195,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus3.UpdateInterval = 20
+lSeqBonus3.UpdateInterval = 16
 lSeqBonus3.Color = Null
 lSeqBonus3.Repeat = False
 
@@ -2249,7 +2261,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus4.UpdateInterval = 20
+lSeqBonus4.UpdateInterval = 16
 lSeqBonus4.Color = Null
 lSeqBonus4.Repeat = False
 
@@ -2315,7 +2327,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus5.UpdateInterval = 20
+lSeqBonus5.UpdateInterval = 16
 lSeqBonus5.Color = Null
 lSeqBonus5.Repeat = False
 

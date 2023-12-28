@@ -1,11 +1,178 @@
 Sub Spinner1_Animate()
-    Dim spinangle:spinangle = -Spinner1.currentangle+90
-	'Dim BL : For Each BL in Spinner_SternFlap_BL : BL.RotX = spinangle: Next
+    Dim el
+	For Each el in BP_Spinner1
+		el.RotX = Spinner1.currentangle
+	Next
+
 End Sub
 
 Sub Spinner2_Animate()
-    Dim spinangle:spinangle = -Spinner2.currentangle+90
-	'Dim BL : For Each BL in Spinner_SternFlap_BL : BL.RotX = spinangle: Next
+    Dim el
+	For Each el in BP_Spinner2
+		el.RotX = Spinner2.currentangle
+	Next
+End Sub
+
+Sub sw01_Animate
+	Dim z : z = sw01.CurrentAnimOffset
+	Dim el : For Each el in BP_sw01 : el.transz = z: Next
+End Sub
+
+Sub sw02_Animate
+	Dim z : z = sw02.CurrentAnimOffset
+	Dim el : For Each el in BP_sw02 : el.transz = z: Next
+End Sub
+
+Sub sw03_Animate
+	Dim z : z = sw03.CurrentAnimOffset
+	Dim el : For Each el in BP_sw03 : el.transz = z: Next
+End Sub
+
+Sub sw04_Animate
+	Dim z : z = sw04.CurrentAnimOffset
+	Dim el : For Each el in BP_sw04 : el.transz = z: Next
+End Sub
+
+Sub sw05_Animate
+	Dim z : z = sw05.CurrentAnimOffset
+	Dim el : For Each el in BP_sw05 : el.transz = z: Next
+End Sub
+
+Sub sw06_Animate
+	Dim z : z = sw06.CurrentAnimOffset
+	Dim el : For Each el in BP_sw06 : el.transz = z: Next
+End Sub
+
+Sub sw07_Animate
+	Dim z : z = sw07.CurrentAnimOffset
+	Dim el : For Each el in BP_sw07 : el.transz = z: Next
+End Sub
+
+Sub sw31_Animate
+	Dim z : z = sw31.CurrentAnimOffset
+	Dim el : For Each el in BP_sw31 : el.transz = z: Next
+End Sub
+
+Sub sw14_Animate
+	Dim z : z = sw14.CurrentAnimOffset
+	Dim el : For Each el in BP_sw14 : el.transz = z: Next
+End Sub
+
+Sub sw08_Animate
+	Dim z : z = sw08.CurrentAnimOffset
+	Dim el : For Each el in BP_sw08 : el.transz = z: Next
+End Sub
+
+Sub BIPL_Animate
+	Dim z : z = BIPL.CurrentAnimOffset
+	Dim el : For Each el in BP_BIPL : el.transz = z: Next
+End Sub
+
+Sub Bumper1_Animate: Dim a, x: a = Bumper1.CurrentRingOffset: For Each x in BP_BR1: x.Z = a: Next: End Sub
+Sub Bumper2_Animate: Dim a, x: a = Bumper2.CurrentRingOffset: For Each x in BP_BR2: x.Z = a: Next: End Sub
+Sub Bumper3_Animate: Dim a, x: a = Bumper3.CurrentRingOffset: For Each x in BP_BR3: x.Z = a: Next: End Sub
+
+Sub Gate002_Animate()
+    Dim el
+	For Each el in BP_Gate002_Wire
+		el.RotX = Gate002.currentangle
+	Next
+End Sub
+
+Sub sw26_Animate()
+    Dim el
+	For Each el in BP_sw26_Wire
+		el.RotX = sw26.currentangle
+	Next
+End Sub
+
+Sub LeftFlipper_Animate
+	Dim a : a = LeftFlipper.CurrentAngle
+    'FlipperLSh.RotZ = a
+
+	' Darken light from lane bulbs when bats are up
+	Dim v, w, u, LM
+	v = 255.0 * (120.0 -  LeftFlipper.CurrentAngle) / (120.0 -  69.0)
+	w = Gray2RGB(255.0 - v)
+	u = Gray2RGB(v)
+
+	For Each el in BP_FlipperL
+		el.Rotz = a
+		el.color = w
+		el.visible = v < 128.0
+	Next
+
+	For Each el in BP_FlipperLU
+		el.Rotz = a
+		el.color = u
+		el.visible = v > 128.0
+	Next
+
+End Sub
+
+Sub RightFlipper_Animate
+	Dim a : a = RightFlipper.CurrentAngle
+    'FlipperLSh.RotZ = a
+
+	' Darken light from lane bulbs when bats are up
+	Dim v, w, u, LM
+	v = 255.0 * (120.0 -  RightFlipper.CurrentAngle) / (120.0 -  69.0)
+	w = Gray2RGB(255.0 - v)
+	u = Gray2RGB(v)
+
+	For Each el in BP_FlipperR
+		el.Rotz = a
+		el.color = w
+		el.visible = v < 128.0
+	Next
+
+	For Each el in BP_FlipperRU
+		el.Rotz = a
+		el.color = u
+		el.visible = v > 128.0
+	Next
+
+End Sub
+
+
+Sub UpRightFlipper_Animate
+	Dim a : a = UpRightFlipper.CurrentAngle
+    'FlipperLSh.RotZ = a
+
+	' Darken light from lane bulbs when bats are up
+	Dim v, w, u, LM
+	v = 255.0 * (120.0 -  UpRightFlipper.CurrentAngle) / (120.0 -  69.0)
+	w = Gray2RGB(255.0 - v)
+	u = Gray2RGB(v)
+
+	For Each el in BP_FlipperU
+		el.Rotz = a
+		el.color = w
+		el.visible = v < 128.0
+
+	Next
+
+	For Each el in BP_FlipperUU
+		el.Rotz = a
+		el.color = u
+		el.visible = v > 128.0
+	Next
+
+End Sub
+
+Sub AnimateLockPin()
+	Dim el
+	For Each el in BP_LockPin4
+		If LockPin4.IsDropped = True Then el.Visible=True Else el.Visible = False End If
+	Next
+	For Each el in BP_LockPin4UP
+		If LockPin4.IsDropped = True Then el.Visible=False Else el.Visible = True End If
+	Next
+	If LockPin4.IsDropped = True Then
+		PlaySoundAtLevelStatic "Flipper_Left_Down_4", SoundFxLevel, sw02
+	Else
+		PlaySoundAtLevelStatic "lipper_L04", SoundFxLevel, sw02
+	End If
 End Sub
 
 Dim FlexDMD
@@ -60,6 +227,9 @@ Sub InitFlexDMD()
 		.ProjectFolder = "./CyberRaceDMD/"
 		.Run = True
 	End With
+	Set DmdQ = New Queue
+	Set DmdQ.FlexDMDItem = FlexDMD
+	DmdQ.FlexDMDOverlayAssets = Array("BGBlack|image","BG001|image","BG002|image","BG003|image","BG004|image","BG005|image","BGBoost|video","BGBetMode|video","BGCyber|video","BGEmp|video","BGNodes|video","BGSkills|video","BGEngine|video","BGCooling|video","BGFuel|video","BGNode|video","BGNodeComplete|video","BGRace1|video","BGRace2|video","BGRace3|video","BGRace4|video","BGRace5|video","BGRace6|video""BGRaceLocked|video","BGBonus1|video","BGBonus2|video","BGBonus3|video","BGBonus4|video","BGBonus5|video","BGJackpot|video","TextSmalLine1|text","TextSmalLine2|text","TextSmalLine3|text","TextSmalLine4|text","TextSmalLine5|text","TextSmalLine6|text","TextSmalLine7|text", "Mystery0|video", "Mystery1|video", "Mystery2|video", "Mystery3|video", "Mystery4|video", "TiltWarning|video", "Tilt|video", "ExtraBall|video", "ShootAgain|video")
 	CreateGameDMD()
 End Sub
 
@@ -74,6 +244,26 @@ Sub DMD_Timer()
 End Sub
 
 InitFlexDMD()
+
+'****************************
+' FlexBallSaveScene
+' Event Listeners:          
+RegisterPinEvent BALL_SAVE, "FlexBallSaveScene"
+'
+'*****************************
+Sub FlexBallSaveScene()
+
+	Set qItem = New QueueItem
+	With qItem
+		.Name = "ballsave"
+		.Duration = 2
+		.BGImage = "BGBlack"
+		.BGVideo = "novideo"
+	End With
+	qItem.AddLabel "BALL SAVED", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
+	DmdQ.Enqueue qItem
+
+End Sub
 
 Sub FlexDMDBetScene(bb,eb,tb)
     
@@ -218,7 +408,10 @@ Sub FlexDMDBoostModeScene()
     qItem.AddLabel "JACKPOTS GROW", 		Font12, DMDWidth/2, DMDHeight*.4, DMDWidth/2, DMDHeight*.4, ""
     qItem.AddLabel "FormatScore(GetPlayerState(JACKPOT_VALUE))", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
     DmdQ.Enqueue qItem
-    lightCtrl.AddLightSeq "BoostUp", lSeqBoostUp
+    LightSeqRGB.Play SeqUpOn,50,2
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(0,255,0)
+    
     lightCtrl.pulse l140, 0
     lightCtrl.pulse l141, 0
     lightCtrl.pulse l142, 0
@@ -237,11 +430,29 @@ Sub FlexDMDBoostScene()
     qItem.AddLabel "(3 * GetPlayerState(BOOST_ACTIVATIONS)) - GetPlayerState(BOOST_HITS) & "" FOR BOOST MODE""", 		Font7, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue qItem
    
-    lightCtrl.AddLightSeq "BoostUp", lSeqBoostUp
+    LightSeqRGB.Play SeqUpOn,50,2
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(0,255,0)
+    
     lightCtrl.pulse l140, 0
     lightCtrl.pulse l141, 0
     lightCtrl.pulse l142, 0
     lightCtrl.pulse l143, 0
+
+End Sub
+
+Sub FlexSceneCombo(comboCount)
+
+    Set qItem = New QueueItem
+    With qItem
+        .Name = "combo"
+        .Duration = 2
+        .BGImage = "BGBlack"
+        .BGVideo = "novideo"
+    End With
+    qItem.AddLabel comboCount & " WAY COMBO", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
+    DmdQ.Enqueue qItem
+
 
 End Sub
 
@@ -318,18 +529,19 @@ Sub FlexDMDEMPScene()
     qItem.AddLabel "(EMP_BASE_HITS * GetPlayerState(EMP_ACTIVATIONS)) - GetPlayerState(EMP_CHARGE) & "" HITS""", 		font, DMDWidth*.25, DMDHeight*.8, DMDWidth*.25, DMDHeight*.8, "blink"
     DmdQ.Enqueue qItem
 End Sub
-'
-Sub InitDMDEMPModeScene()
-    Dim lbl1 : Set lbl1 = FlexDMD.NewLabel("lblEmpMode1", font20, "SHOOT LEFT SPINNER")
-    Dim lbl2 : Set lbl2 = FlexDMD.NewLabel("lblEmpMode2", font20, "TO RE-ENERGISE")
-	lbl1.SetAlignedPosition 128, 24, FlexDMD_Align_Center
-    lbl2.SetAlignedPosition 128, 40, FlexDMD_Align_Center
-    DMDEMPModeScene.AddActor lbl1
-    DMDEMPModeScene.AddActor lbl2
-End Sub
 
-Sub FlexDMDEMPModeScene()
-    
+
+Sub FlexExtraBallScene()
+
+	Set qItem = New QueueItem
+	With qItem
+		.Name = "extraball"
+		.Duration = 5
+		.BGImage = "noimage"
+		.BGVideo = "ExtraBall"
+	End With
+	DmdQ.Enqueue qItem
+
 End Sub
 
 
@@ -407,6 +619,8 @@ Sub FlexDMDHiScoreScene()
 End Sub
 
 
+
+
 Sub FlexDMDNodesCompleteScene()
     Dim qItem : Set qItem = New QueueItem
     With qItem
@@ -444,11 +658,6 @@ Sub FlexDMDNodePerkCollectScene()
             perkLeftDesc = "BALL"
             perkRightTitle = "JACKPOTS"
             perkRightDesc = "5X"
-        Case 6: 
-            perkLeftTitle = "SPOT"
-            perkLeftDesc = "G/SLAM"
-            perkRightTitle = "MINI"
-            perkRightDesc = "WIZARD"
     End Select  
     Dim qItem : Set qItem = New QueueItem
     With qItem
@@ -471,13 +680,16 @@ Sub FlexDMDNodePerkCollectScene()
    
 End Sub
 
-
-
-
-
 Sub FlexDMDRaceSelectScene()
     DmdQ.RemoveAll()
+    Dim r1,r2,r3,r4,racesComplete
+    r1 = GetPlayerState(RACE_1)
+    r2 = GetPlayerState(RACE_2)
+    r3 = GetPlayerState(RACE_3)
+    r4 = GetPlayerState(RACE_4)
+    racesComplete = (r1+r2+r3+r4)
     Dim selection : selection = GetPlayerState(RACE_MODE_SELECTION)
+    debug.print(racesComplete)
     Select Case selection:
         Case 1: 
             bgVideo = "BGRace1"
@@ -488,9 +700,9 @@ Sub FlexDMDRaceSelectScene()
         Case 4: 
             bgVideo = "BGRace4"
         Case 5: 
-            bgVideo = "BGRaceLocked"
+            If racesComplete < 4 Then bgVideo = "BGRaceLocked" Else bgVideo = "BGRace5" End If
         Case 6: 
-            bgVideo = "BGRaceLocked"                        
+            If racesComplete < 4 Then bgVideo = "BGRaceLocked" Else bgVideo = "BGRace6" End If
     End Select  
     Dim qItem : Set qItem = New QueueItem
     With qItem
@@ -500,13 +712,32 @@ Sub FlexDMDRaceSelectScene()
         .BGVideo = "novideo"
         .Callback = "GameTimers(GAME_SELECTION_TIMER_IDX) = 15"
     End With
+    Dim gameModeTitle
+    gameModeTitle = GAME_RACE_MODE_DESC(selection-1)
+    If racesComplete < 4 And (selection = 5 Or selection = 6) Then
+        gameModeTitle = "LOCKED"
+    End If
     qItem.AddLabel GAME_RACE_MODE_TITLES(selection-1), 		    FlexDMD.NewFont(DMDFontMain, RGB(255, 0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.35, DMDWidth/2, DMDHeight*.35, ""
     qItem.AddLabel "<", 		                                FlexDMD.NewFont(DMDFontSmall, RGB(255, 0,0), RGB(0, 0, 0), 0), DMDWidth*.1, DMDHeight*.3, DMDWidth*.1, DMDHeight*.3, "blink"
     qItem.AddLabel ">", 		                                FlexDMD.NewFont(DMDFontSmall, RGB(255, 0,0), RGB(0, 0, 0), 0), DMDWidth*.9, DMDHeight*.3, DMDWidth*.9, DMDHeight*.3, "blink"
-    qItem.AddLabel GAME_RACE_MODE_DESC(selection-1), 		                        Font7, DMDWidth/2, DMDHeight*.75, DMDWidth/2, DMDHeight*.75, ""
+    qItem.AddLabel gameModeTitle, 		                        Font7, DMDWidth/2, DMDHeight*.75, DMDWidth/2, DMDHeight*.75, ""
     qItem.AddLabel "GetPlayerState(EMPTY_STR) & Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10) & """" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)-Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10)*10)", 		Font7, DMDWidth*.9, DMDHeight*.8, DMDWidth*.9, DMDHeight*.8, ""
 
     DmdQ.Enqueue qItem
+
+End Sub
+
+Sub FlexAddTimeScene()
+
+	Set qItem = New QueueItem
+	With qItem
+		.Name = "addTime"
+		.Duration = 2
+		.BGImage = "BGBlack"
+		.BGVideo = "novideo"
+	End With
+	qItem.AddLabel "BALL SAVED", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
+	DmdQ.Enqueue qItem
 
 End Sub
 
@@ -654,6 +885,8 @@ sub CreateGameDMD
 	Set title = FlexDMD.NewVideo("BGRace2", "videos/race2.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGRace3", "videos/race3.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGRace4", "videos/race4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("BGRace5", "videos/race4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("BGRace6", "videos/race4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGRaceLocked", "videos/RaceLocked.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 
     Set title = FlexDMD.NewVideo("BGBonus1", "videos/bonus1.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
@@ -661,6 +894,18 @@ sub CreateGameDMD
 	Set title = FlexDMD.NewVideo("BGBonus3", "videos/bonus3.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGBonus4", "videos/bonus4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGBonus5", "videos/bonus5.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+
+	Set title = FlexDMD.NewVideo("Mystery0", "videos/mystery_0.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("Mystery1", "videos/mystery_1.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("Mystery2", "videos/mystery_2.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("Mystery3", "videos/mystery_3.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("Mystery4", "videos/mystery_4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+
+	Set title = FlexDMD.NewVideo("TiltWarning", "videos/tilt-warning.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("Tilt", "videos/tilt.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("ExtraBall", "videos/extra-ball.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("ShootAgain", "videos/shoot-again.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+
 
 	Set title = FlexDMD.NewVideo("BGJackpot", "videos/jackpot.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 
@@ -806,6 +1051,56 @@ End function
 
 
 
+
+Sub FlexTiltScene()
+
+	Set qItem = New QueueItem
+	With qItem
+		.Name = "tilt"
+		.Duration = 30
+		.BGImage = "noimage"
+		.BGVideo = "Tilt"
+	End With
+	DmdQ.Enqueue qItem
+
+End Sub
+
+Sub FlexTiltWarningScene()
+
+	Set qItem = New QueueItem
+	With qItem
+		.Name = "tiltwarning"
+		.Duration = 5
+		.BGImage = "noimage"
+		.BGVideo = "TiltWarning"
+	End With
+	DmdQ.Enqueue qItem
+
+End Sub
+
+
+Sub FlexDMDTimeTrialScene()
+    Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "timetrial"
+        .Duration = 2
+        .BGImage = "BGBlack"
+        .BGVideo = "novideo"
+    End With
+    qItem.AddLabel "TT COLLECTED", 		Font12, DMDWidth/2, DMDHeight*.4, DMDWidth/2, DMDHeight*.4, ""
+    qItem.AddLabel "(10 * GetPlayerState(TT_ACTIVATIONS)) - GetPlayerState(TT_COLLECTED) & "" FOR TT MULTIBALL""", 		Font7, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
+    DmdQ.Enqueue qItem
+   
+    LightSeqRGB.Play SeqStripe2VertOn,5,1
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(127,0,127)
+    lightCtrl.pulse l90, 0
+    lightCtrl.pulse l91, 0
+    lightCtrl.pulse l92, 0
+    lightCtrl.pulse l93, 0
+    lightCtrl.pulse l95, 0
+
+End Sub
 
 '****************************
 ' Attract
@@ -1085,6 +1380,59 @@ lSeqAttBoost.Repeat = True
 
 
 '****************************
+' BGStartGame
+' Event Listeners:  
+RegisterPinEvent START_GAME,    "BGStartGame"
+'
+'*****************************
+Sub BGStartGame()
+    DOF 1, 1 'C
+    DOF 2, 1 'Y
+    DOF 3, 1 'B
+    DOF 4, 1 'E
+    DOF 5, 1 'R
+    DOF 6, 1 'R
+    DOF 7, 1 'A
+    DOF 8, 1 'C
+    DOF 9, 1 'E
+End Sub
+
+'****************************
+' BGStartAttract
+' Event Listeners:          
+RegisterPinEvent GAME_OVER, "BGStartAttract"
+'
+'*****************************
+Dim BGAttractIndex : BGAttractIndex = 1
+Sub BGStartAttract()
+    DOF 1, 0 'C
+    DOF 2, 0 'Y
+    DOF 3, 0 'B
+    DOF 4, 0 'E
+    DOF 5, 0 'R
+    DOF 6, 0 'R
+    DOF 7, 0 'A
+    DOF 8, 0 'C
+    DOF 9, 0 'E
+
+    BGAttractIndex = 1
+    DOF BGAttractIndex, 1
+    SetTimer "BGAttract", "BGAttractNext", 200
+End Sub
+
+Sub BGAttractNext()
+    If gameStarted = False Then
+        DOF BGAttractIndex, 0
+        BGAttractIndex = BGAttractIndex + 1
+        If BGAttractIndex = 10 Then
+            BGAttractIndex = 1
+        End If
+        DOF BGAttractIndex, 1
+        SetTimer "BGAttract", "BGAttractNext", 200
+    End If
+End Sub
+
+'****************************
 ' Bet 1
 ' Event Listeners:          
     RegisterPlayerStateEvent BET_1, "PS_Bet1"
@@ -1321,6 +1669,57 @@ Sub PS_ExtraBalls()
     End If
 End Sub
 
+
+'****************************
+' PS_ClaimExtraBalls
+' Event Listeners:          
+RegisterPlayerStateEvent RACE_EXTRABALL, "PS_ClaimExtraBalls"
+'
+'*****************************
+Sub PS_ClaimExtraBalls()
+    If GetPlayerState(RACE_EXTRABALL) = 1 Then
+        lightCtrl.LightOn l34
+    Else
+        lightCtrl.LightOff l34
+    End If
+End Sub
+
+Sub PlayExtraBallSeq
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqUpOn,25,1
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqDownOn,25,1
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqRightOn,25,1
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqLeftOn,25,1
+    LightSeqRGB.Play SeqRandom,40,,500
+
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(100,5,17)
+End Sub
+
+Sub FlashSeq1()
+    GIOff
+    SetTimer "Flash1", "lightCtrl.Pulse l140, 0", 0
+    SetTimer "Flash2", "lightCtrl.Pulse l141, 0", 100
+    SetTimer "Flash3", "lightCtrl.Pulse l142, 0", 200
+    SetTimer "Flash4", "lightCtrl.Pulse l143, 0", 300
+    SetTimer "GIOn", "GIOn", 400
+End Sub
+
+Sub FlashSeq2()
+    GIOff
+    SetTimer "Flash1", "lightCtrl.Pulse l140, 0", 0
+    SetTimer "Flash2", "lightCtrl.Pulse l141, 0", 100
+    SetTimer "Flash3", "lightCtrl.Pulse l140, 0", 200
+    SetTimer "Flash4", "lightCtrl.Pulse l141, 0", 300
+    SetTimer "Flash5", "lightCtrl.Pulse l142, 0", 400
+    SetTimer "Flash6", "lightCtrl.Pulse l143, 0", 500
+    SetTimer "Flash7", "lightCtrl.Pulse l142, 0", 600
+    SetTimer "Flash8", "lightCtrl.Pulse l143, 0", 700
+    SetTimer "GIOn", "GIOn", 800
+End Sub
 '****************************
 ' GI State
 ' Event Listeners:  
@@ -1328,6 +1727,7 @@ End Sub
     RegisterPlayerStateEvent GI_COLOR, "GIState"
     RegisterPlayerStateEvent MODE_RACE, "GIState"
     RegisterPlayerStateEvent MODE_MULTIBALL, "GIState"
+    RegisterPlayerStateEvent MODE_TT_MULTIBALL, "GIState"
     RegisterPlayerStateEvent MODE_BET, "GIState"
 '
 '*****************************
@@ -1341,16 +1741,118 @@ Sub GIState()
     If GetPlayerState(MODE_MULTIBALL) = True Then
         color = GAME_MULTIBALL_COLOR
     End If
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        color = GAME_TT_COLOR
+    End If
     If GetPlayerState(MODE_BET) = True Then
         color = GAME_HURRYUP_COLOR
     End If
     state = GetPlayerState(GI_STATE)
+
+    If GetPlayerState(GRANDSLAM_WIZARD_READY) = True Then
+        state = 0
+    End If
     
     For Each light in GIControlLights
         lightCtrl.LightState light, state
         lightCtrl.LightColor light, color
         lightCtrl.LightLevel light, 100
     Next
+End Sub
+
+Sub GIOn
+    GIState()
+End Sub
+
+Sub GIOff
+    For Each light in GIControlLights
+        lightCtrl.LightOff light
+    Next
+End Sub
+
+Sub PlayGrandSlamSeq
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqUpOn,25,1
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqDownOn,25,1
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqRightOn,25,1
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqLeftOn,25,1
+    LightSeqRGB.Play SeqRandom,40,,500
+
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(127,0,127)
+End Sub
+
+'****************************
+' PS_GrandSlamTT
+' Event Listeners:  
+RegisterPlayerStateEvent GRANDSLAM_TT, "PS_GrandSlamTT"
+'
+'*****************************
+Sub PS_GrandSlamTT()
+    If GetPlayerState(GRANDSLAM_TT) = True Then
+        lightCtrl.LightOn l83
+    Else
+        lightCtrl.LightOff l83
+    End If
+End Sub
+
+'****************************
+' PS_GrandSlamRaces
+' Event Listeners:  
+RegisterPlayerStateEvent GRANDSLAM_RACES, "PS_GrandSlamRaces"
+'
+'*****************************
+Sub PS_GrandSlamRaces()
+    If GetPlayerState(GRANDSLAM_RACES) = True Then
+        lightCtrl.LightOn l80
+    Else
+        lightCtrl.LightOff l80
+    End If
+End Sub
+
+'****************************
+' PS_GrandSlamSkills
+' Event Listeners:  
+RegisterPlayerStateEvent GRANDSLAM_SKILLS, "PS_GrandSlamSkills"
+'
+'*****************************
+Sub PS_GrandSlamSkills()
+    If GetPlayerState(GRANDSLAM_SKILLS) = True Then
+        lightCtrl.LightOn l81
+    Else
+        lightCtrl.LightOff l81
+    End If
+End Sub
+
+'****************************
+' PS_GrandSlamNodes
+' Event Listeners:  
+RegisterPlayerStateEvent GRANDSLAM_NODES, "PS_GrandSlamNodes"
+'
+'*****************************
+Sub PS_GrandSlamNodes()
+    If GetPlayerState(GRANDSLAM_NODES) = True Then
+        lightCtrl.LightOn l82
+    Else
+        lightCtrl.LightOff l82
+    End If
+End Sub
+
+'****************************
+' PS_GrandSlamCombo
+' Event Listeners:  
+RegisterPlayerStateEvent GRANDSLAM_COMBO, "PS_GrandSlamCombo"
+'
+'*****************************
+Sub PS_GrandSlamCombo()
+    If GetPlayerState(GRANDSLAM_COMBO) = True Then
+        lightCtrl.LightOn l84
+    Else
+        lightCtrl.LightOff l84
+    End If
 End Sub
 
 '****************************
@@ -1473,21 +1975,25 @@ Sub PS_LockHits()
             lightCtrl.LightState l71, 2
             lightCtrl.LightState l70, 0
             lightCtrl.LightState l69, 0
+            lightCtrl.LightState l97, 0
         Case 2:
             lightCtrl.LightState l72, 1
             lightCtrl.LightState l71, 1
             lightCtrl.LightState l70, 2
             lightCtrl.LightState l69, 0
+            lightCtrl.LightState l97, 0
         Case 3:
             lightCtrl.LightState l72, 1
             lightCtrl.LightState l71, 1
             lightCtrl.LightState l70, 1
             lightCtrl.LightState l69, 2
+            lightCtrl.LightState l97, 0
         Case 4:
             lightCtrl.LightState l72, 1
             lightCtrl.LightState l71, 1
             lightCtrl.LightState l70, 1
             lightCtrl.LightState l69, 1
+            lightCtrl.LightState l97, 2
     End Select
 End Sub
 
@@ -1692,22 +2198,22 @@ Sub LightsRaceMode()
     If GetPlayerState(MODE_RACE_SELECT) = True Then
         lightCtrl.RemoveAllTableLightSeqs()
         If GetPlayerState(RACE_1) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode1On
+            lightCtrl.AddTableLightSeq "RaceSelection1On", lSeqRaceMode1On
         End If
         If GetPlayerState(RACE_2) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode2On
+            lightCtrl.AddTableLightSeq "RaceSelection2On", lSeqRaceMode2On
         End If
         If GetPlayerState(RACE_3) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode3On
+            lightCtrl.AddTableLightSeq "RaceSelection3On", lSeqRaceMode3On
         End If
         If GetPlayerState(RACE_4) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode4On
+            lightCtrl.AddTableLightSeq "RaceSelection4On", lSeqRaceMode4On
         End If
         If GetPlayerState(RACE_5) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode5On
+            lightCtrl.AddTableLightSeq "RaceSelection5On", lSeqRaceMode5On
         End If
         If GetPlayerState(RACE_6) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode6On
+            lightCtrl.AddTableLightSeq "RaceSelection6On", lSeqRaceMode6On
         End If
         Select Case GetPlayerState(RACE_MODE_SELECTION):
             Case 1: 
@@ -1747,9 +2253,9 @@ Sub ModeRace()
             Case 4:
                 lightCtrl.Blink l56
             Case 5:
-                
+                lightCtrl.Blink l57
             Case 6:
-               
+                lightCtrl.Blink l58
         End Select
     Else
         LightsModeRace1()
@@ -1828,6 +2334,16 @@ End Sub
 
 Sub LightSeqGI_PlayDone()
 	lightCtrl.StopSyncWithVpxLights()
+End Sub
+
+Sub PlayShootAgainSeq
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqRandom,40,,1000
+	LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqDownOff,25,2
+
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(127,127,0)
 End Sub
 
 Dim lSeqRaceMode1On : Set lSeqRaceMode1On = New LCSeq
@@ -1914,14 +2430,16 @@ lSeqRaceMode4Nodes.Repeat = True
 
 Dim lSeqRaceModeSelection5 : Set lSeqRaceModeSelection5 = New LCSeq
 lSeqRaceModeSelection5.Name = "lSeqRaceModeSelection5"
-lSeqRaceModeSelection5.Sequence = Array(Array())
+lSeqRaceModeSelection5.Sequence = Array(Array("l47|100|FF0000","l64|100|FF0000", "l57|100|FF0000", "l01|100|FF0000", "l02|100|FF0000", "l03|100|FF0000", "l04|100|FF0000", "l05|100|FF0000", "l06|100|FF0000", "l07|100|FF0000", "l08|100|FF0000", "l09|100|FF0000", "l10|100|FF0000", "l11|100|FF0000", "l12|100|FF0000", "l13|100|FF0000", "l14|100|FF0000", "l15|100|FF0000"), _
+Array("l47|0|FF0000","l64|0|FF0000", "l57|0|FF0000", "l01|0|FF0000", "l02|0|FF0000", "l03|0|FF0000", "l04|0|FF0000", "l05|0|FF0000", "l06|0|FF0000", "l07|0|FF0000", "l08|0|FF0000", "l09|0|FF0000", "l10|0|FF0000", "l11|0|FF0000", "l12|0|FF0000", "l13|0|FF0000", "l14|0|FF0000", "l15|0|FF0000"))
 lSeqRaceModeSelection5.UpdateInterval = 180
 lSeqRaceModeSelection5.Color = GAME_RACE_COLOR
 lSeqRaceModeSelection5.Repeat = True
 
 Dim lSeqRaceModeSelection6 : Set lSeqRaceModeSelection6 = New LCSeq
 lSeqRaceModeSelection6.Name = "lSeqRaceModeSelection6"
-lSeqRaceModeSelection6.Sequence = Array(Array())
+lSeqRaceModeSelection6.Sequence = Array(Array("l23|100|FF0000","l58|100|FF0000","l46|100|FF0000","l47|100|FF0000", "l48|100|FF0000", "l64|100|FF0000", "l63|100|FF0000"), _
+Array("l23|0|FF0000","l58|0|FF0000","l46|0|FF0000","l47|0|FF0000", "l48|0|FF0000", "l64|0|FF0000", "l63|0|FF0000"))
 lSeqRaceModeSelection6.UpdateInterval = 180
 lSeqRaceModeSelection6.Color = GAME_RACE_COLOR
 lSeqRaceModeSelection6.Repeat = True
@@ -3874,7 +4392,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus1.UpdateInterval = 20
+lSeqBonus1.UpdateInterval = 16
 lSeqBonus1.Color = Null
 lSeqBonus1.Repeat = False
 
@@ -3940,7 +4458,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus2.UpdateInterval = 20
+lSeqBonus2.UpdateInterval = 16
 lSeqBonus2.Color = Null
 lSeqBonus2.Repeat = False
 
@@ -4006,7 +4524,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus3.UpdateInterval = 20
+lSeqBonus3.UpdateInterval = 16
 lSeqBonus3.Color = Null
 lSeqBonus3.Repeat = False
 
@@ -4072,7 +4590,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus4.UpdateInterval = 20
+lSeqBonus4.UpdateInterval = 16
 lSeqBonus4.Color = Null
 lSeqBonus4.Repeat = False
 
@@ -4138,7 +4656,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus5.UpdateInterval = 20
+lSeqBonus5.UpdateInterval = 16
 lSeqBonus5.Color = Null
 lSeqBonus5.Repeat = False
 
@@ -6838,6 +7356,90 @@ lSeqSweepAll.Repeat = False
 
 
 
+'****************************
+' PS_TTOrbit
+' Event Listeners:  
+    RegisterPlayerStateEvent TT_ORBIT, "PS_TTOrbit"
+'
+'*****************************
+Sub PS_TTOrbit()
+    lightCtrl.LightState l95, GetPlayerState(TT_ORBIT)
+End Sub
+
+'****************************
+' PS_TTTarget
+' Event Listeners:  
+RegisterPlayerStateEvent TT_TARGET, "PS_TTTarget"
+'
+'*****************************
+Sub PS_TTTarget()
+    lightCtrl.LightState l91, GetPlayerState(TT_TARGET)
+End Sub
+
+'****************************
+' PS_TTRamp
+' Event Listeners:  
+RegisterPlayerStateEvent TT_RAMP, "PS_TTRamp"
+'
+'*****************************
+Sub PS_TTRamp()
+    lightCtrl.LightState l90, GetPlayerState(TT_RAMP)
+End Sub
+
+'****************************
+' PS_TTCaptive
+' Event Listeners:  
+RegisterPlayerStateEvent TT_CAPTIVE, "PS_TTCaptive"
+'
+'*****************************
+Sub PS_TTCaptive()
+    lightCtrl.LightState l92, GetPlayerState(TT_CAPTIVE)
+End Sub
+
+'****************************
+' PS_TTShortcut
+' Event Listeners:  
+RegisterPlayerStateEvent TT_SHORTCUT, "TTShortcut"
+'
+'*****************************
+Sub TTShortcut()
+    lightCtrl.LightState l93, GetPlayerState(TT_SHORTCUT)
+End Sub
+
+
+
+
+Sub BallSearch 
+    If gameStarted = True Then
+        If GameTilted = True Then
+            SoundDropTargetDrop(RPinTarget)     
+            garageKicker.Kick -45, 5
+            raceVuk.Kick 65, RndInt(10,15)
+            SoundSaucerKick 1,raceVuk
+            sw_38.Kick 0, 60, 1.36
+            SoundSaucerKick 1, sw_38
+            If sw39.BallCntOver = 1 Then
+                KickBall KickerBall39, 0, 0, 55, 10
+            End If
+            If ballInPlungerLane = True Then
+                autoPlunge = True
+                AutoPlungerDelay.Interval = 300
+                AutoPlungerDelay.Enabled = False
+	            AutoPlungerDelay.Enabled = True
+            End If
+        Else
+            'Where are the balls
+            If RealBallsInPlay = 0 Then
+                If GameTimers(GAME_BONUS_TIMER_IDX) = 0 Then
+                    'bonus not running, release new ball?
+                    DispatchPinEvent RELEASE_BALL
+                End If
+            End If
+        End If
+    End If
+    SetTimer "BallSearch", "BallSearch", 6000
+End Sub
+
 Dim ballSaverInGrace : ballSaverInGrace = False
 Sub EnableBallSaver(seconds)
 	lightCtrl.Blink l16
@@ -6849,13 +7451,20 @@ Sub EnableBallSaver(seconds)
 	ballSaverInGrace = False
 End Sub
 
+Sub CancelBallSaver()
+	GameTimers(GAME_BALLSAVE_TIMER_IDX) = 0
+	ballSaver = False
+	ballSaverInGrace = False
+	BallSaverTimerExpired.Enabled = False
+End Sub
+
 Sub BallSaverTimerExpired_Timer()
     If ballSaverInGrace = False Then
         BallSaverTimerExpired.Interval = 3000
 		If GetPlayerState(EXTRA_BALLS) > 0 Then
-			lightCtrl.LightOff l16
-		Else
 			lightCtrl.LightOn l16
+		Else
+			lightCtrl.LightOff l16
 		End If
 		ballSaverInGrace = True
     Else
@@ -6864,6 +7473,7 @@ Sub BallSaverTimerExpired_Timer()
 		ballSaverInGrace = False
     End If
 End Sub
+
 
 
 '****************************
@@ -7046,6 +7656,18 @@ End Sub
 Function CalculateBonus
     CalculateBonus = 10
 End Function
+
+'****************************
+' BonusSkip
+' Event Listeners:          
+RegisterPinEvent SWITCH_BOTH_FLIPPERS_PRESSED, "BonusSkip"
+'
+'*****************************
+Sub BonusSkip()
+    If GameTimers(GAME_BONUS_TIMER_IDX) > 0 Then
+        GameTimers(GAME_BONUS_TIMER_IDX) = 0.1
+    End If
+End Sub
 
 '****************************
 ' Boost 1
@@ -7321,15 +7943,8 @@ End Sub
 '
 '*****************************
 Sub CheckComboCount
-
-    'Select Case GetPlayerState(COMBO_COUNT)
-    '    Case 2: PlayCallout("2-way-combo")
-    '    Case 3: PlayCallout("3-way-combo")
-    '    Case 4: PlayCallout("4-way-combo")
-    '    Case 5: PlayCallout("5-way-combo")
-    'End Select
+    
     If GetPlayerState(COMBO_COUNT) = 5 Then
-        'TODO: Light Show
         SetPlayerState COMBO_COUNT, 0
         SetPlayerState COMBO_SHOT_SPINNER, 0
         SetPlayerState COMBO_SHOT_LEFT_ORBIT, 0
@@ -7337,7 +7952,12 @@ Sub CheckComboCount
         SetPlayerState COMBO_SHOT_RIGHT_RAMP, 0
         SetPlayerState COMBO_SHOT_RIGHT_OrBIT, 0
         ComboTimer.Enabled = 0
+        SetPlayerState GRANDSLAM_COMBO, True
+        PlayGrandSlamSeq()
     ElseIf GetPlayerState(COMBO_COUNT) > 0 Then
+        If GetPlayerState(COMBO_COUNT) > 1 Then
+            FlexSceneCombo(GetPlayerState(COMBO_COUNT))
+        End If
         ComboTimer.Enabled = 0
         ComboTimer.Enabled = 1
     End If
@@ -7503,52 +8123,35 @@ End Sub
 '
 '*****************************
 Sub EndOfBall()
-    Debug.print("Balls In Play: "& RealBallsInPlay)
     
     If gameStarted = False Then
         Exit Sub
     End If
 
-
     Dim qItem 
-    Debug.print(RealBallsInPlay)
     If ballSaverIgnoreCount > 0 Then
         ballSaverIgnoreCount = ballSaverIgnoreCount-1
         Exit Sub
     End If
-    If ballSaver = True Then
+    If GAME_DRAIN_BALLS_AND_RESET = True Then
+        If RealBallsInPlay = 0 Then
+            GAME_DRAIN_BALLS_AND_RESET = False
+            lightCtrl.ResumeMainLights()
+            Debounce "reset", "DispatchPinEvent ADD_BALL", 400
+        End IF
+    ElseIf ballSaver = True Then
         DispatchPinEvent BALL_SAVE
-        Set qItem = New QueueItem
-        With qItem
-            .Name = "ballsave"
-            .Duration = 2
-            .BGImage = "BGBlack"
-            .BGVideo = "novideo"
-        End With
-        qItem.AddLabel "BALL SAVED", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
-        DmdQ.Enqueue qItem
     ElseIf RealBallsInPlay = 0 Then
 
-        If GetPlayerState(EXTRA_BALLS) > 0 Then
-            SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) - 1
-            DispatchPinEvent BALL_SAVE
-            Set qItem = New QueueItem
-            With qItem
-                .Name = "shootagain"
-                .Duration = 2
-                .BGImage = "BGBlack"
-                .BGVideo = "novideo"
-            End With
-            qItem.AddLabel "SHOOT AGAIN", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
-            DmdQ.Enqueue qItem
-            Exit Sub
+        If GameTilted = True Then
+            GameTilted = False
+            lightCtrl.ResumeMainLights()
         End If
 
         PlayCallout("drain")
         DmdQ.RemoveAll()
         lightCtrl.AddTableLightSeq "GI", lSeqGIOff
         MusicOff
-        SetPlayerState MODE_CHOOSE_SKILLSHOT, False
         SetPlayerState MODE_SKILLSHOT_ACTIVE, False
         
         SetPlayerState MODE_EMP, False
@@ -7589,6 +8192,7 @@ Sub EndOfBall()
         SetPlayerState PF_MULTIPLIER, 0
 
         SetPlayerState MODE_MULTIBALL, False
+        SetPlayerState MODE_TT_MULTIBALL, False
 
         If GetPlayerState(MODE_RACE) = True Then
             SetPlayerState LANE_R, 0
@@ -7601,7 +8205,7 @@ Sub EndOfBall()
         SetPlayerState RACE_MODE_FINISH, False
 
         
-        GameTimers = Array(0,0,0,0,0,0,0,0,0)
+        GameTimers = Array(0,0,0,0,0,0,0,0,0,0)
 
         lightCtrl.RemoveAllShots()
         lightCtrl.RemoveAllLightSeq "GI"
@@ -7633,6 +8237,20 @@ Sub EndOfBonus()
     lightCtrl.RemoveTableLightSeq "GI", lSeqGIOff
     DmdQ.RemoveAll()
 
+    If GetPlayerState(EXTRA_BALLS) > 0 Then
+        SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) - 1
+        DispatchPinEvent RELEASE_BALL
+        PlayShootAgainSeq()
+        Set qItem = New QueueItem
+        With qItem
+            .Name = "shootagain"
+            .Duration = 5
+            .BGImage = "noimage"
+            .BGVideo = "ShootAgain"
+        End With
+        DmdQ.Enqueue qItem
+        Exit Sub
+    End If
 
     If GetPlayerState(CURRENT_BALL) = BALLS_PER_GAME And (GetCurrentPlayerNumber()=NumberOfPlayers) Then
         'Check HI SCORES
@@ -7705,6 +8323,47 @@ Sub EndOfBonus()
     DispatchPinEvent NEXT_PLAYER
 
 End Sub
+
+'****************************
+' PS_RaceExtraBall
+' Event Listeners:          
+RegisterPlayerStateEvent RACE_1, "PS_RaceExtraBall"
+RegisterPlayerStateEvent RACE_2, "PS_RaceExtraBall"
+RegisterPlayerStateEvent RACE_3, "PS_RaceExtraBall"
+RegisterPlayerStateEvent RACE_4, "PS_RaceExtraBall"
+RegisterPlayerStateEvent RACE_5, "PS_RaceExtraBall"
+RegisterPlayerStateEvent RACE_6, "PS_RaceExtraBall"
+'
+'*****************************
+Sub PS_RaceExtraBall()
+    If GetPlayerState(RACE_EXTRABALL) = 0 Then
+        If  GetPlayerState(RACE_1) = 1 Or _
+            GetPlayerState(RACE_2) = 1 Or _
+            GetPlayerState(RACE_3) = 1 Or _
+            GetPlayerState(RACE_4) = 1 Or _
+            GetPlayerState(RACE_5) = 1 Or _
+            GetPlayerState(RACE_6) = 1 Then
+            SetPlayerState RACE_EXTRABALL, 1
+            calloutsQ.Add "extraballlit", "PlayCallout(""extraball-lit"")", 1, 0, 0, 3700, 0, False
+        End If
+    End If
+End Sub
+
+'****************************
+' Claim Extra Ball
+' Event Listeners:      
+RegisterPinEvent SWITCH_HIT_SCOOP, "ClaimExtraBall"
+'
+'*****************************
+Sub ClaimExtraBall()
+    If GetPlayerState(RACE_EXTRABALL) = 1 Then
+        SetPlayerState RACE_EXTRABALL, 2
+        SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS)+1
+        FlexExtraBallScene()
+        PlayExtraBallSeq()
+        calloutsQ.Add "extraball", "PlayCallout(""extraball"")", 1, 0, 0, 1000, 0, False
+    End If
+End Sub
 '***********************************************************************************************************************
 '***** Game Timers                                                      	                                                    ****
 '*****                                                                                                              ****
@@ -7739,19 +8398,25 @@ End Sub
 
 Sub GameTimersUpdate_Timer()
 	Dim activeTimer : activeTimer = Array(1000, 0)
-    activeTimer = ProcessGameTimer(GAME_BALLSAVE_TIMER_IDX, activeTimer)
+    ProcessGameTimer GAME_BALLSAVE_TIMER_IDX, activeTimer
     activeTimer = ProcessGameTimer(GAME_RACE_TIMER_IDX, activeTimer)
     activeTimer = ProcessGameTimer(GAME_BET_TIMER_IDX, activeTimer)
     activeTimer = ProcessGameTimer(GAME_BOOST_TIMER_IDX, activeTimer)
     activeTimer = ProcessGameTimer(GAME_EMP_TIMER_IDX, activeTimer)
     activeTimer = ProcessGameTimer(GAME_SKILLS_TIMER_IDX, activeTimer)
+	activeTimer = ProcessGameTimer(GAME_TT_TIMER_IDX, activeTimer)
 	ProcessGameTimer GAME_BONUS_TIMER_IDX, activeTimer
 	ProcessGameTimer GAME_SELECTION_TIMER_IDX, activeTimer
 	ProcessGameTimer GAME_MULTIPLIER_TIMER_IDX, activeTimer
     ClearTimerDisplay
     If activeTimer(0) = 1000 Then
-        Exit Sub
+		If GameTimers(GAME_BALLSAVE_TIMER_IDX) > 0 Then
+			activeTimer = Array(GameTimers(GAME_BALLSAVE_TIMER_IDX), GameTimerColors(GAME_BALLSAVE_TIMER_IDX))
+        End If
     End If
+	If activeTimer(0) = 1000 Then
+		Exit Sub
+	End If
     dbstime = activeTimer(0)
     Dim tmp
     'debug.print(activeTimer(1))
@@ -7785,7 +8450,7 @@ Function ProcessGameTimer(timer, activeTimer)
 			GameTimersHurry(timer) = 1
 			DispatchPinEvent GameTimerHurryEvent(timer)
 		End If
-		If dbstime < 0 Then
+		If dbstime <= 0 Then
             GameTimers(timer) = 0
 			GameTimersHurry(timer) = 0
 			DispatchPinEvent GameTimerEndEvent(timer)
@@ -7793,6 +8458,100 @@ Function ProcessGameTimer(timer, activeTimer)
     End If
     ProcessGameTimer = Array(a,b)
 End Function
+
+'****************************
+' GrandSlamRacesCheck
+' Event Listeners:          
+RegisterPlayerStateEvent RACE_1, "GrandSlamRacesCheck"
+RegisterPlayerStateEvent RACE_2, "GrandSlamRacesCheck"
+RegisterPlayerStateEvent RACE_3, "GrandSlamRacesCheck"
+RegisterPlayerStateEvent RACE_4, "GrandSlamRacesCheck"
+RegisterPlayerStateEvent RACE_5, "GrandSlamRacesCheck"
+RegisterPlayerStateEvent RACE_6, "GrandSlamRacesCheck"
+'
+'*****************************
+Sub GrandSlamRacesCheck()
+    If GetPlayerState(GRANDSLAM_RACES) = False Then
+        If GetPlayerState(RACE_1) = 1 And _
+            GetPlayerState(RACE_2) = 1 And _ 
+            GetPlayerState(RACE_3) = 1 And _
+            GetPlayerState(RACE_4) = 1 And _
+            GetPlayerState(RACE_5) = 1 And _
+            GetPlayerState(RACE_6) = 1 Then
+            SetPlayerState LANE_R, 1
+            SetPlayerState LANE_A, 1
+            SetPlayerState LANE_C, 1
+            SetPlayerState LANE_E, 1
+            SetPlayerState GRANDSLAM_RACES, True
+            PlayGrandSlamSeq()
+        End If
+    End If
+End Sub
+
+
+'****************************
+' GrandSlamWizardCheck
+' Event Listeners:          
+RegisterPlayerStateEvent GRANDSLAM_TT, "GrandSlamWizardCheck"
+RegisterPlayerStateEvent GRANDSLAM_RACES, "GrandSlamWizardCheck"
+RegisterPlayerStateEvent GRANDSLAM_COMBO, "GrandSlamWizardCheck"
+RegisterPlayerStateEvent GRANDSLAM_NODES, "GrandSlamWizardCheck"
+RegisterPlayerStateEvent GRANDSLAM_SKILLS, "GrandSlamWizardCheck"
+'
+'*****************************
+Sub GrandSlamWizardCheck()
+    
+        If GetPlayerState(GRANDSLAM_TT) = True And _
+            GetPlayerState(GRANDSLAM_RACES) = True And _ 
+            GetPlayerState(GRANDSLAM_COMBO) = True And _
+            GetPlayerState(GRANDSLAM_NODES) = True And _
+            GetPlayerState(GRANDSLAM_SKILLS) = True Then
+            'Play Callout
+            'DMD Animation
+            SetPlayerState GRANDSLAM_WIZARD_READY, True
+            lightCtrl.AddShot "WizardMode1", l63, RGB(255,0,0)
+            lightCtrl.AddShot "WizardMode2", l63, RGB(255,255,0)
+            lightCtrl.AddShot "WizardMode3", l63, RGB(255,0,255)
+            lightCtrl.AddShot "WizardMode4", l63, RGB(0,255,255)
+        End If
+End Sub
+
+Dim WizNeonl48
+WizNeonl48 = FlattenArrays(Array( _
+    lightCtrl.FadeRGB("l48", RGB(255, 20, 147), RGB(30, 144, 255), 10), _
+    lightCtrl.FadeRGB("l48", RGB(30, 144, 255), RGB(127, 255, 0), 10), _
+    lightCtrl.FadeRGB("l48", RGB(127, 255, 0), RGB(255, 255, 0), 10), _
+    lightCtrl.FadeRGB("l48", RGB(255, 255, 0), RGB(255, 165, 0), 10), _
+    lightCtrl.FadeRGB("l48", RGB(255, 165, 0), RGB(138, 43, 226), 10), _
+    lightCtrl.FadeRGB("l48", RGB(138, 43, 226), RGB(0, 128, 128), 10), _
+    lightCtrl.FadeRGB("l48", RGB(0, 128, 128), RGB(255, 20, 147), 10)))
+
+Dim wizardFadeL48Seq : Set wizardFadeL48Seq = new LCSeq
+wizardFadeL48Seq.Name = "wizardFadeL48Seq"
+wizardFadeL48Seq.Sequence = WizNeonl48
+wizardFadeL48Seq.Color = Null
+wizardFadeL48Seq.UpdateInterval = 20
+wizardFadeL48Seq.Repeat = True
+
+
+
+'****************************
+' CheckWizardReady
+' Event Listeners:  
+RegisterPinEvent SWITCH_HIT_RACE_KICKER, "CheckWizardReady"
+'
+'*****************************
+Sub CheckWizardReady()
+    If GetPlayerState(GRANDSLAM_WIZARD_READY) = True And RealBallsInPlay = 1 Then
+        'LightShow
+        'DMD
+        'Callout
+        lightCtrl.AddTableLightSeq "WIZARD", wizardFadeL48Seq
+        lightCtrl.AddTableLightSeq "WIZARD1", lSeqRGBCircle
+        
+    End If
+End Sub
+
 
 '****************************
 ' HiScore Selection Timer Ended
@@ -8013,21 +8772,28 @@ Sub HitBonusLanes(lane)
         SetPlayerState LANE_N, 0
         SetPlayerState LANE_US, 0
     End If
+    If lane = LANE_BO Then
+        If lightCtrl.IsShotLit("skillshotLanes", l66) Then
+            AwardSkillshot()
+        End If
+    End If
 End Sub
 
 Sub HitInLanes(lane)
     AddScore POINTS_BASE
-    If GetPlayerState(lane) = 0 And GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
-        SetPlayerState lane, 1
-        PlaySound("fx_rollover")
-    End If
-    If GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
-        If GetPlayerState(LANE_R) = 1 AND GetPlayerState(LANE_A) = 1 AND GetPlayerState(LANE_C) = 1 AND GetPlayerState(LANE_E) = 1 Then
-            SetPlayerState RACE_MODE_READY, True
-            lSeqRGBCircle.Color = GAME_RACE_COLOR
-            lightCtrl.AddTableLightSeq "RaceReady", lSeqRGBCircle
-            calloutsQ.Add "raceready", "PlayCallout(""raceready"")", 1, 0, 0, 2500, 0, False
-            'FlexDMDRaceReadyScene()
+    If GetPlayerState(GRANDSLAM_RACES) = False And GetPlayerState(MODE_MULTIBALL) = False And GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(lane) = 0 And GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
+            SetPlayerState lane, 1
+            PlaySound("fx_rollover")
+        End If
+        If GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
+            If GetPlayerState(LANE_R) = 1 AND GetPlayerState(LANE_A) = 1 AND GetPlayerState(LANE_C) = 1 AND GetPlayerState(LANE_E) = 1 Then
+                SetPlayerState RACE_MODE_READY, True
+                lSeqRGBCircle.Color = GAME_RACE_COLOR
+                lightCtrl.AddTableLightSeq "RaceReady", lSeqRGBCircle
+                calloutsQ.Add "raceready", "PlayCallout(""raceready"")", 1, 0, 0, 2500, 0, False
+                'FlexDMDRaceReadyScene()
+            End If
         End If
     End If
 End Sub
@@ -8069,11 +8835,14 @@ Sub SwitchHitRampLockGate()
     Select Case GetPlayerState(BALLS_LOCKED)
         Case 0:
             SetPlayerState BALLS_LOCKED, 1
+            DOF 253, DOFPulse
             calloutsQ.Add "balllocked", "PlayCallout(""ball1locked"")", 1, 0, 0, 3500, 0, False
         Case 1:
             SetPlayerState BALLS_LOCKED, 2
+            DOF 254, DOFPulse
             calloutsQ.Add "balllocked", "PlayCallout(""ball2locked"")", 1, 0, 0, 3500, 0, False
         Case 2:
+            DOF 255, DOFPulse
             calloutsQ.Add "balllocked", "PlayCallout(""ball3locked"")", 1, 0, 0, 3500, 0, False
             calloutsQ.Add "prepareformb", "PlayCallout(""prepareformb"")", 1, 0, 0, 3500, 0, False
             SetPlayerState LOCK_LIT, False
@@ -8119,7 +8888,7 @@ Sub LockPin1_Timer()
     LockPin2.TimerEnabled = True
     LockPin2.TimerInterval = 1000
     SetPlayerState MODE_MULTIBALL, True
-    
+    lightCtrl.LightState l97, 1
     lightCtrl.RemoveAllTableLightSeqs()
     SetPlayerState BALLS_LOCKED, 0
     lightCtrl.AddShot "MBSpinner", l48, RGB(0,255,0)
@@ -8175,6 +8944,29 @@ Sub CheckLockLit()
     End If
 End Sub
 
+'****************************
+' LockCheckDiverter
+' Event Listeners:      
+RegisterPinEvent SWITCH_HIT_RIGHT_RAMP_ENTER, "LockCheckDiverter"
+'
+'*****************************
+Sub LockCheckDiverter
+    If RealBallsInPlay > 1 Or GetPlayerState(SKILLS_TRIAL_SHOT) = 1 Or GetPlayerState(RACE_MODE_FINISH) = True Then
+        DiverterOn.IsDropped = 1
+        DiverterOff.IsDropped = 0
+        Debounce "checkDiverter", "CheckLockLit", 2000
+    End If
+End Sub
+
+
+Sub CheckSuperJackpot()
+    If lightCtrl.IsShotLit("MBSuperLeftRamp", l47) = False Then
+        If  lightCtrl.IsShotLit("MBSpinner", l48) = False And lightCtrl.IsShotLit("MBLeftOrbit", l46) = False And lightCtrl.IsShotLit("MBLeftRamp", l47) = False And lightCtrl.IsShotLit("MBRightRamp", l64) = False And lightCtrl.IsShotLit("MBRightOrbit", l63) = False Then
+            lightCtrl.AddShot "MBSuperLeftRamp", l47, RGB(255,127,0) 'Super Jackpot
+        End If
+    End If
+End Sub
+
 
 '****************************
 ' MB Spinner Shot
@@ -8186,6 +8978,7 @@ Sub MBSpinnerShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBSpinner", l48) = True Then
             lightCtrl.RemoveShot "MBSpinner", l48
+            CheckSuperJackpot()
             AwardJackpot()
         End If
     End If
@@ -8201,6 +8994,7 @@ Sub MBLeftOrbitShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBLeftOrbit", l46) = True Then
             lightCtrl.RemoveShot "MBLeftOrbit", l46
+            CheckSuperJackpot()
             AwardJackpot()
         End If
     End If
@@ -8216,7 +9010,18 @@ Sub MBLeftRampShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBLeftRamp", l47) = True Then
             lightCtrl.RemoveShot "MBLeftRamp", l47
+            CheckSuperJackpot()
             AwardJackpot()
+        Else
+            If lightCtrl.IsShotLit("MBSuperLeftRamp", l47) = True Then
+                'AwardSuperJackpot
+                AwardJackpot()
+                lightCtrl.AddShot "MBSpinner", l48, RGB(0,255,0)
+                lightCtrl.AddShot "MBLeftOrbit", l46, RGB(0,255,0)
+                lightCtrl.AddShot "MBLeftRamp", l47, RGB(0,255,0)
+                lightCtrl.AddShot "MBRightRamp", l64, RGB(0,255,0)
+                lightCtrl.AddShot "MBRightOrbit", l63, RGB(0,255,0)
+            End If
         End If
     End If
 End Sub
@@ -8231,6 +9036,7 @@ Sub MBRightRampShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBRightRamp", l64) = True Then
             lightCtrl.RemoveShot "MBRightRamp", l64
+            CheckSuperJackpot()
             AwardJackpot()
         End If
     End If
@@ -8246,6 +9052,7 @@ Sub MBRightOrbitShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBRightOrbit", l63) = True Then
             lightCtrl.RemoveShot "MBRightOrbit", l63
+            CheckSuperJackpot()
             AwardJackpot()
         End If
     End If
@@ -8266,10 +9073,75 @@ Sub MBEnd
         lightCtrl.RemoveShot "MBLeftRamp", l47
         lightCtrl.RemoveShot "MBRightRamp", l64
         lightCtrl.RemoveShot "MBRightOrbit", l63
+        lightCtrl.RemoveShot "MBSuperLeftRamp", l47
+        
     End If
 End Sub
 
 
+
+'****************************
+' HitMystery
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_MYSTERY, "HitMystery"
+'
+'*****************************
+Sub HitMystery()
+    If lightCtrl.IsShotLit("mystery", l49) = False Then
+        SetPlayerState MYSTERY_HITS, GetPlayerState(MYSTERY_HITS) + 1
+        lightCtrl.Pulse l49, 0
+        If GetPlayerState(MYSTERY_HITS) MOD 6 = 0 Then
+            lightCtrl.AddShot "mystery", l49, RGB(0, 255, 0)
+        End If
+    Else
+        'Collect Mystery
+        Dim randomNumber
+        randomNumber = Int((totalMysteryWeight * Rnd) + 1)
+        Dim cumulativeWeight, selectedAward
+        cumulativeWeight = 0
+        For i = 0 To UBound(MysteryAwards)
+            cumulativeWeight = cumulativeWeight + MysteryAwards(i, 1)
+            If randomNumber <= cumulativeWeight Then
+                selectedAward = i
+                Exit For
+            End If
+        Next
+
+        Select Case i
+            Case 0
+                AddScore 50000
+            Case 1
+                If GetPlayerState(BONUS_X) < 4 Then
+                    SetPlayerState BONUS_X, GetPlayerState(BONUS_X) + 1
+                End If
+            Case 2
+                DispatchPinEvent ADD_BALL
+            Case 3
+                If GetPlayerState(GRANDSLAM_RACES) = False And GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
+                    SetPlayerState LANE_R, 1
+                    SetPlayerState LANE_A, 1
+                    SetPlayerState LANE_C, 1
+                    SetPlayerState LANE_E, 1
+                    SetPlayerState RACE_MODE_READY, True
+                    lSeqRGBCircle.Color = GAME_RACE_COLOR
+                    lightCtrl.AddTableLightSeq "RaceReady", lSeqRGBCircle
+                    calloutsQ.Add "raceready", "PlayCallout(""raceready"")", 1, 0, 0, 2500, 0, False
+                End If
+            Case 4
+                AddScore 100000
+        End Select
+
+        Dim qItem : Set qItem = New QueueItem
+        With qItem
+            .Name = "mysteryAward"
+            .Duration = 5
+            .BGImage = "BG004"
+            .BGVideo = "Mystery" & CStr(i)
+            .Action = "slideup"
+        End With
+        DmdQ.Enqueue qItem
+    End If
+End Sub
 '****************************
 ' Node Row A Hit
 ' Event Listeners:      
@@ -8448,16 +9320,21 @@ End Sub
 '
 '*****************************
 Sub NodeCollectPerk()
-    If GetPlayerState(NODE_LEVEL_UP_READY) = True And GetPlayerState(MODE_MULTIBALL) = False Then
+    If GetPlayerState(NODE_LEVEL_UP_READY) = True And RealBallsInPlay = 1 Then
         SetPlayerState NODE_LEVEL_UP_READY, False
         SetPlayerState NODE_LEVEL, GetPlayerState(NODE_LEVEL) + 1
-        'TODO: Award Perk
-        'TODO: Light Show
-        lSeqCollectPerk.Repeat = True
-        calloutsQ.Add "nodes-choose-perk", "PlayCallout(""nodes-choose-perk"")", 1, 0, 0, 1660, 0, False
-        lightCtrl.AddTableLightSeq "Nodes", lSeqCollectPerk
-        SetPlayerState MODE_PERK_SELECT, True
-        FlexDMDNodePerkCollectScene()
+        If GetPlayerState(NODE_LEVEL) = 6 Then
+            'COMPLETE
+            Debounce "nodesCompleteed", "sw39.TimerEnabled = True", 4000
+            SetPlayerState GRANDSLAM_NODES, True
+            PlayGrandSlamSeq()
+        Else
+            lSeqCollectPerk.Repeat = True
+            calloutsQ.Add "nodes-choose-perk", "PlayCallout(""nodes-choose-perk"")", 1, 0, 0, 1660, 0, False
+            lightCtrl.AddTableLightSeq "Nodes", lSeqCollectPerk
+            SetPlayerState MODE_PERK_SELECT, True
+            FlexDMDNodePerkCollectScene()
+        End If
     End If
 End Sub
 
@@ -8512,8 +9389,9 @@ Sub NodePerkSelectLeftPerk()
                 SetPlayerState OUTLANE_SAVE, True
             Case 5:'Level 5. Extra Ball
                 SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) + 1
-            Case 6:'Level 6. Spot Grand Slam
-                ' TODO Code Spot Grand Slam
+                FlexExtraBallScene()
+                PlayExtraBallSeq()
+                calloutsQ.Add "extraball", "PlayCallout(""extraball"")", 1, 0, 0, 1000, 0, False
         End Select
         SetPlayerState MODE_PERK_SELECT, False
         NodePerkNextLevel()
@@ -8538,7 +9416,7 @@ Sub NodePerkSelectRightPerk()
                 AddScore 5000000
             Case 3:'Level 2.  Race Timers + 20 Seconds OR 5x Bonus
                  SetPlayerState BET_MULTIPLIER, 2
-            Case 4:'Level 3. Collect 5x Bonus OR Instant MB
+            Case 4:'Level 3. outlane save OR Instant MB
                 SetPlayerState MODE_MULTIBALL, True
                 ballsInQ = ballsInQ + 2
         		BallReleaseTimer.Enabled = True
@@ -8549,9 +9427,7 @@ Sub NodePerkSelectRightPerk()
                 lightCtrl.AddShot "MBRightOrbit", l63, RGB(0,255,0)
                 EnableBallSaver 15
             Case 5:'Level 5. 5X Jackpots
-                SetPlayerState JACKPOTS_MULTIPLIER, 5    
-            Case 6:'Level 6. Mini Wizard
-                ' TODO Code Mini Wizard
+                SetPlayerState JACKPOTS_MULTIPLIER, 5
         End Select
         SetPlayerState MODE_PERK_SELECT, False
         NodePerkNextLevel()
@@ -8594,17 +9470,25 @@ End Sub
 '****************************
 ' Hit Pop Bumpers
 '*****************************
+Dim DOFBumperPulse : DOFBumperPulse = False
 Sub HitPopBumpers(bumper)
     AddScore POINTS_BASE
+    If DOFBumperPulse = False Then
+        DOF 203, DOFPulse
+        DOFBumperPulse = True
+    Else
+        DOF 205, DOFPulse
+        DOFBumperPulse = False
+    End If
     If GetPlayerState(MODE_EMP) = True Then
         lightCtrl.Pulse bumper, 0
-        FlexDMDEMPModeScene()
         Exit Sub
     End If
 
     If (GetPlayerState(EMP_CHARGE) + 1) = (EMP_BASE_HITS * GetPlayerState(EMP_ACTIVATIONS)) Then
         'Start EMP MODE
         GrabMag.MagnetOn = 1
+        DOF 128, DOFPulse
 		GrabMagnetTimer.Enabled = true
         lightCtrl.pulse l140, 2
         lightCtrl.pulse l141, 0
@@ -8619,7 +9503,6 @@ Sub HitPopBumpers(bumper)
         lightCtrl.AddShot "EMP1", l23, RGB(255,255,255)
         SetPlayerState MODE_EMP, True
         GameTimers(GAME_EMP_TIMER_IDX) = 20
-        FlexDMDEMPModeScene()
     Else
         lightCtrl.Pulse bumper, 0
         SetPlayerState EMP_CHARGE, GetPlayerState(EMP_CHARGE) + 1
@@ -8676,7 +9559,6 @@ End Sub
 '*****************************
 Sub CheckRaceReady()
     If GetPlayerState(RACE_MODE_READY) = True And RealBallsInPlay = 1 Then
-        FlexDMDRaceSelectScene()
         Dim x,i
         x = 0
         i = 0
@@ -8691,10 +9573,14 @@ Sub CheckRaceReady()
             End If
         Loop
         SetPlayerState RACE_MODE_SELECTION, x
+        FlexDMDRaceSelectScene()
+        calloutsQ.Add "chooserace", "PlayCallout(""choose-race"")", 1, 0, 0, 1200, 0, False
         SetPlayerState RACE_MODE_READY, False
         SetPlayerState MODE_RACE_SELECT, True
     Else
-        raceVuk.TimerEnabled = True
+        If GetPlayerState(GRANDSLAM_WIZARD_READY) = False Or (GetPlayerState(GRANDSLAM_WIZARD_READY) = True And RealBallsInPlay > 1) Then
+            raceVuk.TimerEnabled = True
+        End If
     End If
 End Sub
 
@@ -8773,8 +9659,12 @@ End Sub
 Sub RaceSelectConfirm()
     If GetPlayerState(MODE_RACE_SELECT) = True Then
         Dim selection : selection = GetPlayerState(RACE_MODE_SELECTION)
-        If selection = 5 Or selection = 6 Then
-            'TODO: Code race 5 and 6
+        Dim r1,r2,r3,r4
+        r1 = GetPlayerState(RACE_1)
+        r2 = GetPlayerState(RACE_2)
+        r3 = GetPlayerState(RACE_3)
+        r4 = GetPlayerState(RACE_4)
+        If (r1+r2+r3+r4)<4 And (selection = 5 Or selection = 6) Then
             Exit Sub
         End If
         lightCtrl.RemoveAllTableLightSeqs()
@@ -8835,9 +9725,17 @@ Sub RaceSelectConfirm()
                 End If
                 RaceMode4HitsCheck()
             Case 5:
-                
+                RaceMode5HitsCheck()
             Case 6:
-                
+                If GetPlayerState(RACE_MODE_6_HITS) = 5 Then
+                    SetPlayerState RACE_MODE_FINISH, True
+                Else
+                    lightCtrl.AddShot "RaceMode6", l23, GAME_RACE_COLOR
+                    lightCtrl.AddShot "RaceMode6", l46, GAME_RACE_COLOR
+                    lightCtrl.AddShot "RaceMode6", l47, GAME_RACE_COLOR
+                    lightCtrl.AddShot "RaceMode6", l63, GAME_RACE_COLOR
+                    lightCtrl.AddShot "RaceMode6", l64, GAME_RACE_COLOR
+                End If
         End Select
     End iF
 End Sub
@@ -8864,13 +9762,11 @@ Sub RaceModeShortcutHit()
                     SetPlayerState RACE_MODE_3_HITS, 6
                 Case 4:
                     SetPlayerState RACE_MODE_4_HITS, 6
-                Case 5:
-
-                Case 6:
                     
             End Select
             lightCtrl.RemoveShot GAME_SHOT_SHORTCUT, l65
             SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
         End If
     End If
 End Sub
@@ -8891,7 +9787,7 @@ Sub RaceMode1RampHit()
             Dim qItem : Set qItem = New QueueItem
             With qItem
                 .Name = "racemsg"
-                .Duration = 2
+                .Duration = 4
                 .BGImage = "BG004"
                 .BGVideo = "novideo"
                 .Action = "slideup"
@@ -8912,14 +9808,53 @@ Sub RaceMode1()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 1 Then
         If GetPlayerState(RACE_MODE_1_HITS) = 3 Then
             lightCtrl.AddShot GAME_SHOT_SHORTCUT, l65, GAME_NORMAL_COLOR
+            calloutsQ.Add "shortcut", "PlayCallout(""shortcut"")", 1, 0, 0, 1200, 0, False
         End If
         If GetPlayerState(RACE_MODE_1_HITS) = 6 Then
             lightCtrl.RemoveShot "RaceMode1a", l47
             lightCtrl.RemoveShot "RaceMode1b", l64
             SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
         End If
     End If
 End Sub
+
+'****************************
+' RaceModeTimerHurry
+' Event Listeners:          
+RegisterPinEvent GAME_RACE_TIMER_HURRY, "RaceModeTimerHurry"
+'
+'*****************************
+Sub RaceModeTimerHurry()
+    If GetPlayerState(MODE_RACE) = True Then
+        lightCtrl.AddShot "AddTime", l98, RGB(12,100,250)
+    End If
+End Sub
+
+'****************************
+' RaceModeAddTime
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_ADDTIME, "RaceModeAddTime"
+'
+'*****************************
+Sub RaceModeAddTime()
+    If GetPlayerState(MODE_RACE) = True And lightCtrl.IsShotLit("AddTime", l98) = True Then
+        GameTimers(GAME_RACE_TIMER_IDX) = GameTimers(GAME_RACE_TIMER_IDX) + 12
+        lightCtrl.RemoveShot "AddTime", l98
+        Dim qItem : Set qItem = New QueueItem
+        With qItem
+            .Name = "racemsg"
+            .Duration = 3
+            .BGImage = "BG004"
+            .BGVideo = "novideo"
+            .Action = "slideup"
+        End With
+        qItem.AddLabel "+12 Seconds Added", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+        DmdQ.Enqueue qItem
+    End If
+End Sub
+
+
 
 '****************************
 ' RaceModeTimerEnded
@@ -8949,11 +9884,18 @@ Sub RaceModeTimerEnded()
                 lightCtrl.RemoveShot "RaceMode4b", l63
                 lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes
             Case 5:
-                
+                lightCtrl.RemoveShot "RaceMode5", l47
+                lightCtrl.RemoveShot "RaceMode5", l64
+                lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes
             Case 6:
-                
+                lightCtrl.RemoveShot "RaceMode6", l48
+                lightCtrl.RemoveShot "RaceMode6", l23
+                lightCtrl.RemoveShot "RaceMode6", l46
+                lightCtrl.RemoveShot "RaceMode6", l63
+
         End Select
         lightCtrl.RemoveShot GAME_SHOT_SHORTCUT, l65
+        lightCtrl.RemoveShot "AddTime", l98
         SetPlayerState LANE_R, 0
         SetPlayerState LANE_A, 0
         SetPlayerState LANE_C, 0
@@ -9031,16 +9973,19 @@ Sub RaceMode2()
         If GetPlayerState(RACE_MODE_2_SPIN1) >= 30 Then
             lightCtrl.RemoveShot "RaceMode2a", l48    
             lightCtrl.AddShot GAME_SHOT_SHORTCUT, l65, GAME_NORMAL_COLOR
+            calloutsQ.Add "shortcut", "PlayCallout(""shortcut"")", 1, 0, 0, 1200, 0, False
         End If
         If GetPlayerState(RACE_MODE_2_SPIN2) >= 30 Then
             lightCtrl.RemoveShot "RaceMode2b", l23    
             lightCtrl.AddShot GAME_SHOT_SHORTCUT, l65, GAME_NORMAL_COLOR
+            calloutsQ.Add "shortcut", "PlayCallout(""shortcut"")", 1, 0, 0, 1200, 0, False
         End If
         If GetPlayerState(RACE_MODE_2_SPIN1) >= 30 AND GetPlayerState(RACE_MODE_2_SPIN2) >= 30 Then
             lightCtrl.RemoveShot "RaceMode2a", l48
             lightCtrl.RemoveShot "RaceMode2b", l23
             lightCtrl.RemoveShot GAME_SHOT_SHORTCUT, l65
             SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
         End If
     End If
 End Sub
@@ -9092,7 +10037,7 @@ Sub RaceMode3DmdMsg()
     Dim qItem : Set qItem = New QueueItem
     With qItem
         .Name = "racemsg"
-        .Duration = 2
+        .Duration = 4
         .BGImage = "BG004"
         .BGVideo = "novideo"
         .Action = "slideup"
@@ -9105,12 +10050,25 @@ Sub RaceMode4DmdMsg()
     Dim qItem : Set qItem = New QueueItem
     With qItem
         .Name = "racemsg"
-        .Duration = 2
+        .Duration = 4
         .BGImage = "BG004"
         .BGVideo = "novideo"
         .Action = "slideup"
     End With
-    qItem.AddLabel "GetPlayerState(RACE_MODE_$_HITS) & ""/ 6 Shots to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+    qItem.AddLabel "GetPlayerState(RACE_MODE_4_HITS) & ""/ 6 Shots to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+    DmdQ.Enqueue qItem
+End Sub
+
+Sub RaceMode6DmdMsg()
+    Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "racemsg"
+        .Duration = 4
+        .BGImage = "BG004"
+        .BGVideo = "novideo"
+        .Action = "slideup"
+    End With
+    qItem.AddLabel "GetPlayerState(RACE_MODE_6_HITS) & ""/ 6 Shots to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
     DmdQ.Enqueue qItem
 End Sub
 
@@ -9226,6 +10184,7 @@ Sub RaceMode3HitsCheck()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 3 Then
         If GetPlayerState(RACE_MODE_3_HITS) = 3 Then
             lightCtrl.AddShot GAME_SHOT_SHORTCUT, l65, GAME_NORMAL_COLOR
+            calloutsQ.Add "shortcut", "PlayCallout(""shortcut"")", 1, 0, 0, 1200, 0, False
         End If
         If GetPlayerState(RACE_MODE_3_HITS) = 6 Then
             lightCtrl.RemoveShot "RaceMode3", l48
@@ -9236,6 +10195,7 @@ Sub RaceMode3HitsCheck()
             lightCtrl.RemoveShot "RaceMode3", l63
             RaceModeTimer.Enabled = False
             SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
         End If
     End If
 End Sub
@@ -9347,6 +10307,7 @@ Sub RaceMode4HitsCheck()
             lightCtrl.AddShot "RaceMode4b", l63, GAME_RACE_COLOR
             lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes
             lightCtrl.AddShot GAME_SHOT_SHORTCUT, l65, GAME_NORMAL_COLOR
+            calloutsQ.Add "shortcut", "PlayCallout(""shortcut"")", 1, 0, 0, 1200, 0, False
         End If
         If GetPlayerState(RACE_MODE_4_HITS) = 5 Then
             lightCtrl.RemoveShot "RaceMode4b", l63
@@ -9358,9 +10319,229 @@ Sub RaceMode4HitsCheck()
             lightCtrl.RemoveShot "RaceMode4a", l46
             lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes
             SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
         End If
     End If
 End Sub
+
+
+
+
+
+'****************************
+' RaceMode6LeftOrbitHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "RaceMode6LeftOrbitHit"
+'
+'*****************************
+Sub RaceMode6LeftOrbitHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l46) Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
+            lightCtrl.RemoveShot "RaceMode6", l46
+            RaceMode6DmdMsg()
+        End If
+    End If
+End Sub
+
+'****************************
+' RaceMode6LeftRampHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "RaceMode6LeftRampHit"
+'
+'*****************************
+Sub RaceMode6LeftRampHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l47) Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
+            lightCtrl.RemoveShot "RaceMode6", l47
+            RaceMode6DmdMsg()
+        End If
+    End If
+End Sub
+
+'****************************
+' RaceMode6RightOrbitHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "RaceMode6RightOrbitHit"
+'
+'*****************************
+Sub RaceMode6RightOrbitHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l63) Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
+            lightCtrl.RemoveShot "RaceMode6", l63
+            RaceMode6DmdMsg()
+        End If
+    End If
+End Sub
+
+'****************************
+' RaceMode6RightRampHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "RaceMode6RightRampHit"
+'
+'*****************************
+Sub RaceMode6RightRampHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l64) Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
+            lightCtrl.RemoveShot "RaceMode6", l64
+            RaceMode6DmdMsg()
+        End If
+    End If
+End Sub
+
+'****************************
+' RaceMode6SpinnerHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_SPINNER2, "RaceMode6SpinnerHit"
+'
+'*****************************
+Sub RaceMode6SpinnerHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 6 AND GetPlayerState(RACE_MODE_6_SPIN2) < 30 Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_6_SPIN2, GetPlayerState(RACE_MODE_6_SPIN2) + 1
+
+            If GetPlayerState(RACE_MODE_6_SPIN2) = 30 Then
+                lightCtrl.RemoveShot "RaceMode6", l23
+                SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
+            Else
+                Dim qItem : Set qItem = New QueueItem
+                With qItem
+                    .Name = "racemsg"
+                    .Duration = 2
+                    .BGImage = "BG004"
+                    .BGVideo = "novideo"
+                    .Action = "slideup"
+                End With
+                qItem.AddLabel "GetPlayerState(RACE_MODE_6_SPIN2) & ""/ 30 Spins to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+                DmdQ.Enqueue qItem
+            End If
+        End If
+    End If
+End Sub
+
+'****************************
+' RaceMode6HitsCheck
+' Event Listeners:          
+RegisterPlayerStateEvent RACE_MODE_6_HITS, "RaceMode6HitsCheck"
+'
+'*****************************
+Sub RaceMode6HitsCheck()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 6 Then
+        If GetPlayerState(RACE_MODE_6_HITS) = 5 Then
+            lightCtrl.RemoveShot "RaceMode6", l46
+            lightCtrl.RemoveShot "RaceMode6", l47
+            lightCtrl.RemoveShot "RaceMode6", l23
+            lightCtrl.RemoveShot "RaceMode6", l64
+            lightCtrl.RemoveShot "RaceMode6", l63
+            SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
+        End If
+    End If
+End Sub
+
+
+
+'****************************
+' RaceMode5RampHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "RaceMode5RampHit"
+RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "RaceMode5RampHit"
+'
+'*****************************
+Sub RaceMode5RampHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 5 Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_5_HITS, GetPlayerState(RACE_MODE_5_HITS) + 1
+            Dim qItem : Set qItem = New QueueItem
+            With qItem
+                .Name = "racemsg"
+                .Duration = 4
+                .BGImage = "BG004"
+                .BGVideo = "novideo"
+                .Action = "slideup"
+            End With
+            qItem.AddLabel "6-GetPlayerState(RACE_MODE_5_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            DmdQ.Enqueue qItem
+        End If
+    End If
+End Sub
+
+
+'****************************
+' RaceMode5NodesHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_NODE_A, "RaceMode5NodesHit"
+RegisterPinEvent SWITCH_HIT_NODE_B, "RaceMode5NodesHit"
+RegisterPinEvent SWITCH_HIT_NODE_C, "RaceMode5NodesHit"
+'
+'*****************************
+Sub RaceMode5NodesHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 5 And (GetPlayerState(RACE_MODE_5_HITS) = 1 Or GetPlayerState(RACE_MODE_5_HITS) = 3 Or GetPlayerState(RACE_MODE_5_HITS) = 5) Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_5_HITS, GetPlayerState(RACE_MODE_5_HITS) + 1
+            Dim qItem : Set qItem = New QueueItem
+            With qItem
+                .Name = "racemsg"
+                .Duration = 4
+                .BGImage = "BG004"
+                .BGVideo = "novideo"
+                .Action = "slideup"
+            End With
+            qItem.AddLabel "6-GetPlayerState(RACE_MODE_5_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            DmdQ.Enqueue qItem
+        End If
+    End If
+End Sub
+
+
+'****************************
+' RaceMode5HitsCheck
+' Event Listeners:          
+RegisterPlayerStateEvent RACE_MODE_5_HITS, "RaceMode5HitsCheck"
+'
+'*****************************
+Sub RaceMode5HitsCheck()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 5 Then
+        If GetPlayerState(RACE_MODE_5_HITS) = 6 Then
+            lightCtrl.RemoveShot "RaceMode5", l47
+            lightCtrl.RemoveShot "RaceMode5", l64   
+            lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes
+            SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
+        Else
+            If GetPlayerState(RACE_MODE_5_HITS) Mod 2 = 0 Then
+                'Even Shot
+                lightCtrl.AddShot "RaceMode5", l47, GAME_RACE_COLOR
+                lightCtrl.AddShot "RaceMode5", l64, GAME_RACE_COLOR
+                lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes
+            Else
+                'Odd Shot
+                lightCtrl.AddLightSeq "RaceMode", lSeqRaceMode4Nodes
+                lightCtrl.RemoveShot "RaceMode5", l47
+                lightCtrl.RemoveShot "RaceMode5", l64
+            End If
+
+        End If
+    End If
+End Sub
+
 Sub AddScore(v)
     'TODO Apply Any Multipliers
     SetPlayerState SCORE, GetPlayerState(SCORE) + v
@@ -9380,6 +10561,7 @@ Sub AwardJackpot()
     calloutsQ.Add "jackpot", "PlayCallout(""jackpot"")", 1, 0, 0, 1000, 0, False
     lightCtrl.AddTableLightSeq "RGB", lSeqJackpotRGB
     lightCtrl.AddTableLightSeq "NonRGB", lSeqJackpotNonRGB
+    DOF 250, DOFPulse
 End Sub
 
 '****************************
@@ -9389,10 +10571,8 @@ End Sub
 '
 '*****************************
 Sub SecretGarageSkip()
-    If RPin.TimerEnabled = True Then
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 100
+    If garageKicker.BallCntOver Then
+        releaseGarageLock()
     End If
 End Sub
 
@@ -9405,9 +10585,10 @@ End Sub
 Sub SecretGarageEnter()
 
     If RealBallsInPlay > 1 Then
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 100
+        'RPin.TimerEnabled = False
+        'RPin.TimerEnabled = True
+        'RPin.TimerInterval = 100
+        releaseGarageLock()
         Exit Sub
     End If
 
@@ -9417,18 +10598,21 @@ Sub SecretGarageEnter()
         calloutsQ.Add "engineUpgrade", "PlayCallout(""engine-upgrade"")", 1, 0, 0, 3500, 0, False
         calloutsQ.Add "collectMore", "PlayCallout(""collect2more"")", 1, 0, 0, 1000, 0, False
         SetPlayerState GARAGE_ENGINE, 1
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 5000
+        Debounce "releaseGarage", "releaseGarageLock", 5000
+        'RPin.TimerEnabled = False
+        'RPin.TimerEnabled = True
+        'RPin.TimerInterval = 5000
     ElseIf GetPlayerState(GARAGE_COOLING) = 0 Then
         lightCtrl.AddTableLightSeq "RGB", lSeqGaragePart2
         FlexDMDGarageCoolingScene()
         calloutsQ.Add "coolingUpgrade", "PlayCallout(""cooling-upgrade"")", 1, 0, 0, 3500, 0, False
         calloutsQ.Add "collectMore", "PlayCallout(""collect1more"")", 1, 0, 0, 1000, 0, False
         SetPlayerState GARAGE_COOLING, 1
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 5000
+
+        Debounce "releaseGarage", "releaseGarageLock", 5000
+        'RPin.TimerEnabled = False
+        'RPin.TimerEnabled = True
+        'RPin.TimerInterval = 5000
     ElseIF GetPlayerState(GARAGE_HULL) = 0 Then
         lightCtrl.AddTableLightSeq "RGB", lSeqGaragePart2
         FlexDMDGarageFuelScene()
@@ -9438,26 +10622,18 @@ Sub SecretGarageEnter()
         SetPlayerState GARAGE_HULL, 0
         SetPlayerState GARAGE_COOLING, 0
         SetPlayerState GARAGE_ENGINE, 0
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 4000
+        Debounce "releaseGarage", "releaseGarageLock", 4000
+        'RPin.TimerEnabled = False
+        'RPin.TimerEnabled = True
+        'RPin.TimerInterval = 4000
     End If
 End Sub
 
-
-
-Sub RPin_Timer()
-    If RPin.IsDropped = True Then
-        RPin.IsDropped = 0
-        RandomSoundDropTargetReset(RPinTarget)
-        RPin.TimerEnabled = False
-    Else
-        RPin.IsDropped = 1
-        lightCtrl.RemoveTableLightSeq "RGB", lSeqGaragePart2
-        lightCtrl.pulse l141, 2
-        SoundDropTargetDrop(RPinTarget)
-        RPin.TimerInterval = 1000
-    End If
+Sub releaseGarageLock()
+    lightCtrl.RemoveTableLightSeq "RGB", lSeqGaragePart2
+    lightCtrl.pulse l141, 2
+    SoundDropTargetDrop(RPinTarget)        
+    garageKicker.Kick -45, 5
 End Sub
 
 '****************************
@@ -9468,7 +10644,7 @@ End Sub
 '*****************************
 Sub SkillsTrial()
     AddScore POINT_BASE
-    If GetPlayerState(MODE_SKILLS_TRIAL) = False And GetPlayerState(SKILLS_TRIAL_READY) = False Then
+    If GetPlayerState(GRANDSLAM_SKILLS) = False And GetPlayerState(MODE_SKILLS_TRIAL) = False And GetPlayerState(SKILLS_TRIAL_READY) = False Then
         SetPlayerState SKILLS_TRIAL_SPINS, GetPlayerState(SKILLS_TRIAL_SPINS) + 1
         FlexDMDSkillsScene()
         If GetPlayerState(SKILLS_TRIAL_SPINS) > (SKILLS_BASE_SPINS * GetPlayerState(SKILLS_TRIAL_ACTIVATIONS)) Then
@@ -9486,7 +10662,7 @@ End Sub
 '
 '*****************************
 Sub CheckSkillsTrialReady()
-    If GetPlayerState(SKILLS_TRIAL_READY) = True AND RealBallsInPlay=1 Then
+    If GetPlayerState(GRANDSLAM_SKILLS) = False And GetPlayerState(SKILLS_TRIAL_READY) = True AND RealBallsInPlay=1 Then
         SetPlayerState MODE_SKILLS_TRIAL, True
         SetPlayerState SKILLS_TRIAL_ACTIVATIONS, GetPlayerState(SKILLS_TRIAL_ACTIVATIONS) + 1
         SetPlayerState SKILLS_TRIAL_READY, False
@@ -9556,6 +10732,8 @@ Sub SkillsTrialShot3
         GameTimers(GAME_SKILLS_TIMER_IDX) = 0
         SetPlayerState MODE_SKILLS_TRIAL, False
         lightCtrl.AddTableLightSeq "RGB", lSeqBetUp
+        SetPlayerState GRANDSLAM_SKILLS, True
+        PlayGrandSlamSeq()
         lightCtrl.RemoveShot "Skills3", l47
     End If
 End Sub
@@ -9572,11 +10750,13 @@ Sub SkillsTrialLockPin
     Else
         LockPin4.IsDropped = True
     End If
+    AnimateLockPin()
 End Sub
 
 Sub LockPin4_Timer()
     LockPin4.TimerEnabled = False
     LockPin4.IsDropped = True
+    AnimateLockPin()
     lightCtrl.RemoveTableLightSeq "All", lSeqHeartBeat
 End Sub
 
@@ -9596,6 +10776,61 @@ Sub GameSkillsTimerEnded()
     lightCtrl.RemoveShot "Skills3", l47
 End Sub
 
+
+'****************************
+' Start Skillshot
+' Event Listeners:  
+RegisterPinEvent START_GAME,    "StartSkillShot"
+RegisterPinEvent NEXT_PLAYER,   "StartSkillShot"
+'
+'*****************************
+Sub StartSkillShot()
+    lightCtrl.AddShot "skillshotLanes", l66, RGB(255,255,0)
+    lightCtrl.AddShot "skillshotramp", l47, RGB(255,255,0)
+End Sub
+
+Sub CancelSkillshot
+    lightCtrl.RemoveShot "skillshotramp", l47
+    lightCtrl.RemoveShot "skillshotLanes", l66
+End Sub
+'****************************
+' SkillshotLeftRamp
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SkillshotLeftRamp"
+'
+'*****************************
+Sub SkillshotLeftRamp()
+    If lightCtrl.IsShotLit("skillshotramp", l47) Then
+      AwardSkillshot()
+    End If
+End Sub
+
+Sub AwardSkillshot()
+    AddScore POINTS_MODE_SHOT
+    lightCtrl.RemoveShot "skillshotramp", l47
+    lightCtrl.RemoveShot "skillshotLanes", l66
+    SetPlayerState LANE_R, 1
+    SetPlayerState LANE_A, 1
+    SetPlayerState LANE_C, 1
+    SetPlayerState LANE_E, 1
+    DOF 251, DOFPulse
+    Debounce "dofSkillshot", "DOF 252, DOFPulse", 1000
+    LightSeqRGB.Play SeqUpOn,50,2
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(255,255,0)
+    Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "skillshot"
+        .Duration = 2
+        .BGImage = "BGBlack"
+        .BGVideo = "novideo"
+        .Action = "slideup"
+    End With
+    qItem.AddLabel "SKILLSHOT", 	Font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
+    DmdQ.Enqueue qItem
+End Sub
+
+
 '****************************
 ' TT ORBIT
 ' Event Listeners:          
@@ -9603,47 +10838,284 @@ RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "SwitchTTOrbitHit"
 '
 '*****************************
 Sub SwitchTTOrbitHit()
-    
+    If GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(TT_ORBIT) = 2 Then
+            SetPlayerState TT_ORBIT, 0
+            AddScore POINTS_MODE_SHOT
+            FlexDMDTimeTrialScene
+            SetPlayerState TT_COLLECTED, GetPlayerState(TT_COLLECTED)+1
+        End If
+    End If
 End Sub
 
 '****************************
 ' TT Ramp
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchTTRampHit"
+RegisterPinEvent SWITCH_HIT_SCOOP, "SwitchTTRampHit"
 '
 '*****************************
 Sub SwitchTTRampHit()
-    
+    If GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(TT_RAMP) = 2 Then
+            SetPlayerState TT_RAMP, 0
+            AddScore POINTS_MODE_SHOT
+            FlexDMDTimeTrialScene
+            SetPlayerState TT_COLLECTED, GetPlayerState(TT_COLLECTED)+1
+        End If
+    End If
 End Sub
 
 '****************************
 ' TT Target
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchTTTargetHit"
+RegisterPinEvent SWITCH_HIT_BOOST3, "SwitchTTTargetHit"
 '
 '*****************************
 Sub SwitchTTTargetHit()
-    
+    If GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(TT_TARGET) = 2 Then
+            SetPlayerState TT_TARGET, 0
+            AddScore POINTS_MODE_SHOT
+            FlexDMDTimeTrialScene
+            SetPlayerState TT_COLLECTED, GetPlayerState(TT_COLLECTED)+1
+        End If
+    End If
 End Sub
 
 '****************************
 ' TT Captive
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchTTCaptiveHit"
+RegisterPinEvent SWITCH_HIT_CAPTIVE, "SwitchTTCaptiveHit"
 '
 '*****************************
 Sub SwitchTTCaptiveHit()
-    
+    If GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(TT_CAPTIVE) = 2 Then
+            SetPlayerState TT_CAPTIVE, 0
+            AddScore POINTS_MODE_SHOT
+            FlexDMDTimeTrialScene
+            SetPlayerState TT_COLLECTED, GetPlayerState(TT_COLLECTED)+1
+        End If
+    End If
 End Sub
 
 '****************************
 ' TT Shortcut
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchTTShortcutHit"
+RegisterPinEvent SWITCH_HIT_SHORTCUT, "SwitchTTShortcutHit"
 '
 '*****************************
 Sub SwitchTTShortcutHit()
-    
+    If GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(TT_SHORTCUT) = 2 Then
+            SetPlayerState TT_SHORTCUT, 0
+            AddScore POINTS_MODE_SHOT
+            FlexDMDTimeTrialScene
+            SetPlayerState TT_COLLECTED, GetPlayerState(TT_COLLECTED)+1
+        End If
+    End If
+End Sub
+
+'****************************
+' PS_TTCollected
+' Event Listeners:          
+    RegisterPlayerStateEvent TT_COLLECTED, "PS_TTCollected"
+'
+'*****************************
+Sub PS_TTCollected()
+    If GetPlayerState(TT_COLLECTED) = 10 * GetPlayerState(TT_ACTIVATIONS) Then
+        'Start TT_MULTIBALL
+        SetPlayerState TT_ACTIVATIONS, GetPlayerState(TT_ACTIVATIONS) + 1
+
+        SetPlayerState TT_ORBIT, 0
+        SetPlayerState TT_TARGET, 0
+        SetPlayerState TT_RAMP, 0
+        SetPlayerState TT_CAPTIVE, 0
+        SetPlayerState TT_SHORTCUT, 0
+        SetPlayerState MODE_TT_MULTIBALL, True
+        Debounce "TTAddBall1",  "DispatchPinEvent ADD_BALL", 100
+        Debounce "TTAddBall2",  "DispatchPinEvent ADD_BALL", 200
+        EnableBallSaver 15
+        GameTimers(GAME_TT_TIMER_IDX) = 90
+        lightCtrl.AddShot "MBTTSpinner", l48, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTLeftOrbit", l46, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTLeftRamp", l47, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTRightRamp", l64, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTRightOrbit", l63, RGB(127,0,127)
+        LightSeqRGB.UpdateInterval = 5
+        LightSeqRGB.Play SeqUpOn,25,2
+        LightSeqRGB.UpdateInterval = 5
+        LightSeqRGB.Play SeqDownOn,25,2
+        calloutsQ.Add "ttMB", "PlayCallout(""tt-multiball"")", 1, 0, 0, 5500, 0, False
+        lightCtrl.SyncWithVpxLights lightSeqRGB
+        lightCtrl.SetVpxSyncLightColor RGB(127,0,127)
+    Else
+        If GetPlayerState(MODE_TT_MULTIBALL) = False Then
+            Dim t1,t2,t3,t4,t5
+            SetPlayerState TT_ORBIT, 2
+            SetPlayerState TT_TARGET, 2
+            SetPlayerState TT_RAMP, 2
+            SetPlayerState TT_CAPTIVE, 2
+            SetPlayerState TT_SHORTCUT, 2
+
+            Dim i
+            for i=0 to 3
+                Dim off1 : off1 = Round(RndNum(1,5))
+                
+                Select Case off1
+                    Case 1:
+                        SetPlayerState TT_ORBIT, 0
+                    Case 2:
+                        SetPlayerState TT_TARGET, 0
+                    Case 3:
+                        SetPlayerState TT_RAMP, 0
+                    Case 4:
+                        SetPlayerState TT_CAPTIVE, 0
+                    Case 5:
+                        SetPlayerState TT_SHORTCUT, 0  
+                End Select
+            Next
+        End If
+    End If
+End Sub
+
+'****************************
+' PS_TTJackpots
+' Event Listeners:          
+RegisterPlayerStateEvent TT_JACKPOTS, "PS_TTJackpots"
+'
+'*****************************
+Sub PS_TTJackpots()
+    If GetPlayerState(MODE_TT_MULTIBALL) = True And GetPlayerState(TT_JACKPOTS) = 5 And GetPlayerState(GRANDSLAM_TT) = False Then
+        'Award TT Grand Slam
+        calloutsQ.Add "ttMB", "PlayCallout(""tt-grandslam"")", 1, 0, 0, 5500, 0, False
+        SetPlayerState GRANDSLAM_TT, True
+        SetPlayerState TT_ORBIT, 1
+        SetPlayerState TT_TARGET, 1
+        SetPlayerState TT_RAMP, 1
+        SetPlayerState TT_CAPTIVE, 1
+        SetPlayerState TT_SHORTCUT, 1
+        PlayGrandSlamSeq()
+    End If
+End Sub
+
+'****************************
+' MBTT Spinner Shot
+' Event Listeners:      
+RegisterPinEvent SWITCH_HIT_SPINNER1, "MBTTSpinnerShot"
+'
+'*****************************
+Sub MBTTSpinnerShot
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        If lightCtrl.IsShotLit("MBTTSpinner", l48) = True Then
+            lightCtrl.RemoveShot "MBTTSpinner", l48
+            SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
+            AwardJackpot()
+        End If
+    End If
+End Sub
+
+'****************************
+' MBTt Left Orbit Shot
+' Event Listeners:      
+    RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "MBTTLeftOrbitShot"
+'
+'*****************************
+Sub MBTTLeftOrbitShot
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        If lightCtrl.IsShotLit("MBTTLeftOrbit", l46) = True Then
+            lightCtrl.RemoveShot "MBTTLeftOrbit", l46
+            SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
+            AwardJackpot()
+        End If
+    End If
+End Sub
+
+'****************************
+' MBTT Left Ramp Shot
+' Event Listeners:      
+    RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "MBTTLeftRampShot"
+'
+'*****************************
+Sub MBTTLeftRampShot
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        If lightCtrl.IsShotLit("MBTTLeftRamp", l47) = True Then
+            lightCtrl.RemoveShot "MBTTLeftRamp", l47
+            SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
+            AwardJackpot()
+        End If
+    End If
+End Sub
+
+'****************************
+' MBTT Right Ramp Shot
+' Event Listeners:      
+    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "MBTTRightRampShot"
+'
+'*****************************
+Sub MBTTRightRampShot
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        If lightCtrl.IsShotLit("MBTTRightRamp", l64) = True Then
+            lightCtrl.RemoveShot "MBTTRightRamp", l64
+            SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
+            AwardJackpot()
+        End If
+    End If
+End Sub
+
+'****************************
+' MBTT Right Orbit Shot
+' Event Listeners:      
+    RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "MBTTRightOrbitShot"
+'
+'*****************************
+Sub MBTTRightOrbitShot
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        If lightCtrl.IsShotLit("MBTTRightOrbit", l63) = True Then
+            lightCtrl.RemoveShot "MBTTRightOrbit", l63
+            SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
+            AwardJackpot()
+        End If
+    End If
+End Sub
+
+'****************************
+' MBTT End
+' Event Listeners:      
+RegisterPinEvent BALL_DRAIN, "MBTTEnd"
+'
+'*****************************
+Sub MBTTEnd
+    If GetPlayerState(MODE_TT_MULTIBALL) = True AND RealBallsInPlay = 1 AND ballSaver = False Then
+        SetPlayerState MODE_TT_MULTIBALL, False
+        GameTimers(GAME_TT_TIMER_IDX) = 0
+        SetPlayerState TT_COLLECTED, 0
+        lightCtrl.RemoveShot "MBTTSpinner", l48
+        lightCtrl.RemoveShot "MBTTLeftOrbit", l46
+        lightCtrl.RemoveShot "MBTTLeftRamp", l47
+        lightCtrl.RemoveShot "MBTTRightRamp", l64
+        lightCtrl.RemoveShot "MBTTRightOrbit", l63
+    End If
+End Sub
+
+'****************************
+' MBTT Timer End
+' Event Listeners:      
+RegisterPinEvent GAME_TT_TIMER_ENDED, "MBTTTimerEnd"
+'
+'*****************************
+Sub MBTTTimerEnd
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        SetPlayerState MODE_TT_MULTIBALL, False
+        SetPlayerState TT_COLLECTED, 0
+        lightCtrl.RemoveShot "MBTTSpinner", l48
+        lightCtrl.RemoveShot "MBTTLeftOrbit", l46
+        lightCtrl.RemoveShot "MBTTLeftRamp", l47
+        lightCtrl.RemoveShot "MBTTRightRamp", l64
+        lightCtrl.RemoveShot "MBTTRightOrbit", l63
+        GAME_DRAIN_BALLS_AND_RESET = True
+        lightCtrl.AddTableLightSeq "GI", lSeqGIOff
+    End If
 End Sub
 
 
@@ -9673,7 +11145,6 @@ Const MUSIC1 =  "Karl Casey - White Bat I - 01 Elysium"
 Const MUSIC2 =  "Karl Casey - White Bat I - 02 Casualty"
 Const MUSIC3 =  "Karl Casey - White Bat I - 04 Patrol Bot"
 Const MUSIC4 =  "Karl Casey - White Bat I - 05 Alliance"
-Const MUSIC5 =  "Karl Casey - White Bat I - 07 Self Inflicted"
 Const MUSIC6 =  "Karl Casey - White Bat I - 08 B.F.G."
 Const MUSIC7 =  "Karl Casey - White Bat I - 09 The Witch"
 Const MUSIC8 = "Karl Casey - White Bat I - 10 The Traveler"
@@ -9695,7 +11166,7 @@ Sub MusicOn
         Case 1:PlayMusic "cyberrace\" & MUSIC2 & ".mp3", MusicVol
         Case 2:PlayMusic "cyberrace\" & MUSIC3 & ".mp3", MusicVol
         Case 3:PlayMusic "cyberrace\" & MUSIC4 & ".mp3", MusicVol
-        Case 4:PlayMusic "cyberrace\" & MUSIC5 & ".mp3", MusicVol
+        Case 4:PlayMusic "cyberrace\" & MUSIC4 & ".mp3", MusicVol
         Case 5:PlayMusic "cyberrace\" & MUSIC6 & ".mp3", MusicVol
         Case 6:PlayMusic "cyberrace\" & MUSIC7 & ".mp3", MusicVol
         Case 7:PlayMusic "cyberrace\" & MUSIC8 & ".mp3", MusicVol
@@ -9709,6 +11180,7 @@ End Sub
 Sub Table1_MusicDone()
     MusicOn
 End Sub
+
 Sub StartGame()
     gameStarted = True
     FlexDMD.Stage.GetVideo("vidIntro").Visible = False
@@ -9843,6 +11315,8 @@ Function InitNewPlayer()
     state.Add TT_CAPTIVE, 0
     state.Add TT_SHORTCUT, 0
     state.Add TT_COLLECTED, 0
+    state.Add TT_JACKPOTS, 0
+    state.Add TT_ACTIVATIONS, 1
 
     state.Add GARAGE_ENGINE, 0
     state.Add GARAGE_COOLING, 0
@@ -9869,7 +11343,6 @@ Function InitNewPlayer()
     state.Add OUTLANE_SAVE, False
     state.Add JACKPOTS_MULTIPLIER, 1
 
-    state.Add MODE_CHOOSE_SKILLSHOT, False
     state.Add MODE_SKILLSHOT_ACTIVE, False
     state.Add MODE_EMP, False
     state.Add MODE_SKILLS_TRIAL, False
@@ -9877,6 +11350,7 @@ Function InitNewPlayer()
     state.Add MODE_CYBER, False
     state.Add MODE_BET, False
     state.Add MODE_MULTIBALL, False
+    state.Add MODE_TT_MULTIBALL, False
     state.Add MODE_RACE_SELECT, False
     state.Add MODE_PERK_SELECT, False
     state.Add MODE_RACE, False
@@ -9899,22 +11373,34 @@ Function InitNewPlayer()
     state.Add RACE_MODE_3_HITS, 0
     state.Add RACE_MODE_4_HITS, 0
     state.Add RACE_MODE_3_SHOT, 0
+    state.Add RACE_MODE_5_HITS, 0
+    state.Add RACE_MODE_6_HITS, 0
     state.Add RACE_1, 0
     state.Add RACE_2, 0
     state.Add RACE_3, 0
     state.Add RACE_4, 0
     state.Add RACE_5, 0
     state.Add RACE_6, 0
+    state.Add RACE_EXTRABALL, 0
 
     state.Add BONUS_COMBOS_MADE, 0
     state.Add BONUS_RACES_WON, 0
     state.Add BONUS_NODES_COMPLETED, 0
+
+    state.Add MYSTERY_HITS, 0
 
     state.Add INITIAL_1, ""
     state.Add INITIAL_2, ""
     state.Add INITIAL_3, ""
     state.Add INITIAL_POSITION, 0
     state.Add LETTER_POSITION, 0
+
+    state.Add GRANDSLAM_TT, False
+    state.Add GRANDSLAM_RACES, False
+    state.Add GRANDSLAM_COMBO, False
+    state.Add GRANDSLAM_NODES, False
+    state.Add GRANDSLAM_SKILLS, False
+    state.Add GRANDSLAM_WIZARD_READY, False
 
     Set InitNewPlayer = state
 
@@ -9940,10 +11426,6 @@ End Sub
 '*****************************
 Sub SwitchLeftFlipperDown()
     SetGameState SWITCHES_LAST_FLIPPER_DOWN_TIME, GameTime
-    If GetPlayerState(MODE_CHOOSE_SKILLSHOT) = True Then
-        'Rotate Skillshot
-        DispatchPinEvent GAME_ROTATE_SKILLSHOT_ANTI_CLOCKWISE
-    End If
 End Sub
 
 '****************************
@@ -9954,10 +11436,6 @@ End Sub
 '*****************************
 Sub SwitchRightFlipperDown()
     SetGameState SWITCHES_LAST_FLIPPER_DOWN_TIME, GameTime
-    If GetPlayerState(MODE_CHOOSE_SKILLSHOT) = True Then
-        'Rotate Skillshot
-        DispatchPinEvent GAME_ROTATE_SKILLSHOT_CLOCKWISE
-    End If
 End Sub
 Sub BIPL_Hit()
     ballInPlungerLane = True
@@ -9970,10 +11448,16 @@ End Sub
 Sub BIPL_Top_Hit()
     ballInPlungerLane = False
     autoPlunge = False
+    If GameTilted = True Then
+        Exit Sub
+    End If
     If GetPlayerState(ENABLE_BALLSAVER) = True Then
         EnableBallSaver(20)
         SetPlayerState ENABLE_BALLSAVER, False
     End If
+
+    SetTimer "skillshot", "CancelSkillshot", 4000
+
 End Sub
 
 '****************************
@@ -10010,19 +11494,25 @@ End Sub
 ' Bumper 1 Hit
 '*****************************
 Sub Bumper1_Hit()
-    'PlaySoundAt SoundFXDOF("LeftBumper", 107, DOFPulse, DOFContactors), ActiveBall
-    RandomSoundBumperTop(Bumper1)
-    HitPopBumpers(l77)
+    If GameTilted = False Then
+        RandomSoundBumperTop(Bumper1)
+        DOF 107, DOFPulse
+        HitPopBumpers(l77)
+    End If
 End Sub
 Sub Bumper2_Hit()
-    'PlaySoundAt SoundFXDOF("RightBumper", 107, DOFPulse, DOFContactors), ActiveBall  
-    RandomSoundBumperMiddle(Bumper2)
-    HitPopBumpers(l78)
+    If GameTilted = False Then
+        RandomSoundBumperMiddle(Bumper2)
+        DOF 108, DOFPulse
+        HitPopBumpers(l78)
+    End If
 End Sub
 Sub Bumper3_Hit()
-    'PlaySoundAt SoundFXDOF("BottomBumper", 107, DOFPulse, DOFContactors), ActiveBall 
-    RandomSoundBumperBottom(Bumper3) 
-    HitPopBumpers(l79)
+    If GameTilted = False Then
+        RandomSoundBumperBottom(Bumper3) 
+        DOF 109, DOFPulse
+        HitPopBumpers(l79)
+    End If
 End Sub
 '***********************************************************************************************************************
 '*****    Ramp Switches                                        	                                                    ****
@@ -10031,6 +11521,7 @@ End Sub
 
 Sub swEnterRightRamp_Hit()
 	WireRampOn(True)
+	DispatchPinEvent SWITCH_HIT_RIGHT_RAMP_ENTER
 End Sub
 
 Sub swEnterLeftRamp_Hit()
@@ -10073,16 +11564,24 @@ End Sub
 Sub raceVuk_Timer()
     raceVuk.TimerEnabled = False
     SoundSaucerKick 1,raceVuk
-    raceVuk.Kick 65, RndInt(6,15)
+    raceVuk.Kick 65, RndInt(10,15)
     lightCtrl.pulse l141, 0
+End Sub
+
+Sub garageKicker_Hit()
+    DispatchPinEvent SWITCH_HIT_RAMP_PIN
 End Sub
 '******************************************
 Sub sw01_Hit()
-    If ballSaver = True Then
+    If ballSaver = True Or GetPlayerState(OUTLANE_SAVE) = True Then
         DispatchPinEvent BALL_SAVE
+        If ballSaver = False Then
+            SetPlayerState OUTLANE_SAVE, False
+        End If
         ballSaverIgnoreCount = ballSaverIgnoreCount+1
     Else
         PlaySoundAtLevelStatic "drain", SoundFxLevel, sw01
+        DOF 220, DOFPulse
     End If
     If GetPlayerState(LANE_R) > 0 Then
         lightCtrl.Pulse l42, 0
@@ -10107,11 +11606,15 @@ Sub sw03_Hit()
 End Sub
 '******************************************
 Sub sw04_Hit()
-    If ballSaver = True Then
+    If ballSaver = True Or GetPlayerState(OUTLANE_SAVE) = True Then
         DispatchPinEvent BALL_SAVE
+        If ballSaver = False Then
+            SetPlayerState OUTLANE_SAVE, False
+        End If
         ballSaverIgnoreCount = ballSaverIgnoreCount+1
     Else
         PlaySoundAtLevelStatic "drain", SoundFxLevel, sw04
+        DOF 221, DOFPulse
     End If
     If GetPlayerState(LANE_E) > 0 Then
         lightCtrl.Pulse l45, 0
@@ -10149,13 +11652,14 @@ Sub sw39_Hit()
     set KickerBall39 = activeball
     DispatchPinEvent SWITCH_HIT_SCOOP
     SoundSaucerLock()
-    If GetPlayerState(MODE_PERK_SELECT) = False Then
+    If GetPlayerState(MODE_PERK_SELECT) = False Or (GetPlayerState(MODE_PERK_SELECT) = False And GetPlayerState(NODE_LEVEL) < 6) Then
         sw39.TimerEnabled = True
     End If
 End Sub
 Sub sw39_Timer()
 	sw39.TimerEnabled = False
     SoundSaucerKick 1, sw39
+    DOF 235, DOFPulse
     KickBall KickerBall39, 0, 0, 55, 10
 End Sub
 '******************************************
@@ -10272,6 +11776,8 @@ End Sub
 '******************************************
 Sub sw25_Hit()
     STHit 25
+    DispatchPinEvent SWITCH_HIT_MYSTERY
+    DispatchPinEvent SWITCH_HIT_ADDTIME
 End Sub
 '******************************************
 Sub sw26_Hit()
@@ -10284,7 +11790,7 @@ Sub sw31_Hit()
 End Sub
 '******************************************
 Sub RPin_Hit()
-	DispatchPinEvent SWITCH_HIT_RAMP_PIN
+	'DispatchPinEvent SWITCH_HIT_RAMP_PIN
 End Sub
 '******************************************
 Sub ScoopBackWall_Hit()
@@ -10310,6 +11816,7 @@ End Sub
 ' Event Listeners:  
     RegisterPinEvent START_GAME,    "ReleaseBall"
     RegisterPinEvent NEXT_PLAYER,   "ReleaseBall"
+    RegisterPinEvent RELEASE_BALL,   "ReleaseBall"
 '
 '*****************************
 Sub ReleaseBall()

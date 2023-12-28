@@ -114,6 +114,8 @@ Function InitNewPlayer()
     state.Add TT_CAPTIVE, 0
     state.Add TT_SHORTCUT, 0
     state.Add TT_COLLECTED, 0
+    state.Add TT_JACKPOTS, 0
+    state.Add TT_ACTIVATIONS, 1
 
     state.Add GARAGE_ENGINE, 0
     state.Add GARAGE_COOLING, 0
@@ -140,7 +142,6 @@ Function InitNewPlayer()
     state.Add OUTLANE_SAVE, False
     state.Add JACKPOTS_MULTIPLIER, 1
 
-    state.Add MODE_CHOOSE_SKILLSHOT, False
     state.Add MODE_SKILLSHOT_ACTIVE, False
     state.Add MODE_EMP, False
     state.Add MODE_SKILLS_TRIAL, False
@@ -148,6 +149,7 @@ Function InitNewPlayer()
     state.Add MODE_CYBER, False
     state.Add MODE_BET, False
     state.Add MODE_MULTIBALL, False
+    state.Add MODE_TT_MULTIBALL, False
     state.Add MODE_RACE_SELECT, False
     state.Add MODE_PERK_SELECT, False
     state.Add MODE_RACE, False
@@ -170,22 +172,34 @@ Function InitNewPlayer()
     state.Add RACE_MODE_3_HITS, 0
     state.Add RACE_MODE_4_HITS, 0
     state.Add RACE_MODE_3_SHOT, 0
+    state.Add RACE_MODE_5_HITS, 0
+    state.Add RACE_MODE_6_HITS, 0
     state.Add RACE_1, 0
     state.Add RACE_2, 0
     state.Add RACE_3, 0
     state.Add RACE_4, 0
     state.Add RACE_5, 0
     state.Add RACE_6, 0
+    state.Add RACE_EXTRABALL, 0
 
     state.Add BONUS_COMBOS_MADE, 0
     state.Add BONUS_RACES_WON, 0
     state.Add BONUS_NODES_COMPLETED, 0
+
+    state.Add MYSTERY_HITS, 0
 
     state.Add INITIAL_1, ""
     state.Add INITIAL_2, ""
     state.Add INITIAL_3, ""
     state.Add INITIAL_POSITION, 0
     state.Add LETTER_POSITION, 0
+
+    state.Add GRANDSLAM_TT, False
+    state.Add GRANDSLAM_RACES, False
+    state.Add GRANDSLAM_COMBO, False
+    state.Add GRANDSLAM_NODES, False
+    state.Add GRANDSLAM_SKILLS, False
+    state.Add GRANDSLAM_WIZARD_READY, False
 
     Set InitNewPlayer = state
 

@@ -1,17 +1,25 @@
 '****************************
 ' Hit Pop Bumpers
 '*****************************
+Dim DOFBumperPulse : DOFBumperPulse = False
 Sub HitPopBumpers(bumper)
     AddScore POINTS_BASE
+    If DOFBumperPulse = False Then
+        DOF 203, DOFPulse
+        DOFBumperPulse = True
+    Else
+        DOF 205, DOFPulse
+        DOFBumperPulse = False
+    End If
     If GetPlayerState(MODE_EMP) = True Then
         lightCtrl.Pulse bumper, 0
-        FlexDMDEMPModeScene()
         Exit Sub
     End If
 
     If (GetPlayerState(EMP_CHARGE) + 1) = (EMP_BASE_HITS * GetPlayerState(EMP_ACTIVATIONS)) Then
         'Start EMP MODE
         GrabMag.MagnetOn = 1
+        DOF 128, DOFPulse
 		GrabMagnetTimer.Enabled = true
         lightCtrl.pulse l140, 2
         lightCtrl.pulse l141, 0
@@ -26,7 +34,6 @@ Sub HitPopBumpers(bumper)
         lightCtrl.AddShot "EMP1", l23, RGB(255,255,255)
         SetPlayerState MODE_EMP, True
         GameTimers(GAME_EMP_TIMER_IDX) = 20
-        FlexDMDEMPModeScene()
     Else
         lightCtrl.Pulse bumper, 0
         SetPlayerState EMP_CHARGE, GetPlayerState(EMP_CHARGE) + 1

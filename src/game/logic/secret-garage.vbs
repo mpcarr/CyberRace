@@ -6,10 +6,8 @@
 '
 '*****************************
 Sub SecretGarageSkip()
-    If RPin.TimerEnabled = True Then
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 100
+    If garageKicker.BallCntOver Then
+        releaseGarageLock()
     End If
 End Sub
 
@@ -22,9 +20,10 @@ End Sub
 Sub SecretGarageEnter()
 
     If RealBallsInPlay > 1 Then
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 100
+        'RPin.TimerEnabled = False
+        'RPin.TimerEnabled = True
+        'RPin.TimerInterval = 100
+        releaseGarageLock()
         Exit Sub
     End If
 
@@ -34,18 +33,21 @@ Sub SecretGarageEnter()
         calloutsQ.Add "engineUpgrade", "PlayCallout(""engine-upgrade"")", 1, 0, 0, 3500, 0, False
         calloutsQ.Add "collectMore", "PlayCallout(""collect2more"")", 1, 0, 0, 1000, 0, False
         SetPlayerState GARAGE_ENGINE, 1
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 5000
+        Debounce "releaseGarage", "releaseGarageLock", 5000
+        'RPin.TimerEnabled = False
+        'RPin.TimerEnabled = True
+        'RPin.TimerInterval = 5000
     ElseIf GetPlayerState(GARAGE_COOLING) = 0 Then
         lightCtrl.AddTableLightSeq "RGB", lSeqGaragePart2
         FlexDMDGarageCoolingScene()
         calloutsQ.Add "coolingUpgrade", "PlayCallout(""cooling-upgrade"")", 1, 0, 0, 3500, 0, False
         calloutsQ.Add "collectMore", "PlayCallout(""collect1more"")", 1, 0, 0, 1000, 0, False
         SetPlayerState GARAGE_COOLING, 1
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 5000
+
+        Debounce "releaseGarage", "releaseGarageLock", 5000
+        'RPin.TimerEnabled = False
+        'RPin.TimerEnabled = True
+        'RPin.TimerInterval = 5000
     ElseIF GetPlayerState(GARAGE_HULL) = 0 Then
         lightCtrl.AddTableLightSeq "RGB", lSeqGaragePart2
         FlexDMDGarageFuelScene()
@@ -55,24 +57,16 @@ Sub SecretGarageEnter()
         SetPlayerState GARAGE_HULL, 0
         SetPlayerState GARAGE_COOLING, 0
         SetPlayerState GARAGE_ENGINE, 0
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 4000
+        Debounce "releaseGarage", "releaseGarageLock", 4000
+        'RPin.TimerEnabled = False
+        'RPin.TimerEnabled = True
+        'RPin.TimerInterval = 4000
     End If
 End Sub
 
-
-
-Sub RPin_Timer()
-    If RPin.IsDropped = True Then
-        RPin.IsDropped = 0
-        RandomSoundDropTargetReset(RPinTarget)
-        RPin.TimerEnabled = False
-    Else
-        RPin.IsDropped = 1
-        lightCtrl.RemoveTableLightSeq "RGB", lSeqGaragePart2
-        lightCtrl.pulse l141, 2
-        SoundDropTargetDrop(RPinTarget)
-        RPin.TimerInterval = 1000
-    End If
+Sub releaseGarageLock()
+    lightCtrl.RemoveTableLightSeq "RGB", lSeqGaragePart2
+    lightCtrl.pulse l141, 2
+    SoundDropTargetDrop(RPinTarget)        
+    garageKicker.Kick -45, 5
 End Sub

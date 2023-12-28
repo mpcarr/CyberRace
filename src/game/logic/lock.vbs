@@ -36,11 +36,14 @@ Sub SwitchHitRampLockGate()
     Select Case GetPlayerState(BALLS_LOCKED)
         Case 0:
             SetPlayerState BALLS_LOCKED, 1
+            DOF 253, DOFPulse
             calloutsQ.Add "balllocked", "PlayCallout(""ball1locked"")", 1, 0, 0, 3500, 0, False
         Case 1:
             SetPlayerState BALLS_LOCKED, 2
+            DOF 254, DOFPulse
             calloutsQ.Add "balllocked", "PlayCallout(""ball2locked"")", 1, 0, 0, 3500, 0, False
         Case 2:
+            DOF 255, DOFPulse
             calloutsQ.Add "balllocked", "PlayCallout(""ball3locked"")", 1, 0, 0, 3500, 0, False
             calloutsQ.Add "prepareformb", "PlayCallout(""prepareformb"")", 1, 0, 0, 3500, 0, False
             SetPlayerState LOCK_LIT, False
@@ -86,7 +89,7 @@ Sub LockPin1_Timer()
     LockPin2.TimerEnabled = True
     LockPin2.TimerInterval = 1000
     SetPlayerState MODE_MULTIBALL, True
-    
+    lightCtrl.LightState l97, 1
     lightCtrl.RemoveAllTableLightSeqs()
     SetPlayerState BALLS_LOCKED, 0
     lightCtrl.AddShot "MBSpinner", l48, RGB(0,255,0)
@@ -142,6 +145,29 @@ Sub CheckLockLit()
     End If
 End Sub
 
+'****************************
+' LockCheckDiverter
+' Event Listeners:      
+RegisterPinEvent SWITCH_HIT_RIGHT_RAMP_ENTER, "LockCheckDiverter"
+'
+'*****************************
+Sub LockCheckDiverter
+    If RealBallsInPlay > 1 Or GetPlayerState(SKILLS_TRIAL_SHOT) = 1 Or GetPlayerState(RACE_MODE_FINISH) = True Then
+        DiverterOn.IsDropped = 1
+        DiverterOff.IsDropped = 0
+        Debounce "checkDiverter", "CheckLockLit", 2000
+    End If
+End Sub
+
+
+Sub CheckSuperJackpot()
+    If lightCtrl.IsShotLit("MBSuperLeftRamp", l47) = False Then
+        If  lightCtrl.IsShotLit("MBSpinner", l48) = False And lightCtrl.IsShotLit("MBLeftOrbit", l46) = False And lightCtrl.IsShotLit("MBLeftRamp", l47) = False And lightCtrl.IsShotLit("MBRightRamp", l64) = False And lightCtrl.IsShotLit("MBRightOrbit", l63) = False Then
+            lightCtrl.AddShot "MBSuperLeftRamp", l47, RGB(255,127,0) 'Super Jackpot
+        End If
+    End If
+End Sub
+
 
 '****************************
 ' MB Spinner Shot
@@ -153,6 +179,7 @@ Sub MBSpinnerShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBSpinner", l48) = True Then
             lightCtrl.RemoveShot "MBSpinner", l48
+            CheckSuperJackpot()
             AwardJackpot()
         End If
     End If
@@ -168,6 +195,7 @@ Sub MBLeftOrbitShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBLeftOrbit", l46) = True Then
             lightCtrl.RemoveShot "MBLeftOrbit", l46
+            CheckSuperJackpot()
             AwardJackpot()
         End If
     End If
@@ -183,7 +211,18 @@ Sub MBLeftRampShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBLeftRamp", l47) = True Then
             lightCtrl.RemoveShot "MBLeftRamp", l47
+            CheckSuperJackpot()
             AwardJackpot()
+        Else
+            If lightCtrl.IsShotLit("MBSuperLeftRamp", l47) = True Then
+                'AwardSuperJackpot
+                AwardJackpot()
+                lightCtrl.AddShot "MBSpinner", l48, RGB(0,255,0)
+                lightCtrl.AddShot "MBLeftOrbit", l46, RGB(0,255,0)
+                lightCtrl.AddShot "MBLeftRamp", l47, RGB(0,255,0)
+                lightCtrl.AddShot "MBRightRamp", l64, RGB(0,255,0)
+                lightCtrl.AddShot "MBRightOrbit", l63, RGB(0,255,0)
+            End If
         End If
     End If
 End Sub
@@ -198,6 +237,7 @@ Sub MBRightRampShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBRightRamp", l64) = True Then
             lightCtrl.RemoveShot "MBRightRamp", l64
+            CheckSuperJackpot()
             AwardJackpot()
         End If
     End If
@@ -213,6 +253,7 @@ Sub MBRightOrbitShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBRightOrbit", l63) = True Then
             lightCtrl.RemoveShot "MBRightOrbit", l63
+            CheckSuperJackpot()
             AwardJackpot()
         End If
     End If
@@ -233,6 +274,8 @@ Sub MBEnd
         lightCtrl.RemoveShot "MBLeftRamp", l47
         lightCtrl.RemoveShot "MBRightRamp", l64
         lightCtrl.RemoveShot "MBRightOrbit", l63
+        lightCtrl.RemoveShot "MBSuperLeftRamp", l47
+        
     End If
 End Sub
 

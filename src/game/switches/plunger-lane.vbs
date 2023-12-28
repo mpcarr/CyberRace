@@ -9,10 +9,16 @@ End Sub
 Sub BIPL_Top_Hit()
     ballInPlungerLane = False
     autoPlunge = False
+    If GameTilted = True Then
+        Exit Sub
+    End If
     If GetPlayerState(ENABLE_BALLSAVER) = True Then
         EnableBallSaver(20)
         SetPlayerState ENABLE_BALLSAVER, False
     End If
+
+    SetTimer "skillshot", "CancelSkillshot", 4000
+
 End Sub
 
 '****************************

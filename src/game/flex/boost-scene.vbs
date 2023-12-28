@@ -10,7 +10,10 @@ Sub FlexDMDBoostModeScene()
     qItem.AddLabel "JACKPOTS GROW", 		Font12, DMDWidth/2, DMDHeight*.4, DMDWidth/2, DMDHeight*.4, ""
     qItem.AddLabel "FormatScore(GetPlayerState(JACKPOT_VALUE))", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
     DmdQ.Enqueue qItem
-    lightCtrl.AddLightSeq "BoostUp", lSeqBoostUp
+    LightSeqRGB.Play SeqUpOn,50,2
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(0,255,0)
+    
     lightCtrl.pulse l140, 0
     lightCtrl.pulse l141, 0
     lightCtrl.pulse l142, 0
@@ -29,7 +32,10 @@ Sub FlexDMDBoostScene()
     qItem.AddLabel "(3 * GetPlayerState(BOOST_ACTIVATIONS)) - GetPlayerState(BOOST_HITS) & "" FOR BOOST MODE""", 		Font7, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue qItem
    
-    lightCtrl.AddLightSeq "BoostUp", lSeqBoostUp
+    LightSeqRGB.Play SeqUpOn,50,2
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(0,255,0)
+    
     lightCtrl.pulse l140, 0
     lightCtrl.pulse l141, 0
     lightCtrl.pulse l142, 0

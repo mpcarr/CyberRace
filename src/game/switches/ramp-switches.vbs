@@ -5,6 +5,7 @@
 
 Sub swEnterRightRamp_Hit()
 	WireRampOn(True)
+	DispatchPinEvent SWITCH_HIT_RIGHT_RAMP_ENTER
 End Sub
 
 Sub swEnterLeftRamp_Hit()

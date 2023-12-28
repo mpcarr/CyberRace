@@ -17,16 +17,24 @@ End Sub
 Sub raceVuk_Timer()
     raceVuk.TimerEnabled = False
     SoundSaucerKick 1,raceVuk
-    raceVuk.Kick 65, RndInt(6,15)
+    raceVuk.Kick 65, RndInt(10,15)
     lightCtrl.pulse l141, 0
+End Sub
+
+Sub garageKicker_Hit()
+    DispatchPinEvent SWITCH_HIT_RAMP_PIN
 End Sub
 '******************************************
 Sub sw01_Hit()
-    If ballSaver = True Then
+    If ballSaver = True Or GetPlayerState(OUTLANE_SAVE) = True Then
         DispatchPinEvent BALL_SAVE
+        If ballSaver = False Then
+            SetPlayerState OUTLANE_SAVE, False
+        End If
         ballSaverIgnoreCount = ballSaverIgnoreCount+1
     Else
         PlaySoundAtLevelStatic "drain", SoundFxLevel, sw01
+        DOF 220, DOFPulse
     End If
     If GetPlayerState(LANE_R) > 0 Then
         lightCtrl.Pulse l42, 0
@@ -51,11 +59,15 @@ Sub sw03_Hit()
 End Sub
 '******************************************
 Sub sw04_Hit()
-    If ballSaver = True Then
+    If ballSaver = True Or GetPlayerState(OUTLANE_SAVE) = True Then
         DispatchPinEvent BALL_SAVE
+        If ballSaver = False Then
+            SetPlayerState OUTLANE_SAVE, False
+        End If
         ballSaverIgnoreCount = ballSaverIgnoreCount+1
     Else
         PlaySoundAtLevelStatic "drain", SoundFxLevel, sw04
+        DOF 221, DOFPulse
     End If
     If GetPlayerState(LANE_E) > 0 Then
         lightCtrl.Pulse l45, 0
@@ -93,13 +105,14 @@ Sub sw39_Hit()
     set KickerBall39 = activeball
     DispatchPinEvent SWITCH_HIT_SCOOP
     SoundSaucerLock()
-    If GetPlayerState(MODE_PERK_SELECT) = False Then
+    If GetPlayerState(MODE_PERK_SELECT) = False Or (GetPlayerState(MODE_PERK_SELECT) = False And GetPlayerState(NODE_LEVEL) < 6) Then
         sw39.TimerEnabled = True
     End If
 End Sub
 Sub sw39_Timer()
 	sw39.TimerEnabled = False
     SoundSaucerKick 1, sw39
+    DOF 235, DOFPulse
     KickBall KickerBall39, 0, 0, 55, 10
 End Sub
 '******************************************
@@ -216,6 +229,8 @@ End Sub
 '******************************************
 Sub sw25_Hit()
     STHit 25
+    DispatchPinEvent SWITCH_HIT_MYSTERY
+    DispatchPinEvent SWITCH_HIT_ADDTIME
 End Sub
 '******************************************
 Sub sw26_Hit()
@@ -228,7 +243,7 @@ Sub sw31_Hit()
 End Sub
 '******************************************
 Sub RPin_Hit()
-	DispatchPinEvent SWITCH_HIT_RAMP_PIN
+	'DispatchPinEvent SWITCH_HIT_RAMP_PIN
 End Sub
 '******************************************
 Sub ScoopBackWall_Hit()

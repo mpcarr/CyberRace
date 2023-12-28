@@ -38,9 +38,25 @@ Sub Table1_KeyDown(ByVal Keycode)
             StartGame()
         End If
     Else
+        If GAME_DRAIN_BALLS_AND_RESET = True Or GameTilted = True Then
+            Exit Sub
+        End If
 
-
-        If GameTimers(GAME_BONUS_TIMER_IDX) > 0 Then Exit Sub 
+        If GameTimers(GAME_BONUS_TIMER_IDX) > 0 Then 
+            
+            If keycode = LeftFlipperKey Then
+                LFlipperDown = True   
+                If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
+            End If
+            
+            If keycode = RightFlipperKey Then 
+                RFlipperDown = True
+                If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
+            End If    
+            
+            Exit Sub 
+        End If
+        
         
         If keycode = StartGameKey Then
             AddPlayer()
@@ -53,16 +69,22 @@ Sub Table1_KeyDown(ByVal Keycode)
             Plunger.Pullback
         End If
     
-        If keycode = LeftTiltKey Then Nudge 90, 6:PlaySound SoundFX("fx_nudge",0), 0, 1, -0.1, 0.25
-        If keycode = RightTiltKey Then Nudge 270, 6:PlaySound SoundFX("fx_nudge",0), 0, 1, 0.1, 0.25
-        If keycode = CenterTiltKey Then Nudge 0, 7:PlaySound SoundFX("fx_nudge",0), 0, 1, 1, 0.25
+        If keycode = LeftTiltKey Then Nudge 90, 2: SoundNudgeLeft : CheckTilt
+        If keycode = RightTiltKey Then Nudge 270, 2: SoundNudgeRight : CheckTilt
+        If keycode = CenterTiltKey Then Nudge 0, 3: SoundNudgeCenter : CheckTilt
         
+        If keycode = MechanicalTilt Then 
+            SoundNudgeCenter
+            CheckMechTilt
+        End If
+
         If(keycode = PlungerKey OR keycode = Lockbarkey) Then
             DispatchPinEvent(SWITCH_SELECT_EVENT_KEY)
         End If
 
         If keycode = LeftFlipperKey Then
-            LFlipperDown = True   
+            LFlipperDown = True
+            DOF 101,DOFOn
             If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
             FlipperActivate LeftFlipper,LFPress
             LF.Fire    
@@ -80,6 +102,7 @@ Sub Table1_KeyDown(ByVal Keycode)
             FlipperActivate RightFlipper, RFPress
             RF.Fire
             RFlipperDown = True
+            DOF 102,DOFOn
             If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
 			If StagedFlipperMod <> 1 Then
 				UpRightFlipper.RotateToEnd
@@ -126,6 +149,7 @@ Sub Table1_KeyUp(ByVal keycode)
         End If
         
         If keycode = LeftFlipperKey Then
+            DOF 101,DOFOff
             LFlipperDown = False
             FlipperDeActivate LeftFlipper, LFPress
             LeftFlipper.RotateToStart
@@ -136,6 +160,7 @@ Sub Table1_KeyUp(ByVal keycode)
             DispatchPinEvent(SWITCH_LEFT_FLIPPER_UP)
         End If
         If keycode = RightFlipperKey Then
+            DOF 102,DOFOff
             RFlipperDown = False
             FlipperDeActivate RightFlipper, RFPress
             RightFlipper.RotateToStart

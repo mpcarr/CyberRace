@@ -91,6 +91,8 @@ Class Queue
     private Frame
     private CurrentMSGdone
     private DMD_slide
+    public FlexDMDItem
+    public FlexDMDOverlayAssets
 
     Private Sub Class_Initialize()
         Set Items = CreateObject("Scripting.Dictionary")
@@ -114,12 +116,12 @@ Class Queue
             item.Label7 = queueItem.Label7
             If IsObject(CurrentItem) Then
 				If item.Name = CurrentItem.Name Then
-					If CurrentItem.BGImage <> "noimage"  Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).Visible = False
-					If CurrentItem.BGVideo <> "novideo" Then FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).Visible = False
+					If CurrentItem.BGImage <> "noimage"  Then FlexDMDItem.Stage.GetImage(CurrentItem.BGImage).Visible = False
+					If CurrentItem.BGVideo <> "novideo" Then FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).Visible = False
 					item.BGImage = queueItem.BGImage
 					item.BGVideo = queueItem.BGVideo
-					If CurrentItem.BGImage  <> "noimage" Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).Visible=True : FlexDMD.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
-					If CurrentItem.BGVideo <> "novideo" Then FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).Visible=True : FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide
+					If CurrentItem.BGImage  <> "noimage" Then FlexDMDItem.Stage.GetImage(CurrentItem.BGImage).Visible=True : FlexDMDItem.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
+					If CurrentItem.BGVideo <> "novideo" Then FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).Visible=True : FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide
 				End If
             Else
                 item.BGImage = queueItem.BGImage
@@ -190,8 +192,8 @@ Class Queue
             If DMD_Slide < 0 Then DMD_slide = DMD_slide + 2
         End If
 
-        If CurrentItem.BGImage <> "noimage"  Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
-        If CurrentItem.BGVideo <> "novideo" Then FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide
+        If CurrentItem.BGImage <> "noimage"  Then FlexDMDItem.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
+        If CurrentItem.BGVideo <> "novideo" Then FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide
 
         Dim i
          For i = 1 to 7
@@ -199,7 +201,7 @@ Class Queue
              dim label : label = CurrentItem.GetLabel(i)
             If Not IsNull(label) Then
 
-                Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
+                Set flabel = FlexDMDItem.Stage.GetLabel("TextSmalLine" & CStr(i))
                 flabel.Font = label(1)
                 flabel.visible = True
                 If InStr(1, label(0), "GetPlayerState") > 0 Then
@@ -262,8 +264,8 @@ Class Queue
         if CurrentItem.Action = "slidedown" Then DMD_slide = DMDHeight
         if CurrentItem.Action = "slideup" Then DMD_slide = -DMDHeight
 
-        If CurrentItem.BGImage  <> "noimage" Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).Visible=True : FlexDMD.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
-        If CurrentItem.BGVideo <> "novideo" Then FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).Visible=True : FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide * 1.5 : FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).Seek(0)
+        If CurrentItem.BGImage  <> "noimage" Then FlexDMDItem.Stage.GetImage(CurrentItem.BGImage).Visible=True : FlexDMDItem.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
+        If CurrentItem.BGVideo <> "novideo" Then FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).Visible=True : FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide * 1.5 : FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).Seek(0)
         
         Dim i
         For i = 1 to 7
@@ -271,7 +273,7 @@ Class Queue
             dim label : label = CurrentItem.GetLabel(i)
             If Not IsNull(label) Then
 
-                Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
+                Set flabel = FlexDMDItem.Stage.GetLabel("TextSmalLine" & CStr(i))
                 flabel.Font = label(1)
                 If InStr(1, label(0), "GetPlayerState") > 0 Then
                     flabel.Text = Eval(label(0))
@@ -301,52 +303,18 @@ Class Queue
     End Sub
 
     Public Sub DMDResetAll
-		
-        FlexDMD.Stage.GetImage("BGBlack").Visible=False 
-		FlexDMD.Stage.GetImage("BG001").Visible=False
-        FlexDMD.Stage.GetImage("BG002").Visible=False 
-        FlexDMD.Stage.GetImage("BG003").Visible=False 
-        FlexDMD.Stage.GetImage("BG004").Visible=False 
-        FlexDMD.Stage.GetImage("BG005").Visible=False 
-        FlexDMD.Stage.GetVideo("BGBoost").Visible=False
-
-        FlexDMD.Stage.GetVideo("BGBetMode").Visible=False
-        FlexDMD.Stage.GetVideo("BGBoost").Visible=False
-        FlexDMD.Stage.GetVideo("BGCyber").Visible=False
-        FlexDMD.Stage.GetVideo("BGEmp").Visible=False
-        FlexDMD.Stage.GetVideo("BGNodes").Visible=False
-        FlexDMD.Stage.GetVideo("BGSkills").Visible=False
-
-        FlexDMD.Stage.GetVideo("BGEngine").Visible=False
-        FlexDMD.Stage.GetVideo("BGCooling").Visible=False
-        FlexDMD.Stage.GetVideo("BGFuel").Visible=False
-
-        FlexDMD.Stage.GetVideo("BGNode").Visible=False
-        FlexDMD.Stage.GetVideo("BGNodeComplete").Visible=False
-
-        
-        FlexDMD.Stage.GetVideo("BGRace1").Visible=False
-        FlexDMD.Stage.GetVideo("BGRace2").Visible=False
-        FlexDMD.Stage.GetVideo("BGRace3").Visible=False
-        FlexDMD.Stage.GetVideo("BGRace4").Visible=False
-        FlexDMD.Stage.GetVideo("BGRaceLocked").Visible=False
-
-        FlexDMD.Stage.GetVideo("BGBonus1").Visible=False
-        FlexDMD.Stage.GetVideo("BGBonus2").Visible=False
-        FlexDMD.Stage.GetVideo("BGBonus3").Visible=False
-        FlexDMD.Stage.GetVideo("BGBonus4").Visible=False
-        FlexDMD.Stage.GetVideo("BGBonus5").Visible=False
-        
-        FlexDMD.Stage.GetVideo("BGJackpot").Visible=False
-
-		FlexDMD.Stage.GetLabel("TextSmalLine1").Visible=False
-		FlexDMD.Stage.GetLabel("TextSmalLine2").Visible=False
-		FlexDMD.Stage.GetLabel("TextSmalLine3").Visible=False
-		FlexDMD.Stage.GetLabel("TextSmalLine4").Visible=False
-        FlexDMD.Stage.GetLabel("TextSmalLine5").Visible=False
-        FlexDMD.Stage.GetLabel("TextSmalLine6").Visible=False
-        FlexDMD.Stage.GetLabel("TextSmalLine7").Visible=False
+        Dim child
+        For Each child in FlexDMDOverlayAssets
+            dim asset
+            asset = Split(child, "|")
+            Select Case asset(1)
+                Case "image"
+                    FlexDMDItem.Stage.GetImage(asset(0)).Visible=False 
+                Case "video"
+                    FlexDMDItem.Stage.GetVideo(asset(0)).Visible=False 
+                Case "text"
+                    FlexDMDItem.Stage.GetLabel(asset(0)).Visible=False 
+            End Select
+        Next
     End Sub
-
-
 End Class

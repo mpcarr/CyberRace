@@ -6,52 +6,35 @@
 '
 '*****************************
 Sub EndOfBall()
-    Debug.print("Balls In Play: "& RealBallsInPlay)
     
     If gameStarted = False Then
         Exit Sub
     End If
 
-
     Dim qItem 
-    Debug.print(RealBallsInPlay)
     If ballSaverIgnoreCount > 0 Then
         ballSaverIgnoreCount = ballSaverIgnoreCount-1
         Exit Sub
     End If
-    If ballSaver = True Then
+    If GAME_DRAIN_BALLS_AND_RESET = True Then
+        If RealBallsInPlay = 0 Then
+            GAME_DRAIN_BALLS_AND_RESET = False
+            lightCtrl.ResumeMainLights()
+            Debounce "reset", "DispatchPinEvent ADD_BALL", 400
+        End IF
+    ElseIf ballSaver = True Then
         DispatchPinEvent BALL_SAVE
-        Set qItem = New QueueItem
-        With qItem
-            .Name = "ballsave"
-            .Duration = 2
-            .BGImage = "BGBlack"
-            .BGVideo = "novideo"
-        End With
-        qItem.AddLabel "BALL SAVED", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
-        DmdQ.Enqueue qItem
     ElseIf RealBallsInPlay = 0 Then
 
-        If GetPlayerState(EXTRA_BALLS) > 0 Then
-            SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) - 1
-            DispatchPinEvent BALL_SAVE
-            Set qItem = New QueueItem
-            With qItem
-                .Name = "shootagain"
-                .Duration = 2
-                .BGImage = "BGBlack"
-                .BGVideo = "novideo"
-            End With
-            qItem.AddLabel "SHOOT AGAIN", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
-            DmdQ.Enqueue qItem
-            Exit Sub
+        If GameTilted = True Then
+            GameTilted = False
+            lightCtrl.ResumeMainLights()
         End If
 
         PlayCallout("drain")
         DmdQ.RemoveAll()
         lightCtrl.AddTableLightSeq "GI", lSeqGIOff
         MusicOff
-        SetPlayerState MODE_CHOOSE_SKILLSHOT, False
         SetPlayerState MODE_SKILLSHOT_ACTIVE, False
         
         SetPlayerState MODE_EMP, False
@@ -92,6 +75,7 @@ Sub EndOfBall()
         SetPlayerState PF_MULTIPLIER, 0
 
         SetPlayerState MODE_MULTIBALL, False
+        SetPlayerState MODE_TT_MULTIBALL, False
 
         If GetPlayerState(MODE_RACE) = True Then
             SetPlayerState LANE_R, 0
@@ -104,7 +88,7 @@ Sub EndOfBall()
         SetPlayerState RACE_MODE_FINISH, False
 
         
-        GameTimers = Array(0,0,0,0,0,0,0,0,0)
+        GameTimers = Array(0,0,0,0,0,0,0,0,0,0)
 
         lightCtrl.RemoveAllShots()
         lightCtrl.RemoveAllLightSeq "GI"
@@ -136,6 +120,20 @@ Sub EndOfBonus()
     lightCtrl.RemoveTableLightSeq "GI", lSeqGIOff
     DmdQ.RemoveAll()
 
+    If GetPlayerState(EXTRA_BALLS) > 0 Then
+        SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) - 1
+        DispatchPinEvent RELEASE_BALL
+        PlayShootAgainSeq()
+        Set qItem = New QueueItem
+        With qItem
+            .Name = "shootagain"
+            .Duration = 5
+            .BGImage = "noimage"
+            .BGVideo = "ShootAgain"
+        End With
+        DmdQ.Enqueue qItem
+        Exit Sub
+    End If
 
     If GetPlayerState(CURRENT_BALL) = BALLS_PER_GAME And (GetCurrentPlayerNumber()=NumberOfPlayers) Then
         'Check HI SCORES

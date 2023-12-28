@@ -59,21 +59,28 @@ Sub HitBonusLanes(lane)
         SetPlayerState LANE_N, 0
         SetPlayerState LANE_US, 0
     End If
+    If lane = LANE_BO Then
+        If lightCtrl.IsShotLit("skillshotLanes", l66) Then
+            AwardSkillshot()
+        End If
+    End If
 End Sub
 
 Sub HitInLanes(lane)
     AddScore POINTS_BASE
-    If GetPlayerState(lane) = 0 And GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
-        SetPlayerState lane, 1
-        PlaySound("fx_rollover")
-    End If
-    If GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
-        If GetPlayerState(LANE_R) = 1 AND GetPlayerState(LANE_A) = 1 AND GetPlayerState(LANE_C) = 1 AND GetPlayerState(LANE_E) = 1 Then
-            SetPlayerState RACE_MODE_READY, True
-            lSeqRGBCircle.Color = GAME_RACE_COLOR
-            lightCtrl.AddTableLightSeq "RaceReady", lSeqRGBCircle
-            calloutsQ.Add "raceready", "PlayCallout(""raceready"")", 1, 0, 0, 2500, 0, False
-            'FlexDMDRaceReadyScene()
+    If GetPlayerState(GRANDSLAM_RACES) = False And GetPlayerState(MODE_MULTIBALL) = False And GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(lane) = 0 And GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
+            SetPlayerState lane, 1
+            PlaySound("fx_rollover")
+        End If
+        If GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
+            If GetPlayerState(LANE_R) = 1 AND GetPlayerState(LANE_A) = 1 AND GetPlayerState(LANE_C) = 1 AND GetPlayerState(LANE_E) = 1 Then
+                SetPlayerState RACE_MODE_READY, True
+                lSeqRGBCircle.Color = GAME_RACE_COLOR
+                lightCtrl.AddTableLightSeq "RaceReady", lSeqRGBCircle
+                calloutsQ.Add "raceready", "PlayCallout(""raceready"")", 1, 0, 0, 2500, 0, False
+                'FlexDMDRaceReadyScene()
+            End If
         End If
     End If
 End Sub

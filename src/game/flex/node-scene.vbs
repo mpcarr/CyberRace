@@ -37,11 +37,6 @@ Sub FlexDMDNodePerkCollectScene()
             perkLeftDesc = "BALL"
             perkRightTitle = "JACKPOTS"
             perkRightDesc = "5X"
-        Case 6: 
-            perkLeftTitle = "SPOT"
-            perkLeftDesc = "G/SLAM"
-            perkRightTitle = "MINI"
-            perkRightDesc = "WIZARD"
     End Select  
     Dim qItem : Set qItem = New QueueItem
     With qItem

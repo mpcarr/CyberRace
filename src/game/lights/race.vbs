@@ -33,22 +33,22 @@ Sub LightsRaceMode()
     If GetPlayerState(MODE_RACE_SELECT) = True Then
         lightCtrl.RemoveAllTableLightSeqs()
         If GetPlayerState(RACE_1) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode1On
+            lightCtrl.AddTableLightSeq "RaceSelection1On", lSeqRaceMode1On
         End If
         If GetPlayerState(RACE_2) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode2On
+            lightCtrl.AddTableLightSeq "RaceSelection2On", lSeqRaceMode2On
         End If
         If GetPlayerState(RACE_3) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode3On
+            lightCtrl.AddTableLightSeq "RaceSelection3On", lSeqRaceMode3On
         End If
         If GetPlayerState(RACE_4) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode4On
+            lightCtrl.AddTableLightSeq "RaceSelection4On", lSeqRaceMode4On
         End If
         If GetPlayerState(RACE_5) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode5On
+            lightCtrl.AddTableLightSeq "RaceSelection5On", lSeqRaceMode5On
         End If
         If GetPlayerState(RACE_6) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode6On
+            lightCtrl.AddTableLightSeq "RaceSelection6On", lSeqRaceMode6On
         End If
         Select Case GetPlayerState(RACE_MODE_SELECTION):
             Case 1: 
@@ -88,9 +88,9 @@ Sub ModeRace()
             Case 4:
                 lightCtrl.Blink l56
             Case 5:
-                
+                lightCtrl.Blink l57
             Case 6:
-               
+                lightCtrl.Blink l58
         End Select
     Else
         LightsModeRace1()

@@ -2,10 +2,12 @@
 
 Const START_GAME = "Start Game"
 Const NEXT_PLAYER = "Next Player"
+Const RELEASE_BALL = "Release Ball"
 Const BALL_DRAIN = "Ball Drain"
 Const BALL_SAVE = "Ball Save"
 Const GAME_OVER = "Game Over"
 Const ADD_BALL = "Add Ball"
+Const TILT_MACHINE = "Tilt Machine"
 Const SWITCH_HIT_NODE_A = "Switch Hit Node A"
 Const SWITCH_HIT_NODE_B = "Switch Hit Node B"
 Const SWITCH_HIT_NODE_C = "Switch Hit Node C"
@@ -19,13 +21,15 @@ Const SWITCH_BOTH_FLIPPERS_PRESSED = "Switches Both Flippers Pressed"
 Const SWITCH_HIT_SPINNER1 = "Switches Hit Spinner 1"
 Const SWITCH_HIT_SPINNER2 = "Switches Hit Spinner 2"
 Const SWITCH_HIT_BUMPER = "Switches Hit Bumper"
+Const SWITCH_HIT_RIGHT_RAMP_ENTER = "Switches Hit Right Ramp Enter"
 Const SWITCH_HIT_RIGHT_RAMP = "Switches Hit Right Ramp"
 Const SWITCH_HIT_LANE_A = "Switches Hit Lane A"
 Const SWITCH_HIT_LEFT_RAMP = "Switches Hit Left Ramp"
 Const SWITCH_HIT_RIGHT_ORBIT = "Switches Hit Right Orbit"
 Const SWITCH_HIT_RAMP_LOCK = "Switch Hit Ramp Lock"
 Const SWITCH_HIT_HYPER = "Switch Hit Hyper"
-
+Const SWITCH_HIT_MYSTERY = "Switch Hit Mystery"
+Const SWITCH_HIT_ADDTIME = "Switch Hit AddTime"
 Const SWITCH_HIT_BOOST1 = "Switches Hit Boost1"
 Const SWITCH_HIT_BOOST2 = "Switches Hit Boost2"
 Const SWITCH_HIT_BOOST3 = "Switches Hit Boost3"
@@ -85,6 +89,9 @@ Const GAME_SHOT_RIGHT_ORBIT = "Game Shot Right Oribt"
 Const GAME_SHOT_SHORTCUT = "Game Shot Shortcut"
 Const GAME_SHOT_FINISH = "Game Shot Finish"
 
+Dim GameTilted : GameTilted = False
+Dim GAME_DRAIN_BALLS_AND_RESET : GAME_DRAIN_BALLS_AND_RESET = False
+
 Dim GameHiScoreLetters : GameHiScoreLetters = Array("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","0","1","2","3","4","5","6","7","8","9"," ")
 Dim GameShots: GameShots = Array(GAME_SHOT_HYPER_JUMP, GAME_SHOT_LEFT_ORBIT,GAME_SHOT_LEFT_RAMP,GAME_SHOT_SPINNER,GAME_SHOT_BUMPERS,GAME_SHOT_LEFT_RETURN,GAME_SHOT_RIGHT_RAMP,GAME_SHOT_RIGHT_ORBIT,GAME_SHOT_SHORTCUT)
 Dim GameCombos: Set GameCombos = CreateObject("Scripting.Dictionary")
@@ -101,6 +108,7 @@ Dim GAME_SKILLS_TIMER_IDX : GAME_SKILLS_TIMER_IDX = 5
 Dim GAME_BONUS_TIMER_IDX : GAME_BONUS_TIMER_IDX = 6
 Dim GAME_SELECTION_TIMER_IDX : GAME_SELECTION_TIMER_IDX = 7
 Dim GAME_MULTIPLIER_TIMER_IDX : GAME_MULTIPLIER_TIMER_IDX = 8
+Dim GAME_TT_TIMER_IDX : GAME_TT_TIMER_IDX = 9
 
 Const GAME_BALLSAVE_TIMER_ENDED = "Game Ball Save Timer Ended"
 Const GAME_RACE_TIMER_ENDED = "Game Race Timer Ended"
@@ -111,6 +119,7 @@ Const GAME_SKILLS_TIMER_ENDED = "Game Skills Timer Ended"
 Const GAME_BONUS_TIMER_ENDED = "Game Bonus Timer Ended"
 Const GAME_SELECTION_TIMER_ENDED = "Game Selection Timer Ended"
 Const GAME_MULTIPLIER_TIMER_ENDED = "Game Multiplier Timer Ended"
+Const GAME_TT_TIMER_ENDED = "Game TT Timer Ended"
 
 Const GAME_BALLSAVE_TIMER_HURRY = "Game Ball Save Timer Hurry"
 Const GAME_RACE_TIMER_HURRY = "Game Race Timer Hurry"
@@ -121,6 +130,7 @@ Const GAME_SKILLS_TIMER_HURRY = "Game Skills Timer Hurry"
 Const GAME_BONUS_TIMER_HURRY = "Game Bonus Timer Hurry"
 Const GAME_SELECTION_TIMER_HURRY = "Game Selection Timer Hurry"
 Const GAME_MULTIPLIER_TIMER_HURRY = "Game Multiplier Timer Hurry"
+Const GAME_TT_TIMER_HURRY = "Game TT Timer Hurry"
 
 'Modes
 Const GAME_MODE_NORMAL = "Game_Mode_Normal"
@@ -138,14 +148,15 @@ Dim GAME_HURRYUP_COLOR : GAME_HURRYUP_COLOR = RGB(255, 240, 33)
 Dim GAME_MULTIBALL_COLOR : GAME_MULTIBALL_COLOR = RGB(13, 109, 18)
 Dim GAME_RACE_COLOR : GAME_RACE_COLOR = RGB(255, 0, 0)
 Dim GAME_SKILLS_COLOR : GAME_SKILLS_COLOR = RGB(255, 191, 0)
+Dim GAME_TT_COLOR : GAME_TT_COLOR = RGB(127, 0, 127)
 
 Const GAME_BET_MAX_HITS = 20
 
 Dim GAME_RACE_MODE_TITLES : GAME_RACE_MODE_TITLES = Array("RYKAR", "MINERVA", "ALLESA", "NYE", "LUKA", "EZRI")
-Dim GAME_RACE_MODE_DESC : GAME_RACE_MODE_DESC = Array("Ramp Shots", "Spinners", "Roving Shot", "Orbits/Nodes", "LOCKED", "LOCKED")
+Dim GAME_RACE_MODE_DESC : GAME_RACE_MODE_DESC = Array("Ramp Shots", "Spinners", "Roving Shot", "Orbits/Nodes", "Ramps/Nodes", "Spinners/Orbits")
 
 Dim GAME_NODE_PERK_TITLES : GAME_RACE_MODE_TITLES = Array("RYKAR", "MINERVA", "ALLESA", "NYE", "LUKA", "EZRI")
-Dim GAME_NODE_PERK_DESC : GAME_RACE_MODE_DESC = Array("Ramp Shots", "Spinners", "Roving Shot", "Orbits/Nodes", "LOCKED", "LOCKED")
+Dim GAME_NODE_PERK_DESC : GAME_RACE_MODE_DESC = Array("Ramp Shots", "Spinners", "Roving Shot", "Orbits/Nodes", "Ramps/Nodes", "Spinners/Orbits")
 
 ' Balls Per Game
 Const BALLS_PER_GAME = 3
@@ -168,11 +179,30 @@ Const POINTS_BET_SPIN = 20000
 Const EMP_BASE_HITS = 10
 Const SKILLS_BASE_SPINS = 20
 
-Dim GameTimers : GameTimers = Array(0,0,0,0,0,0,0,0,0)
-Dim GameTimersHurry : GameTimersHurry = Array(0,0,0,0,0,0,0,0,0)
-Dim GameTimerColors : GameTimerColors = Array(GAME_NORMAL_COLOR,GAME_RACE_COLOR,GAME_HURRYUP_COLOR,GAME_MULTIBALL_COLOR,GAME_NORMAL_COLOR,GAME_SKILLS_COLOR, Null, Null, Null)
-Dim GameTimerEndEvent : GameTimerEndEvent = Array(GAME_BALLSAVE_TIMER_ENDED,GAME_RACE_TIMER_ENDED,GAME_BET_TIMER_ENDED,GAME_BOOST_TIMER_ENDED,GAME_EMP_TIMER_ENDED,GAME_SKILLS_TIMER_ENDED, GAME_BONUS_TIMER_ENDED, GAME_SELECTION_TIMER_ENDED, GAME_MULTIPLIER_TIMER_ENDED)
-Dim GameTimerHurryEvent : GameTimerHurryEvent = Array(GAME_BALLSAVE_TIMER_HURRY,GAME_RACE_TIMER_HURRY,GAME_BET_TIMER_HURRY,GAME_BOOST_TIMER_HURRY,GAME_EMP_TIMER_HURRY,GAME_SKILLS_TIMER_HURRY, GAME_BONUS_TIMER_HURRY, GAME_SELECTION_TIMER_HURRY, GAME_MULTIPLIER_TIMER_HURRY)
+Dim GameTimers : GameTimers = Array(0,0,0,0,0,0,0,0,0,0)
+Dim GameTimersHurry : GameTimersHurry = Array(0,0,0,0,0,0,0,0,0,0)
+Dim GameTimerColors : GameTimerColors = Array(GAME_NORMAL_COLOR,GAME_RACE_COLOR,GAME_HURRYUP_COLOR,GAME_MULTIBALL_COLOR,GAME_NORMAL_COLOR,GAME_SKILLS_COLOR, Null, Null, Null, GAME_TT_COLOR)
+Dim GameTimerEndEvent : GameTimerEndEvent = Array(GAME_BALLSAVE_TIMER_ENDED,GAME_RACE_TIMER_ENDED,GAME_BET_TIMER_ENDED,GAME_BOOST_TIMER_ENDED,GAME_EMP_TIMER_ENDED,GAME_SKILLS_TIMER_ENDED, GAME_BONUS_TIMER_ENDED, GAME_SELECTION_TIMER_ENDED, GAME_MULTIPLIER_TIMER_ENDED, GAME_TT_TIMER_ENDED)
+Dim GameTimerHurryEvent : GameTimerHurryEvent = Array(GAME_BALLSAVE_TIMER_HURRY,GAME_RACE_TIMER_HURRY,GAME_BET_TIMER_HURRY,GAME_BOOST_TIMER_HURRY,GAME_EMP_TIMER_HURRY,GAME_SKILLS_TIMER_HURRY, GAME_BONUS_TIMER_HURRY, GAME_SELECTION_TIMER_HURRY, GAME_MULTIPLIER_TIMER_HURRY, GAME_TT_TIMER_HURRY)
+
+' Define the MysteryAwards array globally
+Dim MysteryAwards(4, 1)
+MysteryAwards(0, 0) = "Add 50K"
+MysteryAwards(0, 1) = 60
+MysteryAwards(1, 0) = "AdvBonusX"
+MysteryAwards(1, 1) = 60
+MysteryAwards(2, 0) = "Add A Ball"
+MysteryAwards(2, 1) = 40
+MysteryAwards(3, 0) = "Light Race"
+MysteryAwards(3, 1) = 30
+MysteryAwards(4, 0) = "Add 100K"
+MysteryAwards(4, 1) = 50
+' Calculate the total weight
+Dim totalMysteryWeight, i
+totalMysteryWeight = 0
+For i = 0 To UBound(MysteryAwards)
+    totalMysteryWeight = totalMysteryWeight + MysteryAwards(i, 1)
+Next
 
 '***********************************************************************************************************************
 '***********************************************************************************************************************
@@ -202,7 +232,6 @@ Const LANE_C = "Lane C"
 Const LANE_E = "Lane E"
 
 'Skillshot
-Const MODE_CHOOSE_SKILLSHOT = "Mode_Choose_Skillshot"
 Const MODE_SKILLSHOT_ACTIVE = "Mode_Skillshot_Active"
 
 'Ball Save
@@ -272,6 +301,8 @@ Const TT_RAMP = "TT RAMP"
 Const TT_CAPTIVE = "TT CAPTIVE"
 Const TT_SHORTCUT = "TT SHORTCUT"
 Const TT_COLLECTED = "TT COLLECTED"
+Const TT_JACKPOTS = "TT JACKPOTS"
+Const TT_ACTIVATIONS = "TT Activations"
 
 'Secret Garagew
 Const GARAGE_ENGINE = "Garage Engine"
@@ -319,12 +350,17 @@ Const RACE_MODE_2_SPIN2 = "Race Mode 2 Spin 2 Hits"
 Const RACE_MODE_3_HITS = "Race Mode 3 Hits"
 Const RACE_MODE_4_HITS = "Race Mode 4 Hits"
 Const RACE_MODE_3_SHOT = "Race Mode 3 Shot"
+Const RACE_MODE_5_HITS = "Race Mode 5 Hits"
+Const RACE_MODE_6_HITS = "Race Mode 6 Hits"
+Const RACE_MODE_6_SPIN1 = "Race Mode 6 Spin 1 Hits"
+Const RACE_MODE_6_SPIN2 = "Race Mode 6 Spin 2 Hits"
 Const RACE_1 = "Race 1 Complete"
 Const RACE_2 = "Race 2 Complete"
 Const RACE_3 = "Race 3 Complete"
 Const RACE_4 = "Race 4 Complete"
 Const RACE_5 = "Race 5 Complete"
 Const RACE_6 = "Race 6 Complete"
+Const RACE_EXTRABALL = "Race Extra Ball"
 
 Const OUTLANE_SAVE = "Outlane Save"
 Const JACKPOTS_MULTIPLIER = "Jackpots Multiplier"
@@ -333,6 +369,15 @@ Const JACKPOTS_MULTIPLIER = "Jackpots Multiplier"
 Const BONUS_COMBOS_MADE = "Bonus Combos Make"
 Const BONUS_RACES_WON = "Bonus Races Won"
 Const BONUS_NODES_COMPLETED = "Bonus Nodes Completed"
+
+'Grand Slam
+
+Const GRANDSLAM_TT = "Grand Slam TT"
+Const GRANDSLAM_RACES = "Grand Slam Races"
+Const GRANDSLAM_COMBO = "Grand Slam Combo"
+Const GRANDSLAM_NODES = "Grand Slam Nodes"
+Const GRANDSLAM_SKILLS = "Grand Slam Skills"
+Const GRANDSLAM_WIZARD_READY = "Grand Slam Wizard Ready"
 
 'HI Score
 Const INITIAL_1 = "Initial 1"
@@ -344,10 +389,13 @@ Const LETTER_POSITION = "Letter Position"
 
 Const RACE_MODE_FINISH = "Race Mode Finish"
 
+'Mystery
+Const MYSTERY_HITS = "Mystery Hits"
 
 Const MODE_NORMAL = "Game_Mode_Normal"
 Const MODE_AUGMENTATION_RESEARCH = "Game_Mode_Augmentation_Research"
 Const MODE_MULTIBALL = "Game_Mode_Multiball"
+Const MODE_TT_MULTIBALL = "Game Mode TT Multiball"
 Const MODE_HURRYUP = "Game_Mode_Hurry Up"
 Const MODE_RACE_SELECT = "Game Mode Race Select"
 Const MODE_PERK_SELECT = "Game Mode Perk Select"

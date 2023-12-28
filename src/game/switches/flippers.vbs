@@ -7,10 +7,6 @@
 '*****************************
 Sub SwitchLeftFlipperDown()
     SetGameState SWITCHES_LAST_FLIPPER_DOWN_TIME, GameTime
-    If GetPlayerState(MODE_CHOOSE_SKILLSHOT) = True Then
-        'Rotate Skillshot
-        DispatchPinEvent GAME_ROTATE_SKILLSHOT_ANTI_CLOCKWISE
-    End If
 End Sub
 
 '****************************
@@ -21,8 +17,4 @@ End Sub
 '*****************************
 Sub SwitchRightFlipperDown()
     SetGameState SWITCHES_LAST_FLIPPER_DOWN_TIME, GameTime
-    If GetPlayerState(MODE_CHOOSE_SKILLSHOT) = True Then
-        'Rotate Skillshot
-        DispatchPinEvent GAME_ROTATE_SKILLSHOT_CLOCKWISE
-    End If
 End Sub

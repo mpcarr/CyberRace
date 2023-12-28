@@ -1,12 +1,41 @@
 
+
+Dim RStep, Lstep
+
 Sub RightSlingShot_Slingshot
-	RS.VelocityCorrect(ActiveBall)
-	RandomSoundSlingshotRight ActiveBall
+	If GameTilted = False Then
+		RS.VelocityCorrect(ActiveBall)
+		RandomSoundSlingshotRight ActiveBall
+		DOF 104,DOFPulse
+		DOF 202,DOFPulse
+	End If
 End Sub
 
 Sub LeftSlingShot_Slingshot
-	LS.VelocityCorrect(ActiveBall)
-	RandomSoundSlingshotLeft ActiveBall
+	If GameTilted = False Then
+		LS.VelocityCorrect(ActiveBall)
+		RandomSoundSlingshotLeft ActiveBall
+		DOF 103,DOFPulse
+		DOF 201,DOFPulse
+		LeftSlingShot.TimerInterval = 17
+    	LeftSlingShot.TimerEnabled = 1
+	End If
+End Sub
+
+Sub LeftSlingShot_Timer
+	Exit Sub
+	Dim BL
+	Dim x1, x2, y: x1 = True:x2 = False:y = 25
+	Select Case LStep
+		Case 3:x1 = False:x2= True: y = 15
+		Case 4:x1 = False:x2 = False:y = 0:LeftSlingShot.TimerEnabled = 0
+	End Select
+
+	For Each BL in BP_LSling1 : BL.Visible = x1: Next
+	For Each BL in BP_LSling2 : BL.Visible = x2: Next
+	For Each BL in BP_LEMK : BL.transx = y: Next
+
+	LStep = LStep + 1
 End Sub
 
 '******************************************************

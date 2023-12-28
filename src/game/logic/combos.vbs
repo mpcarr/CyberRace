@@ -105,15 +105,8 @@ End Sub
 '
 '*****************************
 Sub CheckComboCount
-
-    'Select Case GetPlayerState(COMBO_COUNT)
-    '    Case 2: PlayCallout("2-way-combo")
-    '    Case 3: PlayCallout("3-way-combo")
-    '    Case 4: PlayCallout("4-way-combo")
-    '    Case 5: PlayCallout("5-way-combo")
-    'End Select
+    
     If GetPlayerState(COMBO_COUNT) = 5 Then
-        'TODO: Light Show
         SetPlayerState COMBO_COUNT, 0
         SetPlayerState COMBO_SHOT_SPINNER, 0
         SetPlayerState COMBO_SHOT_LEFT_ORBIT, 0
@@ -121,7 +114,12 @@ Sub CheckComboCount
         SetPlayerState COMBO_SHOT_RIGHT_RAMP, 0
         SetPlayerState COMBO_SHOT_RIGHT_OrBIT, 0
         ComboTimer.Enabled = 0
+        SetPlayerState GRANDSLAM_COMBO, True
+        PlayGrandSlamSeq()
     ElseIf GetPlayerState(COMBO_COUNT) > 0 Then
+        If GetPlayerState(COMBO_COUNT) > 1 Then
+            FlexSceneCombo(GetPlayerState(COMBO_COUNT))
+        End If
         ComboTimer.Enabled = 0
         ComboTimer.Enabled = 1
     End If

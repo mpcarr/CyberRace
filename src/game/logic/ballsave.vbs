@@ -10,13 +10,20 @@ Sub EnableBallSaver(seconds)
 	ballSaverInGrace = False
 End Sub
 
+Sub CancelBallSaver()
+	GameTimers(GAME_BALLSAVE_TIMER_IDX) = 0
+	ballSaver = False
+	ballSaverInGrace = False
+	BallSaverTimerExpired.Enabled = False
+End Sub
+
 Sub BallSaverTimerExpired_Timer()
     If ballSaverInGrace = False Then
         BallSaverTimerExpired.Interval = 3000
 		If GetPlayerState(EXTRA_BALLS) > 0 Then
-			lightCtrl.LightOff l16
-		Else
 			lightCtrl.LightOn l16
+		Else
+			lightCtrl.LightOff l16
 		End If
 		ballSaverInGrace = True
     Else
@@ -25,3 +32,4 @@ Sub BallSaverTimerExpired_Timer()
 		ballSaverInGrace = False
     End If
 End Sub
+

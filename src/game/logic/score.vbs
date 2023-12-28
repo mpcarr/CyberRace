@@ -17,4 +17,5 @@ Sub AwardJackpot()
     calloutsQ.Add "jackpot", "PlayCallout(""jackpot"")", 1, 0, 0, 1000, 0, False
     lightCtrl.AddTableLightSeq "RGB", lSeqJackpotRGB
     lightCtrl.AddTableLightSeq "NonRGB", lSeqJackpotNonRGB
+    DOF 250, DOFPulse
 End Sub

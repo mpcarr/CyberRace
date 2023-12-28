@@ -1,5 +1,5 @@
 Const cGameName = "cyberrace"
-Const myVersion = "0.0.17"
+Const myVersion = "0.0.30"
 
 'v7 - flux: end of ball bonus, end of game bug fixes. Added lightshows for race mode, various bug fixes. 
 'v8 - flux: fix duplicate sub name, update VR cab
@@ -17,6 +17,14 @@ Const myVersion = "0.0.17"
 'v20: flux: made ball sit lowerr in scoop, hopefully fixed scoop rejection from left flipper
 'v21: flux: scorbit testing
 'v22: jsm/flux: lots of standalone fixes
+'v23-26: flux - many updates, new batch bake
+'v27: flux - fix clock on sling, added skip to bonus, fixed race 5 & 6 selection
+'v28: flux - bug fixes, pf friction 0.25 -> 0.2, added Time Trial Multiball Code
+'v29: flux - altered dmd yellow to orange, moved callouts to backglass, added skillshot
+'v30: flux - VR Room Update
+'v31: flux - Add New DMD Animations, Fix Tilt. Fix MB SuperJackpot, Moved ExtraBall to end of bonus.
+'v32: flux - Add BackGlass Calls 
+
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -69,17 +77,26 @@ Dim debugLogOn : debugLogOn = False
 
 Dim calloutsQ : Set calloutsQ = New vpwQueueManager
 
-Dim DmdQ : Set DmdQ = New Queue
+Dim Tilt
+Dim MechTilt
+Dim TiltSensitivity
+Dim bMechTiltJustHit
+Tilt = 0
+TiltSensitivity = 5
+MechTilt = 0 
+bMechTiltJustHit = False
+
+Dim DmdQ
 
 Dim VRRoom, VRElement
 If RenderingMode = 2 Then VRRoom = VRRoomChoice Else VRRoom = 0
  
-'If RenderingMode = 2 then 
+If RenderingMode = 2 then 
 	For Each VRElement in VRStuff
 		VRElement.Visible = True
 	Next
 	DMD.TimerEnabled = True
-'End If
+End If
 
 '/////////////////////-----Scorbit Options-----////////////////////
 dim TablesDir : TablesDir = GetTablesFolder
@@ -103,10 +120,12 @@ Sub LoadCoreFiles
 	On Error Resume Next
 	Set Controller = CreateObject("B2S.Server")
 	Controller.B2SName = cGameName
-	Controller.Run()
-	'If Err Then MsgBox "Can't load b2s"
-	On Error Goto 0
 	B2SOn = True
+	Controller.Run()
+	If Err Then 
+		B2SOn = False	
+	End If
+	On Error Goto 0
 End Sub
 
 Sub Table1_Init()
@@ -141,7 +160,7 @@ Sub Table1_Init()
 
 	DiverterOn.IsDropped = 1
 	DiverterOff.IsDropped = 0
-	RPin.IsDropped = 0
+	RPin.IsDropped = 1
 	LockPin1.IsDropped = 1
 	LockPin2.IsDropped = 1
 	LockPin3.IsDropped = 1
@@ -152,9 +171,6 @@ Sub Table1_Init()
 	ttSpinner.InitTurntable TurnTable, 100
 	ttSpinner.SpinDown = 50
 	ttSpinner.SpinUp = 100
-
-
-	
 	' Grab magnet
 	Set GrabMag = New cvpmMagnet
 	With GrabMag
@@ -187,9 +203,7 @@ Sub Table1_Init()
 	qItem.AddLabel "PLEASE WAIT", 	Font12, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, "blink"
 	qItem.AddLabel "BOOTING", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
 	DmdQ.Enqueue qItem
-	'StartScorbit
-
-	InitDebugger()
+	SetRoomBrightness RoomBrightness/100
 End Sub
 
 Sub AttractTimer_Timer
@@ -200,7 +214,7 @@ Sub AttractTimer_Timer
 End Sub
 
 Sub Table1_Exit
-	If B2SOn Then
+	If B2SOn = True Then
 		Controller.Pause = False
 		Controller.Stop
 	End If

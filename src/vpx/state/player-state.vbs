@@ -70,9 +70,9 @@ Function SetPlayerState(key, value)
     playerState(currentPlayer).Add key, value
 
     If IsArray(value) Then
-        AdvDebug.SendPlayerState key, Join(value)
+        'AdvDebug.SendPlayerState key, Join(value)
     Else
-        AdvDebug.SendPlayerState key, value
+        'AdvDebug.SendPlayerState key, value
     End If
     If playerEvents.Exists(key) Then
         Dim x

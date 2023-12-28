@@ -395,7 +395,6 @@ Sub SetRoomBrightness(lvl)
 
 	' Lighting level
 	Dim v: v=(lvl * 225 + 30)/255
-
 	Dim i: For i = 0 to UBound(RoomBrightnessMtlArray)
 		ModulateMaterialBaseColor RoomBrightnessMtlArray(i), i, v
 	Next

@@ -7,7 +7,7 @@
 '*****************************
 Sub SkillsTrial()
     AddScore POINT_BASE
-    If GetPlayerState(MODE_SKILLS_TRIAL) = False And GetPlayerState(SKILLS_TRIAL_READY) = False Then
+    If GetPlayerState(GRANDSLAM_SKILLS) = False And GetPlayerState(MODE_SKILLS_TRIAL) = False And GetPlayerState(SKILLS_TRIAL_READY) = False Then
         SetPlayerState SKILLS_TRIAL_SPINS, GetPlayerState(SKILLS_TRIAL_SPINS) + 1
         FlexDMDSkillsScene()
         If GetPlayerState(SKILLS_TRIAL_SPINS) > (SKILLS_BASE_SPINS * GetPlayerState(SKILLS_TRIAL_ACTIVATIONS)) Then
@@ -25,7 +25,7 @@ End Sub
 '
 '*****************************
 Sub CheckSkillsTrialReady()
-    If GetPlayerState(SKILLS_TRIAL_READY) = True AND RealBallsInPlay=1 Then
+    If GetPlayerState(GRANDSLAM_SKILLS) = False And GetPlayerState(SKILLS_TRIAL_READY) = True AND RealBallsInPlay=1 Then
         SetPlayerState MODE_SKILLS_TRIAL, True
         SetPlayerState SKILLS_TRIAL_ACTIVATIONS, GetPlayerState(SKILLS_TRIAL_ACTIVATIONS) + 1
         SetPlayerState SKILLS_TRIAL_READY, False
@@ -95,6 +95,8 @@ Sub SkillsTrialShot3
         GameTimers(GAME_SKILLS_TIMER_IDX) = 0
         SetPlayerState MODE_SKILLS_TRIAL, False
         lightCtrl.AddTableLightSeq "RGB", lSeqBetUp
+        SetPlayerState GRANDSLAM_SKILLS, True
+        PlayGrandSlamSeq()
         lightCtrl.RemoveShot "Skills3", l47
     End If
 End Sub

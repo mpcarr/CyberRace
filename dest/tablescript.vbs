@@ -1,5 +1,5 @@
 Const cGameName = "cyberrace"
-Const myVersion = "0.0.17"
+Const myVersion = "0.0.30"
 
 'v7 - flux: end of ball bonus, end of game bug fixes. Added lightshows for race mode, various bug fixes. 
 'v8 - flux: fix duplicate sub name, update VR cab
@@ -17,6 +17,14 @@ Const myVersion = "0.0.17"
 'v20: flux: made ball sit lowerr in scoop, hopefully fixed scoop rejection from left flipper
 'v21: flux: scorbit testing
 'v22: jsm/flux: lots of standalone fixes
+'v23-26: flux - many updates, new batch bake
+'v27: flux - fix clock on sling, added skip to bonus, fixed race 5 & 6 selection
+'v28: flux - bug fixes, pf friction 0.25 -> 0.2, added Time Trial Multiball Code
+'v29: flux - altered dmd yellow to orange, moved callouts to backglass, added skillshot
+'v30: flux - VR Room Update
+'v31: flux - Add New DMD Animations, Fix Tilt. Fix MB SuperJackpot, Moved ExtraBall to end of bonus.
+'v32: flux - Add BackGlass Calls 
+
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -69,17 +77,26 @@ Dim debugLogOn : debugLogOn = False
 
 Dim calloutsQ : Set calloutsQ = New vpwQueueManager
 
-Dim DmdQ : Set DmdQ = New Queue
+Dim Tilt
+Dim MechTilt
+Dim TiltSensitivity
+Dim bMechTiltJustHit
+Tilt = 0
+TiltSensitivity = 5
+MechTilt = 0 
+bMechTiltJustHit = False
+
+Dim DmdQ
 
 Dim VRRoom, VRElement
 If RenderingMode = 2 Then VRRoom = VRRoomChoice Else VRRoom = 0
  
-'If RenderingMode = 2 then 
+If RenderingMode = 2 then 
 	For Each VRElement in VRStuff
 		VRElement.Visible = True
 	Next
 	DMD.TimerEnabled = True
-'End If
+End If
 
 '/////////////////////-----Scorbit Options-----////////////////////
 dim TablesDir : TablesDir = GetTablesFolder
@@ -103,10 +120,12 @@ Sub LoadCoreFiles
 	On Error Resume Next
 	Set Controller = CreateObject("B2S.Server")
 	Controller.B2SName = cGameName
-	Controller.Run()
-	'If Err Then MsgBox "Can't load b2s"
-	On Error Goto 0
 	B2SOn = True
+	Controller.Run()
+	If Err Then 
+		B2SOn = False	
+	End If
+	On Error Goto 0
 End Sub
 
 Sub Table1_Init()
@@ -141,19 +160,17 @@ Sub Table1_Init()
 
 	DiverterOn.IsDropped = 1
 	DiverterOff.IsDropped = 0
-	RPin.IsDropped = 0
+	RPin.IsDropped = 1
 	LockPin1.IsDropped = 1
 	LockPin2.IsDropped = 1
 	LockPin3.IsDropped = 1
-	LockPin4.IsDropped = 1
+	LockPin4.IsDropped = True
+	AnimateLockPin()
 
 	Set ttSpinner = New cvpmTurntable
 	ttSpinner.InitTurntable TurnTable, 100
 	ttSpinner.SpinDown = 50
 	ttSpinner.SpinUp = 100
-
-
-	
 	' Grab magnet
 	Set GrabMag = New cvpmMagnet
 	With GrabMag
@@ -186,9 +203,7 @@ Sub Table1_Init()
 	qItem.AddLabel "PLEASE WAIT", 	Font12, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, "blink"
 	qItem.AddLabel "BOOTING", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
 	DmdQ.Enqueue qItem
-	'StartScorbit
-
-	InitDebugger()
+	SetRoomBrightness RoomBrightness/100
 End Sub
 
 Sub AttractTimer_Timer
@@ -199,7 +214,7 @@ Sub AttractTimer_Timer
 End Sub
 
 Sub Table1_Exit
-	If B2SOn Then
+	If B2SOn = True Then
 		Controller.Pause = False
 		Controller.Stop
 	End If
@@ -223,10 +238,12 @@ End Sub
 
 Const START_GAME = "Start Game"
 Const NEXT_PLAYER = "Next Player"
+Const RELEASE_BALL = "Release Ball"
 Const BALL_DRAIN = "Ball Drain"
 Const BALL_SAVE = "Ball Save"
 Const GAME_OVER = "Game Over"
 Const ADD_BALL = "Add Ball"
+Const TILT_MACHINE = "Tilt Machine"
 Const SWITCH_HIT_NODE_A = "Switch Hit Node A"
 Const SWITCH_HIT_NODE_B = "Switch Hit Node B"
 Const SWITCH_HIT_NODE_C = "Switch Hit Node C"
@@ -240,13 +257,15 @@ Const SWITCH_BOTH_FLIPPERS_PRESSED = "Switches Both Flippers Pressed"
 Const SWITCH_HIT_SPINNER1 = "Switches Hit Spinner 1"
 Const SWITCH_HIT_SPINNER2 = "Switches Hit Spinner 2"
 Const SWITCH_HIT_BUMPER = "Switches Hit Bumper"
+Const SWITCH_HIT_RIGHT_RAMP_ENTER = "Switches Hit Right Ramp Enter"
 Const SWITCH_HIT_RIGHT_RAMP = "Switches Hit Right Ramp"
 Const SWITCH_HIT_LANE_A = "Switches Hit Lane A"
 Const SWITCH_HIT_LEFT_RAMP = "Switches Hit Left Ramp"
 Const SWITCH_HIT_RIGHT_ORBIT = "Switches Hit Right Orbit"
 Const SWITCH_HIT_RAMP_LOCK = "Switch Hit Ramp Lock"
 Const SWITCH_HIT_HYPER = "Switch Hit Hyper"
-
+Const SWITCH_HIT_MYSTERY = "Switch Hit Mystery"
+Const SWITCH_HIT_ADDTIME = "Switch Hit AddTime"
 Const SWITCH_HIT_BOOST1 = "Switches Hit Boost1"
 Const SWITCH_HIT_BOOST2 = "Switches Hit Boost2"
 Const SWITCH_HIT_BOOST3 = "Switches Hit Boost3"
@@ -306,6 +325,9 @@ Const GAME_SHOT_RIGHT_ORBIT = "Game Shot Right Oribt"
 Const GAME_SHOT_SHORTCUT = "Game Shot Shortcut"
 Const GAME_SHOT_FINISH = "Game Shot Finish"
 
+Dim GameTilted : GameTilted = False
+Dim GAME_DRAIN_BALLS_AND_RESET : GAME_DRAIN_BALLS_AND_RESET = False
+
 Dim GameHiScoreLetters : GameHiScoreLetters = Array("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","0","1","2","3","4","5","6","7","8","9"," ")
 Dim GameShots: GameShots = Array(GAME_SHOT_HYPER_JUMP, GAME_SHOT_LEFT_ORBIT,GAME_SHOT_LEFT_RAMP,GAME_SHOT_SPINNER,GAME_SHOT_BUMPERS,GAME_SHOT_LEFT_RETURN,GAME_SHOT_RIGHT_RAMP,GAME_SHOT_RIGHT_ORBIT,GAME_SHOT_SHORTCUT)
 Dim GameCombos: Set GameCombos = CreateObject("Scripting.Dictionary")
@@ -322,6 +344,7 @@ Dim GAME_SKILLS_TIMER_IDX : GAME_SKILLS_TIMER_IDX = 5
 Dim GAME_BONUS_TIMER_IDX : GAME_BONUS_TIMER_IDX = 6
 Dim GAME_SELECTION_TIMER_IDX : GAME_SELECTION_TIMER_IDX = 7
 Dim GAME_MULTIPLIER_TIMER_IDX : GAME_MULTIPLIER_TIMER_IDX = 8
+Dim GAME_TT_TIMER_IDX : GAME_TT_TIMER_IDX = 9
 
 Const GAME_BALLSAVE_TIMER_ENDED = "Game Ball Save Timer Ended"
 Const GAME_RACE_TIMER_ENDED = "Game Race Timer Ended"
@@ -332,6 +355,7 @@ Const GAME_SKILLS_TIMER_ENDED = "Game Skills Timer Ended"
 Const GAME_BONUS_TIMER_ENDED = "Game Bonus Timer Ended"
 Const GAME_SELECTION_TIMER_ENDED = "Game Selection Timer Ended"
 Const GAME_MULTIPLIER_TIMER_ENDED = "Game Multiplier Timer Ended"
+Const GAME_TT_TIMER_ENDED = "Game TT Timer Ended"
 
 Const GAME_BALLSAVE_TIMER_HURRY = "Game Ball Save Timer Hurry"
 Const GAME_RACE_TIMER_HURRY = "Game Race Timer Hurry"
@@ -342,6 +366,7 @@ Const GAME_SKILLS_TIMER_HURRY = "Game Skills Timer Hurry"
 Const GAME_BONUS_TIMER_HURRY = "Game Bonus Timer Hurry"
 Const GAME_SELECTION_TIMER_HURRY = "Game Selection Timer Hurry"
 Const GAME_MULTIPLIER_TIMER_HURRY = "Game Multiplier Timer Hurry"
+Const GAME_TT_TIMER_HURRY = "Game TT Timer Hurry"
 
 'Modes
 Const GAME_MODE_NORMAL = "Game_Mode_Normal"
@@ -359,14 +384,15 @@ Dim GAME_HURRYUP_COLOR : GAME_HURRYUP_COLOR = RGB(255, 240, 33)
 Dim GAME_MULTIBALL_COLOR : GAME_MULTIBALL_COLOR = RGB(13, 109, 18)
 Dim GAME_RACE_COLOR : GAME_RACE_COLOR = RGB(255, 0, 0)
 Dim GAME_SKILLS_COLOR : GAME_SKILLS_COLOR = RGB(255, 191, 0)
+Dim GAME_TT_COLOR : GAME_TT_COLOR = RGB(127, 0, 127)
 
 Const GAME_BET_MAX_HITS = 20
 
 Dim GAME_RACE_MODE_TITLES : GAME_RACE_MODE_TITLES = Array("RYKAR", "MINERVA", "ALLESA", "NYE", "LUKA", "EZRI")
-Dim GAME_RACE_MODE_DESC : GAME_RACE_MODE_DESC = Array("Ramp Shots", "Spinners", "Roving Shot", "Orbits/Nodes", "LOCKED", "LOCKED")
+Dim GAME_RACE_MODE_DESC : GAME_RACE_MODE_DESC = Array("Ramp Shots", "Spinners", "Roving Shot", "Orbits/Nodes", "Ramps/Nodes", "Spinners/Orbits")
 
 Dim GAME_NODE_PERK_TITLES : GAME_RACE_MODE_TITLES = Array("RYKAR", "MINERVA", "ALLESA", "NYE", "LUKA", "EZRI")
-Dim GAME_NODE_PERK_DESC : GAME_RACE_MODE_DESC = Array("Ramp Shots", "Spinners", "Roving Shot", "Orbits/Nodes", "LOCKED", "LOCKED")
+Dim GAME_NODE_PERK_DESC : GAME_RACE_MODE_DESC = Array("Ramp Shots", "Spinners", "Roving Shot", "Orbits/Nodes", "Ramps/Nodes", "Spinners/Orbits")
 
 ' Balls Per Game
 Const BALLS_PER_GAME = 3
@@ -389,11 +415,30 @@ Const POINTS_BET_SPIN = 20000
 Const EMP_BASE_HITS = 10
 Const SKILLS_BASE_SPINS = 20
 
-Dim GameTimers : GameTimers = Array(0,0,0,0,0,0,0,0,0)
-Dim GameTimersHurry : GameTimersHurry = Array(0,0,0,0,0,0,0,0,0)
-Dim GameTimerColors : GameTimerColors = Array(GAME_NORMAL_COLOR,GAME_RACE_COLOR,GAME_HURRYUP_COLOR,GAME_MULTIBALL_COLOR,GAME_NORMAL_COLOR,GAME_SKILLS_COLOR, Null, Null, Null)
-Dim GameTimerEndEvent : GameTimerEndEvent = Array(GAME_BALLSAVE_TIMER_ENDED,GAME_RACE_TIMER_ENDED,GAME_BET_TIMER_ENDED,GAME_BOOST_TIMER_ENDED,GAME_EMP_TIMER_ENDED,GAME_SKILLS_TIMER_ENDED, GAME_BONUS_TIMER_ENDED, GAME_SELECTION_TIMER_ENDED, GAME_MULTIPLIER_TIMER_ENDED)
-Dim GameTimerHurryEvent : GameTimerHurryEvent = Array(GAME_BALLSAVE_TIMER_HURRY,GAME_RACE_TIMER_HURRY,GAME_BET_TIMER_HURRY,GAME_BOOST_TIMER_HURRY,GAME_EMP_TIMER_HURRY,GAME_SKILLS_TIMER_HURRY, GAME_BONUS_TIMER_HURRY, GAME_SELECTION_TIMER_HURRY, GAME_MULTIPLIER_TIMER_HURRY)
+Dim GameTimers : GameTimers = Array(0,0,0,0,0,0,0,0,0,0)
+Dim GameTimersHurry : GameTimersHurry = Array(0,0,0,0,0,0,0,0,0,0)
+Dim GameTimerColors : GameTimerColors = Array(GAME_NORMAL_COLOR,GAME_RACE_COLOR,GAME_HURRYUP_COLOR,GAME_MULTIBALL_COLOR,GAME_NORMAL_COLOR,GAME_SKILLS_COLOR, Null, Null, Null, GAME_TT_COLOR)
+Dim GameTimerEndEvent : GameTimerEndEvent = Array(GAME_BALLSAVE_TIMER_ENDED,GAME_RACE_TIMER_ENDED,GAME_BET_TIMER_ENDED,GAME_BOOST_TIMER_ENDED,GAME_EMP_TIMER_ENDED,GAME_SKILLS_TIMER_ENDED, GAME_BONUS_TIMER_ENDED, GAME_SELECTION_TIMER_ENDED, GAME_MULTIPLIER_TIMER_ENDED, GAME_TT_TIMER_ENDED)
+Dim GameTimerHurryEvent : GameTimerHurryEvent = Array(GAME_BALLSAVE_TIMER_HURRY,GAME_RACE_TIMER_HURRY,GAME_BET_TIMER_HURRY,GAME_BOOST_TIMER_HURRY,GAME_EMP_TIMER_HURRY,GAME_SKILLS_TIMER_HURRY, GAME_BONUS_TIMER_HURRY, GAME_SELECTION_TIMER_HURRY, GAME_MULTIPLIER_TIMER_HURRY, GAME_TT_TIMER_HURRY)
+
+' Define the MysteryAwards array globally
+Dim MysteryAwards(4, 1)
+MysteryAwards(0, 0) = "Add 50K"
+MysteryAwards(0, 1) = 60
+MysteryAwards(1, 0) = "AdvBonusX"
+MysteryAwards(1, 1) = 60
+MysteryAwards(2, 0) = "Add A Ball"
+MysteryAwards(2, 1) = 40
+MysteryAwards(3, 0) = "Light Race"
+MysteryAwards(3, 1) = 30
+MysteryAwards(4, 0) = "Add 100K"
+MysteryAwards(4, 1) = 50
+' Calculate the total weight
+Dim totalMysteryWeight, i
+totalMysteryWeight = 0
+For i = 0 To UBound(MysteryAwards)
+    totalMysteryWeight = totalMysteryWeight + MysteryAwards(i, 1)
+Next
 
 '***********************************************************************************************************************
 '***********************************************************************************************************************
@@ -423,7 +468,6 @@ Const LANE_C = "Lane C"
 Const LANE_E = "Lane E"
 
 'Skillshot
-Const MODE_CHOOSE_SKILLSHOT = "Mode_Choose_Skillshot"
 Const MODE_SKILLSHOT_ACTIVE = "Mode_Skillshot_Active"
 
 'Ball Save
@@ -493,6 +537,8 @@ Const TT_RAMP = "TT RAMP"
 Const TT_CAPTIVE = "TT CAPTIVE"
 Const TT_SHORTCUT = "TT SHORTCUT"
 Const TT_COLLECTED = "TT COLLECTED"
+Const TT_JACKPOTS = "TT JACKPOTS"
+Const TT_ACTIVATIONS = "TT Activations"
 
 'Secret Garagew
 Const GARAGE_ENGINE = "Garage Engine"
@@ -540,12 +586,17 @@ Const RACE_MODE_2_SPIN2 = "Race Mode 2 Spin 2 Hits"
 Const RACE_MODE_3_HITS = "Race Mode 3 Hits"
 Const RACE_MODE_4_HITS = "Race Mode 4 Hits"
 Const RACE_MODE_3_SHOT = "Race Mode 3 Shot"
+Const RACE_MODE_5_HITS = "Race Mode 5 Hits"
+Const RACE_MODE_6_HITS = "Race Mode 6 Hits"
+Const RACE_MODE_6_SPIN1 = "Race Mode 6 Spin 1 Hits"
+Const RACE_MODE_6_SPIN2 = "Race Mode 6 Spin 2 Hits"
 Const RACE_1 = "Race 1 Complete"
 Const RACE_2 = "Race 2 Complete"
 Const RACE_3 = "Race 3 Complete"
 Const RACE_4 = "Race 4 Complete"
 Const RACE_5 = "Race 5 Complete"
 Const RACE_6 = "Race 6 Complete"
+Const RACE_EXTRABALL = "Race Extra Ball"
 
 Const OUTLANE_SAVE = "Outlane Save"
 Const JACKPOTS_MULTIPLIER = "Jackpots Multiplier"
@@ -554,6 +605,15 @@ Const JACKPOTS_MULTIPLIER = "Jackpots Multiplier"
 Const BONUS_COMBOS_MADE = "Bonus Combos Make"
 Const BONUS_RACES_WON = "Bonus Races Won"
 Const BONUS_NODES_COMPLETED = "Bonus Nodes Completed"
+
+'Grand Slam
+
+Const GRANDSLAM_TT = "Grand Slam TT"
+Const GRANDSLAM_RACES = "Grand Slam Races"
+Const GRANDSLAM_COMBO = "Grand Slam Combo"
+Const GRANDSLAM_NODES = "Grand Slam Nodes"
+Const GRANDSLAM_SKILLS = "Grand Slam Skills"
+Const GRANDSLAM_WIZARD_READY = "Grand Slam Wizard Ready"
 
 'HI Score
 Const INITIAL_1 = "Initial 1"
@@ -565,10 +625,13 @@ Const LETTER_POSITION = "Letter Position"
 
 Const RACE_MODE_FINISH = "Race Mode Finish"
 
+'Mystery
+Const MYSTERY_HITS = "Mystery Hits"
 
 Const MODE_NORMAL = "Game_Mode_Normal"
 Const MODE_AUGMENTATION_RESEARCH = "Game_Mode_Augmentation_Research"
 Const MODE_MULTIBALL = "Game_Mode_Multiball"
+Const MODE_TT_MULTIBALL = "Game Mode TT Multiball"
 Const MODE_HURRYUP = "Game_Mode_Hurry Up"
 Const MODE_RACE_SELECT = "Game Mode Race Select"
 Const MODE_PERK_SELECT = "Game Mode Perk Select"
@@ -585,13 +648,180 @@ Const MODE_BET = "Game Mode Bet"
 '***********************************************************************************************************************
 
 Sub Spinner1_Animate()
-    Dim spinangle:spinangle = -Spinner1.currentangle+90
-	'Dim BL : For Each BL in Spinner_SternFlap_BL : BL.RotX = spinangle: Next
+    Dim el
+	For Each el in BP_Spinner1
+		el.RotX = Spinner1.currentangle
+	Next
+
 End Sub
 
 Sub Spinner2_Animate()
-    Dim spinangle:spinangle = -Spinner2.currentangle+90
-	'Dim BL : For Each BL in Spinner_SternFlap_BL : BL.RotX = spinangle: Next
+    Dim el
+	For Each el in BP_Spinner2
+		el.RotX = Spinner2.currentangle
+	Next
+End Sub
+
+Sub sw01_Animate
+	Dim z : z = sw01.CurrentAnimOffset
+	Dim el : For Each el in BP_sw01 : el.transz = z: Next
+End Sub
+
+Sub sw02_Animate
+	Dim z : z = sw02.CurrentAnimOffset
+	Dim el : For Each el in BP_sw02 : el.transz = z: Next
+End Sub
+
+Sub sw03_Animate
+	Dim z : z = sw03.CurrentAnimOffset
+	Dim el : For Each el in BP_sw03 : el.transz = z: Next
+End Sub
+
+Sub sw04_Animate
+	Dim z : z = sw04.CurrentAnimOffset
+	Dim el : For Each el in BP_sw04 : el.transz = z: Next
+End Sub
+
+Sub sw05_Animate
+	Dim z : z = sw05.CurrentAnimOffset
+	Dim el : For Each el in BP_sw05 : el.transz = z: Next
+End Sub
+
+Sub sw06_Animate
+	Dim z : z = sw06.CurrentAnimOffset
+	Dim el : For Each el in BP_sw06 : el.transz = z: Next
+End Sub
+
+Sub sw07_Animate
+	Dim z : z = sw07.CurrentAnimOffset
+	Dim el : For Each el in BP_sw07 : el.transz = z: Next
+End Sub
+
+Sub sw31_Animate
+	Dim z : z = sw31.CurrentAnimOffset
+	Dim el : For Each el in BP_sw31 : el.transz = z: Next
+End Sub
+
+Sub sw14_Animate
+	Dim z : z = sw14.CurrentAnimOffset
+	Dim el : For Each el in BP_sw14 : el.transz = z: Next
+End Sub
+
+Sub sw08_Animate
+	Dim z : z = sw08.CurrentAnimOffset
+	Dim el : For Each el in BP_sw08 : el.transz = z: Next
+End Sub
+
+Sub BIPL_Animate
+	Dim z : z = BIPL.CurrentAnimOffset
+	Dim el : For Each el in BP_BIPL : el.transz = z: Next
+End Sub
+
+Sub Bumper1_Animate: Dim a, x: a = Bumper1.CurrentRingOffset: For Each x in BP_BR1: x.Z = a: Next: End Sub
+Sub Bumper2_Animate: Dim a, x: a = Bumper2.CurrentRingOffset: For Each x in BP_BR2: x.Z = a: Next: End Sub
+Sub Bumper3_Animate: Dim a, x: a = Bumper3.CurrentRingOffset: For Each x in BP_BR3: x.Z = a: Next: End Sub
+
+Sub Gate002_Animate()
+    Dim el
+	For Each el in BP_Gate002_Wire
+		el.RotX = Gate002.currentangle
+	Next
+End Sub
+
+Sub sw26_Animate()
+    Dim el
+	For Each el in BP_sw26_Wire
+		el.RotX = sw26.currentangle
+	Next
+End Sub
+
+Sub LeftFlipper_Animate
+	Dim a : a = LeftFlipper.CurrentAngle
+    'FlipperLSh.RotZ = a
+
+	' Darken light from lane bulbs when bats are up
+	Dim v, w, u, LM
+	v = 255.0 * (120.0 -  LeftFlipper.CurrentAngle) / (120.0 -  69.0)
+	w = Gray2RGB(255.0 - v)
+	u = Gray2RGB(v)
+
+	For Each el in BP_FlipperL
+		el.Rotz = a
+		el.color = w
+		el.visible = v < 128.0
+	Next
+
+	For Each el in BP_FlipperLU
+		el.Rotz = a
+		el.color = u
+		el.visible = v > 128.0
+	Next
+
+End Sub
+
+Sub RightFlipper_Animate
+	Dim a : a = RightFlipper.CurrentAngle
+    'FlipperLSh.RotZ = a
+
+	' Darken light from lane bulbs when bats are up
+	Dim v, w, u, LM
+	v = 255.0 * (120.0 -  RightFlipper.CurrentAngle) / (120.0 -  69.0)
+	w = Gray2RGB(255.0 - v)
+	u = Gray2RGB(v)
+
+	For Each el in BP_FlipperR
+		el.Rotz = a
+		el.color = w
+		el.visible = v < 128.0
+	Next
+
+	For Each el in BP_FlipperRU
+		el.Rotz = a
+		el.color = u
+		el.visible = v > 128.0
+	Next
+
+End Sub
+
+
+Sub UpRightFlipper_Animate
+	Dim a : a = UpRightFlipper.CurrentAngle
+    'FlipperLSh.RotZ = a
+
+	' Darken light from lane bulbs when bats are up
+	Dim v, w, u, LM
+	v = 255.0 * (120.0 -  UpRightFlipper.CurrentAngle) / (120.0 -  69.0)
+	w = Gray2RGB(255.0 - v)
+	u = Gray2RGB(v)
+
+	For Each el in BP_FlipperU
+		el.Rotz = a
+		el.color = w
+		el.visible = v < 128.0
+
+	Next
+
+	For Each el in BP_FlipperUU
+		el.Rotz = a
+		el.color = u
+		el.visible = v > 128.0
+	Next
+
+End Sub
+
+Sub AnimateLockPin()
+	Dim el
+	For Each el in BP_LockPin4
+		If LockPin4.IsDropped = True Then el.Visible=True Else el.Visible = False End If
+	Next
+	For Each el in BP_LockPin4UP
+		If LockPin4.IsDropped = True Then el.Visible=False Else el.Visible = True End If
+	Next
+	If LockPin4.IsDropped = True Then
+		PlaySoundAtLevelStatic "Flipper_Left_Down_4", SoundFxLevel, sw02
+	Else
+		PlaySoundAtLevelStatic "lipper_L04", SoundFxLevel, sw02
+	End If
 End Sub
 
 Dim FlexDMD
@@ -646,6 +876,9 @@ Sub InitFlexDMD()
 		.ProjectFolder = "./CyberRaceDMD/"
 		.Run = True
 	End With
+	Set DmdQ = New Queue
+	Set DmdQ.FlexDMDItem = FlexDMD
+	DmdQ.FlexDMDOverlayAssets = Array("BGBlack|image","BG001|image","BG002|image","BG003|image","BG004|image","BG005|image","BGBoost|video","BGBetMode|video","BGCyber|video","BGEmp|video","BGNodes|video","BGSkills|video","BGEngine|video","BGCooling|video","BGFuel|video","BGNode|video","BGNodeComplete|video","BGRace1|video","BGRace2|video","BGRace3|video","BGRace4|video","BGRace5|video","BGRace6|video""BGRaceLocked|video","BGBonus1|video","BGBonus2|video","BGBonus3|video","BGBonus4|video","BGBonus5|video","BGJackpot|video","TextSmalLine1|text","TextSmalLine2|text","TextSmalLine3|text","TextSmalLine4|text","TextSmalLine5|text","TextSmalLine6|text","TextSmalLine7|text", "Mystery0|video", "Mystery1|video", "Mystery2|video", "Mystery3|video", "Mystery4|video", "TiltWarning|video", "Tilt|video", "ExtraBall|video", "ShootAgain|video")
 	CreateGameDMD()
 End Sub
 
@@ -660,6 +893,26 @@ Sub DMD_Timer()
 End Sub
 
 InitFlexDMD()
+
+'****************************
+' FlexBallSaveScene
+' Event Listeners:          
+RegisterPinEvent BALL_SAVE, "FlexBallSaveScene"
+'
+'*****************************
+Sub FlexBallSaveScene()
+
+	Set qItem = New QueueItem
+	With qItem
+		.Name = "ballsave"
+		.Duration = 2
+		.BGImage = "BGBlack"
+		.BGVideo = "novideo"
+	End With
+	qItem.AddLabel "BALL SAVED", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
+	DmdQ.Enqueue qItem
+
+End Sub
 
 Sub FlexDMDBetScene(bb,eb,tb)
     
@@ -804,7 +1057,10 @@ Sub FlexDMDBoostModeScene()
     qItem.AddLabel "JACKPOTS GROW", 		Font12, DMDWidth/2, DMDHeight*.4, DMDWidth/2, DMDHeight*.4, ""
     qItem.AddLabel "FormatScore(GetPlayerState(JACKPOT_VALUE))", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
     DmdQ.Enqueue qItem
-    lightCtrl.AddLightSeq "BoostUp", lSeqBoostUp
+    LightSeqRGB.Play SeqUpOn,50,2
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(0,255,0)
+    
     lightCtrl.pulse l140, 0
     lightCtrl.pulse l141, 0
     lightCtrl.pulse l142, 0
@@ -823,11 +1079,29 @@ Sub FlexDMDBoostScene()
     qItem.AddLabel "(3 * GetPlayerState(BOOST_ACTIVATIONS)) - GetPlayerState(BOOST_HITS) & "" FOR BOOST MODE""", 		Font7, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue qItem
    
-    lightCtrl.AddLightSeq "BoostUp", lSeqBoostUp
+    LightSeqRGB.Play SeqUpOn,50,2
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(0,255,0)
+    
     lightCtrl.pulse l140, 0
     lightCtrl.pulse l141, 0
     lightCtrl.pulse l142, 0
     lightCtrl.pulse l143, 0
+
+End Sub
+
+Sub FlexSceneCombo(comboCount)
+
+    Set qItem = New QueueItem
+    With qItem
+        .Name = "combo"
+        .Duration = 2
+        .BGImage = "BGBlack"
+        .BGVideo = "novideo"
+    End With
+    qItem.AddLabel comboCount & " WAY COMBO", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
+    DmdQ.Enqueue qItem
+
 
 End Sub
 
@@ -904,18 +1178,19 @@ Sub FlexDMDEMPScene()
     qItem.AddLabel "(EMP_BASE_HITS * GetPlayerState(EMP_ACTIVATIONS)) - GetPlayerState(EMP_CHARGE) & "" HITS""", 		font, DMDWidth*.25, DMDHeight*.8, DMDWidth*.25, DMDHeight*.8, "blink"
     DmdQ.Enqueue qItem
 End Sub
-'
-Sub InitDMDEMPModeScene()
-    Dim lbl1 : Set lbl1 = FlexDMD.NewLabel("lblEmpMode1", font20, "SHOOT LEFT SPINNER")
-    Dim lbl2 : Set lbl2 = FlexDMD.NewLabel("lblEmpMode2", font20, "TO RE-ENERGISE")
-	lbl1.SetAlignedPosition 128, 24, FlexDMD_Align_Center
-    lbl2.SetAlignedPosition 128, 40, FlexDMD_Align_Center
-    DMDEMPModeScene.AddActor lbl1
-    DMDEMPModeScene.AddActor lbl2
-End Sub
 
-Sub FlexDMDEMPModeScene()
-    
+
+Sub FlexExtraBallScene()
+
+	Set qItem = New QueueItem
+	With qItem
+		.Name = "extraball"
+		.Duration = 5
+		.BGImage = "noimage"
+		.BGVideo = "ExtraBall"
+	End With
+	DmdQ.Enqueue qItem
+
 End Sub
 
 
@@ -993,6 +1268,8 @@ Sub FlexDMDHiScoreScene()
 End Sub
 
 
+
+
 Sub FlexDMDNodesCompleteScene()
     Dim qItem : Set qItem = New QueueItem
     With qItem
@@ -1030,11 +1307,6 @@ Sub FlexDMDNodePerkCollectScene()
             perkLeftDesc = "BALL"
             perkRightTitle = "JACKPOTS"
             perkRightDesc = "5X"
-        Case 6: 
-            perkLeftTitle = "SPOT"
-            perkLeftDesc = "G/SLAM"
-            perkRightTitle = "MINI"
-            perkRightDesc = "WIZARD"
     End Select  
     Dim qItem : Set qItem = New QueueItem
     With qItem
@@ -1057,13 +1329,16 @@ Sub FlexDMDNodePerkCollectScene()
    
 End Sub
 
-
-
-
-
 Sub FlexDMDRaceSelectScene()
     DmdQ.RemoveAll()
+    Dim r1,r2,r3,r4,racesComplete
+    r1 = GetPlayerState(RACE_1)
+    r2 = GetPlayerState(RACE_2)
+    r3 = GetPlayerState(RACE_3)
+    r4 = GetPlayerState(RACE_4)
+    racesComplete = (r1+r2+r3+r4)
     Dim selection : selection = GetPlayerState(RACE_MODE_SELECTION)
+    debug.print(racesComplete)
     Select Case selection:
         Case 1: 
             bgVideo = "BGRace1"
@@ -1074,9 +1349,9 @@ Sub FlexDMDRaceSelectScene()
         Case 4: 
             bgVideo = "BGRace4"
         Case 5: 
-            bgVideo = "BGRaceLocked"
+            If racesComplete < 4 Then bgVideo = "BGRaceLocked" Else bgVideo = "BGRace5" End If
         Case 6: 
-            bgVideo = "BGRaceLocked"                        
+            If racesComplete < 4 Then bgVideo = "BGRaceLocked" Else bgVideo = "BGRace6" End If
     End Select  
     Dim qItem : Set qItem = New QueueItem
     With qItem
@@ -1086,13 +1361,32 @@ Sub FlexDMDRaceSelectScene()
         .BGVideo = "novideo"
         .Callback = "GameTimers(GAME_SELECTION_TIMER_IDX) = 15"
     End With
+    Dim gameModeTitle
+    gameModeTitle = GAME_RACE_MODE_DESC(selection-1)
+    If racesComplete < 4 And (selection = 5 Or selection = 6) Then
+        gameModeTitle = "LOCKED"
+    End If
     qItem.AddLabel GAME_RACE_MODE_TITLES(selection-1), 		    FlexDMD.NewFont(DMDFontMain, RGB(255, 0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.35, DMDWidth/2, DMDHeight*.35, ""
     qItem.AddLabel "<", 		                                FlexDMD.NewFont(DMDFontSmall, RGB(255, 0,0), RGB(0, 0, 0), 0), DMDWidth*.1, DMDHeight*.3, DMDWidth*.1, DMDHeight*.3, "blink"
     qItem.AddLabel ">", 		                                FlexDMD.NewFont(DMDFontSmall, RGB(255, 0,0), RGB(0, 0, 0), 0), DMDWidth*.9, DMDHeight*.3, DMDWidth*.9, DMDHeight*.3, "blink"
-    qItem.AddLabel GAME_RACE_MODE_DESC(selection-1), 		                        Font7, DMDWidth/2, DMDHeight*.75, DMDWidth/2, DMDHeight*.75, ""
+    qItem.AddLabel gameModeTitle, 		                        Font7, DMDWidth/2, DMDHeight*.75, DMDWidth/2, DMDHeight*.75, ""
     qItem.AddLabel "GetPlayerState(EMPTY_STR) & Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10) & """" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)-Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10)*10)", 		Font7, DMDWidth*.9, DMDHeight*.8, DMDWidth*.9, DMDHeight*.8, ""
 
     DmdQ.Enqueue qItem
+
+End Sub
+
+Sub FlexAddTimeScene()
+
+	Set qItem = New QueueItem
+	With qItem
+		.Name = "addTime"
+		.Duration = 2
+		.BGImage = "BGBlack"
+		.BGVideo = "novideo"
+	End With
+	qItem.AddLabel "BALL SAVED", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
+	DmdQ.Enqueue qItem
 
 End Sub
 
@@ -1240,6 +1534,8 @@ sub CreateGameDMD
 	Set title = FlexDMD.NewVideo("BGRace2", "videos/race2.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGRace3", "videos/race3.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGRace4", "videos/race4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("BGRace5", "videos/race4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("BGRace6", "videos/race4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGRaceLocked", "videos/RaceLocked.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 
     Set title = FlexDMD.NewVideo("BGBonus1", "videos/bonus1.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
@@ -1247,6 +1543,18 @@ sub CreateGameDMD
 	Set title = FlexDMD.NewVideo("BGBonus3", "videos/bonus3.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGBonus4", "videos/bonus4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 	Set title = FlexDMD.NewVideo("BGBonus5", "videos/bonus5.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+
+	Set title = FlexDMD.NewVideo("Mystery0", "videos/mystery_0.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("Mystery1", "videos/mystery_1.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("Mystery2", "videos/mystery_2.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("Mystery3", "videos/mystery_3.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("Mystery4", "videos/mystery_4.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+
+	Set title = FlexDMD.NewVideo("TiltWarning", "videos/tilt-warning.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("Tilt", "videos/tilt.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("ExtraBall", "videos/extra-ball.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+	Set title = FlexDMD.NewVideo("ShootAgain", "videos/shoot-again.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
+
 
 	Set title = FlexDMD.NewVideo("BGJackpot", "videos/jackpot.gif"): title.SetBounds 0, 0, DmdWidth, DmdHeight : title.Visible = False : title.loop = false : scene2.AddActor title
 
@@ -1392,6 +1700,56 @@ End function
 
 
 
+
+Sub FlexTiltScene()
+
+	Set qItem = New QueueItem
+	With qItem
+		.Name = "tilt"
+		.Duration = 30
+		.BGImage = "noimage"
+		.BGVideo = "Tilt"
+	End With
+	DmdQ.Enqueue qItem
+
+End Sub
+
+Sub FlexTiltWarningScene()
+
+	Set qItem = New QueueItem
+	With qItem
+		.Name = "tiltwarning"
+		.Duration = 5
+		.BGImage = "noimage"
+		.BGVideo = "TiltWarning"
+	End With
+	DmdQ.Enqueue qItem
+
+End Sub
+
+
+Sub FlexDMDTimeTrialScene()
+    Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "timetrial"
+        .Duration = 2
+        .BGImage = "BGBlack"
+        .BGVideo = "novideo"
+    End With
+    qItem.AddLabel "TT COLLECTED", 		Font12, DMDWidth/2, DMDHeight*.4, DMDWidth/2, DMDHeight*.4, ""
+    qItem.AddLabel "(10 * GetPlayerState(TT_ACTIVATIONS)) - GetPlayerState(TT_COLLECTED) & "" FOR TT MULTIBALL""", 		Font7, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
+    DmdQ.Enqueue qItem
+   
+    LightSeqRGB.Play SeqStripe2VertOn,5,1
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(127,0,127)
+    lightCtrl.pulse l90, 0
+    lightCtrl.pulse l91, 0
+    lightCtrl.pulse l92, 0
+    lightCtrl.pulse l93, 0
+    lightCtrl.pulse l95, 0
+
+End Sub
 
 '****************************
 ' Attract
@@ -1671,6 +2029,59 @@ lSeqAttBoost.Repeat = True
 
 
 '****************************
+' BGStartGame
+' Event Listeners:  
+RegisterPinEvent START_GAME,    "BGStartGame"
+'
+'*****************************
+Sub BGStartGame()
+    DOF 1, 1 'C
+    DOF 2, 1 'Y
+    DOF 3, 1 'B
+    DOF 4, 1 'E
+    DOF 5, 1 'R
+    DOF 6, 1 'R
+    DOF 7, 1 'A
+    DOF 8, 1 'C
+    DOF 9, 1 'E
+End Sub
+
+'****************************
+' BGStartAttract
+' Event Listeners:          
+RegisterPinEvent GAME_OVER, "BGStartAttract"
+'
+'*****************************
+Dim BGAttractIndex : BGAttractIndex = 1
+Sub BGStartAttract()
+    DOF 1, 0 'C
+    DOF 2, 0 'Y
+    DOF 3, 0 'B
+    DOF 4, 0 'E
+    DOF 5, 0 'R
+    DOF 6, 0 'R
+    DOF 7, 0 'A
+    DOF 8, 0 'C
+    DOF 9, 0 'E
+
+    BGAttractIndex = 1
+    DOF BGAttractIndex, 1
+    SetTimer "BGAttract", "BGAttractNext", 200
+End Sub
+
+Sub BGAttractNext()
+    If gameStarted = False Then
+        DOF BGAttractIndex, 0
+        BGAttractIndex = BGAttractIndex + 1
+        If BGAttractIndex = 10 Then
+            BGAttractIndex = 1
+        End If
+        DOF BGAttractIndex, 1
+        SetTimer "BGAttract", "BGAttractNext", 200
+    End If
+End Sub
+
+'****************************
 ' Bet 1
 ' Event Listeners:          
     RegisterPlayerStateEvent BET_1, "PS_Bet1"
@@ -1907,6 +2318,57 @@ Sub PS_ExtraBalls()
     End If
 End Sub
 
+
+'****************************
+' PS_ClaimExtraBalls
+' Event Listeners:          
+RegisterPlayerStateEvent RACE_EXTRABALL, "PS_ClaimExtraBalls"
+'
+'*****************************
+Sub PS_ClaimExtraBalls()
+    If GetPlayerState(RACE_EXTRABALL) = 1 Then
+        lightCtrl.LightOn l34
+    Else
+        lightCtrl.LightOff l34
+    End If
+End Sub
+
+Sub PlayExtraBallSeq
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqUpOn,25,1
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqDownOn,25,1
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqRightOn,25,1
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqLeftOn,25,1
+    LightSeqRGB.Play SeqRandom,40,,500
+
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(100,5,17)
+End Sub
+
+Sub FlashSeq1()
+    GIOff
+    SetTimer "Flash1", "lightCtrl.Pulse l140, 0", 0
+    SetTimer "Flash2", "lightCtrl.Pulse l141, 0", 100
+    SetTimer "Flash3", "lightCtrl.Pulse l142, 0", 200
+    SetTimer "Flash4", "lightCtrl.Pulse l143, 0", 300
+    SetTimer "GIOn", "GIOn", 400
+End Sub
+
+Sub FlashSeq2()
+    GIOff
+    SetTimer "Flash1", "lightCtrl.Pulse l140, 0", 0
+    SetTimer "Flash2", "lightCtrl.Pulse l141, 0", 100
+    SetTimer "Flash3", "lightCtrl.Pulse l140, 0", 200
+    SetTimer "Flash4", "lightCtrl.Pulse l141, 0", 300
+    SetTimer "Flash5", "lightCtrl.Pulse l142, 0", 400
+    SetTimer "Flash6", "lightCtrl.Pulse l143, 0", 500
+    SetTimer "Flash7", "lightCtrl.Pulse l142, 0", 600
+    SetTimer "Flash8", "lightCtrl.Pulse l143, 0", 700
+    SetTimer "GIOn", "GIOn", 800
+End Sub
 '****************************
 ' GI State
 ' Event Listeners:  
@@ -1914,6 +2376,7 @@ End Sub
     RegisterPlayerStateEvent GI_COLOR, "GIState"
     RegisterPlayerStateEvent MODE_RACE, "GIState"
     RegisterPlayerStateEvent MODE_MULTIBALL, "GIState"
+    RegisterPlayerStateEvent MODE_TT_MULTIBALL, "GIState"
     RegisterPlayerStateEvent MODE_BET, "GIState"
 '
 '*****************************
@@ -1927,16 +2390,118 @@ Sub GIState()
     If GetPlayerState(MODE_MULTIBALL) = True Then
         color = GAME_MULTIBALL_COLOR
     End If
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        color = GAME_TT_COLOR
+    End If
     If GetPlayerState(MODE_BET) = True Then
         color = GAME_HURRYUP_COLOR
     End If
     state = GetPlayerState(GI_STATE)
+
+    If GetPlayerState(GRANDSLAM_WIZARD_READY) = True Then
+        state = 0
+    End If
     
     For Each light in GIControlLights
         lightCtrl.LightState light, state
         lightCtrl.LightColor light, color
         lightCtrl.LightLevel light, 100
     Next
+End Sub
+
+Sub GIOn
+    GIState()
+End Sub
+
+Sub GIOff
+    For Each light in GIControlLights
+        lightCtrl.LightOff light
+    Next
+End Sub
+
+Sub PlayGrandSlamSeq
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqUpOn,25,1
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqDownOn,25,1
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqRightOn,25,1
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqLeftOn,25,1
+    LightSeqRGB.Play SeqRandom,40,,500
+
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(127,0,127)
+End Sub
+
+'****************************
+' PS_GrandSlamTT
+' Event Listeners:  
+RegisterPlayerStateEvent GRANDSLAM_TT, "PS_GrandSlamTT"
+'
+'*****************************
+Sub PS_GrandSlamTT()
+    If GetPlayerState(GRANDSLAM_TT) = True Then
+        lightCtrl.LightOn l83
+    Else
+        lightCtrl.LightOff l83
+    End If
+End Sub
+
+'****************************
+' PS_GrandSlamRaces
+' Event Listeners:  
+RegisterPlayerStateEvent GRANDSLAM_RACES, "PS_GrandSlamRaces"
+'
+'*****************************
+Sub PS_GrandSlamRaces()
+    If GetPlayerState(GRANDSLAM_RACES) = True Then
+        lightCtrl.LightOn l80
+    Else
+        lightCtrl.LightOff l80
+    End If
+End Sub
+
+'****************************
+' PS_GrandSlamSkills
+' Event Listeners:  
+RegisterPlayerStateEvent GRANDSLAM_SKILLS, "PS_GrandSlamSkills"
+'
+'*****************************
+Sub PS_GrandSlamSkills()
+    If GetPlayerState(GRANDSLAM_SKILLS) = True Then
+        lightCtrl.LightOn l81
+    Else
+        lightCtrl.LightOff l81
+    End If
+End Sub
+
+'****************************
+' PS_GrandSlamNodes
+' Event Listeners:  
+RegisterPlayerStateEvent GRANDSLAM_NODES, "PS_GrandSlamNodes"
+'
+'*****************************
+Sub PS_GrandSlamNodes()
+    If GetPlayerState(GRANDSLAM_NODES) = True Then
+        lightCtrl.LightOn l82
+    Else
+        lightCtrl.LightOff l82
+    End If
+End Sub
+
+'****************************
+' PS_GrandSlamCombo
+' Event Listeners:  
+RegisterPlayerStateEvent GRANDSLAM_COMBO, "PS_GrandSlamCombo"
+'
+'*****************************
+Sub PS_GrandSlamCombo()
+    If GetPlayerState(GRANDSLAM_COMBO) = True Then
+        lightCtrl.LightOn l84
+    Else
+        lightCtrl.LightOff l84
+    End If
 End Sub
 
 '****************************
@@ -2059,21 +2624,25 @@ Sub PS_LockHits()
             lightCtrl.LightState l71, 2
             lightCtrl.LightState l70, 0
             lightCtrl.LightState l69, 0
+            lightCtrl.LightState l97, 0
         Case 2:
             lightCtrl.LightState l72, 1
             lightCtrl.LightState l71, 1
             lightCtrl.LightState l70, 2
             lightCtrl.LightState l69, 0
+            lightCtrl.LightState l97, 0
         Case 3:
             lightCtrl.LightState l72, 1
             lightCtrl.LightState l71, 1
             lightCtrl.LightState l70, 1
             lightCtrl.LightState l69, 2
+            lightCtrl.LightState l97, 0
         Case 4:
             lightCtrl.LightState l72, 1
             lightCtrl.LightState l71, 1
             lightCtrl.LightState l70, 1
             lightCtrl.LightState l69, 1
+            lightCtrl.LightState l97, 2
     End Select
 End Sub
 
@@ -2278,22 +2847,22 @@ Sub LightsRaceMode()
     If GetPlayerState(MODE_RACE_SELECT) = True Then
         lightCtrl.RemoveAllTableLightSeqs()
         If GetPlayerState(RACE_1) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode1On
+            lightCtrl.AddTableLightSeq "RaceSelection1On", lSeqRaceMode1On
         End If
         If GetPlayerState(RACE_2) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode2On
+            lightCtrl.AddTableLightSeq "RaceSelection2On", lSeqRaceMode2On
         End If
         If GetPlayerState(RACE_3) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode3On
+            lightCtrl.AddTableLightSeq "RaceSelection3On", lSeqRaceMode3On
         End If
         If GetPlayerState(RACE_4) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode4On
+            lightCtrl.AddTableLightSeq "RaceSelection4On", lSeqRaceMode4On
         End If
         If GetPlayerState(RACE_5) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode5On
+            lightCtrl.AddTableLightSeq "RaceSelection5On", lSeqRaceMode5On
         End If
         If GetPlayerState(RACE_6) = 1 Then
-            lightCtrl.AddTableLightSeq "RaceSelectionOn", lSeqRaceMode6On
+            lightCtrl.AddTableLightSeq "RaceSelection6On", lSeqRaceMode6On
         End If
         Select Case GetPlayerState(RACE_MODE_SELECTION):
             Case 1: 
@@ -2333,9 +2902,9 @@ Sub ModeRace()
             Case 4:
                 lightCtrl.Blink l56
             Case 5:
-                
+                lightCtrl.Blink l57
             Case 6:
-               
+                lightCtrl.Blink l58
         End Select
     Else
         LightsModeRace1()
@@ -2414,6 +2983,16 @@ End Sub
 
 Sub LightSeqGI_PlayDone()
 	lightCtrl.StopSyncWithVpxLights()
+End Sub
+
+Sub PlayShootAgainSeq
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqRandom,40,,1000
+	LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqDownOff,25,2
+
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(127,127,0)
 End Sub
 
 Dim lSeqRaceMode1On : Set lSeqRaceMode1On = New LCSeq
@@ -2500,14 +3079,16 @@ lSeqRaceMode4Nodes.Repeat = True
 
 Dim lSeqRaceModeSelection5 : Set lSeqRaceModeSelection5 = New LCSeq
 lSeqRaceModeSelection5.Name = "lSeqRaceModeSelection5"
-lSeqRaceModeSelection5.Sequence = Array(Array())
+lSeqRaceModeSelection5.Sequence = Array(Array("l47|100|FF0000","l64|100|FF0000", "l57|100|FF0000", "l01|100|FF0000", "l02|100|FF0000", "l03|100|FF0000", "l04|100|FF0000", "l05|100|FF0000", "l06|100|FF0000", "l07|100|FF0000", "l08|100|FF0000", "l09|100|FF0000", "l10|100|FF0000", "l11|100|FF0000", "l12|100|FF0000", "l13|100|FF0000", "l14|100|FF0000", "l15|100|FF0000"), _
+Array("l47|0|FF0000","l64|0|FF0000", "l57|0|FF0000", "l01|0|FF0000", "l02|0|FF0000", "l03|0|FF0000", "l04|0|FF0000", "l05|0|FF0000", "l06|0|FF0000", "l07|0|FF0000", "l08|0|FF0000", "l09|0|FF0000", "l10|0|FF0000", "l11|0|FF0000", "l12|0|FF0000", "l13|0|FF0000", "l14|0|FF0000", "l15|0|FF0000"))
 lSeqRaceModeSelection5.UpdateInterval = 180
 lSeqRaceModeSelection5.Color = GAME_RACE_COLOR
 lSeqRaceModeSelection5.Repeat = True
 
 Dim lSeqRaceModeSelection6 : Set lSeqRaceModeSelection6 = New LCSeq
 lSeqRaceModeSelection6.Name = "lSeqRaceModeSelection6"
-lSeqRaceModeSelection6.Sequence = Array(Array())
+lSeqRaceModeSelection6.Sequence = Array(Array("l23|100|FF0000","l58|100|FF0000","l46|100|FF0000","l47|100|FF0000", "l48|100|FF0000", "l64|100|FF0000", "l63|100|FF0000"), _
+Array("l23|0|FF0000","l58|0|FF0000","l46|0|FF0000","l47|0|FF0000", "l48|0|FF0000", "l64|0|FF0000", "l63|0|FF0000"))
 lSeqRaceModeSelection6.UpdateInterval = 180
 lSeqRaceModeSelection6.Color = GAME_RACE_COLOR
 lSeqRaceModeSelection6.Repeat = True
@@ -4460,7 +5041,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus1.UpdateInterval = 20
+lSeqBonus1.UpdateInterval = 16
 lSeqBonus1.Color = Null
 lSeqBonus1.Repeat = False
 
@@ -4526,7 +5107,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus2.UpdateInterval = 20
+lSeqBonus2.UpdateInterval = 16
 lSeqBonus2.Color = Null
 lSeqBonus2.Repeat = False
 
@@ -4592,7 +5173,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus3.UpdateInterval = 20
+lSeqBonus3.UpdateInterval = 16
 lSeqBonus3.Color = Null
 lSeqBonus3.Repeat = False
 
@@ -4658,7 +5239,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus4.UpdateInterval = 20
+lSeqBonus4.UpdateInterval = 16
 lSeqBonus4.Color = Null
 lSeqBonus4.Repeat = False
 
@@ -4724,7 +5305,7 @@ Array("l106|0|000000","l104|0|000000"), _
 Array(), _
 Array("l103|0|000000","l102|0|000000","l101|0|000000","l100|0|000000"), _
 Array())
-lSeqBonus5.UpdateInterval = 20
+lSeqBonus5.UpdateInterval = 16
 lSeqBonus5.Color = Null
 lSeqBonus5.Repeat = False
 
@@ -7424,6 +8005,90 @@ lSeqSweepAll.Repeat = False
 
 
 
+'****************************
+' PS_TTOrbit
+' Event Listeners:  
+    RegisterPlayerStateEvent TT_ORBIT, "PS_TTOrbit"
+'
+'*****************************
+Sub PS_TTOrbit()
+    lightCtrl.LightState l95, GetPlayerState(TT_ORBIT)
+End Sub
+
+'****************************
+' PS_TTTarget
+' Event Listeners:  
+RegisterPlayerStateEvent TT_TARGET, "PS_TTTarget"
+'
+'*****************************
+Sub PS_TTTarget()
+    lightCtrl.LightState l91, GetPlayerState(TT_TARGET)
+End Sub
+
+'****************************
+' PS_TTRamp
+' Event Listeners:  
+RegisterPlayerStateEvent TT_RAMP, "PS_TTRamp"
+'
+'*****************************
+Sub PS_TTRamp()
+    lightCtrl.LightState l90, GetPlayerState(TT_RAMP)
+End Sub
+
+'****************************
+' PS_TTCaptive
+' Event Listeners:  
+RegisterPlayerStateEvent TT_CAPTIVE, "PS_TTCaptive"
+'
+'*****************************
+Sub PS_TTCaptive()
+    lightCtrl.LightState l92, GetPlayerState(TT_CAPTIVE)
+End Sub
+
+'****************************
+' PS_TTShortcut
+' Event Listeners:  
+RegisterPlayerStateEvent TT_SHORTCUT, "TTShortcut"
+'
+'*****************************
+Sub TTShortcut()
+    lightCtrl.LightState l93, GetPlayerState(TT_SHORTCUT)
+End Sub
+
+
+
+
+Sub BallSearch 
+    If gameStarted = True Then
+        If GameTilted = True Then
+            SoundDropTargetDrop(RPinTarget)     
+            garageKicker.Kick -45, 5
+            raceVuk.Kick 65, RndInt(10,15)
+            SoundSaucerKick 1,raceVuk
+            sw_38.Kick 0, 60, 1.36
+            SoundSaucerKick 1, sw_38
+            If sw39.BallCntOver = 1 Then
+                KickBall KickerBall39, 0, 0, 55, 10
+            End If
+            If ballInPlungerLane = True Then
+                autoPlunge = True
+                AutoPlungerDelay.Interval = 300
+                AutoPlungerDelay.Enabled = False
+	            AutoPlungerDelay.Enabled = True
+            End If
+        Else
+            'Where are the balls
+            If RealBallsInPlay = 0 Then
+                If GameTimers(GAME_BONUS_TIMER_IDX) = 0 Then
+                    'bonus not running, release new ball?
+                    DispatchPinEvent RELEASE_BALL
+                End If
+            End If
+        End If
+    End If
+    SetTimer "BallSearch", "BallSearch", 6000
+End Sub
+
 Dim ballSaverInGrace : ballSaverInGrace = False
 Sub EnableBallSaver(seconds)
 	lightCtrl.Blink l16
@@ -7435,13 +8100,20 @@ Sub EnableBallSaver(seconds)
 	ballSaverInGrace = False
 End Sub
 
+Sub CancelBallSaver()
+	GameTimers(GAME_BALLSAVE_TIMER_IDX) = 0
+	ballSaver = False
+	ballSaverInGrace = False
+	BallSaverTimerExpired.Enabled = False
+End Sub
+
 Sub BallSaverTimerExpired_Timer()
     If ballSaverInGrace = False Then
         BallSaverTimerExpired.Interval = 3000
 		If GetPlayerState(EXTRA_BALLS) > 0 Then
-			lightCtrl.LightOff l16
-		Else
 			lightCtrl.LightOn l16
+		Else
+			lightCtrl.LightOff l16
 		End If
 		ballSaverInGrace = True
     Else
@@ -7450,6 +8122,7 @@ Sub BallSaverTimerExpired_Timer()
 		ballSaverInGrace = False
     End If
 End Sub
+
 
 
 '****************************
@@ -7632,6 +8305,18 @@ End Sub
 Function CalculateBonus
     CalculateBonus = 10
 End Function
+
+'****************************
+' BonusSkip
+' Event Listeners:          
+RegisterPinEvent SWITCH_BOTH_FLIPPERS_PRESSED, "BonusSkip"
+'
+'*****************************
+Sub BonusSkip()
+    If GameTimers(GAME_BONUS_TIMER_IDX) > 0 Then
+        GameTimers(GAME_BONUS_TIMER_IDX) = 0.1
+    End If
+End Sub
 
 '****************************
 ' Boost 1
@@ -7907,15 +8592,8 @@ End Sub
 '
 '*****************************
 Sub CheckComboCount
-
-    'Select Case GetPlayerState(COMBO_COUNT)
-    '    Case 2: PlayCallout("2-way-combo")
-    '    Case 3: PlayCallout("3-way-combo")
-    '    Case 4: PlayCallout("4-way-combo")
-    '    Case 5: PlayCallout("5-way-combo")
-    'End Select
+    
     If GetPlayerState(COMBO_COUNT) = 5 Then
-        'TODO: Light Show
         SetPlayerState COMBO_COUNT, 0
         SetPlayerState COMBO_SHOT_SPINNER, 0
         SetPlayerState COMBO_SHOT_LEFT_ORBIT, 0
@@ -7923,7 +8601,12 @@ Sub CheckComboCount
         SetPlayerState COMBO_SHOT_RIGHT_RAMP, 0
         SetPlayerState COMBO_SHOT_RIGHT_OrBIT, 0
         ComboTimer.Enabled = 0
+        SetPlayerState GRANDSLAM_COMBO, True
+        PlayGrandSlamSeq()
     ElseIf GetPlayerState(COMBO_COUNT) > 0 Then
+        If GetPlayerState(COMBO_COUNT) > 1 Then
+            FlexSceneCombo(GetPlayerState(COMBO_COUNT))
+        End If
         ComboTimer.Enabled = 0
         ComboTimer.Enabled = 1
     End If
@@ -8089,52 +8772,35 @@ End Sub
 '
 '*****************************
 Sub EndOfBall()
-    Debug.print("Balls In Play: "& RealBallsInPlay)
     
     If gameStarted = False Then
         Exit Sub
     End If
 
-
     Dim qItem 
-    Debug.print(RealBallsInPlay)
     If ballSaverIgnoreCount > 0 Then
         ballSaverIgnoreCount = ballSaverIgnoreCount-1
         Exit Sub
     End If
-    If ballSaver = True Then
+    If GAME_DRAIN_BALLS_AND_RESET = True Then
+        If RealBallsInPlay = 0 Then
+            GAME_DRAIN_BALLS_AND_RESET = False
+            lightCtrl.ResumeMainLights()
+            Debounce "reset", "DispatchPinEvent ADD_BALL", 400
+        End IF
+    ElseIf ballSaver = True Then
         DispatchPinEvent BALL_SAVE
-        Set qItem = New QueueItem
-        With qItem
-            .Name = "ballsave"
-            .Duration = 2
-            .BGImage = "BGBlack"
-            .BGVideo = "novideo"
-        End With
-        qItem.AddLabel "BALL SAVED", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
-        DmdQ.Enqueue qItem
     ElseIf RealBallsInPlay = 0 Then
 
-        If GetPlayerState(EXTRA_BALLS) > 0 Then
-            SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) - 1
-            DispatchPinEvent BALL_SAVE
-            Set qItem = New QueueItem
-            With qItem
-                .Name = "shootagain"
-                .Duration = 2
-                .BGImage = "BGBlack"
-                .BGVideo = "novideo"
-            End With
-            qItem.AddLabel "SHOOT AGAIN", 		font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
-            DmdQ.Enqueue qItem
-            Exit Sub
+        If GameTilted = True Then
+            GameTilted = False
+            lightCtrl.ResumeMainLights()
         End If
 
         PlayCallout("drain")
         DmdQ.RemoveAll()
         lightCtrl.AddTableLightSeq "GI", lSeqGIOff
         MusicOff
-        SetPlayerState MODE_CHOOSE_SKILLSHOT, False
         SetPlayerState MODE_SKILLSHOT_ACTIVE, False
         
         SetPlayerState MODE_EMP, False
@@ -8175,6 +8841,7 @@ Sub EndOfBall()
         SetPlayerState PF_MULTIPLIER, 0
 
         SetPlayerState MODE_MULTIBALL, False
+        SetPlayerState MODE_TT_MULTIBALL, False
 
         If GetPlayerState(MODE_RACE) = True Then
             SetPlayerState LANE_R, 0
@@ -8187,7 +8854,7 @@ Sub EndOfBall()
         SetPlayerState RACE_MODE_FINISH, False
 
         
-        GameTimers = Array(0,0,0,0,0,0,0,0,0)
+        GameTimers = Array(0,0,0,0,0,0,0,0,0,0)
 
         lightCtrl.RemoveAllShots()
         lightCtrl.RemoveAllLightSeq "GI"
@@ -8219,6 +8886,20 @@ Sub EndOfBonus()
     lightCtrl.RemoveTableLightSeq "GI", lSeqGIOff
     DmdQ.RemoveAll()
 
+    If GetPlayerState(EXTRA_BALLS) > 0 Then
+        SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) - 1
+        DispatchPinEvent RELEASE_BALL
+        PlayShootAgainSeq()
+        Set qItem = New QueueItem
+        With qItem
+            .Name = "shootagain"
+            .Duration = 5
+            .BGImage = "noimage"
+            .BGVideo = "ShootAgain"
+        End With
+        DmdQ.Enqueue qItem
+        Exit Sub
+    End If
 
     If GetPlayerState(CURRENT_BALL) = BALLS_PER_GAME And (GetCurrentPlayerNumber()=NumberOfPlayers) Then
         'Check HI SCORES
@@ -8291,6 +8972,47 @@ Sub EndOfBonus()
     DispatchPinEvent NEXT_PLAYER
 
 End Sub
+
+'****************************
+' PS_RaceExtraBall
+' Event Listeners:          
+RegisterPlayerStateEvent RACE_1, "PS_RaceExtraBall"
+RegisterPlayerStateEvent RACE_2, "PS_RaceExtraBall"
+RegisterPlayerStateEvent RACE_3, "PS_RaceExtraBall"
+RegisterPlayerStateEvent RACE_4, "PS_RaceExtraBall"
+RegisterPlayerStateEvent RACE_5, "PS_RaceExtraBall"
+RegisterPlayerStateEvent RACE_6, "PS_RaceExtraBall"
+'
+'*****************************
+Sub PS_RaceExtraBall()
+    If GetPlayerState(RACE_EXTRABALL) = 0 Then
+        If  GetPlayerState(RACE_1) = 1 Or _
+            GetPlayerState(RACE_2) = 1 Or _
+            GetPlayerState(RACE_3) = 1 Or _
+            GetPlayerState(RACE_4) = 1 Or _
+            GetPlayerState(RACE_5) = 1 Or _
+            GetPlayerState(RACE_6) = 1 Then
+            SetPlayerState RACE_EXTRABALL, 1
+            calloutsQ.Add "extraballlit", "PlayCallout(""extraball-lit"")", 1, 0, 0, 3700, 0, False
+        End If
+    End If
+End Sub
+
+'****************************
+' Claim Extra Ball
+' Event Listeners:      
+RegisterPinEvent SWITCH_HIT_SCOOP, "ClaimExtraBall"
+'
+'*****************************
+Sub ClaimExtraBall()
+    If GetPlayerState(RACE_EXTRABALL) = 1 Then
+        SetPlayerState RACE_EXTRABALL, 2
+        SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS)+1
+        FlexExtraBallScene()
+        PlayExtraBallSeq()
+        calloutsQ.Add "extraball", "PlayCallout(""extraball"")", 1, 0, 0, 1000, 0, False
+    End If
+End Sub
 '***********************************************************************************************************************
 '***** Game Timers                                                      	                                                    ****
 '*****                                                                                                              ****
@@ -8325,19 +9047,25 @@ End Sub
 
 Sub GameTimersUpdate_Timer()
 	Dim activeTimer : activeTimer = Array(1000, 0)
-    activeTimer = ProcessGameTimer(GAME_BALLSAVE_TIMER_IDX, activeTimer)
+    ProcessGameTimer GAME_BALLSAVE_TIMER_IDX, activeTimer
     activeTimer = ProcessGameTimer(GAME_RACE_TIMER_IDX, activeTimer)
     activeTimer = ProcessGameTimer(GAME_BET_TIMER_IDX, activeTimer)
     activeTimer = ProcessGameTimer(GAME_BOOST_TIMER_IDX, activeTimer)
     activeTimer = ProcessGameTimer(GAME_EMP_TIMER_IDX, activeTimer)
     activeTimer = ProcessGameTimer(GAME_SKILLS_TIMER_IDX, activeTimer)
+	activeTimer = ProcessGameTimer(GAME_TT_TIMER_IDX, activeTimer)
 	ProcessGameTimer GAME_BONUS_TIMER_IDX, activeTimer
 	ProcessGameTimer GAME_SELECTION_TIMER_IDX, activeTimer
 	ProcessGameTimer GAME_MULTIPLIER_TIMER_IDX, activeTimer
     ClearTimerDisplay
     If activeTimer(0) = 1000 Then
-        Exit Sub
+		If GameTimers(GAME_BALLSAVE_TIMER_IDX) > 0 Then
+			activeTimer = Array(GameTimers(GAME_BALLSAVE_TIMER_IDX), GameTimerColors(GAME_BALLSAVE_TIMER_IDX))
+        End If
     End If
+	If activeTimer(0) = 1000 Then
+		Exit Sub
+	End If
     dbstime = activeTimer(0)
     Dim tmp
     'debug.print(activeTimer(1))
@@ -8371,7 +9099,7 @@ Function ProcessGameTimer(timer, activeTimer)
 			GameTimersHurry(timer) = 1
 			DispatchPinEvent GameTimerHurryEvent(timer)
 		End If
-		If dbstime < 0 Then
+		If dbstime <= 0 Then
             GameTimers(timer) = 0
 			GameTimersHurry(timer) = 0
 			DispatchPinEvent GameTimerEndEvent(timer)
@@ -8379,6 +9107,100 @@ Function ProcessGameTimer(timer, activeTimer)
     End If
     ProcessGameTimer = Array(a,b)
 End Function
+
+'****************************
+' GrandSlamRacesCheck
+' Event Listeners:          
+RegisterPlayerStateEvent RACE_1, "GrandSlamRacesCheck"
+RegisterPlayerStateEvent RACE_2, "GrandSlamRacesCheck"
+RegisterPlayerStateEvent RACE_3, "GrandSlamRacesCheck"
+RegisterPlayerStateEvent RACE_4, "GrandSlamRacesCheck"
+RegisterPlayerStateEvent RACE_5, "GrandSlamRacesCheck"
+RegisterPlayerStateEvent RACE_6, "GrandSlamRacesCheck"
+'
+'*****************************
+Sub GrandSlamRacesCheck()
+    If GetPlayerState(GRANDSLAM_RACES) = False Then
+        If GetPlayerState(RACE_1) = 1 And _
+            GetPlayerState(RACE_2) = 1 And _ 
+            GetPlayerState(RACE_3) = 1 And _
+            GetPlayerState(RACE_4) = 1 And _
+            GetPlayerState(RACE_5) = 1 And _
+            GetPlayerState(RACE_6) = 1 Then
+            SetPlayerState LANE_R, 1
+            SetPlayerState LANE_A, 1
+            SetPlayerState LANE_C, 1
+            SetPlayerState LANE_E, 1
+            SetPlayerState GRANDSLAM_RACES, True
+            PlayGrandSlamSeq()
+        End If
+    End If
+End Sub
+
+
+'****************************
+' GrandSlamWizardCheck
+' Event Listeners:          
+RegisterPlayerStateEvent GRANDSLAM_TT, "GrandSlamWizardCheck"
+RegisterPlayerStateEvent GRANDSLAM_RACES, "GrandSlamWizardCheck"
+RegisterPlayerStateEvent GRANDSLAM_COMBO, "GrandSlamWizardCheck"
+RegisterPlayerStateEvent GRANDSLAM_NODES, "GrandSlamWizardCheck"
+RegisterPlayerStateEvent GRANDSLAM_SKILLS, "GrandSlamWizardCheck"
+'
+'*****************************
+Sub GrandSlamWizardCheck()
+    
+        If GetPlayerState(GRANDSLAM_TT) = True And _
+            GetPlayerState(GRANDSLAM_RACES) = True And _ 
+            GetPlayerState(GRANDSLAM_COMBO) = True And _
+            GetPlayerState(GRANDSLAM_NODES) = True And _
+            GetPlayerState(GRANDSLAM_SKILLS) = True Then
+            'Play Callout
+            'DMD Animation
+            SetPlayerState GRANDSLAM_WIZARD_READY, True
+            lightCtrl.AddShot "WizardMode1", l63, RGB(255,0,0)
+            lightCtrl.AddShot "WizardMode2", l63, RGB(255,255,0)
+            lightCtrl.AddShot "WizardMode3", l63, RGB(255,0,255)
+            lightCtrl.AddShot "WizardMode4", l63, RGB(0,255,255)
+        End If
+End Sub
+
+Dim WizNeonl48
+WizNeonl48 = FlattenArrays(Array( _
+    lightCtrl.FadeRGB("l48", RGB(255, 20, 147), RGB(30, 144, 255), 10), _
+    lightCtrl.FadeRGB("l48", RGB(30, 144, 255), RGB(127, 255, 0), 10), _
+    lightCtrl.FadeRGB("l48", RGB(127, 255, 0), RGB(255, 255, 0), 10), _
+    lightCtrl.FadeRGB("l48", RGB(255, 255, 0), RGB(255, 165, 0), 10), _
+    lightCtrl.FadeRGB("l48", RGB(255, 165, 0), RGB(138, 43, 226), 10), _
+    lightCtrl.FadeRGB("l48", RGB(138, 43, 226), RGB(0, 128, 128), 10), _
+    lightCtrl.FadeRGB("l48", RGB(0, 128, 128), RGB(255, 20, 147), 10)))
+
+Dim wizardFadeL48Seq : Set wizardFadeL48Seq = new LCSeq
+wizardFadeL48Seq.Name = "wizardFadeL48Seq"
+wizardFadeL48Seq.Sequence = WizNeonl48
+wizardFadeL48Seq.Color = Null
+wizardFadeL48Seq.UpdateInterval = 20
+wizardFadeL48Seq.Repeat = True
+
+
+
+'****************************
+' CheckWizardReady
+' Event Listeners:  
+RegisterPinEvent SWITCH_HIT_RACE_KICKER, "CheckWizardReady"
+'
+'*****************************
+Sub CheckWizardReady()
+    If GetPlayerState(GRANDSLAM_WIZARD_READY) = True And RealBallsInPlay = 1 Then
+        'LightShow
+        'DMD
+        'Callout
+        lightCtrl.AddTableLightSeq "WIZARD", wizardFadeL48Seq
+        lightCtrl.AddTableLightSeq "WIZARD1", lSeqRGBCircle
+        
+    End If
+End Sub
+
 
 '****************************
 ' HiScore Selection Timer Ended
@@ -8599,21 +9421,28 @@ Sub HitBonusLanes(lane)
         SetPlayerState LANE_N, 0
         SetPlayerState LANE_US, 0
     End If
+    If lane = LANE_BO Then
+        If lightCtrl.IsShotLit("skillshotLanes", l66) Then
+            AwardSkillshot()
+        End If
+    End If
 End Sub
 
 Sub HitInLanes(lane)
     AddScore POINTS_BASE
-    If GetPlayerState(lane) = 0 And GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
-        SetPlayerState lane, 1
-        PlaySound("fx_rollover")
-    End If
-    If GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
-        If GetPlayerState(LANE_R) = 1 AND GetPlayerState(LANE_A) = 1 AND GetPlayerState(LANE_C) = 1 AND GetPlayerState(LANE_E) = 1 Then
-            SetPlayerState RACE_MODE_READY, True
-            lSeqRGBCircle.Color = GAME_RACE_COLOR
-            lightCtrl.AddTableLightSeq "RaceReady", lSeqRGBCircle
-            calloutsQ.Add "raceready", "PlayCallout(""raceready"")", 1, 0, 0, 2500, 0, False
-            'FlexDMDRaceReadyScene()
+    If GetPlayerState(GRANDSLAM_RACES) = False And GetPlayerState(MODE_MULTIBALL) = False And GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(lane) = 0 And GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
+            SetPlayerState lane, 1
+            PlaySound("fx_rollover")
+        End If
+        If GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
+            If GetPlayerState(LANE_R) = 1 AND GetPlayerState(LANE_A) = 1 AND GetPlayerState(LANE_C) = 1 AND GetPlayerState(LANE_E) = 1 Then
+                SetPlayerState RACE_MODE_READY, True
+                lSeqRGBCircle.Color = GAME_RACE_COLOR
+                lightCtrl.AddTableLightSeq "RaceReady", lSeqRGBCircle
+                calloutsQ.Add "raceready", "PlayCallout(""raceready"")", 1, 0, 0, 2500, 0, False
+                'FlexDMDRaceReadyScene()
+            End If
         End If
     End If
 End Sub
@@ -8655,11 +9484,14 @@ Sub SwitchHitRampLockGate()
     Select Case GetPlayerState(BALLS_LOCKED)
         Case 0:
             SetPlayerState BALLS_LOCKED, 1
+            DOF 253, DOFPulse
             calloutsQ.Add "balllocked", "PlayCallout(""ball1locked"")", 1, 0, 0, 3500, 0, False
         Case 1:
             SetPlayerState BALLS_LOCKED, 2
+            DOF 254, DOFPulse
             calloutsQ.Add "balllocked", "PlayCallout(""ball2locked"")", 1, 0, 0, 3500, 0, False
         Case 2:
+            DOF 255, DOFPulse
             calloutsQ.Add "balllocked", "PlayCallout(""ball3locked"")", 1, 0, 0, 3500, 0, False
             calloutsQ.Add "prepareformb", "PlayCallout(""prepareformb"")", 1, 0, 0, 3500, 0, False
             SetPlayerState LOCK_LIT, False
@@ -8705,7 +9537,7 @@ Sub LockPin1_Timer()
     LockPin2.TimerEnabled = True
     LockPin2.TimerInterval = 1000
     SetPlayerState MODE_MULTIBALL, True
-    
+    lightCtrl.LightState l97, 1
     lightCtrl.RemoveAllTableLightSeqs()
     SetPlayerState BALLS_LOCKED, 0
     lightCtrl.AddShot "MBSpinner", l48, RGB(0,255,0)
@@ -8761,6 +9593,29 @@ Sub CheckLockLit()
     End If
 End Sub
 
+'****************************
+' LockCheckDiverter
+' Event Listeners:      
+RegisterPinEvent SWITCH_HIT_RIGHT_RAMP_ENTER, "LockCheckDiverter"
+'
+'*****************************
+Sub LockCheckDiverter
+    If RealBallsInPlay > 1 Or GetPlayerState(SKILLS_TRIAL_SHOT) = 1 Or GetPlayerState(RACE_MODE_FINISH) = True Then
+        DiverterOn.IsDropped = 1
+        DiverterOff.IsDropped = 0
+        Debounce "checkDiverter", "CheckLockLit", 2000
+    End If
+End Sub
+
+
+Sub CheckSuperJackpot()
+    If lightCtrl.IsShotLit("MBSuperLeftRamp", l47) = False Then
+        If  lightCtrl.IsShotLit("MBSpinner", l48) = False And lightCtrl.IsShotLit("MBLeftOrbit", l46) = False And lightCtrl.IsShotLit("MBLeftRamp", l47) = False And lightCtrl.IsShotLit("MBRightRamp", l64) = False And lightCtrl.IsShotLit("MBRightOrbit", l63) = False Then
+            lightCtrl.AddShot "MBSuperLeftRamp", l47, RGB(255,127,0) 'Super Jackpot
+        End If
+    End If
+End Sub
+
 
 '****************************
 ' MB Spinner Shot
@@ -8772,6 +9627,7 @@ Sub MBSpinnerShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBSpinner", l48) = True Then
             lightCtrl.RemoveShot "MBSpinner", l48
+            CheckSuperJackpot()
             AwardJackpot()
         End If
     End If
@@ -8787,6 +9643,7 @@ Sub MBLeftOrbitShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBLeftOrbit", l46) = True Then
             lightCtrl.RemoveShot "MBLeftOrbit", l46
+            CheckSuperJackpot()
             AwardJackpot()
         End If
     End If
@@ -8802,7 +9659,18 @@ Sub MBLeftRampShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBLeftRamp", l47) = True Then
             lightCtrl.RemoveShot "MBLeftRamp", l47
+            CheckSuperJackpot()
             AwardJackpot()
+        Else
+            If lightCtrl.IsShotLit("MBSuperLeftRamp", l47) = True Then
+                'AwardSuperJackpot
+                AwardJackpot()
+                lightCtrl.AddShot "MBSpinner", l48, RGB(0,255,0)
+                lightCtrl.AddShot "MBLeftOrbit", l46, RGB(0,255,0)
+                lightCtrl.AddShot "MBLeftRamp", l47, RGB(0,255,0)
+                lightCtrl.AddShot "MBRightRamp", l64, RGB(0,255,0)
+                lightCtrl.AddShot "MBRightOrbit", l63, RGB(0,255,0)
+            End If
         End If
     End If
 End Sub
@@ -8817,6 +9685,7 @@ Sub MBRightRampShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBRightRamp", l64) = True Then
             lightCtrl.RemoveShot "MBRightRamp", l64
+            CheckSuperJackpot()
             AwardJackpot()
         End If
     End If
@@ -8832,6 +9701,7 @@ Sub MBRightOrbitShot
     If GetPlayerState(MODE_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBRightOrbit", l63) = True Then
             lightCtrl.RemoveShot "MBRightOrbit", l63
+            CheckSuperJackpot()
             AwardJackpot()
         End If
     End If
@@ -8852,10 +9722,75 @@ Sub MBEnd
         lightCtrl.RemoveShot "MBLeftRamp", l47
         lightCtrl.RemoveShot "MBRightRamp", l64
         lightCtrl.RemoveShot "MBRightOrbit", l63
+        lightCtrl.RemoveShot "MBSuperLeftRamp", l47
+        
     End If
 End Sub
 
 
+
+'****************************
+' HitMystery
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_MYSTERY, "HitMystery"
+'
+'*****************************
+Sub HitMystery()
+    If lightCtrl.IsShotLit("mystery", l49) = False Then
+        SetPlayerState MYSTERY_HITS, GetPlayerState(MYSTERY_HITS) + 1
+        lightCtrl.Pulse l49, 0
+        If GetPlayerState(MYSTERY_HITS) MOD 6 = 0 Then
+            lightCtrl.AddShot "mystery", l49, RGB(0, 255, 0)
+        End If
+    Else
+        'Collect Mystery
+        Dim randomNumber
+        randomNumber = Int((totalMysteryWeight * Rnd) + 1)
+        Dim cumulativeWeight, selectedAward
+        cumulativeWeight = 0
+        For i = 0 To UBound(MysteryAwards)
+            cumulativeWeight = cumulativeWeight + MysteryAwards(i, 1)
+            If randomNumber <= cumulativeWeight Then
+                selectedAward = i
+                Exit For
+            End If
+        Next
+
+        Select Case i
+            Case 0
+                AddScore 50000
+            Case 1
+                If GetPlayerState(BONUS_X) < 4 Then
+                    SetPlayerState BONUS_X, GetPlayerState(BONUS_X) + 1
+                End If
+            Case 2
+                DispatchPinEvent ADD_BALL
+            Case 3
+                If GetPlayerState(GRANDSLAM_RACES) = False And GetPlayerState(RACE_MODE_READY) = False And GetPlayerState(MODE_RACE) = False Then
+                    SetPlayerState LANE_R, 1
+                    SetPlayerState LANE_A, 1
+                    SetPlayerState LANE_C, 1
+                    SetPlayerState LANE_E, 1
+                    SetPlayerState RACE_MODE_READY, True
+                    lSeqRGBCircle.Color = GAME_RACE_COLOR
+                    lightCtrl.AddTableLightSeq "RaceReady", lSeqRGBCircle
+                    calloutsQ.Add "raceready", "PlayCallout(""raceready"")", 1, 0, 0, 2500, 0, False
+                End If
+            Case 4
+                AddScore 100000
+        End Select
+
+        Dim qItem : Set qItem = New QueueItem
+        With qItem
+            .Name = "mysteryAward"
+            .Duration = 5
+            .BGImage = "BG004"
+            .BGVideo = "Mystery" & CStr(i)
+            .Action = "slideup"
+        End With
+        DmdQ.Enqueue qItem
+    End If
+End Sub
 '****************************
 ' Node Row A Hit
 ' Event Listeners:      
@@ -9034,16 +9969,21 @@ End Sub
 '
 '*****************************
 Sub NodeCollectPerk()
-    If GetPlayerState(NODE_LEVEL_UP_READY) = True And GetPlayerState(MODE_MULTIBALL) = False Then
+    If GetPlayerState(NODE_LEVEL_UP_READY) = True And RealBallsInPlay = 1 Then
         SetPlayerState NODE_LEVEL_UP_READY, False
         SetPlayerState NODE_LEVEL, GetPlayerState(NODE_LEVEL) + 1
-        'TODO: Award Perk
-        'TODO: Light Show
-        lSeqCollectPerk.Repeat = True
-        calloutsQ.Add "nodes-choose-perk", "PlayCallout(""nodes-choose-perk"")", 1, 0, 0, 1660, 0, False
-        lightCtrl.AddTableLightSeq "Nodes", lSeqCollectPerk
-        SetPlayerState MODE_PERK_SELECT, True
-        FlexDMDNodePerkCollectScene()
+        If GetPlayerState(NODE_LEVEL) = 6 Then
+            'COMPLETE
+            Debounce "nodesCompleteed", "sw39.TimerEnabled = True", 4000
+            SetPlayerState GRANDSLAM_NODES, True
+            PlayGrandSlamSeq()
+        Else
+            lSeqCollectPerk.Repeat = True
+            calloutsQ.Add "nodes-choose-perk", "PlayCallout(""nodes-choose-perk"")", 1, 0, 0, 1660, 0, False
+            lightCtrl.AddTableLightSeq "Nodes", lSeqCollectPerk
+            SetPlayerState MODE_PERK_SELECT, True
+            FlexDMDNodePerkCollectScene()
+        End If
     End If
 End Sub
 
@@ -9098,8 +10038,9 @@ Sub NodePerkSelectLeftPerk()
                 SetPlayerState OUTLANE_SAVE, True
             Case 5:'Level 5. Extra Ball
                 SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) + 1
-            Case 6:'Level 6. Spot Grand Slam
-                ' TODO Code Spot Grand Slam
+                FlexExtraBallScene()
+                PlayExtraBallSeq()
+                calloutsQ.Add "extraball", "PlayCallout(""extraball"")", 1, 0, 0, 1000, 0, False
         End Select
         SetPlayerState MODE_PERK_SELECT, False
         NodePerkNextLevel()
@@ -9124,7 +10065,7 @@ Sub NodePerkSelectRightPerk()
                 AddScore 5000000
             Case 3:'Level 2.  Race Timers + 20 Seconds OR 5x Bonus
                  SetPlayerState BET_MULTIPLIER, 2
-            Case 4:'Level 3. Collect 5x Bonus OR Instant MB
+            Case 4:'Level 3. outlane save OR Instant MB
                 SetPlayerState MODE_MULTIBALL, True
                 ballsInQ = ballsInQ + 2
         		BallReleaseTimer.Enabled = True
@@ -9135,9 +10076,7 @@ Sub NodePerkSelectRightPerk()
                 lightCtrl.AddShot "MBRightOrbit", l63, RGB(0,255,0)
                 EnableBallSaver 15
             Case 5:'Level 5. 5X Jackpots
-                SetPlayerState JACKPOTS_MULTIPLIER, 5    
-            Case 6:'Level 6. Mini Wizard
-                ' TODO Code Mini Wizard
+                SetPlayerState JACKPOTS_MULTIPLIER, 5
         End Select
         SetPlayerState MODE_PERK_SELECT, False
         NodePerkNextLevel()
@@ -9180,17 +10119,25 @@ End Sub
 '****************************
 ' Hit Pop Bumpers
 '*****************************
+Dim DOFBumperPulse : DOFBumperPulse = False
 Sub HitPopBumpers(bumper)
     AddScore POINTS_BASE
+    If DOFBumperPulse = False Then
+        DOF 203, DOFPulse
+        DOFBumperPulse = True
+    Else
+        DOF 205, DOFPulse
+        DOFBumperPulse = False
+    End If
     If GetPlayerState(MODE_EMP) = True Then
         lightCtrl.Pulse bumper, 0
-        FlexDMDEMPModeScene()
         Exit Sub
     End If
 
     If (GetPlayerState(EMP_CHARGE) + 1) = (EMP_BASE_HITS * GetPlayerState(EMP_ACTIVATIONS)) Then
         'Start EMP MODE
         GrabMag.MagnetOn = 1
+        DOF 128, DOFPulse
 		GrabMagnetTimer.Enabled = true
         lightCtrl.pulse l140, 2
         lightCtrl.pulse l141, 0
@@ -9205,7 +10152,6 @@ Sub HitPopBumpers(bumper)
         lightCtrl.AddShot "EMP1", l23, RGB(255,255,255)
         SetPlayerState MODE_EMP, True
         GameTimers(GAME_EMP_TIMER_IDX) = 20
-        FlexDMDEMPModeScene()
     Else
         lightCtrl.Pulse bumper, 0
         SetPlayerState EMP_CHARGE, GetPlayerState(EMP_CHARGE) + 1
@@ -9262,7 +10208,6 @@ End Sub
 '*****************************
 Sub CheckRaceReady()
     If GetPlayerState(RACE_MODE_READY) = True And RealBallsInPlay = 1 Then
-        FlexDMDRaceSelectScene()
         Dim x,i
         x = 0
         i = 0
@@ -9277,10 +10222,14 @@ Sub CheckRaceReady()
             End If
         Loop
         SetPlayerState RACE_MODE_SELECTION, x
+        FlexDMDRaceSelectScene()
+        calloutsQ.Add "chooserace", "PlayCallout(""choose-race"")", 1, 0, 0, 1200, 0, False
         SetPlayerState RACE_MODE_READY, False
         SetPlayerState MODE_RACE_SELECT, True
     Else
-        raceVuk.TimerEnabled = True
+        If GetPlayerState(GRANDSLAM_WIZARD_READY) = False Or (GetPlayerState(GRANDSLAM_WIZARD_READY) = True And RealBallsInPlay > 1) Then
+            raceVuk.TimerEnabled = True
+        End If
     End If
 End Sub
 
@@ -9359,8 +10308,12 @@ End Sub
 Sub RaceSelectConfirm()
     If GetPlayerState(MODE_RACE_SELECT) = True Then
         Dim selection : selection = GetPlayerState(RACE_MODE_SELECTION)
-        If selection = 5 Or selection = 6 Then
-            'TODO: Code race 5 and 6
+        Dim r1,r2,r3,r4
+        r1 = GetPlayerState(RACE_1)
+        r2 = GetPlayerState(RACE_2)
+        r3 = GetPlayerState(RACE_3)
+        r4 = GetPlayerState(RACE_4)
+        If (r1+r2+r3+r4)<4 And (selection = 5 Or selection = 6) Then
             Exit Sub
         End If
         lightCtrl.RemoveAllTableLightSeqs()
@@ -9421,9 +10374,17 @@ Sub RaceSelectConfirm()
                 End If
                 RaceMode4HitsCheck()
             Case 5:
-                
+                RaceMode5HitsCheck()
             Case 6:
-                
+                If GetPlayerState(RACE_MODE_6_HITS) = 5 Then
+                    SetPlayerState RACE_MODE_FINISH, True
+                Else
+                    lightCtrl.AddShot "RaceMode6", l23, GAME_RACE_COLOR
+                    lightCtrl.AddShot "RaceMode6", l46, GAME_RACE_COLOR
+                    lightCtrl.AddShot "RaceMode6", l47, GAME_RACE_COLOR
+                    lightCtrl.AddShot "RaceMode6", l63, GAME_RACE_COLOR
+                    lightCtrl.AddShot "RaceMode6", l64, GAME_RACE_COLOR
+                End If
         End Select
     End iF
 End Sub
@@ -9450,13 +10411,11 @@ Sub RaceModeShortcutHit()
                     SetPlayerState RACE_MODE_3_HITS, 6
                 Case 4:
                     SetPlayerState RACE_MODE_4_HITS, 6
-                Case 5:
-
-                Case 6:
                     
             End Select
             lightCtrl.RemoveShot GAME_SHOT_SHORTCUT, l65
             SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
         End If
     End If
 End Sub
@@ -9477,7 +10436,7 @@ Sub RaceMode1RampHit()
             Dim qItem : Set qItem = New QueueItem
             With qItem
                 .Name = "racemsg"
-                .Duration = 2
+                .Duration = 4
                 .BGImage = "BG004"
                 .BGVideo = "novideo"
                 .Action = "slideup"
@@ -9498,14 +10457,53 @@ Sub RaceMode1()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 1 Then
         If GetPlayerState(RACE_MODE_1_HITS) = 3 Then
             lightCtrl.AddShot GAME_SHOT_SHORTCUT, l65, GAME_NORMAL_COLOR
+            calloutsQ.Add "shortcut", "PlayCallout(""shortcut"")", 1, 0, 0, 1200, 0, False
         End If
         If GetPlayerState(RACE_MODE_1_HITS) = 6 Then
             lightCtrl.RemoveShot "RaceMode1a", l47
             lightCtrl.RemoveShot "RaceMode1b", l64
             SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
         End If
     End If
 End Sub
+
+'****************************
+' RaceModeTimerHurry
+' Event Listeners:          
+RegisterPinEvent GAME_RACE_TIMER_HURRY, "RaceModeTimerHurry"
+'
+'*****************************
+Sub RaceModeTimerHurry()
+    If GetPlayerState(MODE_RACE) = True Then
+        lightCtrl.AddShot "AddTime", l98, RGB(12,100,250)
+    End If
+End Sub
+
+'****************************
+' RaceModeAddTime
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_ADDTIME, "RaceModeAddTime"
+'
+'*****************************
+Sub RaceModeAddTime()
+    If GetPlayerState(MODE_RACE) = True And lightCtrl.IsShotLit("AddTime", l98) = True Then
+        GameTimers(GAME_RACE_TIMER_IDX) = GameTimers(GAME_RACE_TIMER_IDX) + 12
+        lightCtrl.RemoveShot "AddTime", l98
+        Dim qItem : Set qItem = New QueueItem
+        With qItem
+            .Name = "racemsg"
+            .Duration = 3
+            .BGImage = "BG004"
+            .BGVideo = "novideo"
+            .Action = "slideup"
+        End With
+        qItem.AddLabel "+12 Seconds Added", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+        DmdQ.Enqueue qItem
+    End If
+End Sub
+
+
 
 '****************************
 ' RaceModeTimerEnded
@@ -9535,11 +10533,18 @@ Sub RaceModeTimerEnded()
                 lightCtrl.RemoveShot "RaceMode4b", l63
                 lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes
             Case 5:
-                
+                lightCtrl.RemoveShot "RaceMode5", l47
+                lightCtrl.RemoveShot "RaceMode5", l64
+                lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes
             Case 6:
-                
+                lightCtrl.RemoveShot "RaceMode6", l48
+                lightCtrl.RemoveShot "RaceMode6", l23
+                lightCtrl.RemoveShot "RaceMode6", l46
+                lightCtrl.RemoveShot "RaceMode6", l63
+
         End Select
         lightCtrl.RemoveShot GAME_SHOT_SHORTCUT, l65
+        lightCtrl.RemoveShot "AddTime", l98
         SetPlayerState LANE_R, 0
         SetPlayerState LANE_A, 0
         SetPlayerState LANE_C, 0
@@ -9617,16 +10622,19 @@ Sub RaceMode2()
         If GetPlayerState(RACE_MODE_2_SPIN1) >= 30 Then
             lightCtrl.RemoveShot "RaceMode2a", l48    
             lightCtrl.AddShot GAME_SHOT_SHORTCUT, l65, GAME_NORMAL_COLOR
+            calloutsQ.Add "shortcut", "PlayCallout(""shortcut"")", 1, 0, 0, 1200, 0, False
         End If
         If GetPlayerState(RACE_MODE_2_SPIN2) >= 30 Then
             lightCtrl.RemoveShot "RaceMode2b", l23    
             lightCtrl.AddShot GAME_SHOT_SHORTCUT, l65, GAME_NORMAL_COLOR
+            calloutsQ.Add "shortcut", "PlayCallout(""shortcut"")", 1, 0, 0, 1200, 0, False
         End If
         If GetPlayerState(RACE_MODE_2_SPIN1) >= 30 AND GetPlayerState(RACE_MODE_2_SPIN2) >= 30 Then
             lightCtrl.RemoveShot "RaceMode2a", l48
             lightCtrl.RemoveShot "RaceMode2b", l23
             lightCtrl.RemoveShot GAME_SHOT_SHORTCUT, l65
             SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
         End If
     End If
 End Sub
@@ -9678,7 +10686,7 @@ Sub RaceMode3DmdMsg()
     Dim qItem : Set qItem = New QueueItem
     With qItem
         .Name = "racemsg"
-        .Duration = 2
+        .Duration = 4
         .BGImage = "BG004"
         .BGVideo = "novideo"
         .Action = "slideup"
@@ -9691,12 +10699,25 @@ Sub RaceMode4DmdMsg()
     Dim qItem : Set qItem = New QueueItem
     With qItem
         .Name = "racemsg"
-        .Duration = 2
+        .Duration = 4
         .BGImage = "BG004"
         .BGVideo = "novideo"
         .Action = "slideup"
     End With
-    qItem.AddLabel "GetPlayerState(RACE_MODE_$_HITS) & ""/ 6 Shots to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+    qItem.AddLabel "GetPlayerState(RACE_MODE_4_HITS) & ""/ 6 Shots to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+    DmdQ.Enqueue qItem
+End Sub
+
+Sub RaceMode6DmdMsg()
+    Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "racemsg"
+        .Duration = 4
+        .BGImage = "BG004"
+        .BGVideo = "novideo"
+        .Action = "slideup"
+    End With
+    qItem.AddLabel "GetPlayerState(RACE_MODE_6_HITS) & ""/ 6 Shots to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
     DmdQ.Enqueue qItem
 End Sub
 
@@ -9812,6 +10833,7 @@ Sub RaceMode3HitsCheck()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 3 Then
         If GetPlayerState(RACE_MODE_3_HITS) = 3 Then
             lightCtrl.AddShot GAME_SHOT_SHORTCUT, l65, GAME_NORMAL_COLOR
+            calloutsQ.Add "shortcut", "PlayCallout(""shortcut"")", 1, 0, 0, 1200, 0, False
         End If
         If GetPlayerState(RACE_MODE_3_HITS) = 6 Then
             lightCtrl.RemoveShot "RaceMode3", l48
@@ -9822,6 +10844,7 @@ Sub RaceMode3HitsCheck()
             lightCtrl.RemoveShot "RaceMode3", l63
             RaceModeTimer.Enabled = False
             SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
         End If
     End If
 End Sub
@@ -9933,6 +10956,7 @@ Sub RaceMode4HitsCheck()
             lightCtrl.AddShot "RaceMode4b", l63, GAME_RACE_COLOR
             lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes
             lightCtrl.AddShot GAME_SHOT_SHORTCUT, l65, GAME_NORMAL_COLOR
+            calloutsQ.Add "shortcut", "PlayCallout(""shortcut"")", 1, 0, 0, 1200, 0, False
         End If
         If GetPlayerState(RACE_MODE_4_HITS) = 5 Then
             lightCtrl.RemoveShot "RaceMode4b", l63
@@ -9944,9 +10968,229 @@ Sub RaceMode4HitsCheck()
             lightCtrl.RemoveShot "RaceMode4a", l46
             lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes
             SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
         End If
     End If
 End Sub
+
+
+
+
+
+'****************************
+' RaceMode6LeftOrbitHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "RaceMode6LeftOrbitHit"
+'
+'*****************************
+Sub RaceMode6LeftOrbitHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l46) Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
+            lightCtrl.RemoveShot "RaceMode6", l46
+            RaceMode6DmdMsg()
+        End If
+    End If
+End Sub
+
+'****************************
+' RaceMode6LeftRampHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "RaceMode6LeftRampHit"
+'
+'*****************************
+Sub RaceMode6LeftRampHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l47) Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
+            lightCtrl.RemoveShot "RaceMode6", l47
+            RaceMode6DmdMsg()
+        End If
+    End If
+End Sub
+
+'****************************
+' RaceMode6RightOrbitHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "RaceMode6RightOrbitHit"
+'
+'*****************************
+Sub RaceMode6RightOrbitHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l63) Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
+            lightCtrl.RemoveShot "RaceMode6", l63
+            RaceMode6DmdMsg()
+        End If
+    End If
+End Sub
+
+'****************************
+' RaceMode6RightRampHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "RaceMode6RightRampHit"
+'
+'*****************************
+Sub RaceMode6RightRampHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l64) Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
+            lightCtrl.RemoveShot "RaceMode6", l64
+            RaceMode6DmdMsg()
+        End If
+    End If
+End Sub
+
+'****************************
+' RaceMode6SpinnerHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_SPINNER2, "RaceMode6SpinnerHit"
+'
+'*****************************
+Sub RaceMode6SpinnerHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 6 AND GetPlayerState(RACE_MODE_6_SPIN2) < 30 Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_6_SPIN2, GetPlayerState(RACE_MODE_6_SPIN2) + 1
+
+            If GetPlayerState(RACE_MODE_6_SPIN2) = 30 Then
+                lightCtrl.RemoveShot "RaceMode6", l23
+                SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
+            Else
+                Dim qItem : Set qItem = New QueueItem
+                With qItem
+                    .Name = "racemsg"
+                    .Duration = 2
+                    .BGImage = "BG004"
+                    .BGVideo = "novideo"
+                    .Action = "slideup"
+                End With
+                qItem.AddLabel "GetPlayerState(RACE_MODE_6_SPIN2) & ""/ 30 Spins to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+                DmdQ.Enqueue qItem
+            End If
+        End If
+    End If
+End Sub
+
+'****************************
+' RaceMode6HitsCheck
+' Event Listeners:          
+RegisterPlayerStateEvent RACE_MODE_6_HITS, "RaceMode6HitsCheck"
+'
+'*****************************
+Sub RaceMode6HitsCheck()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 6 Then
+        If GetPlayerState(RACE_MODE_6_HITS) = 5 Then
+            lightCtrl.RemoveShot "RaceMode6", l46
+            lightCtrl.RemoveShot "RaceMode6", l47
+            lightCtrl.RemoveShot "RaceMode6", l23
+            lightCtrl.RemoveShot "RaceMode6", l64
+            lightCtrl.RemoveShot "RaceMode6", l63
+            SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
+        End If
+    End If
+End Sub
+
+
+
+'****************************
+' RaceMode5RampHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "RaceMode5RampHit"
+RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "RaceMode5RampHit"
+'
+'*****************************
+Sub RaceMode5RampHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 5 Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_5_HITS, GetPlayerState(RACE_MODE_5_HITS) + 1
+            Dim qItem : Set qItem = New QueueItem
+            With qItem
+                .Name = "racemsg"
+                .Duration = 4
+                .BGImage = "BG004"
+                .BGVideo = "novideo"
+                .Action = "slideup"
+            End With
+            qItem.AddLabel "6-GetPlayerState(RACE_MODE_5_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            DmdQ.Enqueue qItem
+        End If
+    End If
+End Sub
+
+
+'****************************
+' RaceMode5NodesHit
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_NODE_A, "RaceMode5NodesHit"
+RegisterPinEvent SWITCH_HIT_NODE_B, "RaceMode5NodesHit"
+RegisterPinEvent SWITCH_HIT_NODE_C, "RaceMode5NodesHit"
+'
+'*****************************
+Sub RaceMode5NodesHit()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 5 And (GetPlayerState(RACE_MODE_5_HITS) = 1 Or GetPlayerState(RACE_MODE_5_HITS) = 3 Or GetPlayerState(RACE_MODE_5_HITS) = 5) Then
+            AddScore POINTS_MODE_SHOT
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            SetPlayerState RACE_MODE_5_HITS, GetPlayerState(RACE_MODE_5_HITS) + 1
+            Dim qItem : Set qItem = New QueueItem
+            With qItem
+                .Name = "racemsg"
+                .Duration = 4
+                .BGImage = "BG004"
+                .BGVideo = "novideo"
+                .Action = "slideup"
+            End With
+            qItem.AddLabel "6-GetPlayerState(RACE_MODE_5_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            DmdQ.Enqueue qItem
+        End If
+    End If
+End Sub
+
+
+'****************************
+' RaceMode5HitsCheck
+' Event Listeners:          
+RegisterPlayerStateEvent RACE_MODE_5_HITS, "RaceMode5HitsCheck"
+'
+'*****************************
+Sub RaceMode5HitsCheck()
+    If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 5 Then
+        If GetPlayerState(RACE_MODE_5_HITS) = 6 Then
+            lightCtrl.RemoveShot "RaceMode5", l47
+            lightCtrl.RemoveShot "RaceMode5", l64   
+            lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes
+            SetPlayerState RACE_MODE_FINISH, True
+            calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
+        Else
+            If GetPlayerState(RACE_MODE_5_HITS) Mod 2 = 0 Then
+                'Even Shot
+                lightCtrl.AddShot "RaceMode5", l47, GAME_RACE_COLOR
+                lightCtrl.AddShot "RaceMode5", l64, GAME_RACE_COLOR
+                lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes
+            Else
+                'Odd Shot
+                lightCtrl.AddLightSeq "RaceMode", lSeqRaceMode4Nodes
+                lightCtrl.RemoveShot "RaceMode5", l47
+                lightCtrl.RemoveShot "RaceMode5", l64
+            End If
+
+        End If
+    End If
+End Sub
+
 Sub AddScore(v)
     'TODO Apply Any Multipliers
     SetPlayerState SCORE, GetPlayerState(SCORE) + v
@@ -9966,6 +11210,7 @@ Sub AwardJackpot()
     calloutsQ.Add "jackpot", "PlayCallout(""jackpot"")", 1, 0, 0, 1000, 0, False
     lightCtrl.AddTableLightSeq "RGB", lSeqJackpotRGB
     lightCtrl.AddTableLightSeq "NonRGB", lSeqJackpotNonRGB
+    DOF 250, DOFPulse
 End Sub
 
 '****************************
@@ -9975,10 +11220,8 @@ End Sub
 '
 '*****************************
 Sub SecretGarageSkip()
-    If RPin.TimerEnabled = True Then
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 100
+    If garageKicker.BallCntOver Then
+        releaseGarageLock()
     End If
 End Sub
 
@@ -9991,9 +11234,10 @@ End Sub
 Sub SecretGarageEnter()
 
     If RealBallsInPlay > 1 Then
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 100
+        'RPin.TimerEnabled = False
+        'RPin.TimerEnabled = True
+        'RPin.TimerInterval = 100
+        releaseGarageLock()
         Exit Sub
     End If
 
@@ -10003,18 +11247,21 @@ Sub SecretGarageEnter()
         calloutsQ.Add "engineUpgrade", "PlayCallout(""engine-upgrade"")", 1, 0, 0, 3500, 0, False
         calloutsQ.Add "collectMore", "PlayCallout(""collect2more"")", 1, 0, 0, 1000, 0, False
         SetPlayerState GARAGE_ENGINE, 1
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 5000
+        Debounce "releaseGarage", "releaseGarageLock", 5000
+        'RPin.TimerEnabled = False
+        'RPin.TimerEnabled = True
+        'RPin.TimerInterval = 5000
     ElseIf GetPlayerState(GARAGE_COOLING) = 0 Then
         lightCtrl.AddTableLightSeq "RGB", lSeqGaragePart2
         FlexDMDGarageCoolingScene()
         calloutsQ.Add "coolingUpgrade", "PlayCallout(""cooling-upgrade"")", 1, 0, 0, 3500, 0, False
         calloutsQ.Add "collectMore", "PlayCallout(""collect1more"")", 1, 0, 0, 1000, 0, False
         SetPlayerState GARAGE_COOLING, 1
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 5000
+
+        Debounce "releaseGarage", "releaseGarageLock", 5000
+        'RPin.TimerEnabled = False
+        'RPin.TimerEnabled = True
+        'RPin.TimerInterval = 5000
     ElseIF GetPlayerState(GARAGE_HULL) = 0 Then
         lightCtrl.AddTableLightSeq "RGB", lSeqGaragePart2
         FlexDMDGarageFuelScene()
@@ -10024,26 +11271,18 @@ Sub SecretGarageEnter()
         SetPlayerState GARAGE_HULL, 0
         SetPlayerState GARAGE_COOLING, 0
         SetPlayerState GARAGE_ENGINE, 0
-        RPin.TimerEnabled = False
-        RPin.TimerEnabled = True
-        RPin.TimerInterval = 4000
+        Debounce "releaseGarage", "releaseGarageLock", 4000
+        'RPin.TimerEnabled = False
+        'RPin.TimerEnabled = True
+        'RPin.TimerInterval = 4000
     End If
 End Sub
 
-
-
-Sub RPin_Timer()
-    If RPin.IsDropped = True Then
-        RPin.IsDropped = 0
-        RandomSoundDropTargetReset(RPinTarget)
-        RPin.TimerEnabled = False
-    Else
-        RPin.IsDropped = 1
-        lightCtrl.RemoveTableLightSeq "RGB", lSeqGaragePart2
-        lightCtrl.pulse l141, 2
-        SoundDropTargetDrop(RPinTarget)
-        RPin.TimerInterval = 1000
-    End If
+Sub releaseGarageLock()
+    lightCtrl.RemoveTableLightSeq "RGB", lSeqGaragePart2
+    lightCtrl.pulse l141, 2
+    SoundDropTargetDrop(RPinTarget)        
+    garageKicker.Kick -45, 5
 End Sub
 
 '****************************
@@ -10054,7 +11293,7 @@ End Sub
 '*****************************
 Sub SkillsTrial()
     AddScore POINT_BASE
-    If GetPlayerState(MODE_SKILLS_TRIAL) = False And GetPlayerState(SKILLS_TRIAL_READY) = False Then
+    If GetPlayerState(GRANDSLAM_SKILLS) = False And GetPlayerState(MODE_SKILLS_TRIAL) = False And GetPlayerState(SKILLS_TRIAL_READY) = False Then
         SetPlayerState SKILLS_TRIAL_SPINS, GetPlayerState(SKILLS_TRIAL_SPINS) + 1
         FlexDMDSkillsScene()
         If GetPlayerState(SKILLS_TRIAL_SPINS) > (SKILLS_BASE_SPINS * GetPlayerState(SKILLS_TRIAL_ACTIVATIONS)) Then
@@ -10072,7 +11311,7 @@ End Sub
 '
 '*****************************
 Sub CheckSkillsTrialReady()
-    If GetPlayerState(SKILLS_TRIAL_READY) = True AND RealBallsInPlay=1 Then
+    If GetPlayerState(GRANDSLAM_SKILLS) = False And GetPlayerState(SKILLS_TRIAL_READY) = True AND RealBallsInPlay=1 Then
         SetPlayerState MODE_SKILLS_TRIAL, True
         SetPlayerState SKILLS_TRIAL_ACTIVATIONS, GetPlayerState(SKILLS_TRIAL_ACTIVATIONS) + 1
         SetPlayerState SKILLS_TRIAL_READY, False
@@ -10142,6 +11381,8 @@ Sub SkillsTrialShot3
         GameTimers(GAME_SKILLS_TIMER_IDX) = 0
         SetPlayerState MODE_SKILLS_TRIAL, False
         lightCtrl.AddTableLightSeq "RGB", lSeqBetUp
+        SetPlayerState GRANDSLAM_SKILLS, True
+        PlayGrandSlamSeq()
         lightCtrl.RemoveShot "Skills3", l47
     End If
 End Sub
@@ -10158,11 +11399,13 @@ Sub SkillsTrialLockPin
     Else
         LockPin4.IsDropped = True
     End If
+    AnimateLockPin()
 End Sub
 
 Sub LockPin4_Timer()
     LockPin4.TimerEnabled = False
     LockPin4.IsDropped = True
+    AnimateLockPin()
     lightCtrl.RemoveTableLightSeq "All", lSeqHeartBeat
 End Sub
 
@@ -10182,6 +11425,61 @@ Sub GameSkillsTimerEnded()
     lightCtrl.RemoveShot "Skills3", l47
 End Sub
 
+
+'****************************
+' Start Skillshot
+' Event Listeners:  
+RegisterPinEvent START_GAME,    "StartSkillShot"
+RegisterPinEvent NEXT_PLAYER,   "StartSkillShot"
+'
+'*****************************
+Sub StartSkillShot()
+    lightCtrl.AddShot "skillshotLanes", l66, RGB(255,255,0)
+    lightCtrl.AddShot "skillshotramp", l47, RGB(255,255,0)
+End Sub
+
+Sub CancelSkillshot
+    lightCtrl.RemoveShot "skillshotramp", l47
+    lightCtrl.RemoveShot "skillshotLanes", l66
+End Sub
+'****************************
+' SkillshotLeftRamp
+' Event Listeners:          
+RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SkillshotLeftRamp"
+'
+'*****************************
+Sub SkillshotLeftRamp()
+    If lightCtrl.IsShotLit("skillshotramp", l47) Then
+      AwardSkillshot()
+    End If
+End Sub
+
+Sub AwardSkillshot()
+    AddScore POINTS_MODE_SHOT
+    lightCtrl.RemoveShot "skillshotramp", l47
+    lightCtrl.RemoveShot "skillshotLanes", l66
+    SetPlayerState LANE_R, 1
+    SetPlayerState LANE_A, 1
+    SetPlayerState LANE_C, 1
+    SetPlayerState LANE_E, 1
+    DOF 251, DOFPulse
+    Debounce "dofSkillshot", "DOF 252, DOFPulse", 1000
+    LightSeqRGB.Play SeqUpOn,50,2
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(255,255,0)
+    Dim qItem : Set qItem = New QueueItem
+    With qItem
+        .Name = "skillshot"
+        .Duration = 2
+        .BGImage = "BGBlack"
+        .BGVideo = "novideo"
+        .Action = "slideup"
+    End With
+    qItem.AddLabel "SKILLSHOT", 	Font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
+    DmdQ.Enqueue qItem
+End Sub
+
+
 '****************************
 ' TT ORBIT
 ' Event Listeners:          
@@ -10189,47 +11487,284 @@ RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "SwitchTTOrbitHit"
 '
 '*****************************
 Sub SwitchTTOrbitHit()
-    
+    If GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(TT_ORBIT) = 2 Then
+            SetPlayerState TT_ORBIT, 0
+            AddScore POINTS_MODE_SHOT
+            FlexDMDTimeTrialScene
+            SetPlayerState TT_COLLECTED, GetPlayerState(TT_COLLECTED)+1
+        End If
+    End If
 End Sub
 
 '****************************
 ' TT Ramp
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchTTRampHit"
+RegisterPinEvent SWITCH_HIT_SCOOP, "SwitchTTRampHit"
 '
 '*****************************
 Sub SwitchTTRampHit()
-    
+    If GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(TT_RAMP) = 2 Then
+            SetPlayerState TT_RAMP, 0
+            AddScore POINTS_MODE_SHOT
+            FlexDMDTimeTrialScene
+            SetPlayerState TT_COLLECTED, GetPlayerState(TT_COLLECTED)+1
+        End If
+    End If
 End Sub
 
 '****************************
 ' TT Target
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchTTTargetHit"
+RegisterPinEvent SWITCH_HIT_BOOST3, "SwitchTTTargetHit"
 '
 '*****************************
 Sub SwitchTTTargetHit()
-    
+    If GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(TT_TARGET) = 2 Then
+            SetPlayerState TT_TARGET, 0
+            AddScore POINTS_MODE_SHOT
+            FlexDMDTimeTrialScene
+            SetPlayerState TT_COLLECTED, GetPlayerState(TT_COLLECTED)+1
+        End If
+    End If
 End Sub
 
 '****************************
 ' TT Captive
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchTTCaptiveHit"
+RegisterPinEvent SWITCH_HIT_CAPTIVE, "SwitchTTCaptiveHit"
 '
 '*****************************
 Sub SwitchTTCaptiveHit()
-    
+    If GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(TT_CAPTIVE) = 2 Then
+            SetPlayerState TT_CAPTIVE, 0
+            AddScore POINTS_MODE_SHOT
+            FlexDMDTimeTrialScene
+            SetPlayerState TT_COLLECTED, GetPlayerState(TT_COLLECTED)+1
+        End If
+    End If
 End Sub
 
 '****************************
 ' TT Shortcut
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchTTShortcutHit"
+RegisterPinEvent SWITCH_HIT_SHORTCUT, "SwitchTTShortcutHit"
 '
 '*****************************
 Sub SwitchTTShortcutHit()
-    
+    If GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(TT_SHORTCUT) = 2 Then
+            SetPlayerState TT_SHORTCUT, 0
+            AddScore POINTS_MODE_SHOT
+            FlexDMDTimeTrialScene
+            SetPlayerState TT_COLLECTED, GetPlayerState(TT_COLLECTED)+1
+        End If
+    End If
+End Sub
+
+'****************************
+' PS_TTCollected
+' Event Listeners:          
+    RegisterPlayerStateEvent TT_COLLECTED, "PS_TTCollected"
+'
+'*****************************
+Sub PS_TTCollected()
+    If GetPlayerState(TT_COLLECTED) = 10 * GetPlayerState(TT_ACTIVATIONS) Then
+        'Start TT_MULTIBALL
+        SetPlayerState TT_ACTIVATIONS, GetPlayerState(TT_ACTIVATIONS) + 1
+
+        SetPlayerState TT_ORBIT, 0
+        SetPlayerState TT_TARGET, 0
+        SetPlayerState TT_RAMP, 0
+        SetPlayerState TT_CAPTIVE, 0
+        SetPlayerState TT_SHORTCUT, 0
+        SetPlayerState MODE_TT_MULTIBALL, True
+        Debounce "TTAddBall1",  "DispatchPinEvent ADD_BALL", 100
+        Debounce "TTAddBall2",  "DispatchPinEvent ADD_BALL", 200
+        EnableBallSaver 15
+        GameTimers(GAME_TT_TIMER_IDX) = 90
+        lightCtrl.AddShot "MBTTSpinner", l48, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTLeftOrbit", l46, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTLeftRamp", l47, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTRightRamp", l64, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTRightOrbit", l63, RGB(127,0,127)
+        LightSeqRGB.UpdateInterval = 5
+        LightSeqRGB.Play SeqUpOn,25,2
+        LightSeqRGB.UpdateInterval = 5
+        LightSeqRGB.Play SeqDownOn,25,2
+        calloutsQ.Add "ttMB", "PlayCallout(""tt-multiball"")", 1, 0, 0, 5500, 0, False
+        lightCtrl.SyncWithVpxLights lightSeqRGB
+        lightCtrl.SetVpxSyncLightColor RGB(127,0,127)
+    Else
+        If GetPlayerState(MODE_TT_MULTIBALL) = False Then
+            Dim t1,t2,t3,t4,t5
+            SetPlayerState TT_ORBIT, 2
+            SetPlayerState TT_TARGET, 2
+            SetPlayerState TT_RAMP, 2
+            SetPlayerState TT_CAPTIVE, 2
+            SetPlayerState TT_SHORTCUT, 2
+
+            Dim i
+            for i=0 to 3
+                Dim off1 : off1 = Round(RndNum(1,5))
+                
+                Select Case off1
+                    Case 1:
+                        SetPlayerState TT_ORBIT, 0
+                    Case 2:
+                        SetPlayerState TT_TARGET, 0
+                    Case 3:
+                        SetPlayerState TT_RAMP, 0
+                    Case 4:
+                        SetPlayerState TT_CAPTIVE, 0
+                    Case 5:
+                        SetPlayerState TT_SHORTCUT, 0  
+                End Select
+            Next
+        End If
+    End If
+End Sub
+
+'****************************
+' PS_TTJackpots
+' Event Listeners:          
+RegisterPlayerStateEvent TT_JACKPOTS, "PS_TTJackpots"
+'
+'*****************************
+Sub PS_TTJackpots()
+    If GetPlayerState(MODE_TT_MULTIBALL) = True And GetPlayerState(TT_JACKPOTS) = 5 And GetPlayerState(GRANDSLAM_TT) = False Then
+        'Award TT Grand Slam
+        calloutsQ.Add "ttMB", "PlayCallout(""tt-grandslam"")", 1, 0, 0, 5500, 0, False
+        SetPlayerState GRANDSLAM_TT, True
+        SetPlayerState TT_ORBIT, 1
+        SetPlayerState TT_TARGET, 1
+        SetPlayerState TT_RAMP, 1
+        SetPlayerState TT_CAPTIVE, 1
+        SetPlayerState TT_SHORTCUT, 1
+        PlayGrandSlamSeq()
+    End If
+End Sub
+
+'****************************
+' MBTT Spinner Shot
+' Event Listeners:      
+RegisterPinEvent SWITCH_HIT_SPINNER1, "MBTTSpinnerShot"
+'
+'*****************************
+Sub MBTTSpinnerShot
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        If lightCtrl.IsShotLit("MBTTSpinner", l48) = True Then
+            lightCtrl.RemoveShot "MBTTSpinner", l48
+            SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
+            AwardJackpot()
+        End If
+    End If
+End Sub
+
+'****************************
+' MBTt Left Orbit Shot
+' Event Listeners:      
+    RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "MBTTLeftOrbitShot"
+'
+'*****************************
+Sub MBTTLeftOrbitShot
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        If lightCtrl.IsShotLit("MBTTLeftOrbit", l46) = True Then
+            lightCtrl.RemoveShot "MBTTLeftOrbit", l46
+            SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
+            AwardJackpot()
+        End If
+    End If
+End Sub
+
+'****************************
+' MBTT Left Ramp Shot
+' Event Listeners:      
+    RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "MBTTLeftRampShot"
+'
+'*****************************
+Sub MBTTLeftRampShot
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        If lightCtrl.IsShotLit("MBTTLeftRamp", l47) = True Then
+            lightCtrl.RemoveShot "MBTTLeftRamp", l47
+            SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
+            AwardJackpot()
+        End If
+    End If
+End Sub
+
+'****************************
+' MBTT Right Ramp Shot
+' Event Listeners:      
+    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "MBTTRightRampShot"
+'
+'*****************************
+Sub MBTTRightRampShot
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        If lightCtrl.IsShotLit("MBTTRightRamp", l64) = True Then
+            lightCtrl.RemoveShot "MBTTRightRamp", l64
+            SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
+            AwardJackpot()
+        End If
+    End If
+End Sub
+
+'****************************
+' MBTT Right Orbit Shot
+' Event Listeners:      
+    RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "MBTTRightOrbitShot"
+'
+'*****************************
+Sub MBTTRightOrbitShot
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        If lightCtrl.IsShotLit("MBTTRightOrbit", l63) = True Then
+            lightCtrl.RemoveShot "MBTTRightOrbit", l63
+            SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
+            AwardJackpot()
+        End If
+    End If
+End Sub
+
+'****************************
+' MBTT End
+' Event Listeners:      
+RegisterPinEvent BALL_DRAIN, "MBTTEnd"
+'
+'*****************************
+Sub MBTTEnd
+    If GetPlayerState(MODE_TT_MULTIBALL) = True AND RealBallsInPlay = 1 AND ballSaver = False Then
+        SetPlayerState MODE_TT_MULTIBALL, False
+        GameTimers(GAME_TT_TIMER_IDX) = 0
+        SetPlayerState TT_COLLECTED, 0
+        lightCtrl.RemoveShot "MBTTSpinner", l48
+        lightCtrl.RemoveShot "MBTTLeftOrbit", l46
+        lightCtrl.RemoveShot "MBTTLeftRamp", l47
+        lightCtrl.RemoveShot "MBTTRightRamp", l64
+        lightCtrl.RemoveShot "MBTTRightOrbit", l63
+    End If
+End Sub
+
+'****************************
+' MBTT Timer End
+' Event Listeners:      
+RegisterPinEvent GAME_TT_TIMER_ENDED, "MBTTTimerEnd"
+'
+'*****************************
+Sub MBTTTimerEnd
+    If GetPlayerState(MODE_TT_MULTIBALL) = True Then
+        SetPlayerState MODE_TT_MULTIBALL, False
+        SetPlayerState TT_COLLECTED, 0
+        lightCtrl.RemoveShot "MBTTSpinner", l48
+        lightCtrl.RemoveShot "MBTTLeftOrbit", l46
+        lightCtrl.RemoveShot "MBTTLeftRamp", l47
+        lightCtrl.RemoveShot "MBTTRightRamp", l64
+        lightCtrl.RemoveShot "MBTTRightOrbit", l63
+        GAME_DRAIN_BALLS_AND_RESET = True
+        lightCtrl.AddTableLightSeq "GI", lSeqGIOff
+    End If
 End Sub
 
 
@@ -10259,7 +11794,6 @@ Const MUSIC1 =  "Karl Casey - White Bat I - 01 Elysium"
 Const MUSIC2 =  "Karl Casey - White Bat I - 02 Casualty"
 Const MUSIC3 =  "Karl Casey - White Bat I - 04 Patrol Bot"
 Const MUSIC4 =  "Karl Casey - White Bat I - 05 Alliance"
-Const MUSIC5 =  "Karl Casey - White Bat I - 07 Self Inflicted"
 Const MUSIC6 =  "Karl Casey - White Bat I - 08 B.F.G."
 Const MUSIC7 =  "Karl Casey - White Bat I - 09 The Witch"
 Const MUSIC8 = "Karl Casey - White Bat I - 10 The Traveler"
@@ -10281,7 +11815,7 @@ Sub MusicOn
         Case 1:PlayMusic "cyberrace\" & MUSIC2 & ".mp3", MusicVol
         Case 2:PlayMusic "cyberrace\" & MUSIC3 & ".mp3", MusicVol
         Case 3:PlayMusic "cyberrace\" & MUSIC4 & ".mp3", MusicVol
-        Case 4:PlayMusic "cyberrace\" & MUSIC5 & ".mp3", MusicVol
+        Case 4:PlayMusic "cyberrace\" & MUSIC4 & ".mp3", MusicVol
         Case 5:PlayMusic "cyberrace\" & MUSIC6 & ".mp3", MusicVol
         Case 6:PlayMusic "cyberrace\" & MUSIC7 & ".mp3", MusicVol
         Case 7:PlayMusic "cyberrace\" & MUSIC8 & ".mp3", MusicVol
@@ -10295,6 +11829,7 @@ End Sub
 Sub Table1_MusicDone()
     MusicOn
 End Sub
+
 Sub StartGame()
     gameStarted = True
     FlexDMD.Stage.GetVideo("vidIntro").Visible = False
@@ -10429,6 +11964,8 @@ Function InitNewPlayer()
     state.Add TT_CAPTIVE, 0
     state.Add TT_SHORTCUT, 0
     state.Add TT_COLLECTED, 0
+    state.Add TT_JACKPOTS, 0
+    state.Add TT_ACTIVATIONS, 1
 
     state.Add GARAGE_ENGINE, 0
     state.Add GARAGE_COOLING, 0
@@ -10455,7 +11992,6 @@ Function InitNewPlayer()
     state.Add OUTLANE_SAVE, False
     state.Add JACKPOTS_MULTIPLIER, 1
 
-    state.Add MODE_CHOOSE_SKILLSHOT, False
     state.Add MODE_SKILLSHOT_ACTIVE, False
     state.Add MODE_EMP, False
     state.Add MODE_SKILLS_TRIAL, False
@@ -10463,6 +11999,7 @@ Function InitNewPlayer()
     state.Add MODE_CYBER, False
     state.Add MODE_BET, False
     state.Add MODE_MULTIBALL, False
+    state.Add MODE_TT_MULTIBALL, False
     state.Add MODE_RACE_SELECT, False
     state.Add MODE_PERK_SELECT, False
     state.Add MODE_RACE, False
@@ -10485,22 +12022,34 @@ Function InitNewPlayer()
     state.Add RACE_MODE_3_HITS, 0
     state.Add RACE_MODE_4_HITS, 0
     state.Add RACE_MODE_3_SHOT, 0
+    state.Add RACE_MODE_5_HITS, 0
+    state.Add RACE_MODE_6_HITS, 0
     state.Add RACE_1, 0
     state.Add RACE_2, 0
     state.Add RACE_3, 0
     state.Add RACE_4, 0
     state.Add RACE_5, 0
     state.Add RACE_6, 0
+    state.Add RACE_EXTRABALL, 0
 
     state.Add BONUS_COMBOS_MADE, 0
     state.Add BONUS_RACES_WON, 0
     state.Add BONUS_NODES_COMPLETED, 0
+
+    state.Add MYSTERY_HITS, 0
 
     state.Add INITIAL_1, ""
     state.Add INITIAL_2, ""
     state.Add INITIAL_3, ""
     state.Add INITIAL_POSITION, 0
     state.Add LETTER_POSITION, 0
+
+    state.Add GRANDSLAM_TT, False
+    state.Add GRANDSLAM_RACES, False
+    state.Add GRANDSLAM_COMBO, False
+    state.Add GRANDSLAM_NODES, False
+    state.Add GRANDSLAM_SKILLS, False
+    state.Add GRANDSLAM_WIZARD_READY, False
 
     Set InitNewPlayer = state
 
@@ -10526,10 +12075,6 @@ End Sub
 '*****************************
 Sub SwitchLeftFlipperDown()
     SetGameState SWITCHES_LAST_FLIPPER_DOWN_TIME, GameTime
-    If GetPlayerState(MODE_CHOOSE_SKILLSHOT) = True Then
-        'Rotate Skillshot
-        DispatchPinEvent GAME_ROTATE_SKILLSHOT_ANTI_CLOCKWISE
-    End If
 End Sub
 
 '****************************
@@ -10540,10 +12085,6 @@ End Sub
 '*****************************
 Sub SwitchRightFlipperDown()
     SetGameState SWITCHES_LAST_FLIPPER_DOWN_TIME, GameTime
-    If GetPlayerState(MODE_CHOOSE_SKILLSHOT) = True Then
-        'Rotate Skillshot
-        DispatchPinEvent GAME_ROTATE_SKILLSHOT_CLOCKWISE
-    End If
 End Sub
 Sub BIPL_Hit()
     ballInPlungerLane = True
@@ -10556,10 +12097,16 @@ End Sub
 Sub BIPL_Top_Hit()
     ballInPlungerLane = False
     autoPlunge = False
+    If GameTilted = True Then
+        Exit Sub
+    End If
     If GetPlayerState(ENABLE_BALLSAVER) = True Then
         EnableBallSaver(20)
         SetPlayerState ENABLE_BALLSAVER, False
     End If
+
+    SetTimer "skillshot", "CancelSkillshot", 4000
+
 End Sub
 
 '****************************
@@ -10596,19 +12143,25 @@ End Sub
 ' Bumper 1 Hit
 '*****************************
 Sub Bumper1_Hit()
-    'PlaySoundAt SoundFXDOF("LeftBumper", 107, DOFPulse, DOFContactors), ActiveBall
-    RandomSoundBumperTop(Bumper1)
-    HitPopBumpers(l77)
+    If GameTilted = False Then
+        RandomSoundBumperTop(Bumper1)
+        DOF 107, DOFPulse
+        HitPopBumpers(l77)
+    End If
 End Sub
 Sub Bumper2_Hit()
-    'PlaySoundAt SoundFXDOF("RightBumper", 107, DOFPulse, DOFContactors), ActiveBall  
-    RandomSoundBumperMiddle(Bumper2)
-    HitPopBumpers(l78)
+    If GameTilted = False Then
+        RandomSoundBumperMiddle(Bumper2)
+        DOF 108, DOFPulse
+        HitPopBumpers(l78)
+    End If
 End Sub
 Sub Bumper3_Hit()
-    'PlaySoundAt SoundFXDOF("BottomBumper", 107, DOFPulse, DOFContactors), ActiveBall 
-    RandomSoundBumperBottom(Bumper3) 
-    HitPopBumpers(l79)
+    If GameTilted = False Then
+        RandomSoundBumperBottom(Bumper3) 
+        DOF 109, DOFPulse
+        HitPopBumpers(l79)
+    End If
 End Sub
 '***********************************************************************************************************************
 '*****    Ramp Switches                                        	                                                    ****
@@ -10617,6 +12170,7 @@ End Sub
 
 Sub swEnterRightRamp_Hit()
 	WireRampOn(True)
+	DispatchPinEvent SWITCH_HIT_RIGHT_RAMP_ENTER
 End Sub
 
 Sub swEnterLeftRamp_Hit()
@@ -10659,16 +12213,24 @@ End Sub
 Sub raceVuk_Timer()
     raceVuk.TimerEnabled = False
     SoundSaucerKick 1,raceVuk
-    raceVuk.Kick 65, RndInt(6,15)
+    raceVuk.Kick 65, RndInt(10,15)
     lightCtrl.pulse l141, 0
+End Sub
+
+Sub garageKicker_Hit()
+    DispatchPinEvent SWITCH_HIT_RAMP_PIN
 End Sub
 '******************************************
 Sub sw01_Hit()
-    If ballSaver = True Then
+    If ballSaver = True Or GetPlayerState(OUTLANE_SAVE) = True Then
         DispatchPinEvent BALL_SAVE
+        If ballSaver = False Then
+            SetPlayerState OUTLANE_SAVE, False
+        End If
         ballSaverIgnoreCount = ballSaverIgnoreCount+1
     Else
         PlaySoundAtLevelStatic "drain", SoundFxLevel, sw01
+        DOF 220, DOFPulse
     End If
     If GetPlayerState(LANE_R) > 0 Then
         lightCtrl.Pulse l42, 0
@@ -10693,11 +12255,15 @@ Sub sw03_Hit()
 End Sub
 '******************************************
 Sub sw04_Hit()
-    If ballSaver = True Then
+    If ballSaver = True Or GetPlayerState(OUTLANE_SAVE) = True Then
         DispatchPinEvent BALL_SAVE
+        If ballSaver = False Then
+            SetPlayerState OUTLANE_SAVE, False
+        End If
         ballSaverIgnoreCount = ballSaverIgnoreCount+1
     Else
         PlaySoundAtLevelStatic "drain", SoundFxLevel, sw04
+        DOF 221, DOFPulse
     End If
     If GetPlayerState(LANE_E) > 0 Then
         lightCtrl.Pulse l45, 0
@@ -10735,13 +12301,14 @@ Sub sw39_Hit()
     set KickerBall39 = activeball
     DispatchPinEvent SWITCH_HIT_SCOOP
     SoundSaucerLock()
-    If GetPlayerState(MODE_PERK_SELECT) = False Then
+    If GetPlayerState(MODE_PERK_SELECT) = False Or (GetPlayerState(MODE_PERK_SELECT) = False And GetPlayerState(NODE_LEVEL) < 6) Then
         sw39.TimerEnabled = True
     End If
 End Sub
 Sub sw39_Timer()
 	sw39.TimerEnabled = False
     SoundSaucerKick 1, sw39
+    DOF 235, DOFPulse
     KickBall KickerBall39, 0, 0, 55, 10
 End Sub
 '******************************************
@@ -10858,6 +12425,8 @@ End Sub
 '******************************************
 Sub sw25_Hit()
     STHit 25
+    DispatchPinEvent SWITCH_HIT_MYSTERY
+    DispatchPinEvent SWITCH_HIT_ADDTIME
 End Sub
 '******************************************
 Sub sw26_Hit()
@@ -10870,7 +12439,7 @@ Sub sw31_Hit()
 End Sub
 '******************************************
 Sub RPin_Hit()
-	DispatchPinEvent SWITCH_HIT_RAMP_PIN
+	'DispatchPinEvent SWITCH_HIT_RAMP_PIN
 End Sub
 '******************************************
 Sub ScoopBackWall_Hit()
@@ -10896,6 +12465,7 @@ End Sub
 ' Event Listeners:  
     RegisterPinEvent START_GAME,    "ReleaseBall"
     RegisterPinEvent NEXT_PLAYER,   "ReleaseBall"
+    RegisterPinEvent RELEASE_BALL,   "ReleaseBall"
 '
 '*****************************
 Sub ReleaseBall()
@@ -11015,6 +12585,33 @@ End Function
 
 Function RealBallsInPlay()
 	RealBallsInPlay = (5-BallsInTrough) - BallsOnBridge()
+End Function
+
+Function FlattenArrays(arrays)
+    Dim resultArray()
+    Dim i, j, totalSize
+    totalSize = 0
+
+    ' Calculate total size for the resultant array
+    For i = 0 To UBound(arrays)
+        totalSize = totalSize + UBound(arrays(i)) - LBound(arrays(i)) + 1
+    Next
+
+    ' Resize the resultant array
+    ReDim resultArray(totalSize - 1)
+
+    Dim currentIndex
+    currentIndex = 0
+
+    ' Iterate over each array and copy its elements to the resultArray
+    For i = 0 To UBound(arrays)
+        For j = LBound(arrays(i)) To UBound(arrays(i))
+            resultArray(currentIndex) = arrays(i)(j)
+            currentIndex = currentIndex + 1
+        Next
+    Next
+
+    FlattenArrays = resultArray
 End Function
 '*******************************************
 '  ZDRA : Drain, Trough, and Ball Release, ballsave
@@ -11190,52 +12787,15 @@ End Sub
 '*****                                                                                                              ****
 '***********************************************************************************************************************
 
-Class DOFClass
-
-    Private m_b2sOn
-    Private m_b2sAlt
-
-    Public Property Let B2SOn(ByVal value)
-        m_b2sOn = value
-    End Property
-    
-    Public Property Get B2SOn
-        B2SOn = m_b2sOn
-    End Property
-
-    Public Property Let B2SAlt(ByVal value)
-        m_b2sAlt = value
-    End Property
-    
-    Public Property Get B2SAlt
-        B2SAlt = m_b2sAlt
-    End Property
-
-    Public Sub DOF(DOFevent, State)
-        If m_b2sOn Then
-            If State = 2 Then
-                Controller.B2SSetData DOFevent, 1:Controller.B2SSetData DOFevent, 0
-            Else
-                Controller.B2SSetData DOFevent, State
-            End If
+Public Sub DOF(DOFevent, State)
+    If B2SOn = True Then
+        If State = 2 Then
+            Controller.B2SSetData DOFevent, 1:Controller.B2SSetData DOFevent, 0
+        Else
+            Controller.B2SSetData DOFevent, State
         End If
-    End Sub
-
-    Public Sub DOFALT(DOFevent, State)
-        If m_b2sAlt Then
-            If State = 2 Then
-                B2SController.B2SSetData DOFevent, 1:B2SController.B2SSetData DOFevent, 0
-            Else
-                B2SController.B2SSetData DOFevent, State
-            End If
-        End If
-    End Sub
-
-End Class
-
-
-Dim myDOF
-Set myDOF = new DOFClass
+    End If
+End Sub
 
 '***********************************************************************************************************************
 
@@ -11243,12 +12803,23 @@ Sub DispatchPinEvent(e)
     If Not pinEvents.Exists(e) Then
         Exit Sub
     End If
+    If GameTilted = True And Not e = BALL_DRAIN Then
+        Exit Sub
+    End If
     Dim x
+    If e=SWITCH_LEFT_FLIPPER_DOWN or _
+    e=SWITCH_RIGHT_FLIPPER_DOWN or _
+    e=SWITCH_LEFT_FLIPPER_UP or _
+    e=SWITCH_RIGHT_FLIPPER_UP or _
+    e=SWITCH_BOTH_FLIPPERS_PRESSED Then
+    Else
+        SetTimer "BallSearch", "BallSearch", 6000
+    End If
     For Each x in pinEvents(e).Keys()
         If pinEvents(e)(x) = True Then
             WriteToLog "Dispatching Pin Event", e &": "&x
             ExecuteGlobal x
-            AdvDebug.SendPinEvent e &": "&x
+            'AdvDebug.SendPinEvent e &": "&x
         End If
     Next
 End Sub
@@ -11260,996 +12831,10 @@ Sub RegisterPinEvent(e, v)
     pinEvents(e).Add v, True
 End Sub
 
-' ===============================================================
-' ZVLM       Virtual Pinball X Light Mapper generated code
-'
-' This file provide default implementation and template to add bakemap
-' & lightmap synchronization for position and lighting.
-'
-' Lines ending with a comment starting with "' VLM." are meant to
-' be copy/pasted ONLY ONCE, since the toolkit will take care of
-' updating them directly in your table script, each time an
-' export is made.
-
-
-' ===============================================================
-' The following code NEEDS to be copy/pasted to hide the elements 
-' that are placed to avoid stutters when VPX loads all the nestmaps
-' to the GPU. It also NEEDS the following line to be added to the.
-' table init function:
-
-	vpmTimer.AddTimer 1000, "WarmUpDone '"
-
-Sub WarmUpDone
-	VLM_Warmup_Nestmap_0.Visible = False
-	VLM_Warmup_Nestmap_1.Visible = False
-End Sub
-
-
-
-' ===============================================================
-' The following code can be copy/pasted to have premade array for
-' movable objects:
-' - _LM suffixed arrays contains the lightmaps
-' - _BM suffixed arrays contains the bakemap
-' - _BL suffixed arrays contains both the bakemap & the lightmaps
-Dim Bumpers_006_LM: Bumpers_006_LM=Array(Parts_LM_GI_l100, Parts_LM_GI_l101, Parts_LM_GI_l102, Parts_LM_GI_l103, Parts_LM_GI_l104, Parts_LM_GI_l105, Parts_LM_GI_l106, Parts_LM_GI_l107, Parts_LM_GI_l108, Parts_LM_GI_l109, Parts_LM_GI_l110, Parts_LM_GI_l111, Parts_LM_GI_l112, Parts_LM_GI_l113, Parts_LM_GI_l114, Parts_LM_GI_l117, Parts_LM_GI_l118, Parts_LM_GI_l119, Parts_LM_GI_l120, Parts_LM_GI_l121, Parts_LM_GI_l122, Parts_LM_GI_l123, Parts_LM_GI_l124, Parts_LM_GI_l125, Parts_LM_GI_l126, Parts_LM_GI_l127, Parts_LM_GI_l128, Parts_LM_GI_l129, Parts_LM_GI_l130, Parts_LM_GI_l131, Parts_LM_GI_l132, Parts_LM_GI_l133, Parts_LM_GI_l134, Parts_LM_clock_l150, Parts_LM_clock_l151, Parts_LM_clock_l152, Parts_LM_clock_l153, Parts_LM_clock_l154, Parts_LM_clock_l155, Parts_LM_clock_l156, Parts_LM_clock_l157, Parts_LM_clock_l158, Parts_LM_clock_l159, Parts_LM_clock_l160, Parts_LM_clock_l161, Parts_LM_clock_l162, Parts_LM_clock_l163, Parts_LM_clock_l164, Parts_LM_clock_l165, Parts_LM_clock_l166, Parts_LM_clock_l167, Parts_LM_clock_l168, Parts_LM_clock_l169, Parts_LM_flashers_l140, Parts_LM_flashers_l141, Parts_LM_flashers_l142, Parts_LM_flashers_l143, Parts_LM_ins_l01, Parts_LM_ins_l02, _
-Parts_LM_ins_l03, Parts_LM_ins_l05, Parts_LM_ins_l07, Parts_LM_ins_l08, Parts_LM_ins_l09, Parts_LM_ins_l10, Parts_LM_ins_l11, Parts_LM_ins_l12, Parts_LM_ins_l13, Parts_LM_ins_l14, Parts_LM_ins_l15, Parts_LM_ins_l16, Parts_LM_ins_l17, Parts_LM_ins_l18, Parts_LM_ins_l19, Parts_LM_ins_l20, Parts_LM_ins_l21, Parts_LM_ins_l22, Parts_LM_ins_l23, Parts_LM_ins_l24, Parts_LM_ins_l25, Parts_LM_ins_l26, Parts_LM_ins_l28, Parts_LM_ins_l29, Parts_LM_ins_l30, Parts_LM_ins_l31, Parts_LM_ins_l33, Parts_LM_ins_l34, Parts_LM_ins_l35, Parts_LM_ins_l37, Parts_LM_ins_l38, Parts_LM_ins_l39, Parts_LM_ins_l40, Parts_LM_ins_l42, Parts_LM_ins_l43, Parts_LM_ins_l44, Parts_LM_ins_l45, Parts_LM_ins_l46, Parts_LM_ins_l47, Parts_LM_ins_l48, Parts_LM_ins_l49, Parts_LM_ins_l50, Parts_LM_ins_l52, Parts_LM_ins_l53, Parts_LM_ins_l54, Parts_LM_ins_l55, Parts_LM_ins_l56, Parts_LM_ins_l57, Parts_LM_ins_l58, Parts_LM_ins_l59, Parts_LM_ins_l60, Parts_LM_ins_l61, Parts_LM_ins_l62, Parts_LM_ins_l63, Parts_LM_ins_l64, Parts_LM_ins_l65, Parts_LM_ins_l66, Parts_LM_ins_l67, Parts_LM_ins_l68, Parts_LM_ins_l77, Parts_LM_ins_l78, Parts_LM_ins_l79, Parts_LM_ins_l80, Parts_LM_ins_l81, Parts_LM_ins_l83, Parts_LM_ins_l84,_
-Parts_LM_ins_l91, Parts_LM_ins_l92, Parts_LM_ins_l94, Parts_LM_ins_l95, Parts_LM_neon_l69, Parts_LM_neon_l70, Parts_LM_neon_l71, Parts_LM_neon_l72, Parts_LM_neon_l73, Parts_LM_neon_l74, Parts_LM_neon_l75, Parts_LM_neon_l76) ' VLM.Array;LM;Bumpers_006
-Dim Bumpers_006_BM: Bumpers_006_BM=Array(Parts_BM_World) ' VLM.Array;BM;Bumpers_006
-Dim Bumpers_006_BL: Bumpers_006_BL=Array(Parts_BM_World, Parts_LM_GI_l100, Parts_LM_GI_l101, Parts_LM_GI_l102, Parts_LM_GI_l103, Parts_LM_GI_l104, Parts_LM_GI_l105, Parts_LM_GI_l106, Parts_LM_GI_l107, Parts_LM_GI_l108, Parts_LM_GI_l109, Parts_LM_GI_l110, Parts_LM_GI_l111, Parts_LM_GI_l112, Parts_LM_GI_l113, Parts_LM_GI_l114, Parts_LM_GI_l117, Parts_LM_GI_l118, Parts_LM_GI_l119, Parts_LM_GI_l120, Parts_LM_GI_l121, Parts_LM_GI_l122, Parts_LM_GI_l123, Parts_LM_GI_l124, Parts_LM_GI_l125, Parts_LM_GI_l126, Parts_LM_GI_l127, Parts_LM_GI_l128, Parts_LM_GI_l129, Parts_LM_GI_l130, Parts_LM_GI_l131, Parts_LM_GI_l132, Parts_LM_GI_l133, Parts_LM_GI_l134, Parts_LM_clock_l150, Parts_LM_clock_l151, Parts_LM_clock_l152, Parts_LM_clock_l153, Parts_LM_clock_l154, Parts_LM_clock_l155, Parts_LM_clock_l156, Parts_LM_clock_l157, Parts_LM_clock_l158, Parts_LM_clock_l159, Parts_LM_clock_l160, Parts_LM_clock_l161, Parts_LM_clock_l162, Parts_LM_clock_l163, Parts_LM_clock_l164, Parts_LM_clock_l165, Parts_LM_clock_l166, Parts_LM_clock_l167, Parts_LM_clock_l168, Parts_LM_clock_l169, Parts_LM_flashers_l140, Parts_LM_flashers_l141, Parts_LM_flashers_l142, Parts_LM_flashers_l143, Parts_LM_ins_l01, _
-Parts_LM_ins_l02, Parts_LM_ins_l03, Parts_LM_ins_l05, Parts_LM_ins_l07, Parts_LM_ins_l08, Parts_LM_ins_l09, Parts_LM_ins_l10, Parts_LM_ins_l11, Parts_LM_ins_l12, Parts_LM_ins_l13, Parts_LM_ins_l14, Parts_LM_ins_l15, Parts_LM_ins_l16, Parts_LM_ins_l17, Parts_LM_ins_l18, Parts_LM_ins_l19, Parts_LM_ins_l20, Parts_LM_ins_l21, Parts_LM_ins_l22, Parts_LM_ins_l23, Parts_LM_ins_l24, Parts_LM_ins_l25, Parts_LM_ins_l26, Parts_LM_ins_l28, Parts_LM_ins_l29, Parts_LM_ins_l30, Parts_LM_ins_l31, Parts_LM_ins_l33, Parts_LM_ins_l34, Parts_LM_ins_l35, Parts_LM_ins_l37, Parts_LM_ins_l38, Parts_LM_ins_l39, Parts_LM_ins_l40, Parts_LM_ins_l42, Parts_LM_ins_l43, Parts_LM_ins_l44, Parts_LM_ins_l45, Parts_LM_ins_l46, Parts_LM_ins_l47, Parts_LM_ins_l48, Parts_LM_ins_l49, Parts_LM_ins_l50, Parts_LM_ins_l52, Parts_LM_ins_l53, Parts_LM_ins_l54, Parts_LM_ins_l55, Parts_LM_ins_l56, Parts_LM_ins_l57, Parts_LM_ins_l58, Parts_LM_ins_l59, Parts_LM_ins_l60, Parts_LM_ins_l61, Parts_LM_ins_l62, Parts_LM_ins_l63, Parts_LM_ins_l64, Parts_LM_ins_l65, Parts_LM_ins_l66, Parts_LM_ins_l67, Parts_LM_ins_l68, Parts_LM_ins_l77, Parts_LM_ins_l78, Parts_LM_ins_l79, Parts_LM_ins_l80, Parts_LM_ins_l81, Parts_LM_ins_l83, Parts_LM_ins_l84, Parts_LM_ins_l91, Parts_LM_ins_l92, Parts_LM_ins_l94, Parts_LM_ins_l95, Parts_LM_neon_l69, Parts_LM_neon_l70, Parts_LM_neon_l71, Parts_LM_neon_l72, Parts_LM_neon_l73, Parts_LM_neon_l74, Parts_LM_neon_l75, Parts_LM_neon_l76) ' VLM.Array;BL;Bumpers_006
-Dim Disc_LM: Disc_LM=Array(Disc_LM_GI_l109, Disc_LM_flashers_l142, Disc_LM_ins_l06, Disc_LM_ins_l10, Disc_LM_ins_l59) ' VLM.Array;LM;Disc
-Dim Disc_BM: Disc_BM=Array(Disc_BM_World) ' VLM.Array;BM;Disc
-Dim Disc_BL: Disc_BL=Array(Disc_BM_World, Disc_LM_GI_l109, Disc_LM_flashers_l142, Disc_LM_ins_l06, Disc_LM_ins_l10, Disc_LM_ins_l59) ' VLM.Array;BL;Disc
-Dim FlipperL_LM: FlipperL_LM=Array(FlipperL_LM_flashers_l143, FlipperL_LM_ins_l56) ' VLM.Array;LM;FlipperL
-Dim FlipperL_BM: FlipperL_BM=Array(FlipperL_BM_World) ' VLM.Array;BM;FlipperL
-Dim FlipperL_BL: FlipperL_BL=Array(FlipperL_BM_World, FlipperL_LM_flashers_l143, FlipperL_LM_ins_l56) ' VLM.Array;BL;FlipperL
-Dim FlipperR_LM: FlipperR_LM=Array(FlipperR_LM_ins_l57) ' VLM.Array;LM;FlipperR
-Dim FlipperR_BM: FlipperR_BM=Array(FlipperR_BM_World) ' VLM.Array;BM;FlipperR
-Dim FlipperR_BL: FlipperR_BL=Array(FlipperR_BM_World, FlipperR_LM_ins_l57) ' VLM.Array;BL;FlipperR
-Dim FlipperU_LM: FlipperU_LM=Array(FlipperU_LM_GI_l117, FlipperU_LM_GI_l120, FlipperU_LM_flashers_l140, FlipperU_LM_flashers_l142, FlipperU_LM_flashers_l143, FlipperU_LM_ins_l01, FlipperU_LM_ins_l33, FlipperU_LM_ins_l65) ' VLM.Array;LM;FlipperU
-Dim FlipperU_BM: FlipperU_BM=Array(FlipperU_BM_World) ' VLM.Array;BM;FlipperU
-Dim FlipperU_BL: FlipperU_BL=Array(FlipperU_BM_World, FlipperU_LM_GI_l117, FlipperU_LM_GI_l120, FlipperU_LM_flashers_l140, FlipperU_LM_flashers_l142, FlipperU_LM_flashers_l143, FlipperU_LM_ins_l01, FlipperU_LM_ins_l33, FlipperU_LM_ins_l65) ' VLM.Array;BL;FlipperU
-Dim PinCab_Rails_LM: PinCab_Rails_LM=Array(PinCab_Rails_LM_flashers_l141, PinCab_Rails_LM_flashers_l143, PinCab_Rails_LM_ins_l94) ' VLM.Array;LM;PinCab_Rails
-Dim PinCab_Rails_BM: PinCab_Rails_BM=Array(PinCab_Rails_BM_World) ' VLM.Array;BM;PinCab_Rails
-Dim PinCab_Rails_BL: PinCab_Rails_BL=Array(PinCab_Rails_BM_World, PinCab_Rails_LM_flashers_l141, PinCab_Rails_LM_flashers_l143, PinCab_Rails_LM_ins_l94) ' VLM.Array;BL;PinCab_Rails
-Dim Spinner_SternFlap_LM: Spinner_SternFlap_LM=Array(Spinner_SternFlap_LM_GI_l109, Spinner_SternFlap_LM_ins_l24, Spinner_SternFlap_LM_ins_l48, Spinner_SternFlap_LM_ins_l59) ' VLM.Array;LM;Spinner_SternFlap
-Dim Spinner_SternFlap_BM: Spinner_SternFlap_BM=Array(Spinner_SternFlap_BM_World) ' VLM.Array;BM;Spinner_SternFlap
-Dim Spinner_SternFlap_BL: Spinner_SternFlap_BL=Array(Spinner_SternFlap_BM_World, Spinner_SternFlap_LM_GI_l109, Spinner_SternFlap_LM_ins_l24, Spinner_SternFlap_LM_ins_l48, Spinner_SternFlap_LM_ins_l59) ' VLM.Array;BL;Spinner_SternFlap
-Dim Spinner2_LM: Spinner2_LM=Array(Spinner2_LM_GI_l111, Spinner2_LM_GI_l112, Spinner2_LM_GI_l132, Spinner2_LM_flashers_l141, Spinner2_LM_ins_l17, Spinner2_LM_ins_l18, Spinner2_LM_ins_l19, Spinner2_LM_ins_l23, Spinner2_LM_ins_l61, Spinner2_LM_ins_l91) ' VLM.Array;LM;Spinner2
-Dim Spinner2_BM: Spinner2_BM=Array(Spinner2_BM_World) ' VLM.Array;BM;Spinner2
-Dim Spinner2_BL: Spinner2_BL=Array(Spinner2_BM_World, Spinner2_LM_GI_l111, Spinner2_LM_GI_l112, Spinner2_LM_GI_l132, Spinner2_LM_flashers_l141, Spinner2_LM_ins_l17, Spinner2_LM_ins_l18, Spinner2_LM_ins_l19, Spinner2_LM_ins_l23, Spinner2_LM_ins_l61, Spinner2_LM_ins_l91) ' VLM.Array;BL;Spinner2
-Dim sw10_LM: sw10_LM=Array(sw10_LM_GI_l117, sw10_LM_GI_l118, sw10_LM_flashers_l140, sw10_LM_ins_l01, sw10_LM_ins_l02, sw10_LM_ins_l03, sw10_LM_ins_l05, sw10_LM_ins_l07) ' VLM.Array;LM;sw10
-Dim sw10_BM: sw10_BM=Array(sw10_BM_World) ' VLM.Array;BM;sw10
-Dim sw10_BL: sw10_BL=Array(sw10_BM_World, sw10_LM_GI_l117, sw10_LM_GI_l118, sw10_LM_flashers_l140, sw10_LM_ins_l01, sw10_LM_ins_l02, sw10_LM_ins_l03, sw10_LM_ins_l05, sw10_LM_ins_l07) ' VLM.Array;BL;sw10
-Dim sw11_LM: sw11_LM=Array(sw11_LM_GI_l117, sw11_LM_GI_l118, sw11_LM_ins_l01, sw11_LM_ins_l02, sw11_LM_ins_l05, sw11_LM_ins_l07, sw11_LM_ins_l08, sw11_LM_ins_l11) ' VLM.Array;LM;sw11
-Dim sw11_BM: sw11_BM=Array(sw11_BM_World) ' VLM.Array;BM;sw11
-Dim sw11_BL: sw11_BL=Array(sw11_BM_World, sw11_LM_GI_l117, sw11_LM_GI_l118, sw11_LM_ins_l01, sw11_LM_ins_l02, sw11_LM_ins_l05, sw11_LM_ins_l07, sw11_LM_ins_l08, sw11_LM_ins_l11) ' VLM.Array;BL;sw11
-Dim sw12_LM: sw12_LM=Array(sw12_LM_GI_l117, sw12_LM_GI_l118, sw12_LM_ins_l05, sw12_LM_ins_l07, sw12_LM_ins_l11, sw12_LM_ins_l12) ' VLM.Array;LM;sw12
-Dim sw12_BM: sw12_BM=Array(sw12_BM_World) ' VLM.Array;BM;sw12
-Dim sw12_BL: sw12_BL=Array(sw12_BM_World, sw12_LM_GI_l117, sw12_LM_GI_l118, sw12_LM_ins_l05, sw12_LM_ins_l07, sw12_LM_ins_l11, sw12_LM_ins_l12) ' VLM.Array;BL;sw12
-Dim sw18_LM: sw18_LM=Array(sw18_LM_GI_l109, sw18_LM_ins_l48, sw18_LM_ins_l59) ' VLM.Array;LM;sw18
-Dim sw18_BM: sw18_BM=Array(sw18_BM_World) ' VLM.Array;BM;sw18
-Dim sw18_BL: sw18_BL=Array(sw18_BM_World, sw18_LM_GI_l109, sw18_LM_ins_l48, sw18_LM_ins_l59) ' VLM.Array;BL;sw18
-Dim sw19_LM: sw19_LM=Array(sw19_LM_GI_l128, sw19_LM_ins_l37, sw19_LM_ins_l38, sw19_LM_ins_l39, sw19_LM_ins_l47, sw19_LM_ins_l60) ' VLM.Array;LM;sw19
-Dim sw19_BM: sw19_BM=Array(sw19_BM_World) ' VLM.Array;BM;sw19
-Dim sw19_BL: sw19_BL=Array(sw19_BM_World, sw19_LM_GI_l128, sw19_LM_ins_l37, sw19_LM_ins_l38, sw19_LM_ins_l39, sw19_LM_ins_l47, sw19_LM_ins_l60) ' VLM.Array;BL;sw19
-Dim sw20_LM: sw20_LM=Array(sw20_LM_GI_l132, sw20_LM_flashers_l141, sw20_LM_ins_l23, sw20_LM_ins_l61, sw20_LM_ins_l91) ' VLM.Array;LM;sw20
-Dim sw20_BM: sw20_BM=Array(sw20_BM_World) ' VLM.Array;BM;sw20
-Dim sw20_BL: sw20_BL=Array(sw20_BM_World, sw20_LM_GI_l132, sw20_LM_flashers_l141, sw20_LM_ins_l23, sw20_LM_ins_l61, sw20_LM_ins_l91) ' VLM.Array;BL;sw20
-Dim sw21_LM: sw21_LM=Array(sw21_LM_GI_l111, sw21_LM_flashers_l141, sw21_LM_ins_l17, sw21_LM_ins_l18, sw21_LM_ins_l19) ' VLM.Array;LM;sw21
-Dim sw21_BM: sw21_BM=Array(sw21_BM_World) ' VLM.Array;BM;sw21
-Dim sw21_BL: sw21_BL=Array(sw21_BM_World, sw21_LM_GI_l111, sw21_LM_flashers_l141, sw21_LM_ins_l17, sw21_LM_ins_l18, sw21_LM_ins_l19) ' VLM.Array;BL;sw21
-Dim sw22_LM: sw22_LM=Array(sw22_LM_GI_l111, sw22_LM_flashers_l141, sw22_LM_ins_l18, sw22_LM_ins_l19) ' VLM.Array;LM;sw22
-Dim sw22_BM: sw22_BM=Array(sw22_BM_World) ' VLM.Array;BM;sw22
-Dim sw22_BL: sw22_BL=Array(sw22_BM_World, sw22_LM_GI_l111, sw22_LM_flashers_l141, sw22_LM_ins_l18, sw22_LM_ins_l19) ' VLM.Array;BL;sw22
-Dim sw23_LM: sw23_LM=Array(sw23_LM_flashers_l141, sw23_LM_ins_l18, sw23_LM_ins_l19) ' VLM.Array;LM;sw23
-Dim sw23_BM: sw23_BM=Array(sw23_BM_World) ' VLM.Array;BM;sw23
-Dim sw23_BL: sw23_BL=Array(sw23_BM_World, sw23_LM_flashers_l141, sw23_LM_ins_l18, sw23_LM_ins_l19) ' VLM.Array;BL;sw23
-Dim sw25_LM: sw25_LM=Array(sw25_LM_GI_l109, sw25_LM_ins_l49) ' VLM.Array;LM;sw25
-Dim sw25_BM: sw25_BM=Array(sw25_BM_World) ' VLM.Array;BM;sw25
-Dim sw25_BL: sw25_BL=Array(sw25_BM_World, sw25_LM_GI_l109, sw25_LM_ins_l49) ' VLM.Array;BL;sw25
-
-
-' ===============================================================
-' The following code can be copy/pasted to have premade array for
-' VLM Visuals Room Brightness:
-
-Dim BM_Room : BM_Room = Array(Disc_BM_World, FlipperL_BM_World, FlipperR_BM_World, FlipperU_BM_World, Layer1_BM_World, Neon_BM_World, Parts_BM_World, PartsNew_BM_World, PinCab_Rails_BM_World, playfield_mesh, Spinner_SternFlap_BM_World, Spinner2_BM_World, UnderPF_BM_World, sw10_BM_World, sw11_BM_World, sw12_BM_World, sw18_BM_World, sw19_BM_World, sw20_BM_World, sw21_BM_World, sw22_BM_World, sw23_BM_World, sw25_BM_World) ' VLM.Array;BM_Room
-
-
-
-
-Sub LampzHelper
-
-Lampz.MassAssign(70) = l70 ' VLM.Lampz;neon-l70
-	Lampz.Callback(70) = "UpdateLightMap Playfield_LM_neon_l70, 100.0, " ' VLM.Lampz;neon-l70
-	Lampz.Callback(70) = "UpdateLightMap UnderPF_LM_neon_l70, 100.0, " ' VLM.Lampz;neon-l70
-	Lampz.Callback(70) = "UpdateLightMap Parts_LM_neon_l70, 100.0, " ' VLM.Lampz;neon-l70
-	Lampz.MassAssign(69) = l69 ' VLM.Lampz;neon-l69
-	Lampz.Callback(69) = "UpdateLightMap Playfield_LM_neon_l69, 100.0, " ' VLM.Lampz;neon-l69
-	Lampz.Callback(69) = "UpdateLightMap UnderPF_LM_neon_l69, 100.0, " ' VLM.Lampz;neon-l69
-	Lampz.Callback(69) = "UpdateLightMap Parts_LM_neon_l69, 100.0, " ' VLM.Lampz;neon-l69
-	Lampz.MassAssign(72) = l72 ' VLM.Lampz;neon-l72
-	Lampz.Callback(72) = "UpdateLightMap UnderPF_LM_neon_l72, 100.0, " ' VLM.Lampz;neon-l72
-	Lampz.Callback(72) = "UpdateLightMap Parts_LM_neon_l72, 100.0, " ' VLM.Lampz;neon-l72
-	Lampz.MassAssign(71) = l71 ' VLM.Lampz;neon-l71
-	Lampz.Callback(71) = "UpdateLightMap UnderPF_LM_neon_l71, 100.0, " ' VLM.Lampz;neon-l71
-	Lampz.Callback(71) = "UpdateLightMap Parts_LM_neon_l71, 100.0, " ' VLM.Lampz;neon-l71
-	Lampz.MassAssign(74) = l74 ' VLM.Lampz;neon-l74
-	Lampz.Callback(74) = "UpdateLightMap UnderPF_LM_neon_l74, 100.0, " ' VLM.Lampz;neon-l74
-	Lampz.Callback(74) = "UpdateLightMap Parts_LM_neon_l74, 100.0, " ' VLM.Lampz;neon-l74
-	Lampz.MassAssign(75) = l75 ' VLM.Lampz;neon-l75
-	Lampz.Callback(75) = "UpdateLightMap UnderPF_LM_neon_l75, 100.0, " ' VLM.Lampz;neon-l75
-	Lampz.Callback(75) = "UpdateLightMap Parts_LM_neon_l75, 100.0, " ' VLM.Lampz;neon-l75
-	Lampz.MassAssign(76) = l76 ' VLM.Lampz;neon-l76
-	Lampz.Callback(76) = "UpdateLightMap UnderPF_LM_neon_l76, 100.0, " ' VLM.Lampz;neon-l76
-	Lampz.Callback(76) = "UpdateLightMap Parts_LM_neon_l76, 100.0, " ' VLM.Lampz;neon-l76
-	Lampz.MassAssign(73) = l73 ' VLM.Lampz;neon-l73
-	Lampz.Callback(73) = "UpdateLightMap UnderPF_LM_neon_l73, 100.0, " ' VLM.Lampz;neon-l73
-	Lampz.Callback(73) = "UpdateLightMap Parts_LM_neon_l73, 100.0, " ' VLM.Lampz;neon-l73
-	Lampz.Callback(73) = "UpdateLightMap Layer1_LM_neon_l73, 100.0, " ' VLM.Lampz;neon-l73
-	Lampz.MassAssign(140) = l140 ' VLM.Lampz;flashers-l140
-	Lampz.Callback(140) = "UpdateLightMap FlipperU_LM_flashers_l140, 100.0, " ' VLM.Lampz;flashers-l140
-	Lampz.Callback(140) = "UpdateLightMap sw10_LM_flashers_l140, 100.0, " ' VLM.Lampz;flashers-l140
-	Lampz.Callback(140) = "UpdateLightMap UnderPF_LM_flashers_l140, 100.0, " ' VLM.Lampz;flashers-l140
-	Lampz.Callback(140) = "UpdateLightMap Parts_LM_flashers_l140, 100.0, " ' VLM.Lampz;flashers-l140
-	Lampz.Callback(140) = "UpdateLightMap Layer1_LM_flashers_l140, 100.0, " ' VLM.Lampz;flashers-l140
-	Lampz.MassAssign(141) = l141 ' VLM.Lampz;flashers-l141
-	Lampz.Callback(141) = "UpdateLightMap Playfield_LM_flashers_l141, 100.0, " ' VLM.Lampz;flashers-l141
-	Lampz.Callback(141) = "UpdateLightMap PinCab_Rails_LM_flashers_l141, 100.0, " ' VLM.Lampz;flashers-l141
-	Lampz.Callback(141) = "UpdateLightMap Spinner2_LM_flashers_l141, 100.0, " ' VLM.Lampz;flashers-l141
-	Lampz.Callback(141) = "UpdateLightMap sw20_LM_flashers_l141, 100.0, " ' VLM.Lampz;flashers-l141
-	Lampz.Callback(141) = "UpdateLightMap sw21_LM_flashers_l141, 100.0, " ' VLM.Lampz;flashers-l141
-	Lampz.Callback(141) = "UpdateLightMap sw22_LM_flashers_l141, 100.0, " ' VLM.Lampz;flashers-l141
-	Lampz.Callback(141) = "UpdateLightMap sw23_LM_flashers_l141, 100.0, " ' VLM.Lampz;flashers-l141
-	Lampz.Callback(141) = "UpdateLightMap UnderPF_LM_flashers_l141, 100.0, " ' VLM.Lampz;flashers-l141
-	Lampz.Callback(141) = "UpdateLightMap Parts_LM_flashers_l141, 100.0, " ' VLM.Lampz;flashers-l141
-	Lampz.Callback(141) = "UpdateLightMap Layer1_LM_flashers_l141, 100.0, " ' VLM.Lampz;flashers-l141
-	Lampz.MassAssign(142) = l142 ' VLM.Lampz;flashers-l142
-	Lampz.Callback(142) = "UpdateLightMap Playfield_LM_flashers_l142, 100.0, " ' VLM.Lampz;flashers-l142
-	Lampz.Callback(142) = "UpdateLightMap Disc_LM_flashers_l142, 100.0, " ' VLM.Lampz;flashers-l142
-	Lampz.Callback(142) = "UpdateLightMap FlipperU_LM_flashers_l142, 100.0, " ' VLM.Lampz;flashers-l142
-	Lampz.Callback(142) = "UpdateLightMap UnderPF_LM_flashers_l142, 100.0, " ' VLM.Lampz;flashers-l142
-	Lampz.Callback(142) = "UpdateLightMap Parts_LM_flashers_l142, 100.0, " ' VLM.Lampz;flashers-l142
-	Lampz.MassAssign(143) = l143 ' VLM.Lampz;flashers-l143
-	Lampz.Callback(143) = "UpdateLightMap FlipperL_LM_flashers_l143, 100.0, " ' VLM.Lampz;flashers-l143
-	Lampz.Callback(143) = "UpdateLightMap FlipperU_LM_flashers_l143, 100.0, " ' VLM.Lampz;flashers-l143
-	Lampz.Callback(143) = "UpdateLightMap PinCab_Rails_LM_flashers_l143, 100.0, " ' VLM.Lampz;flashers-l143
-	Lampz.Callback(143) = "UpdateLightMap UnderPF_LM_flashers_l143, 100.0, " ' VLM.Lampz;flashers-l143
-	Lampz.Callback(143) = "UpdateLightMap Parts_LM_flashers_l143, 100.0, " ' VLM.Lampz;flashers-l143
-	Lampz.MassAssign(01) = l01 ' VLM.Lampz;ins-l01
-	Lampz.Callback(01) = "UpdateLightMap Playfield_LM_ins_l01, 100.0, " ' VLM.Lampz;ins-l01
-	Lampz.Callback(01) = "UpdateLightMap FlipperU_LM_ins_l01, 100.0, " ' VLM.Lampz;ins-l01
-	Lampz.Callback(01) = "UpdateLightMap sw10_LM_ins_l01, 100.0, " ' VLM.Lampz;ins-l01
-	Lampz.Callback(01) = "UpdateLightMap sw11_LM_ins_l01, 100.0, " ' VLM.Lampz;ins-l01
-	Lampz.Callback(01) = "UpdateLightMap UnderPF_LM_ins_l01, 100.0, " ' VLM.Lampz;ins-l01
-	Lampz.Callback(01) = "UpdateLightMap Parts_LM_ins_l01, 100.0, " ' VLM.Lampz;ins-l01
-	Lampz.MassAssign(02) = l02 ' VLM.Lampz;ins-l02
-	Lampz.Callback(02) = "UpdateLightMap Playfield_LM_ins_l02, 100.0, " ' VLM.Lampz;ins-l02
-	Lampz.Callback(02) = "UpdateLightMap sw10_LM_ins_l02, 100.0, " ' VLM.Lampz;ins-l02
-	Lampz.Callback(02) = "UpdateLightMap sw11_LM_ins_l02, 100.0, " ' VLM.Lampz;ins-l02
-	Lampz.Callback(02) = "UpdateLightMap UnderPF_LM_ins_l02, 100.0, " ' VLM.Lampz;ins-l02
-	Lampz.Callback(02) = "UpdateLightMap Parts_LM_ins_l02, 100.0, " ' VLM.Lampz;ins-l02
-	Lampz.MassAssign(03) = l03 ' VLM.Lampz;ins-l03
-	Lampz.Callback(03) = "UpdateLightMap Playfield_LM_ins_l03, 100.0, " ' VLM.Lampz;ins-l03
-	Lampz.Callback(03) = "UpdateLightMap sw10_LM_ins_l03, 100.0, " ' VLM.Lampz;ins-l03
-	Lampz.Callback(03) = "UpdateLightMap UnderPF_LM_ins_l03, 100.0, " ' VLM.Lampz;ins-l03
-	Lampz.Callback(03) = "UpdateLightMap Parts_LM_ins_l03, 100.0, " ' VLM.Lampz;ins-l03
-	Lampz.MassAssign(04) = l04 ' VLM.Lampz;ins-l04
-	Lampz.Callback(04) = "UpdateLightMap Playfield_LM_ins_l04, 100.0, " ' VLM.Lampz;ins-l04
-	Lampz.Callback(04) = "UpdateLightMap UnderPF_LM_ins_l04, 100.0, " ' VLM.Lampz;ins-l04
-	Lampz.MassAssign(05) = l05 ' VLM.Lampz;ins-l05
-	Lampz.Callback(05) = "UpdateLightMap Playfield_LM_ins_l05, 100.0, " ' VLM.Lampz;ins-l05
-	Lampz.Callback(05) = "UpdateLightMap sw10_LM_ins_l05, 100.0, " ' VLM.Lampz;ins-l05
-	Lampz.Callback(05) = "UpdateLightMap sw11_LM_ins_l05, 100.0, " ' VLM.Lampz;ins-l05
-	Lampz.Callback(05) = "UpdateLightMap sw12_LM_ins_l05, 100.0, " ' VLM.Lampz;ins-l05
-	Lampz.Callback(05) = "UpdateLightMap UnderPF_LM_ins_l05, 100.0, " ' VLM.Lampz;ins-l05
-	Lampz.Callback(05) = "UpdateLightMap Parts_LM_ins_l05, 100.0, " ' VLM.Lampz;ins-l05
-	Lampz.MassAssign(06) = l06 ' VLM.Lampz;ins-l06
-	Lampz.Callback(06) = "UpdateLightMap Playfield_LM_ins_l06, 100.0, " ' VLM.Lampz;ins-l06
-	Lampz.Callback(06) = "UpdateLightMap Disc_LM_ins_l06, 100.0, " ' VLM.Lampz;ins-l06
-	Lampz.Callback(06) = "UpdateLightMap UnderPF_LM_ins_l06, 100.0, " ' VLM.Lampz;ins-l06
-	Lampz.MassAssign(07) = l07 ' VLM.Lampz;ins-l07
-	Lampz.Callback(07) = "UpdateLightMap Playfield_LM_ins_l07, 100.0, " ' VLM.Lampz;ins-l07
-	Lampz.Callback(07) = "UpdateLightMap sw10_LM_ins_l07, 100.0, " ' VLM.Lampz;ins-l07
-	Lampz.Callback(07) = "UpdateLightMap sw11_LM_ins_l07, 100.0, " ' VLM.Lampz;ins-l07
-	Lampz.Callback(07) = "UpdateLightMap sw12_LM_ins_l07, 100.0, " ' VLM.Lampz;ins-l07
-	Lampz.Callback(07) = "UpdateLightMap UnderPF_LM_ins_l07, 100.0, " ' VLM.Lampz;ins-l07
-	Lampz.Callback(07) = "UpdateLightMap Parts_LM_ins_l07, 100.0, " ' VLM.Lampz;ins-l07
-	Lampz.MassAssign(08) = l08 ' VLM.Lampz;ins-l08
-	Lampz.Callback(08) = "UpdateLightMap Playfield_LM_ins_l08, 100.0, " ' VLM.Lampz;ins-l08
-	Lampz.Callback(08) = "UpdateLightMap sw11_LM_ins_l08, 100.0, " ' VLM.Lampz;ins-l08
-	Lampz.Callback(08) = "UpdateLightMap UnderPF_LM_ins_l08, 100.0, " ' VLM.Lampz;ins-l08
-	Lampz.Callback(08) = "UpdateLightMap Parts_LM_ins_l08, 100.0, " ' VLM.Lampz;ins-l08
-	Lampz.MassAssign(09) = l09 ' VLM.Lampz;ins-l09
-	Lampz.Callback(09) = "UpdateLightMap Playfield_LM_ins_l09, 100.0, " ' VLM.Lampz;ins-l09
-	Lampz.Callback(09) = "UpdateLightMap UnderPF_LM_ins_l09, 100.0, " ' VLM.Lampz;ins-l09
-	Lampz.Callback(09) = "UpdateLightMap Parts_LM_ins_l09, 100.0, " ' VLM.Lampz;ins-l09
-	Lampz.MassAssign(100) = l100 ' VLM.Lampz;GI-l100
-	Lampz.Callback(100) = "UpdateLightMap Playfield_LM_GI_l100, 100.0, " ' VLM.Lampz;GI-l100
-	Lampz.Callback(100) = "UpdateLightMap UnderPF_LM_GI_l100, 100.0, " ' VLM.Lampz;GI-l100
-	Lampz.Callback(100) = "UpdateLightMap Parts_LM_GI_l100, 100.0, " ' VLM.Lampz;GI-l100
-	Lampz.MassAssign(101) = l101 ' VLM.Lampz;GI-l101
-	Lampz.Callback(101) = "UpdateLightMap Playfield_LM_GI_l101, 100.0, " ' VLM.Lampz;GI-l101
-	Lampz.Callback(101) = "UpdateLightMap UnderPF_LM_GI_l101, 100.0, " ' VLM.Lampz;GI-l101
-	Lampz.Callback(101) = "UpdateLightMap Parts_LM_GI_l101, 100.0, " ' VLM.Lampz;GI-l101
-	Lampz.MassAssign(102) = l102 ' VLM.Lampz;GI-l102
-	Lampz.Callback(102) = "UpdateLightMap Playfield_LM_GI_l102, 100.0, " ' VLM.Lampz;GI-l102
-	Lampz.Callback(102) = "UpdateLightMap Parts_LM_GI_l102, 100.0, " ' VLM.Lampz;GI-l102
-	Lampz.MassAssign(103) = l103 ' VLM.Lampz;GI-l103
-	Lampz.Callback(103) = "UpdateLightMap Playfield_LM_GI_l103, 100.0, " ' VLM.Lampz;GI-l103
-	Lampz.Callback(103) = "UpdateLightMap Parts_LM_GI_l103, 100.0, " ' VLM.Lampz;GI-l103
-	Lampz.MassAssign(104) = l104 ' VLM.Lampz;GI-l104
-	Lampz.Callback(104) = "UpdateLightMap Playfield_LM_GI_l104, 100.0, " ' VLM.Lampz;GI-l104
-	Lampz.Callback(104) = "UpdateLightMap UnderPF_LM_GI_l104, 100.0, " ' VLM.Lampz;GI-l104
-	Lampz.Callback(104) = "UpdateLightMap Parts_LM_GI_l104, 100.0, " ' VLM.Lampz;GI-l104
-	Lampz.MassAssign(105) = l105 ' VLM.Lampz;GI-l105
-	Lampz.Callback(105) = "UpdateLightMap Playfield_LM_GI_l105, 100.0, " ' VLM.Lampz;GI-l105
-	Lampz.Callback(105) = "UpdateLightMap UnderPF_LM_GI_l105, 100.0, " ' VLM.Lampz;GI-l105
-	Lampz.Callback(105) = "UpdateLightMap Parts_LM_GI_l105, 100.0, " ' VLM.Lampz;GI-l105
-	Lampz.MassAssign(106) = l106 ' VLM.Lampz;GI-l106
-	Lampz.Callback(106) = "UpdateLightMap Playfield_LM_GI_l106, 100.0, " ' VLM.Lampz;GI-l106
-	Lampz.Callback(106) = "UpdateLightMap UnderPF_LM_GI_l106, 100.0, " ' VLM.Lampz;GI-l106
-	Lampz.Callback(106) = "UpdateLightMap Parts_LM_GI_l106, 100.0, " ' VLM.Lampz;GI-l106
-	Lampz.MassAssign(107) = l107 ' VLM.Lampz;GI-l107
-	Lampz.Callback(107) = "UpdateLightMap Playfield_LM_GI_l107, 100.0, " ' VLM.Lampz;GI-l107
-	Lampz.Callback(107) = "UpdateLightMap Parts_LM_GI_l107, 100.0, " ' VLM.Lampz;GI-l107
-	Lampz.MassAssign(108) = l108 ' VLM.Lampz;GI-l108
-	Lampz.Callback(108) = "UpdateLightMap Playfield_LM_GI_l108, 100.0, " ' VLM.Lampz;GI-l108
-	Lampz.Callback(108) = "UpdateLightMap UnderPF_LM_GI_l108, 100.0, " ' VLM.Lampz;GI-l108
-	Lampz.Callback(108) = "UpdateLightMap Parts_LM_GI_l108, 100.0, " ' VLM.Lampz;GI-l108
-	Lampz.MassAssign(109) = l109 ' VLM.Lampz;GI-l109
-	Lampz.Callback(109) = "UpdateLightMap Playfield_LM_GI_l109, 100.0, " ' VLM.Lampz;GI-l109
-	Lampz.Callback(109) = "UpdateLightMap Disc_LM_GI_l109, 100.0, " ' VLM.Lampz;GI-l109
-	Lampz.Callback(109) = "UpdateLightMap Spinner_SternFlap_LM_GI_l109, 100.0, " ' VLM.Lampz;GI-l109
-	Lampz.Callback(109) = "UpdateLightMap sw18_LM_GI_l109, 100.0, " ' VLM.Lampz;GI-l109
-	Lampz.Callback(109) = "UpdateLightMap sw25_LM_GI_l109, 100.0, " ' VLM.Lampz;GI-l109
-	Lampz.Callback(109) = "UpdateLightMap Parts_LM_GI_l109, 100.0, " ' VLM.Lampz;GI-l109
-	Lampz.MassAssign(10) = l10 ' VLM.Lampz;ins-l10
-	Lampz.Callback(10) = "UpdateLightMap Playfield_LM_ins_l10, 100.0, " ' VLM.Lampz;ins-l10
-	Lampz.Callback(10) = "UpdateLightMap Disc_LM_ins_l10, 100.0, " ' VLM.Lampz;ins-l10
-	Lampz.Callback(10) = "UpdateLightMap UnderPF_LM_ins_l10, 100.0, " ' VLM.Lampz;ins-l10
-	Lampz.Callback(10) = "UpdateLightMap Parts_LM_ins_l10, 100.0, " ' VLM.Lampz;ins-l10
-	Lampz.MassAssign(110) = l110 ' VLM.Lampz;GI-l110
-	Lampz.Callback(110) = "UpdateLightMap Playfield_LM_GI_l110, 100.0, " ' VLM.Lampz;GI-l110
-	Lampz.Callback(110) = "UpdateLightMap UnderPF_LM_GI_l110, 100.0, " ' VLM.Lampz;GI-l110
-	Lampz.Callback(110) = "UpdateLightMap Parts_LM_GI_l110, 100.0, " ' VLM.Lampz;GI-l110
-	Lampz.MassAssign(111) = l111 ' VLM.Lampz;GI-l111
-	Lampz.Callback(111) = "UpdateLightMap Playfield_LM_GI_l111, 100.0, " ' VLM.Lampz;GI-l111
-	Lampz.Callback(111) = "UpdateLightMap Spinner2_LM_GI_l111, 100.0, " ' VLM.Lampz;GI-l111
-	Lampz.Callback(111) = "UpdateLightMap sw21_LM_GI_l111, 100.0, " ' VLM.Lampz;GI-l111
-	Lampz.Callback(111) = "UpdateLightMap sw22_LM_GI_l111, 100.0, " ' VLM.Lampz;GI-l111
-	Lampz.Callback(111) = "UpdateLightMap UnderPF_LM_GI_l111, 100.0, " ' VLM.Lampz;GI-l111
-	Lampz.Callback(111) = "UpdateLightMap Parts_LM_GI_l111, 100.0, " ' VLM.Lampz;GI-l111
-	Lampz.Callback(111) = "UpdateLightMap Layer1_LM_GI_l111, 100.0, " ' VLM.Lampz;GI-l111
-	Lampz.MassAssign(112) = l112 ' VLM.Lampz;GI-l112
-	Lampz.Callback(112) = "UpdateLightMap Playfield_LM_GI_l112, 100.0, " ' VLM.Lampz;GI-l112
-	Lampz.Callback(112) = "UpdateLightMap Spinner2_LM_GI_l112, 100.0, " ' VLM.Lampz;GI-l112
-	Lampz.Callback(112) = "UpdateLightMap Parts_LM_GI_l112, 100.0, " ' VLM.Lampz;GI-l112
-	Lampz.Callback(112) = "UpdateLightMap Layer1_LM_GI_l112, 100.0, " ' VLM.Lampz;GI-l112
-	Lampz.MassAssign(113) = l113 ' VLM.Lampz;GI-l113
-	Lampz.Callback(113) = "UpdateLightMap Playfield_LM_GI_l113, 100.0, " ' VLM.Lampz;GI-l113
-	Lampz.Callback(113) = "UpdateLightMap UnderPF_LM_GI_l113, 100.0, " ' VLM.Lampz;GI-l113
-	Lampz.Callback(113) = "UpdateLightMap Parts_LM_GI_l113, 100.0, " ' VLM.Lampz;GI-l113
-	Lampz.MassAssign(114) = l114 ' VLM.Lampz;GI-l114
-	Lampz.Callback(114) = "UpdateLightMap Playfield_LM_GI_l114, 100.0, " ' VLM.Lampz;GI-l114
-	Lampz.Callback(114) = "UpdateLightMap Parts_LM_GI_l114, 100.0, " ' VLM.Lampz;GI-l114
-	Lampz.MassAssign(117) = l117 ' VLM.Lampz;GI-l117
-	Lampz.Callback(117) = "UpdateLightMap Playfield_LM_GI_l117, 100.0, " ' VLM.Lampz;GI-l117
-	Lampz.Callback(117) = "UpdateLightMap FlipperU_LM_GI_l117, 100.0, " ' VLM.Lampz;GI-l117
-	Lampz.Callback(117) = "UpdateLightMap sw10_LM_GI_l117, 100.0, " ' VLM.Lampz;GI-l117
-	Lampz.Callback(117) = "UpdateLightMap sw11_LM_GI_l117, 100.0, " ' VLM.Lampz;GI-l117
-	Lampz.Callback(117) = "UpdateLightMap sw12_LM_GI_l117, 100.0, " ' VLM.Lampz;GI-l117
-	Lampz.Callback(117) = "UpdateLightMap UnderPF_LM_GI_l117, 100.0, " ' VLM.Lampz;GI-l117
-	Lampz.Callback(117) = "UpdateLightMap Parts_LM_GI_l117, 100.0, " ' VLM.Lampz;GI-l117
-	Lampz.MassAssign(118) = l118 ' VLM.Lampz;GI-l118
-	Lampz.Callback(118) = "UpdateLightMap Playfield_LM_GI_l118, 100.0, " ' VLM.Lampz;GI-l118
-	Lampz.Callback(118) = "UpdateLightMap sw10_LM_GI_l118, 100.0, " ' VLM.Lampz;GI-l118
-	Lampz.Callback(118) = "UpdateLightMap sw11_LM_GI_l118, 100.0, " ' VLM.Lampz;GI-l118
-	Lampz.Callback(118) = "UpdateLightMap sw12_LM_GI_l118, 100.0, " ' VLM.Lampz;GI-l118
-	Lampz.Callback(118) = "UpdateLightMap UnderPF_LM_GI_l118, 100.0, " ' VLM.Lampz;GI-l118
-	Lampz.Callback(118) = "UpdateLightMap Parts_LM_GI_l118, 100.0, " ' VLM.Lampz;GI-l118
-	Lampz.MassAssign(133) = l133 ' VLM.Lampz;GI-l133
-	Lampz.Callback(133) = "UpdateLightMap Playfield_LM_GI_l133, 100.0, " ' VLM.Lampz;GI-l133
-	Lampz.Callback(133) = "UpdateLightMap UnderPF_LM_GI_l133, 100.0, " ' VLM.Lampz;GI-l133
-	Lampz.Callback(133) = "UpdateLightMap Parts_LM_GI_l133, 100.0, " ' VLM.Lampz;GI-l133
-	Lampz.MassAssign(134) = l134 ' VLM.Lampz;GI-l134
-	Lampz.Callback(134) = "UpdateLightMap Playfield_LM_GI_l134, 100.0, " ' VLM.Lampz;GI-l134
-	Lampz.Callback(134) = "UpdateLightMap UnderPF_LM_GI_l134, 100.0, " ' VLM.Lampz;GI-l134
-	Lampz.Callback(134) = "UpdateLightMap Parts_LM_GI_l134, 100.0, " ' VLM.Lampz;GI-l134
-	Lampz.MassAssign(119) = l119 ' VLM.Lampz;GI-l119
-	Lampz.Callback(119) = "UpdateLightMap Playfield_LM_GI_l119, 100.0, " ' VLM.Lampz;GI-l119
-	Lampz.Callback(119) = "UpdateLightMap UnderPF_LM_GI_l119, 100.0, " ' VLM.Lampz;GI-l119
-	Lampz.Callback(119) = "UpdateLightMap Parts_LM_GI_l119, 100.0, " ' VLM.Lampz;GI-l119
-	Lampz.MassAssign(11) = l11 ' VLM.Lampz;ins-l11
-	Lampz.Callback(11) = "UpdateLightMap Playfield_LM_ins_l11, 100.0, " ' VLM.Lampz;ins-l11
-	Lampz.Callback(11) = "UpdateLightMap sw11_LM_ins_l11, 100.0, " ' VLM.Lampz;ins-l11
-	Lampz.Callback(11) = "UpdateLightMap sw12_LM_ins_l11, 100.0, " ' VLM.Lampz;ins-l11
-	Lampz.Callback(11) = "UpdateLightMap UnderPF_LM_ins_l11, 100.0, " ' VLM.Lampz;ins-l11
-	Lampz.Callback(11) = "UpdateLightMap Parts_LM_ins_l11, 100.0, " ' VLM.Lampz;ins-l11
-	Lampz.MassAssign(120) = l120 ' VLM.Lampz;GI-l120
-	Lampz.Callback(120) = "UpdateLightMap Playfield_LM_GI_l120, 100.0, " ' VLM.Lampz;GI-l120
-	Lampz.Callback(120) = "UpdateLightMap FlipperU_LM_GI_l120, 100.0, " ' VLM.Lampz;GI-l120
-	Lampz.Callback(120) = "UpdateLightMap UnderPF_LM_GI_l120, 100.0, " ' VLM.Lampz;GI-l120
-	Lampz.Callback(120) = "UpdateLightMap Parts_LM_GI_l120, 100.0, " ' VLM.Lampz;GI-l120
-	Lampz.MassAssign(121) = l121 ' VLM.Lampz;GI-l121
-	Lampz.Callback(121) = "UpdateLightMap Playfield_LM_GI_l121, 100.0, " ' VLM.Lampz;GI-l121
-	Lampz.Callback(121) = "UpdateLightMap UnderPF_LM_GI_l121, 100.0, " ' VLM.Lampz;GI-l121
-	Lampz.Callback(121) = "UpdateLightMap Parts_LM_GI_l121, 100.0, " ' VLM.Lampz;GI-l121
-	Lampz.MassAssign(122) = l122 ' VLM.Lampz;GI-l122
-	Lampz.Callback(122) = "UpdateLightMap Playfield_LM_GI_l122, 100.0, " ' VLM.Lampz;GI-l122
-	Lampz.Callback(122) = "UpdateLightMap UnderPF_LM_GI_l122, 100.0, " ' VLM.Lampz;GI-l122
-	Lampz.Callback(122) = "UpdateLightMap Parts_LM_GI_l122, 100.0, " ' VLM.Lampz;GI-l122
-	Lampz.Callback(122) = "UpdateLightMap Layer1_LM_GI_l122, 100.0, " ' VLM.Lampz;GI-l122
-	Lampz.MassAssign(123) = l123 ' VLM.Lampz;GI-l123
-	Lampz.Callback(123) = "UpdateLightMap Playfield_LM_GI_l123, 100.0, " ' VLM.Lampz;GI-l123
-	Lampz.Callback(123) = "UpdateLightMap UnderPF_LM_GI_l123, 100.0, " ' VLM.Lampz;GI-l123
-	Lampz.Callback(123) = "UpdateLightMap Parts_LM_GI_l123, 100.0, " ' VLM.Lampz;GI-l123
-	Lampz.Callback(123) = "UpdateLightMap Layer1_LM_GI_l123, 100.0, " ' VLM.Lampz;GI-l123
-	Lampz.MassAssign(124) = l124 ' VLM.Lampz;GI-l124
-	Lampz.Callback(124) = "UpdateLightMap Playfield_LM_GI_l124, 100.0, " ' VLM.Lampz;GI-l124
-	Lampz.Callback(124) = "UpdateLightMap UnderPF_LM_GI_l124, 100.0, " ' VLM.Lampz;GI-l124
-	Lampz.Callback(124) = "UpdateLightMap Parts_LM_GI_l124, 100.0, " ' VLM.Lampz;GI-l124
-	Lampz.MassAssign(125) = l125 ' VLM.Lampz;GI-l125
-	Lampz.Callback(125) = "UpdateLightMap Playfield_LM_GI_l125, 100.0, " ' VLM.Lampz;GI-l125
-	Lampz.Callback(125) = "UpdateLightMap UnderPF_LM_GI_l125, 100.0, " ' VLM.Lampz;GI-l125
-	Lampz.Callback(125) = "UpdateLightMap Parts_LM_GI_l125, 100.0, " ' VLM.Lampz;GI-l125
-	Lampz.MassAssign(126) = l126 ' VLM.Lampz;GI-l126
-	Lampz.Callback(126) = "UpdateLightMap Playfield_LM_GI_l126, 100.0, " ' VLM.Lampz;GI-l126
-	Lampz.Callback(126) = "UpdateLightMap UnderPF_LM_GI_l126, 100.0, " ' VLM.Lampz;GI-l126
-	Lampz.Callback(126) = "UpdateLightMap Parts_LM_GI_l126, 100.0, " ' VLM.Lampz;GI-l126
-	Lampz.MassAssign(127) = l127 ' VLM.Lampz;GI-l127
-	Lampz.Callback(127) = "UpdateLightMap Playfield_LM_GI_l127, 100.0, " ' VLM.Lampz;GI-l127
-	Lampz.Callback(127) = "UpdateLightMap UnderPF_LM_GI_l127, 100.0, " ' VLM.Lampz;GI-l127
-	Lampz.Callback(127) = "UpdateLightMap Parts_LM_GI_l127, 100.0, " ' VLM.Lampz;GI-l127
-	Lampz.MassAssign(128) = l128 ' VLM.Lampz;GI-l128
-	Lampz.Callback(128) = "UpdateLightMap Playfield_LM_GI_l128, 100.0, " ' VLM.Lampz;GI-l128
-	Lampz.Callback(128) = "UpdateLightMap sw19_LM_GI_l128, 100.0, " ' VLM.Lampz;GI-l128
-	Lampz.Callback(128) = "UpdateLightMap UnderPF_LM_GI_l128, 100.0, " ' VLM.Lampz;GI-l128
-	Lampz.Callback(128) = "UpdateLightMap Parts_LM_GI_l128, 100.0, " ' VLM.Lampz;GI-l128
-	Lampz.Callback(128) = "UpdateLightMap Layer1_LM_GI_l128, 100.0, " ' VLM.Lampz;GI-l128
-	Lampz.MassAssign(129) = l129 ' VLM.Lampz;GI-l129
-	Lampz.Callback(129) = "UpdateLightMap Playfield_LM_GI_l129, 100.0, " ' VLM.Lampz;GI-l129
-	Lampz.Callback(129) = "UpdateLightMap UnderPF_LM_GI_l129, 100.0, " ' VLM.Lampz;GI-l129
-	Lampz.Callback(129) = "UpdateLightMap Parts_LM_GI_l129, 100.0, " ' VLM.Lampz;GI-l129
-	Lampz.MassAssign(12) = l12 ' VLM.Lampz;ins-l12
-	Lampz.Callback(12) = "UpdateLightMap Playfield_LM_ins_l12, 100.0, " ' VLM.Lampz;ins-l12
-	Lampz.Callback(12) = "UpdateLightMap sw12_LM_ins_l12, 100.0, " ' VLM.Lampz;ins-l12
-	Lampz.Callback(12) = "UpdateLightMap UnderPF_LM_ins_l12, 100.0, " ' VLM.Lampz;ins-l12
-	Lampz.Callback(12) = "UpdateLightMap Parts_LM_ins_l12, 100.0, " ' VLM.Lampz;ins-l12
-	Lampz.MassAssign(130) = l130 ' VLM.Lampz;GI-l130
-	Lampz.Callback(130) = "UpdateLightMap Playfield_LM_GI_l130, 100.0, " ' VLM.Lampz;GI-l130
-	Lampz.Callback(130) = "UpdateLightMap UnderPF_LM_GI_l130, 100.0, " ' VLM.Lampz;GI-l130
-	Lampz.Callback(130) = "UpdateLightMap Parts_LM_GI_l130, 100.0, " ' VLM.Lampz;GI-l130
-	Lampz.MassAssign(131) = l131 ' VLM.Lampz;GI-l131
-	Lampz.Callback(131) = "UpdateLightMap Playfield_LM_GI_l131, 100.0, " ' VLM.Lampz;GI-l131
-	Lampz.Callback(131) = "UpdateLightMap UnderPF_LM_GI_l131, 100.0, " ' VLM.Lampz;GI-l131
-	Lampz.Callback(131) = "UpdateLightMap Parts_LM_GI_l131, 100.0, " ' VLM.Lampz;GI-l131
-	Lampz.MassAssign(132) = l132 ' VLM.Lampz;GI-l132
-	Lampz.Callback(132) = "UpdateLightMap Playfield_LM_GI_l132, 100.0, " ' VLM.Lampz;GI-l132
-	Lampz.Callback(132) = "UpdateLightMap Spinner2_LM_GI_l132, 100.0, " ' VLM.Lampz;GI-l132
-	Lampz.Callback(132) = "UpdateLightMap sw20_LM_GI_l132, 100.0, " ' VLM.Lampz;GI-l132
-	Lampz.Callback(132) = "UpdateLightMap UnderPF_LM_GI_l132, 100.0, " ' VLM.Lampz;GI-l132
-	Lampz.Callback(132) = "UpdateLightMap Parts_LM_GI_l132, 100.0, " ' VLM.Lampz;GI-l132
-	Lampz.MassAssign(13) = l13 ' VLM.Lampz;ins-l13
-	Lampz.Callback(13) = "UpdateLightMap Playfield_LM_ins_l13, 100.0, " ' VLM.Lampz;ins-l13
-	Lampz.Callback(13) = "UpdateLightMap UnderPF_LM_ins_l13, 100.0, " ' VLM.Lampz;ins-l13
-	Lampz.Callback(13) = "UpdateLightMap Parts_LM_ins_l13, 100.0, " ' VLM.Lampz;ins-l13
-	Lampz.MassAssign(14) = l14 ' VLM.Lampz;ins-l14
-	Lampz.Callback(14) = "UpdateLightMap Playfield_LM_ins_l14, 100.0, " ' VLM.Lampz;ins-l14
-	Lampz.Callback(14) = "UpdateLightMap UnderPF_LM_ins_l14, 100.0, " ' VLM.Lampz;ins-l14
-	Lampz.Callback(14) = "UpdateLightMap Parts_LM_ins_l14, 100.0, " ' VLM.Lampz;ins-l14
-	Lampz.MassAssign(15) = l15 ' VLM.Lampz;ins-l15
-	Lampz.Callback(15) = "UpdateLightMap Playfield_LM_ins_l15, 100.0, " ' VLM.Lampz;ins-l15
-	Lampz.Callback(15) = "UpdateLightMap UnderPF_LM_ins_l15, 100.0, " ' VLM.Lampz;ins-l15
-	Lampz.Callback(15) = "UpdateLightMap Parts_LM_ins_l15, 100.0, " ' VLM.Lampz;ins-l15
-	Lampz.MassAssign(16) = l16 ' VLM.Lampz;ins-l16
-	Lampz.Callback(16) = "UpdateLightMap Playfield_LM_ins_l16, 100.0, " ' VLM.Lampz;ins-l16
-	Lampz.Callback(16) = "UpdateLightMap UnderPF_LM_ins_l16, 100.0, " ' VLM.Lampz;ins-l16
-	Lampz.Callback(16) = "UpdateLightMap Parts_LM_ins_l16, 100.0, " ' VLM.Lampz;ins-l16
-	Lampz.MassAssign(17) = l17 ' VLM.Lampz;ins-l17
-	Lampz.Callback(17) = "UpdateLightMap Playfield_LM_ins_l17, 100.0, " ' VLM.Lampz;ins-l17
-	Lampz.Callback(17) = "UpdateLightMap Spinner2_LM_ins_l17, 100.0, " ' VLM.Lampz;ins-l17
-	Lampz.Callback(17) = "UpdateLightMap sw21_LM_ins_l17, 100.0, " ' VLM.Lampz;ins-l17
-	Lampz.Callback(17) = "UpdateLightMap UnderPF_LM_ins_l17, 100.0, " ' VLM.Lampz;ins-l17
-	Lampz.Callback(17) = "UpdateLightMap Parts_LM_ins_l17, 100.0, " ' VLM.Lampz;ins-l17
-	Lampz.MassAssign(18) = l18 ' VLM.Lampz;ins-l18
-	Lampz.Callback(18) = "UpdateLightMap Playfield_LM_ins_l18, 100.0, " ' VLM.Lampz;ins-l18
-	Lampz.Callback(18) = "UpdateLightMap Spinner2_LM_ins_l18, 100.0, " ' VLM.Lampz;ins-l18
-	Lampz.Callback(18) = "UpdateLightMap sw21_LM_ins_l18, 100.0, " ' VLM.Lampz;ins-l18
-	Lampz.Callback(18) = "UpdateLightMap sw22_LM_ins_l18, 100.0, " ' VLM.Lampz;ins-l18
-	Lampz.Callback(18) = "UpdateLightMap sw23_LM_ins_l18, 100.0, " ' VLM.Lampz;ins-l18
-	Lampz.Callback(18) = "UpdateLightMap UnderPF_LM_ins_l18, 100.0, " ' VLM.Lampz;ins-l18
-	Lampz.Callback(18) = "UpdateLightMap Parts_LM_ins_l18, 100.0, " ' VLM.Lampz;ins-l18
-	Lampz.MassAssign(19) = l19 ' VLM.Lampz;ins-l19
-	Lampz.Callback(19) = "UpdateLightMap Playfield_LM_ins_l19, 100.0, " ' VLM.Lampz;ins-l19
-	Lampz.Callback(19) = "UpdateLightMap Spinner2_LM_ins_l19, 100.0, " ' VLM.Lampz;ins-l19
-	Lampz.Callback(19) = "UpdateLightMap sw21_LM_ins_l19, 100.0, " ' VLM.Lampz;ins-l19
-	Lampz.Callback(19) = "UpdateLightMap sw22_LM_ins_l19, 100.0, " ' VLM.Lampz;ins-l19
-	Lampz.Callback(19) = "UpdateLightMap sw23_LM_ins_l19, 100.0, " ' VLM.Lampz;ins-l19
-	Lampz.Callback(19) = "UpdateLightMap UnderPF_LM_ins_l19, 100.0, " ' VLM.Lampz;ins-l19
-	Lampz.Callback(19) = "UpdateLightMap Parts_LM_ins_l19, 100.0, " ' VLM.Lampz;ins-l19
-	Lampz.MassAssign(20) = l20 ' VLM.Lampz;ins-l20
-	Lampz.Callback(20) = "UpdateLightMap Playfield_LM_ins_l20, 100.0, " ' VLM.Lampz;ins-l20
-	Lampz.Callback(20) = "UpdateLightMap UnderPF_LM_ins_l20, 100.0, " ' VLM.Lampz;ins-l20
-	Lampz.Callback(20) = "UpdateLightMap Parts_LM_ins_l20, 100.0, " ' VLM.Lampz;ins-l20
-	Lampz.MassAssign(21) = l21 ' VLM.Lampz;ins-l21
-	Lampz.Callback(21) = "UpdateLightMap Playfield_LM_ins_l21, 100.0, " ' VLM.Lampz;ins-l21
-	Lampz.Callback(21) = "UpdateLightMap UnderPF_LM_ins_l21, 100.0, " ' VLM.Lampz;ins-l21
-	Lampz.Callback(21) = "UpdateLightMap Parts_LM_ins_l21, 100.0, " ' VLM.Lampz;ins-l21
-	Lampz.MassAssign(22) = l22 ' VLM.Lampz;ins-l22
-	Lampz.Callback(22) = "UpdateLightMap Playfield_LM_ins_l22, 100.0, " ' VLM.Lampz;ins-l22
-	Lampz.Callback(22) = "UpdateLightMap UnderPF_LM_ins_l22, 100.0, " ' VLM.Lampz;ins-l22
-	Lampz.Callback(22) = "UpdateLightMap Parts_LM_ins_l22, 100.0, " ' VLM.Lampz;ins-l22
-	Lampz.MassAssign(23) = l23 ' VLM.Lampz;ins-l23
-	Lampz.Callback(23) = "UpdateLightMap Playfield_LM_ins_l23, 100.0, " ' VLM.Lampz;ins-l23
-	Lampz.Callback(23) = "UpdateLightMap Spinner2_LM_ins_l23, 100.0, " ' VLM.Lampz;ins-l23
-	Lampz.Callback(23) = "UpdateLightMap sw20_LM_ins_l23, 100.0, " ' VLM.Lampz;ins-l23
-	Lampz.Callback(23) = "UpdateLightMap UnderPF_LM_ins_l23, 100.0, " ' VLM.Lampz;ins-l23
-	Lampz.Callback(23) = "UpdateLightMap Parts_LM_ins_l23, 100.0, " ' VLM.Lampz;ins-l23
-	Lampz.MassAssign(24) = l24 ' VLM.Lampz;ins-l24
-	Lampz.Callback(24) = "UpdateLightMap Playfield_LM_ins_l24, 100.0, " ' VLM.Lampz;ins-l24
-	Lampz.Callback(24) = "UpdateLightMap Spinner_SternFlap_LM_ins_l24, 100.0, " ' VLM.Lampz;ins-l24
-	Lampz.Callback(24) = "UpdateLightMap UnderPF_LM_ins_l24, 100.0, " ' VLM.Lampz;ins-l24
-	Lampz.Callback(24) = "UpdateLightMap Parts_LM_ins_l24, 100.0, " ' VLM.Lampz;ins-l24
-	Lampz.MassAssign(25) = l25 ' VLM.Lampz;ins-l25
-	Lampz.Callback(25) = "UpdateLightMap Playfield_LM_ins_l25, 100.0, " ' VLM.Lampz;ins-l25
-	Lampz.Callback(25) = "UpdateLightMap UnderPF_LM_ins_l25, 100.0, " ' VLM.Lampz;ins-l25
-	Lampz.Callback(25) = "UpdateLightMap Parts_LM_ins_l25, 100.0, " ' VLM.Lampz;ins-l25
-	Lampz.MassAssign(26) = l26 ' VLM.Lampz;ins-l26
-	Lampz.Callback(26) = "UpdateLightMap Playfield_LM_ins_l26, 100.0, " ' VLM.Lampz;ins-l26
-	Lampz.Callback(26) = "UpdateLightMap UnderPF_LM_ins_l26, 100.0, " ' VLM.Lampz;ins-l26
-	Lampz.Callback(26) = "UpdateLightMap Parts_LM_ins_l26, 100.0, " ' VLM.Lampz;ins-l26
-	Lampz.MassAssign(27) = l27 ' VLM.Lampz;ins-l27
-	Lampz.Callback(27) = "UpdateLightMap Playfield_LM_ins_l27, 100.0, " ' VLM.Lampz;ins-l27
-	Lampz.Callback(27) = "UpdateLightMap UnderPF_LM_ins_l27, 100.0, " ' VLM.Lampz;ins-l27
-	Lampz.MassAssign(28) = l28 ' VLM.Lampz;ins-l28
-	Lampz.Callback(28) = "UpdateLightMap Playfield_LM_ins_l28, 100.0, " ' VLM.Lampz;ins-l28
-	Lampz.Callback(28) = "UpdateLightMap UnderPF_LM_ins_l28, 100.0, " ' VLM.Lampz;ins-l28
-	Lampz.Callback(28) = "UpdateLightMap Parts_LM_ins_l28, 100.0, " ' VLM.Lampz;ins-l28
-	Lampz.MassAssign(29) = l29 ' VLM.Lampz;ins-l29
-	Lampz.Callback(29) = "UpdateLightMap Playfield_LM_ins_l29, 100.0, " ' VLM.Lampz;ins-l29
-	Lampz.Callback(29) = "UpdateLightMap UnderPF_LM_ins_l29, 100.0, " ' VLM.Lampz;ins-l29
-	Lampz.Callback(29) = "UpdateLightMap Parts_LM_ins_l29, 100.0, " ' VLM.Lampz;ins-l29
-	Lampz.MassAssign(30) = l30 ' VLM.Lampz;ins-l30
-	Lampz.Callback(30) = "UpdateLightMap Playfield_LM_ins_l30, 100.0, " ' VLM.Lampz;ins-l30
-	Lampz.Callback(30) = "UpdateLightMap UnderPF_LM_ins_l30, 100.0, " ' VLM.Lampz;ins-l30
-	Lampz.Callback(30) = "UpdateLightMap Parts_LM_ins_l30, 100.0, " ' VLM.Lampz;ins-l30
-	Lampz.MassAssign(31) = l31 ' VLM.Lampz;ins-l31
-	Lampz.Callback(31) = "UpdateLightMap Playfield_LM_ins_l31, 100.0, " ' VLM.Lampz;ins-l31
-	Lampz.Callback(31) = "UpdateLightMap UnderPF_LM_ins_l31, 100.0, " ' VLM.Lampz;ins-l31
-	Lampz.Callback(31) = "UpdateLightMap Parts_LM_ins_l31, 100.0, " ' VLM.Lampz;ins-l31
-	Lampz.MassAssign(32) = l32 ' VLM.Lampz;ins-l32
-	Lampz.Callback(32) = "UpdateLightMap Playfield_LM_ins_l32, 100.0, " ' VLM.Lampz;ins-l32
-	Lampz.Callback(32) = "UpdateLightMap UnderPF_LM_ins_l32, 100.0, " ' VLM.Lampz;ins-l32
-	Lampz.MassAssign(33) = l33 ' VLM.Lampz;ins-l33
-	Lampz.Callback(33) = "UpdateLightMap Playfield_LM_ins_l33, 100.0, " ' VLM.Lampz;ins-l33
-	Lampz.Callback(33) = "UpdateLightMap FlipperU_LM_ins_l33, 100.0, " ' VLM.Lampz;ins-l33
-	Lampz.Callback(33) = "UpdateLightMap UnderPF_LM_ins_l33, 100.0, " ' VLM.Lampz;ins-l33
-	Lampz.Callback(33) = "UpdateLightMap Parts_LM_ins_l33, 100.0, " ' VLM.Lampz;ins-l33
-	Lampz.MassAssign(34) = l34 ' VLM.Lampz;ins-l34
-	Lampz.Callback(34) = "UpdateLightMap Playfield_LM_ins_l34, 100.0, " ' VLM.Lampz;ins-l34
-	Lampz.Callback(34) = "UpdateLightMap UnderPF_LM_ins_l34, 100.0, " ' VLM.Lampz;ins-l34
-	Lampz.Callback(34) = "UpdateLightMap Parts_LM_ins_l34, 100.0, " ' VLM.Lampz;ins-l34
-	Lampz.MassAssign(35) = l35 ' VLM.Lampz;ins-l35
-	Lampz.Callback(35) = "UpdateLightMap Playfield_LM_ins_l35, 100.0, " ' VLM.Lampz;ins-l35
-	Lampz.Callback(35) = "UpdateLightMap UnderPF_LM_ins_l35, 100.0, " ' VLM.Lampz;ins-l35
-	Lampz.Callback(35) = "UpdateLightMap Parts_LM_ins_l35, 100.0, " ' VLM.Lampz;ins-l35
-	Lampz.MassAssign(37) = l37 ' VLM.Lampz;ins-l37
-	Lampz.Callback(37) = "UpdateLightMap Playfield_LM_ins_l37, 100.0, " ' VLM.Lampz;ins-l37
-	Lampz.Callback(37) = "UpdateLightMap sw19_LM_ins_l37, 100.0, " ' VLM.Lampz;ins-l37
-	Lampz.Callback(37) = "UpdateLightMap UnderPF_LM_ins_l37, 100.0, " ' VLM.Lampz;ins-l37
-	Lampz.Callback(37) = "UpdateLightMap Parts_LM_ins_l37, 100.0, " ' VLM.Lampz;ins-l37
-	Lampz.MassAssign(38) = l38 ' VLM.Lampz;ins-l38
-	Lampz.Callback(38) = "UpdateLightMap Playfield_LM_ins_l38, 100.0, " ' VLM.Lampz;ins-l38
-	Lampz.Callback(38) = "UpdateLightMap sw19_LM_ins_l38, 100.0, " ' VLM.Lampz;ins-l38
-	Lampz.Callback(38) = "UpdateLightMap UnderPF_LM_ins_l38, 100.0, " ' VLM.Lampz;ins-l38
-	Lampz.Callback(38) = "UpdateLightMap Parts_LM_ins_l38, 100.0, " ' VLM.Lampz;ins-l38
-	Lampz.MassAssign(39) = l39 ' VLM.Lampz;ins-l39
-	Lampz.Callback(39) = "UpdateLightMap Playfield_LM_ins_l39, 100.0, " ' VLM.Lampz;ins-l39
-	Lampz.Callback(39) = "UpdateLightMap sw19_LM_ins_l39, 100.0, " ' VLM.Lampz;ins-l39
-	Lampz.Callback(39) = "UpdateLightMap UnderPF_LM_ins_l39, 100.0, " ' VLM.Lampz;ins-l39
-	Lampz.Callback(39) = "UpdateLightMap Parts_LM_ins_l39, 100.0, " ' VLM.Lampz;ins-l39
-	Lampz.MassAssign(40) = l40 ' VLM.Lampz;ins-l40
-	Lampz.Callback(40) = "UpdateLightMap Playfield_LM_ins_l40, 100.0, " ' VLM.Lampz;ins-l40
-	Lampz.Callback(40) = "UpdateLightMap UnderPF_LM_ins_l40, 100.0, " ' VLM.Lampz;ins-l40
-	Lampz.Callback(40) = "UpdateLightMap Parts_LM_ins_l40, 100.0, " ' VLM.Lampz;ins-l40
-	Lampz.MassAssign(41) = l41 ' VLM.Lampz;ins-l41
-	Lampz.Callback(41) = "UpdateLightMap Playfield_LM_ins_l41, 100.0, " ' VLM.Lampz;ins-l41
-	Lampz.Callback(41) = "UpdateLightMap UnderPF_LM_ins_l41, 100.0, " ' VLM.Lampz;ins-l41
-	Lampz.MassAssign(42) = l42 ' VLM.Lampz;ins-l42
-	Lampz.Callback(42) = "UpdateLightMap Playfield_LM_ins_l42, 100.0, " ' VLM.Lampz;ins-l42
-	Lampz.Callback(42) = "UpdateLightMap UnderPF_LM_ins_l42, 100.0, " ' VLM.Lampz;ins-l42
-	Lampz.Callback(42) = "UpdateLightMap Parts_LM_ins_l42, 100.0, " ' VLM.Lampz;ins-l42
-	Lampz.MassAssign(43) = l43 ' VLM.Lampz;ins-l43
-	Lampz.Callback(43) = "UpdateLightMap Playfield_LM_ins_l43, 100.0, " ' VLM.Lampz;ins-l43
-	Lampz.Callback(43) = "UpdateLightMap UnderPF_LM_ins_l43, 100.0, " ' VLM.Lampz;ins-l43
-	Lampz.Callback(43) = "UpdateLightMap Parts_LM_ins_l43, 100.0, " ' VLM.Lampz;ins-l43
-	Lampz.MassAssign(44) = l44 ' VLM.Lampz;ins-l44
-	Lampz.Callback(44) = "UpdateLightMap Playfield_LM_ins_l44, 100.0, " ' VLM.Lampz;ins-l44
-	Lampz.Callback(44) = "UpdateLightMap UnderPF_LM_ins_l44, 100.0, " ' VLM.Lampz;ins-l44
-	Lampz.Callback(44) = "UpdateLightMap Parts_LM_ins_l44, 100.0, " ' VLM.Lampz;ins-l44
-	Lampz.MassAssign(45) = l45 ' VLM.Lampz;ins-l45
-	Lampz.Callback(45) = "UpdateLightMap Playfield_LM_ins_l45, 100.0, " ' VLM.Lampz;ins-l45
-	Lampz.Callback(45) = "UpdateLightMap UnderPF_LM_ins_l45, 100.0, " ' VLM.Lampz;ins-l45
-	Lampz.Callback(45) = "UpdateLightMap Parts_LM_ins_l45, 100.0, " ' VLM.Lampz;ins-l45
-	Lampz.MassAssign(46) = l46 ' VLM.Lampz;ins-l46
-	Lampz.Callback(46) = "UpdateLightMap Playfield_LM_ins_l46, 100.0, " ' VLM.Lampz;ins-l46
-	Lampz.Callback(46) = "UpdateLightMap UnderPF_LM_ins_l46, 100.0, " ' VLM.Lampz;ins-l46
-	Lampz.Callback(46) = "UpdateLightMap Parts_LM_ins_l46, 100.0, " ' VLM.Lampz;ins-l46
-	Lampz.MassAssign(47) = l47 ' VLM.Lampz;ins-l47
-	Lampz.Callback(47) = "UpdateLightMap Playfield_LM_ins_l47, 100.0, " ' VLM.Lampz;ins-l47
-	Lampz.Callback(47) = "UpdateLightMap sw19_LM_ins_l47, 100.0, " ' VLM.Lampz;ins-l47
-	Lampz.Callback(47) = "UpdateLightMap UnderPF_LM_ins_l47, 100.0, " ' VLM.Lampz;ins-l47
-	Lampz.Callback(47) = "UpdateLightMap Parts_LM_ins_l47, 100.0, " ' VLM.Lampz;ins-l47
-	Lampz.MassAssign(48) = l48 ' VLM.Lampz;ins-l48
-	Lampz.Callback(48) = "UpdateLightMap Playfield_LM_ins_l48, 100.0, " ' VLM.Lampz;ins-l48
-	Lampz.Callback(48) = "UpdateLightMap Spinner_SternFlap_LM_ins_l48, 100.0, " ' VLM.Lampz;ins-l48
-	Lampz.Callback(48) = "UpdateLightMap sw18_LM_ins_l48, 100.0, " ' VLM.Lampz;ins-l48
-	Lampz.Callback(48) = "UpdateLightMap UnderPF_LM_ins_l48, 100.0, " ' VLM.Lampz;ins-l48
-	Lampz.Callback(48) = "UpdateLightMap Parts_LM_ins_l48, 100.0, " ' VLM.Lampz;ins-l48
-	Lampz.MassAssign(49) = l49 ' VLM.Lampz;ins-l49
-	Lampz.Callback(49) = "UpdateLightMap Playfield_LM_ins_l49, 100.0, " ' VLM.Lampz;ins-l49
-	Lampz.Callback(49) = "UpdateLightMap sw25_LM_ins_l49, 100.0, " ' VLM.Lampz;ins-l49
-	Lampz.Callback(49) = "UpdateLightMap UnderPF_LM_ins_l49, 100.0, " ' VLM.Lampz;ins-l49
-	Lampz.Callback(49) = "UpdateLightMap Parts_LM_ins_l49, 100.0, " ' VLM.Lampz;ins-l49
-	Lampz.MassAssign(50) = l50 ' VLM.Lampz;ins-l50
-	Lampz.Callback(50) = "UpdateLightMap Playfield_LM_ins_l50, 100.0, " ' VLM.Lampz;ins-l50
-	Lampz.Callback(50) = "UpdateLightMap UnderPF_LM_ins_l50, 100.0, " ' VLM.Lampz;ins-l50
-	Lampz.Callback(50) = "UpdateLightMap Parts_LM_ins_l50, 100.0, " ' VLM.Lampz;ins-l50
-	Lampz.MassAssign(51) = l51 ' VLM.Lampz;ins-l51
-	Lampz.Callback(51) = "UpdateLightMap Playfield_LM_ins_l51, 100.0, " ' VLM.Lampz;ins-l51
-	Lampz.Callback(51) = "UpdateLightMap UnderPF_LM_ins_l51, 100.0, " ' VLM.Lampz;ins-l51
-	Lampz.MassAssign(52) = l52 ' VLM.Lampz;ins-l52
-	Lampz.Callback(52) = "UpdateLightMap Playfield_LM_ins_l52, 100.0, " ' VLM.Lampz;ins-l52
-	Lampz.Callback(52) = "UpdateLightMap UnderPF_LM_ins_l52, 100.0, " ' VLM.Lampz;ins-l52
-	Lampz.Callback(52) = "UpdateLightMap Parts_LM_ins_l52, 100.0, " ' VLM.Lampz;ins-l52
-	Lampz.MassAssign(53) = l53 ' VLM.Lampz;ins-l53
-	Lampz.Callback(53) = "UpdateLightMap Playfield_LM_ins_l53, 100.0, " ' VLM.Lampz;ins-l53
-	Lampz.Callback(53) = "UpdateLightMap UnderPF_LM_ins_l53, 100.0, " ' VLM.Lampz;ins-l53
-	Lampz.Callback(53) = "UpdateLightMap Parts_LM_ins_l53, 100.0, " ' VLM.Lampz;ins-l53
-	Lampz.MassAssign(54) = l54 ' VLM.Lampz;ins-l54
-	Lampz.Callback(54) = "UpdateLightMap Playfield_LM_ins_l54, 100.0, " ' VLM.Lampz;ins-l54
-	Lampz.Callback(54) = "UpdateLightMap UnderPF_LM_ins_l54, 100.0, " ' VLM.Lampz;ins-l54
-	Lampz.Callback(54) = "UpdateLightMap Parts_LM_ins_l54, 100.0, " ' VLM.Lampz;ins-l54
-	Lampz.MassAssign(55) = l55 ' VLM.Lampz;ins-l55
-	Lampz.Callback(55) = "UpdateLightMap Playfield_LM_ins_l55, 100.0, " ' VLM.Lampz;ins-l55
-	Lampz.Callback(55) = "UpdateLightMap UnderPF_LM_ins_l55, 100.0, " ' VLM.Lampz;ins-l55
-	Lampz.Callback(55) = "UpdateLightMap Parts_LM_ins_l55, 100.0, " ' VLM.Lampz;ins-l55
-	Lampz.MassAssign(56) = l56 ' VLM.Lampz;ins-l56
-	Lampz.Callback(56) = "UpdateLightMap Playfield_LM_ins_l56, 100.0, " ' VLM.Lampz;ins-l56
-	Lampz.Callback(56) = "UpdateLightMap FlipperL_LM_ins_l56, 100.0, " ' VLM.Lampz;ins-l56
-	Lampz.Callback(56) = "UpdateLightMap UnderPF_LM_ins_l56, 100.0, " ' VLM.Lampz;ins-l56
-	Lampz.Callback(56) = "UpdateLightMap Parts_LM_ins_l56, 100.0, " ' VLM.Lampz;ins-l56
-	Lampz.MassAssign(57) = l57 ' VLM.Lampz;ins-l57
-	Lampz.Callback(57) = "UpdateLightMap Playfield_LM_ins_l57, 100.0, " ' VLM.Lampz;ins-l57
-	Lampz.Callback(57) = "UpdateLightMap FlipperR_LM_ins_l57, 100.0, " ' VLM.Lampz;ins-l57
-	Lampz.Callback(57) = "UpdateLightMap UnderPF_LM_ins_l57, 100.0, " ' VLM.Lampz;ins-l57
-	Lampz.Callback(57) = "UpdateLightMap Parts_LM_ins_l57, 100.0, " ' VLM.Lampz;ins-l57
-	Lampz.MassAssign(58) = l58 ' VLM.Lampz;ins-l58
-	Lampz.Callback(58) = "UpdateLightMap Playfield_LM_ins_l58, 100.0, " ' VLM.Lampz;ins-l58
-	Lampz.Callback(58) = "UpdateLightMap UnderPF_LM_ins_l58, 100.0, " ' VLM.Lampz;ins-l58
-	Lampz.Callback(58) = "UpdateLightMap Parts_LM_ins_l58, 100.0, " ' VLM.Lampz;ins-l58
-	Lampz.MassAssign(59) = l59 ' VLM.Lampz;ins-l59
-	Lampz.Callback(59) = "UpdateLightMap Playfield_LM_ins_l59, 100.0, " ' VLM.Lampz;ins-l59
-	Lampz.Callback(59) = "UpdateLightMap Disc_LM_ins_l59, 100.0, " ' VLM.Lampz;ins-l59
-	Lampz.Callback(59) = "UpdateLightMap Spinner_SternFlap_LM_ins_l59, 100.0, " ' VLM.Lampz;ins-l59
-	Lampz.Callback(59) = "UpdateLightMap sw18_LM_ins_l59, 100.0, " ' VLM.Lampz;ins-l59
-	Lampz.Callback(59) = "UpdateLightMap UnderPF_LM_ins_l59, 100.0, " ' VLM.Lampz;ins-l59
-	Lampz.Callback(59) = "UpdateLightMap Parts_LM_ins_l59, 100.0, " ' VLM.Lampz;ins-l59
-	Lampz.MassAssign(60) = l60 ' VLM.Lampz;ins-l60
-	Lampz.Callback(60) = "UpdateLightMap Playfield_LM_ins_l60, 100.0, " ' VLM.Lampz;ins-l60
-	Lampz.Callback(60) = "UpdateLightMap sw19_LM_ins_l60, 100.0, " ' VLM.Lampz;ins-l60
-	Lampz.Callback(60) = "UpdateLightMap UnderPF_LM_ins_l60, 100.0, " ' VLM.Lampz;ins-l60
-	Lampz.Callback(60) = "UpdateLightMap Parts_LM_ins_l60, 100.0, " ' VLM.Lampz;ins-l60
-	Lampz.MassAssign(61) = l61 ' VLM.Lampz;ins-l61
-	Lampz.Callback(61) = "UpdateLightMap Playfield_LM_ins_l61, 100.0, " ' VLM.Lampz;ins-l61
-	Lampz.Callback(61) = "UpdateLightMap Spinner2_LM_ins_l61, 100.0, " ' VLM.Lampz;ins-l61
-	Lampz.Callback(61) = "UpdateLightMap sw20_LM_ins_l61, 100.0, " ' VLM.Lampz;ins-l61
-	Lampz.Callback(61) = "UpdateLightMap UnderPF_LM_ins_l61, 100.0, " ' VLM.Lampz;ins-l61
-	Lampz.Callback(61) = "UpdateLightMap Parts_LM_ins_l61, 100.0, " ' VLM.Lampz;ins-l61
-	Lampz.MassAssign(62) = l62 ' VLM.Lampz;ins-l62
-	Lampz.Callback(62) = "UpdateLightMap Playfield_LM_ins_l62, 100.0, " ' VLM.Lampz;ins-l62
-	Lampz.Callback(62) = "UpdateLightMap UnderPF_LM_ins_l62, 100.0, " ' VLM.Lampz;ins-l62
-	Lampz.Callback(62) = "UpdateLightMap Parts_LM_ins_l62, 100.0, " ' VLM.Lampz;ins-l62
-	Lampz.MassAssign(63) = l63 ' VLM.Lampz;ins-l63
-	Lampz.Callback(63) = "UpdateLightMap Playfield_LM_ins_l63, 100.0, " ' VLM.Lampz;ins-l63
-	Lampz.Callback(63) = "UpdateLightMap UnderPF_LM_ins_l63, 100.0, " ' VLM.Lampz;ins-l63
-	Lampz.Callback(63) = "UpdateLightMap Parts_LM_ins_l63, 100.0, " ' VLM.Lampz;ins-l63
-	Lampz.MassAssign(64) = l64 ' VLM.Lampz;ins-l64
-	Lampz.Callback(64) = "UpdateLightMap Playfield_LM_ins_l64, 100.0, " ' VLM.Lampz;ins-l64
-	Lampz.Callback(64) = "UpdateLightMap UnderPF_LM_ins_l64, 100.0, " ' VLM.Lampz;ins-l64
-	Lampz.Callback(64) = "UpdateLightMap Parts_LM_ins_l64, 100.0, " ' VLM.Lampz;ins-l64
-	Lampz.MassAssign(65) = l65 ' VLM.Lampz;ins-l65
-	Lampz.Callback(65) = "UpdateLightMap Playfield_LM_ins_l65, 100.0, " ' VLM.Lampz;ins-l65
-	Lampz.Callback(65) = "UpdateLightMap FlipperU_LM_ins_l65, 100.0, " ' VLM.Lampz;ins-l65
-	Lampz.Callback(65) = "UpdateLightMap UnderPF_LM_ins_l65, 100.0, " ' VLM.Lampz;ins-l65
-	Lampz.Callback(65) = "UpdateLightMap Parts_LM_ins_l65, 100.0, " ' VLM.Lampz;ins-l65
-	Lampz.MassAssign(66) = l66 ' VLM.Lampz;ins-l66
-	Lampz.Callback(66) = "UpdateLightMap Playfield_LM_ins_l66, 100.0, " ' VLM.Lampz;ins-l66
-	Lampz.Callback(66) = "UpdateLightMap UnderPF_LM_ins_l66, 100.0, " ' VLM.Lampz;ins-l66
-	Lampz.Callback(66) = "UpdateLightMap Parts_LM_ins_l66, 100.0, " ' VLM.Lampz;ins-l66
-	Lampz.MassAssign(67) = l67 ' VLM.Lampz;ins-l67
-	Lampz.Callback(67) = "UpdateLightMap Playfield_LM_ins_l67, 100.0, " ' VLM.Lampz;ins-l67
-	Lampz.Callback(67) = "UpdateLightMap UnderPF_LM_ins_l67, 100.0, " ' VLM.Lampz;ins-l67
-	Lampz.Callback(67) = "UpdateLightMap Parts_LM_ins_l67, 100.0, " ' VLM.Lampz;ins-l67
-	Lampz.MassAssign(68) = l68 ' VLM.Lampz;ins-l68
-	Lampz.Callback(68) = "UpdateLightMap Playfield_LM_ins_l68, 100.0, " ' VLM.Lampz;ins-l68
-	Lampz.Callback(68) = "UpdateLightMap UnderPF_LM_ins_l68, 100.0, " ' VLM.Lampz;ins-l68
-	Lampz.Callback(68) = "UpdateLightMap Parts_LM_ins_l68, 100.0, " ' VLM.Lampz;ins-l68
-	Lampz.MassAssign(77) = l77 ' VLM.Lampz;ins-l77
-	Lampz.Callback(77) = "UpdateLightMap Parts_LM_ins_l77, 100.0, " ' VLM.Lampz;ins-l77
-	Lampz.MassAssign(78) = l78 ' VLM.Lampz;ins-l78
-	Lampz.Callback(78) = "UpdateLightMap Parts_LM_ins_l78, 100.0, " ' VLM.Lampz;ins-l78
-	Lampz.MassAssign(79) = l79 ' VLM.Lampz;ins-l79
-	Lampz.Callback(79) = "UpdateLightMap Parts_LM_ins_l79, 100.0, " ' VLM.Lampz;ins-l79
-	Lampz.MassAssign(80) = l80 ' VLM.Lampz;ins-l80
-	Lampz.Callback(80) = "UpdateLightMap Playfield_LM_ins_l80, 100.0, " ' VLM.Lampz;ins-l80
-	Lampz.Callback(80) = "UpdateLightMap UnderPF_LM_ins_l80, 100.0, " ' VLM.Lampz;ins-l80
-	Lampz.Callback(80) = "UpdateLightMap Parts_LM_ins_l80, 100.0, " ' VLM.Lampz;ins-l80
-	Lampz.MassAssign(81) = l81 ' VLM.Lampz;ins-l81
-	Lampz.Callback(81) = "UpdateLightMap Playfield_LM_ins_l81, 100.0, " ' VLM.Lampz;ins-l81
-	Lampz.Callback(81) = "UpdateLightMap UnderPF_LM_ins_l81, 100.0, " ' VLM.Lampz;ins-l81
-	Lampz.Callback(81) = "UpdateLightMap Parts_LM_ins_l81, 100.0, " ' VLM.Lampz;ins-l81
-	Lampz.MassAssign(82) = l82 ' VLM.Lampz;ins-l82
-	Lampz.Callback(82) = "UpdateLightMap Playfield_LM_ins_l82, 100.0, " ' VLM.Lampz;ins-l82
-	Lampz.Callback(82) = "UpdateLightMap UnderPF_LM_ins_l82, 100.0, " ' VLM.Lampz;ins-l82
-	Lampz.MassAssign(83) = l83 ' VLM.Lampz;ins-l83
-	Lampz.Callback(83) = "UpdateLightMap Playfield_LM_ins_l83, 100.0, " ' VLM.Lampz;ins-l83
-	Lampz.Callback(83) = "UpdateLightMap UnderPF_LM_ins_l83, 100.0, " ' VLM.Lampz;ins-l83
-	Lampz.Callback(83) = "UpdateLightMap Parts_LM_ins_l83, 100.0, " ' VLM.Lampz;ins-l83
-	Lampz.MassAssign(84) = l84 ' VLM.Lampz;ins-l84
-	Lampz.Callback(84) = "UpdateLightMap Playfield_LM_ins_l84, 100.0, " ' VLM.Lampz;ins-l84
-	Lampz.Callback(84) = "UpdateLightMap UnderPF_LM_ins_l84, 100.0, " ' VLM.Lampz;ins-l84
-	Lampz.Callback(84) = "UpdateLightMap Parts_LM_ins_l84, 100.0, " ' VLM.Lampz;ins-l84
-	Lampz.MassAssign(90) = l90 ' VLM.Lampz;ins-l90
-	Lampz.Callback(90) = "UpdateLightMap Playfield_LM_ins_l90, 100.0, " ' VLM.Lampz;ins-l90
-	Lampz.Callback(90) = "UpdateLightMap UnderPF_LM_ins_l90, 100.0, " ' VLM.Lampz;ins-l90
-	Lampz.MassAssign(91) = l91 ' VLM.Lampz;ins-l91
-	Lampz.Callback(91) = "UpdateLightMap Playfield_LM_ins_l91, 100.0, " ' VLM.Lampz;ins-l91
-	Lampz.Callback(91) = "UpdateLightMap Spinner2_LM_ins_l91, 100.0, " ' VLM.Lampz;ins-l91
-	Lampz.Callback(91) = "UpdateLightMap sw20_LM_ins_l91, 100.0, " ' VLM.Lampz;ins-l91
-	Lampz.Callback(91) = "UpdateLightMap UnderPF_LM_ins_l91, 100.0, " ' VLM.Lampz;ins-l91
-	Lampz.Callback(91) = "UpdateLightMap Parts_LM_ins_l91, 100.0, " ' VLM.Lampz;ins-l91
-	Lampz.MassAssign(92) = l92 ' VLM.Lampz;ins-l92
-	Lampz.Callback(92) = "UpdateLightMap Playfield_LM_ins_l92, 100.0, " ' VLM.Lampz;ins-l92
-	Lampz.Callback(92) = "UpdateLightMap UnderPF_LM_ins_l92, 100.0, " ' VLM.Lampz;ins-l92
-	Lampz.Callback(92) = "UpdateLightMap Parts_LM_ins_l92, 100.0, " ' VLM.Lampz;ins-l92
-	Lampz.MassAssign(93) = l93 ' VLM.Lampz;ins-l93
-	Lampz.Callback(93) = "UpdateLightMap Playfield_LM_ins_l93, 100.0, " ' VLM.Lampz;ins-l93
-	Lampz.Callback(93) = "UpdateLightMap UnderPF_LM_ins_l93, 100.0, " ' VLM.Lampz;ins-l93
-	Lampz.MassAssign(94) = l94 ' VLM.Lampz;ins-l94
-	Lampz.Callback(94) = "UpdateLightMap PinCab_Rails_LM_ins_l94, 100.0, " ' VLM.Lampz;ins-l94
-	Lampz.Callback(94) = "UpdateLightMap UnderPF_LM_ins_l94, 100.0, " ' VLM.Lampz;ins-l94
-	Lampz.Callback(94) = "UpdateLightMap Parts_LM_ins_l94, 100.0, " ' VLM.Lampz;ins-l94
-	Lampz.Callback(94) = "UpdateLightMap Layer1_LM_ins_l94, 100.0, " ' VLM.Lampz;ins-l94
-	Lampz.MassAssign(95) = l95 ' VLM.Lampz;ins-l95
-	Lampz.Callback(95) = "UpdateLightMap Playfield_LM_ins_l95, 100.0, " ' VLM.Lampz;ins-l95
-	Lampz.Callback(95) = "UpdateLightMap UnderPF_LM_ins_l95, 100.0, " ' VLM.Lampz;ins-l95
-	Lampz.Callback(95) = "UpdateLightMap Parts_LM_ins_l95, 100.0, " ' VLM.Lampz;ins-l95
-	Lampz.MassAssign(160) = l160 ' VLM.Lampz;clock-l160
-	Lampz.Callback(160) = "UpdateLightMap UnderPF_LM_clock_l160, 100.0, " ' VLM.Lampz;clock-l160
-	Lampz.Callback(160) = "UpdateLightMap Parts_LM_clock_l160, 100.0, " ' VLM.Lampz;clock-l160
-	Lampz.Callback(160) = "UpdateLightMap Layer1_LM_clock_l160, 100.0, " ' VLM.Lampz;clock-l160
-	Lampz.MassAssign(161) = l161 ' VLM.Lampz;clock-l161
-	Lampz.Callback(161) = "UpdateLightMap UnderPF_LM_clock_l161, 100.0, " ' VLM.Lampz;clock-l161
-	Lampz.Callback(161) = "UpdateLightMap Parts_LM_clock_l161, 100.0, " ' VLM.Lampz;clock-l161
-	Lampz.Callback(161) = "UpdateLightMap Layer1_LM_clock_l161, 100.0, " ' VLM.Lampz;clock-l161
-	Lampz.MassAssign(162) = l162 ' VLM.Lampz;clock-l162
-	Lampz.Callback(162) = "UpdateLightMap UnderPF_LM_clock_l162, 100.0, " ' VLM.Lampz;clock-l162
-	Lampz.Callback(162) = "UpdateLightMap Parts_LM_clock_l162, 100.0, " ' VLM.Lampz;clock-l162
-	Lampz.Callback(162) = "UpdateLightMap Layer1_LM_clock_l162, 100.0, " ' VLM.Lampz;clock-l162
-	Lampz.MassAssign(163) = l163 ' VLM.Lampz;clock-l163
-	Lampz.Callback(163) = "UpdateLightMap UnderPF_LM_clock_l163, 100.0, " ' VLM.Lampz;clock-l163
-	Lampz.Callback(163) = "UpdateLightMap Parts_LM_clock_l163, 100.0, " ' VLM.Lampz;clock-l163
-	Lampz.Callback(163) = "UpdateLightMap Layer1_LM_clock_l163, 100.0, " ' VLM.Lampz;clock-l163
-	Lampz.MassAssign(164) = l164 ' VLM.Lampz;clock-l164
-	Lampz.Callback(164) = "UpdateLightMap UnderPF_LM_clock_l164, 100.0, " ' VLM.Lampz;clock-l164
-	Lampz.Callback(164) = "UpdateLightMap Parts_LM_clock_l164, 100.0, " ' VLM.Lampz;clock-l164
-	Lampz.Callback(164) = "UpdateLightMap Layer1_LM_clock_l164, 100.0, " ' VLM.Lampz;clock-l164
-	Lampz.MassAssign(165) = l165 ' VLM.Lampz;clock-l165
-	Lampz.Callback(165) = "UpdateLightMap UnderPF_LM_clock_l165, 100.0, " ' VLM.Lampz;clock-l165
-	Lampz.Callback(165) = "UpdateLightMap Parts_LM_clock_l165, 100.0, " ' VLM.Lampz;clock-l165
-	Lampz.Callback(165) = "UpdateLightMap Layer1_LM_clock_l165, 100.0, " ' VLM.Lampz;clock-l165
-	Lampz.MassAssign(166) = l166 ' VLM.Lampz;clock-l166
-	Lampz.Callback(166) = "UpdateLightMap UnderPF_LM_clock_l166, 100.0, " ' VLM.Lampz;clock-l166
-	Lampz.Callback(166) = "UpdateLightMap Parts_LM_clock_l166, 100.0, " ' VLM.Lampz;clock-l166
-	Lampz.Callback(166) = "UpdateLightMap Layer1_LM_clock_l166, 100.0, " ' VLM.Lampz;clock-l166
-	Lampz.MassAssign(167) = l167 ' VLM.Lampz;clock-l167
-	Lampz.Callback(167) = "UpdateLightMap UnderPF_LM_clock_l167, 100.0, " ' VLM.Lampz;clock-l167
-	Lampz.Callback(167) = "UpdateLightMap Parts_LM_clock_l167, 100.0, " ' VLM.Lampz;clock-l167
-	Lampz.Callback(167) = "UpdateLightMap Layer1_LM_clock_l167, 100.0, " ' VLM.Lampz;clock-l167
-	Lampz.MassAssign(168) = l168 ' VLM.Lampz;clock-l168
-	Lampz.Callback(168) = "UpdateLightMap UnderPF_LM_clock_l168, 100.0, " ' VLM.Lampz;clock-l168
-	Lampz.Callback(168) = "UpdateLightMap Parts_LM_clock_l168, 100.0, " ' VLM.Lampz;clock-l168
-	Lampz.Callback(168) = "UpdateLightMap Layer1_LM_clock_l168, 100.0, " ' VLM.Lampz;clock-l168
-	Lampz.MassAssign(169) = l169 ' VLM.Lampz;clock-l169
-	Lampz.Callback(169) = "UpdateLightMap UnderPF_LM_clock_l169, 100.0, " ' VLM.Lampz;clock-l169
-	Lampz.Callback(169) = "UpdateLightMap Parts_LM_clock_l169, 100.0, " ' VLM.Lampz;clock-l169
-	Lampz.Callback(169) = "UpdateLightMap Layer1_LM_clock_l169, 100.0, " ' VLM.Lampz;clock-l169
-	Lampz.MassAssign(150) = l150 ' VLM.Lampz;clock-l150
-	Lampz.Callback(150) = "UpdateLightMap UnderPF_LM_clock_l150, 100.0, " ' VLM.Lampz;clock-l150
-	Lampz.Callback(150) = "UpdateLightMap Parts_LM_clock_l150, 100.0, " ' VLM.Lampz;clock-l150
-	Lampz.Callback(150) = "UpdateLightMap Layer1_LM_clock_l150, 100.0, " ' VLM.Lampz;clock-l150
-	Lampz.MassAssign(151) = l151 ' VLM.Lampz;clock-l151
-	Lampz.Callback(151) = "UpdateLightMap UnderPF_LM_clock_l151, 100.0, " ' VLM.Lampz;clock-l151
-	Lampz.Callback(151) = "UpdateLightMap Parts_LM_clock_l151, 100.0, " ' VLM.Lampz;clock-l151
-	Lampz.Callback(151) = "UpdateLightMap Layer1_LM_clock_l151, 100.0, " ' VLM.Lampz;clock-l151
-	Lampz.MassAssign(152) = l152 ' VLM.Lampz;clock-l152
-	Lampz.Callback(152) = "UpdateLightMap UnderPF_LM_clock_l152, 100.0, " ' VLM.Lampz;clock-l152
-	Lampz.Callback(152) = "UpdateLightMap Parts_LM_clock_l152, 100.0, " ' VLM.Lampz;clock-l152
-	Lampz.Callback(152) = "UpdateLightMap Layer1_LM_clock_l152, 100.0, " ' VLM.Lampz;clock-l152
-	Lampz.MassAssign(153) = l153 ' VLM.Lampz;clock-l153
-	Lampz.Callback(153) = "UpdateLightMap UnderPF_LM_clock_l153, 100.0, " ' VLM.Lampz;clock-l153
-	Lampz.Callback(153) = "UpdateLightMap Parts_LM_clock_l153, 100.0, " ' VLM.Lampz;clock-l153
-	Lampz.Callback(153) = "UpdateLightMap Layer1_LM_clock_l153, 100.0, " ' VLM.Lampz;clock-l153
-	Lampz.MassAssign(154) = l154 ' VLM.Lampz;clock-l154
-	Lampz.Callback(154) = "UpdateLightMap UnderPF_LM_clock_l154, 100.0, " ' VLM.Lampz;clock-l154
-	Lampz.Callback(154) = "UpdateLightMap Parts_LM_clock_l154, 100.0, " ' VLM.Lampz;clock-l154
-	Lampz.Callback(154) = "UpdateLightMap Layer1_LM_clock_l154, 100.0, " ' VLM.Lampz;clock-l154
-	Lampz.MassAssign(155) = l155 ' VLM.Lampz;clock-l155
-	Lampz.Callback(155) = "UpdateLightMap UnderPF_LM_clock_l155, 100.0, " ' VLM.Lampz;clock-l155
-	Lampz.Callback(155) = "UpdateLightMap Parts_LM_clock_l155, 100.0, " ' VLM.Lampz;clock-l155
-	Lampz.Callback(155) = "UpdateLightMap Layer1_LM_clock_l155, 100.0, " ' VLM.Lampz;clock-l155
-	Lampz.MassAssign(156) = l156 ' VLM.Lampz;clock-l156
-	Lampz.Callback(156) = "UpdateLightMap UnderPF_LM_clock_l156, 100.0, " ' VLM.Lampz;clock-l156
-	Lampz.Callback(156) = "UpdateLightMap Parts_LM_clock_l156, 100.0, " ' VLM.Lampz;clock-l156
-	Lampz.Callback(156) = "UpdateLightMap Layer1_LM_clock_l156, 100.0, " ' VLM.Lampz;clock-l156
-	Lampz.MassAssign(157) = l157 ' VLM.Lampz;clock-l157
-	Lampz.Callback(157) = "UpdateLightMap UnderPF_LM_clock_l157, 100.0, " ' VLM.Lampz;clock-l157
-	Lampz.Callback(157) = "UpdateLightMap Parts_LM_clock_l157, 100.0, " ' VLM.Lampz;clock-l157
-	Lampz.Callback(157) = "UpdateLightMap Layer1_LM_clock_l157, 100.0, " ' VLM.Lampz;clock-l157
-	Lampz.MassAssign(158) = l158 ' VLM.Lampz;clock-l158
-	Lampz.Callback(158) = "UpdateLightMap UnderPF_LM_clock_l158, 100.0, " ' VLM.Lampz;clock-l158
-	Lampz.Callback(158) = "UpdateLightMap Parts_LM_clock_l158, 100.0, " ' VLM.Lampz;clock-l158
-	Lampz.Callback(158) = "UpdateLightMap Layer1_LM_clock_l158, 100.0, " ' VLM.Lampz;clock-l158
-	Lampz.MassAssign(159) = l159 ' VLM.Lampz;clock-l159
-	Lampz.Callback(159) = "UpdateLightMap UnderPF_LM_clock_l159, 100.0, " ' VLM.Lampz;clock-l159
-	Lampz.Callback(159) = "UpdateLightMap Parts_LM_clock_l159, 100.0, " ' VLM.Lampz;clock-l159
-	Lampz.Callback(159) = "UpdateLightMap Layer1_LM_clock_l159, 100.0, " ' VLM.Lampz;clock-l159
-
-
-
-
-	Lampz.MassAssign(70) = l70 ' VLM.Lampz;neon-l70
-	Lampz.MassAssign(69) = l69 ' VLM.Lampz;neon-l69
-	Lampz.MassAssign(72) = l72 ' VLM.Lampz;neon-l72
-	Lampz.MassAssign(71) = l71 ' VLM.Lampz;neon-l71
-	Lampz.MassAssign(74) = l74 ' VLM.Lampz;neon-l74
-	Lampz.MassAssign(75) = l75 ' VLM.Lampz;neon-l75
-	Lampz.MassAssign(76) = l76 ' VLM.Lampz;neon-l76
-	Lampz.MassAssign(73) = l73 ' VLM.Lampz;neon-l73
-	Lampz.MassAssign(140) = l140 ' VLM.Lampz;flashers-l140
-	Lampz.MassAssign(141) = l141 ' VLM.Lampz;flashers-l141
-	Lampz.MassAssign(142) = l142 ' VLM.Lampz;flashers-l142
-	Lampz.MassAssign(143) = l143 ' VLM.Lampz;flashers-l143
-	Lampz.MassAssign(100) = l100 ' VLM.Lampz;GI-l100
-	Lampz.MassAssign(101) = l101 ' VLM.Lampz;GI-l101
-	Lampz.MassAssign(102) = l102 ' VLM.Lampz;GI-l102
-	Lampz.MassAssign(103) = l103 ' VLM.Lampz;GI-l103
-	Lampz.MassAssign(104) = l104 ' VLM.Lampz;GI-l104
-	Lampz.MassAssign(105) = l105 ' VLM.Lampz;GI-l105
-	Lampz.MassAssign(106) = l106 ' VLM.Lampz;GI-l106
-	Lampz.MassAssign(107) = l107 ' VLM.Lampz;GI-l107
-	Lampz.MassAssign(108) = l108 ' VLM.Lampz;GI-l108
-	Lampz.MassAssign(109) = l109 ' VLM.Lampz;GI-l109
-	Lampz.MassAssign(110) = l110 ' VLM.Lampz;GI-l110
-	Lampz.MassAssign(111) = l111 ' VLM.Lampz;GI-l111
-	Lampz.MassAssign(112) = l112 ' VLM.Lampz;GI-l112
-	Lampz.MassAssign(113) = l113 ' VLM.Lampz;GI-l113
-	Lampz.MassAssign(114) = l114 ' VLM.Lampz;GI-l114
-	Lampz.MassAssign(117) = l117 ' VLM.Lampz;GI-l117
-	Lampz.MassAssign(118) = l118 ' VLM.Lampz;GI-l118
-	Lampz.MassAssign(133) = l133 ' VLM.Lampz;GI-l133
-	Lampz.MassAssign(134) = l134 ' VLM.Lampz;GI-l134
-	Lampz.MassAssign(119) = l119 ' VLM.Lampz;GI-l119
-	Lampz.MassAssign(120) = l120 ' VLM.Lampz;GI-l120
-	Lampz.MassAssign(121) = l121 ' VLM.Lampz;GI-l121
-	Lampz.MassAssign(122) = l122 ' VLM.Lampz;GI-l122
-	Lampz.MassAssign(123) = l123 ' VLM.Lampz;GI-l123
-	Lampz.MassAssign(124) = l124 ' VLM.Lampz;GI-l124
-	Lampz.MassAssign(125) = l125 ' VLM.Lampz;GI-l125
-	Lampz.MassAssign(126) = l126 ' VLM.Lampz;GI-l126
-	Lampz.MassAssign(127) = l127 ' VLM.Lampz;GI-l127
-	Lampz.MassAssign(128) = l128 ' VLM.Lampz;GI-l128
-	Lampz.MassAssign(129) = l129 ' VLM.Lampz;GI-l129
-	Lampz.MassAssign(130) = l130 ' VLM.Lampz;GI-l130
-	Lampz.MassAssign(131) = l131 ' VLM.Lampz;GI-l131
-	Lampz.MassAssign(132) = l132 ' VLM.Lampz;GI-l132
-	Lampz.MassAssign(15) = l15 ' VLM.Lampz;Inserts-l15
-	Lampz.MassAssign(16) = l16 ' VLM.Lampz;Inserts-l16
-	Lampz.MassAssign(17) = l17 ' VLM.Lampz;Inserts-l17
-	Lampz.MassAssign(18) = l18 ' VLM.Lampz;Inserts-l18
-	Lampz.MassAssign(19) = l19 ' VLM.Lampz;Inserts-l19
-	Lampz.MassAssign(20) = l20 ' VLM.Lampz;Inserts-l20
-	Lampz.MassAssign(21) = l21 ' VLM.Lampz;Inserts-l21
-	Lampz.MassAssign(22) = l22 ' VLM.Lampz;Inserts-l22
-	Lampz.MassAssign(23) = l23 ' VLM.Lampz;Inserts-l23
-	Lampz.MassAssign(24) = l24 ' VLM.Lampz;Inserts-l24
-	Lampz.MassAssign(25) = l25 ' VLM.Lampz;Inserts-l25
-	Lampz.MassAssign(26) = l26 ' VLM.Lampz;Inserts-l26
-	Lampz.MassAssign(27) = l27 ' VLM.Lampz;Inserts-l27
-	Lampz.MassAssign(28) = l28 ' VLM.Lampz;Inserts-l28
-	Lampz.MassAssign(29) = l29 ' VLM.Lampz;Inserts-l29
-	Lampz.MassAssign(30) = l30 ' VLM.Lampz;Inserts-l30
-	Lampz.MassAssign(31) = l31 ' VLM.Lampz;Inserts-l31
-	Lampz.MassAssign(32) = l32 ' VLM.Lampz;Inserts-l32
-	Lampz.MassAssign(33) = l33 ' VLM.Lampz;Inserts-l33
-	Lampz.MassAssign(34) = l34 ' VLM.Lampz;Inserts-l34
-	Lampz.MassAssign(35) = l35 ' VLM.Lampz;Inserts-l35
-	Lampz.MassAssign(37) = l37 ' VLM.Lampz;Inserts-l37
-	Lampz.MassAssign(38) = l38 ' VLM.Lampz;Inserts-l38
-	Lampz.MassAssign(39) = l39 ' VLM.Lampz;Inserts-l39
-	Lampz.MassAssign(40) = l40 ' VLM.Lampz;Inserts-l40
-	Lampz.MassAssign(41) = l41 ' VLM.Lampz;Inserts-l41
-	Lampz.MassAssign(42) = l42 ' VLM.Lampz;Inserts-l42
-	Lampz.MassAssign(43) = l43 ' VLM.Lampz;Inserts-l43
-	Lampz.MassAssign(44) = l44 ' VLM.Lampz;Inserts-l44
-	Lampz.MassAssign(45) = l45 ' VLM.Lampz;Inserts-l45
-	Lampz.MassAssign(46) = l46 ' VLM.Lampz;Inserts-l46
-	Lampz.MassAssign(47) = l47 ' VLM.Lampz;Inserts-l47
-	Lampz.MassAssign(48) = l48 ' VLM.Lampz;Inserts-l48
-	Lampz.MassAssign(49) = l49 ' VLM.Lampz;Inserts-l49
-	Lampz.MassAssign(50) = l50 ' VLM.Lampz;Inserts-l50
-	Lampz.MassAssign(51) = l51 ' VLM.Lampz;Inserts-l51
-	Lampz.MassAssign(52) = l52 ' VLM.Lampz;Inserts-l52
-	Lampz.MassAssign(53) = l53 ' VLM.Lampz;Inserts-l53
-	Lampz.MassAssign(54) = l54 ' VLM.Lampz;Inserts-l54
-	Lampz.MassAssign(55) = l55 ' VLM.Lampz;Inserts-l55
-	Lampz.MassAssign(56) = l56 ' VLM.Lampz;Inserts-l56
-	Lampz.MassAssign(57) = l57 ' VLM.Lampz;Inserts-l57
-	Lampz.MassAssign(58) = l58 ' VLM.Lampz;Inserts-l58
-	Lampz.MassAssign(59) = l59 ' VLM.Lampz;Inserts-l59
-	Lampz.MassAssign(60) = l60 ' VLM.Lampz;Inserts-l60
-	Lampz.MassAssign(61) = l61 ' VLM.Lampz;Inserts-l61
-	Lampz.MassAssign(62) = l62 ' VLM.Lampz;Inserts-l62
-	Lampz.MassAssign(63) = l63 ' VLM.Lampz;Inserts-l63
-	Lampz.MassAssign(64) = l64 ' VLM.Lampz;Inserts-l64
-	Lampz.MassAssign(65) = l65 ' VLM.Lampz;Inserts-l65
-	Lampz.MassAssign(66) = l66 ' VLM.Lampz;Inserts-l66
-	Lampz.MassAssign(67) = l67 ' VLM.Lampz;Inserts-l67
-	Lampz.MassAssign(68) = l68 ' VLM.Lampz;Inserts-l68
-	Lampz.MassAssign(77) = l77 ' VLM.Lampz;Inserts-l77
-	Lampz.MassAssign(78) = l78 ' VLM.Lampz;Inserts-l78
-	Lampz.MassAssign(79) = l79 ' VLM.Lampz;Inserts-l79
-	Lampz.MassAssign(80) = l80 ' VLM.Lampz;Inserts-l80
-	Lampz.MassAssign(81) = l81 ' VLM.Lampz;Inserts-l81
-	Lampz.MassAssign(82) = l82 ' VLM.Lampz;Inserts-l82
-	Lampz.MassAssign(83) = l83 ' VLM.Lampz;Inserts-l83
-	Lampz.MassAssign(84) = l84 ' VLM.Lampz;Inserts-l84
-	Lampz.MassAssign(90) = l90 ' VLM.Lampz;Inserts-l90
-	Lampz.MassAssign(91) = l91 ' VLM.Lampz;Inserts-l91
-	Lampz.MassAssign(92) = l92 ' VLM.Lampz;Inserts-l92
-	Lampz.MassAssign(93) = l93 ' VLM.Lampz;Inserts-l93
-	Lampz.MassAssign(94) = l94 ' VLM.Lampz;Inserts-l94
-	Lampz.MassAssign(95) = l95 ' VLM.Lampz;Inserts-l95
-	Lampz.MassAssign(160) = l160 ' VLM.Lampz;clock-l160
-	Lampz.MassAssign(161) = l161 ' VLM.Lampz;clock-l161
-	Lampz.MassAssign(162) = l162 ' VLM.Lampz;clock-l162
-	Lampz.MassAssign(163) = l163 ' VLM.Lampz;clock-l163
-	Lampz.MassAssign(164) = l164 ' VLM.Lampz;clock-l164
-	Lampz.MassAssign(165) = l165 ' VLM.Lampz;clock-l165
-	Lampz.MassAssign(166) = l166 ' VLM.Lampz;clock-l166
-	Lampz.MassAssign(167) = l167 ' VLM.Lampz;clock-l167
-	Lampz.MassAssign(168) = l168 ' VLM.Lampz;clock-l168
-	Lampz.MassAssign(169) = l169 ' VLM.Lampz;clock-l169
-	Lampz.MassAssign(150) = l150 ' VLM.Lampz;clock-l150
-	Lampz.MassAssign(151) = l151 ' VLM.Lampz;clock-l151
-	Lampz.MassAssign(152) = l152 ' VLM.Lampz;clock-l152
-	Lampz.MassAssign(153) = l153 ' VLM.Lampz;clock-l153
-	Lampz.MassAssign(154) = l154 ' VLM.Lampz;clock-l154
-	Lampz.MassAssign(155) = l155 ' VLM.Lampz;clock-l155
-	Lampz.MassAssign(156) = l156 ' VLM.Lampz;clock-l156
-	Lampz.MassAssign(157) = l157 ' VLM.Lampz;clock-l157
-	Lampz.MassAssign(158) = l158 ' VLM.Lampz;clock-l158
-	Lampz.MassAssign(159) = l159 ' VLM.Lampz;clock-l159
-
-
-
-
-    	Lampz.MassAssign(70) = l70 ' VLM.Lampz;neon-l70
-		Lampz.MassAssign(69) = l69 ' VLM.Lampz;neon-l69
-		Lampz.MassAssign(72) = l72 ' VLM.Lampz;neon-l72
-		Lampz.MassAssign(71) = l71 ' VLM.Lampz;neon-l71
-		Lampz.MassAssign(74) = l74 ' VLM.Lampz;neon-l74
-		Lampz.MassAssign(75) = l75 ' VLM.Lampz;neon-l75
-		Lampz.MassAssign(76) = l76 ' VLM.Lampz;neon-l76
-		Lampz.MassAssign(73) = l73 ' VLM.Lampz;neon-l73
-		Lampz.MassAssign(15) = l15 ' VLM.Lampz;Inserts-l15
-														Lampz.MassAssign(16) = l16 ' VLM.Lampz;Inserts-l16
-		Lampz.MassAssign(17) = l17 ' VLM.Lampz;Inserts-l17
-					Lampz.MassAssign(18) = l18 ' VLM.Lampz;Inserts-l18
-						Lampz.MassAssign(19) = l19 ' VLM.Lampz;Inserts-l19
-				Lampz.MassAssign(20) = l20 ' VLM.Lampz;Inserts-l20
-		Lampz.MassAssign(21) = l21 ' VLM.Lampz;Inserts-l21
-		Lampz.MassAssign(22) = l22 ' VLM.Lampz;Inserts-l22
-		Lampz.MassAssign(23) = l23 ' VLM.Lampz;Inserts-l23
-				Lampz.MassAssign(24) = l24 ' VLM.Lampz;Inserts-l24
-		Lampz.MassAssign(25) = l25 ' VLM.Lampz;Inserts-l25
-		Lampz.MassAssign(26) = l26 ' VLM.Lampz;Inserts-l26
-			Lampz.MassAssign(27) = l27 ' VLM.Lampz;Inserts-l27
-		Lampz.MassAssign(28) = l28 ' VLM.Lampz;Inserts-l28
-		Lampz.MassAssign(29) = l29 ' VLM.Lampz;Inserts-l29
-		Lampz.MassAssign(30) = l30 ' VLM.Lampz;Inserts-l30
-		Lampz.MassAssign(31) = l31 ' VLM.Lampz;Inserts-l31
-		Lampz.MassAssign(32) = l32 ' VLM.Lampz;Inserts-l32
-		Lampz.MassAssign(33) = l33 ' VLM.Lampz;Inserts-l33
-			Lampz.MassAssign(34) = l34 ' VLM.Lampz;Inserts-l34
-		Lampz.MassAssign(35) = l35 ' VLM.Lampz;Inserts-l35
-		Lampz.MassAssign(37) = l37 ' VLM.Lampz;Inserts-l37
-			Lampz.MassAssign(38) = l38 ' VLM.Lampz;Inserts-l38
-			Lampz.MassAssign(39) = l39 ' VLM.Lampz;Inserts-l39
-		Lampz.MassAssign(40) = l40 ' VLM.Lampz;Inserts-l40
-		Lampz.MassAssign(41) = l41 ' VLM.Lampz;Inserts-l41
-		Lampz.MassAssign(42) = l42 ' VLM.Lampz;Inserts-l42
-		Lampz.MassAssign(43) = l43 ' VLM.Lampz;Inserts-l43
-		Lampz.MassAssign(44) = l44 ' VLM.Lampz;Inserts-l44
-		Lampz.MassAssign(45) = l45 ' VLM.Lampz;Inserts-l45
-		Lampz.MassAssign(46) = l46 ' VLM.Lampz;Inserts-l46
-		Lampz.MassAssign(47) = l47 ' VLM.Lampz;Inserts-l47
-		Lampz.MassAssign(48) = l48 ' VLM.Lampz;Inserts-l48
-				Lampz.MassAssign(49) = l49 ' VLM.Lampz;Inserts-l49
-			Lampz.MassAssign(50) = l50 ' VLM.Lampz;Inserts-l50
-		Lampz.MassAssign(51) = l51 ' VLM.Lampz;Inserts-l51
-		Lampz.MassAssign(52) = l52 ' VLM.Lampz;Inserts-l52
-		Lampz.MassAssign(53) = l53 ' VLM.Lampz;Inserts-l53
-		Lampz.MassAssign(54) = l54 ' VLM.Lampz;Inserts-l54
-		Lampz.MassAssign(55) = l55 ' VLM.Lampz;Inserts-l55
-		Lampz.MassAssign(56) = l56 ' VLM.Lampz;Inserts-l56
-			Lampz.MassAssign(57) = l57 ' VLM.Lampz;Inserts-l57
-		Lampz.MassAssign(58) = l58 ' VLM.Lampz;Inserts-l58
-		Lampz.MassAssign(59) = l59 ' VLM.Lampz;Inserts-l59
-						Lampz.MassAssign(60) = l60 ' VLM.Lampz;Inserts-l60
-			Lampz.MassAssign(61) = l61 ' VLM.Lampz;Inserts-l61
-				Lampz.MassAssign(62) = l62 ' VLM.Lampz;Inserts-l62
-		Lampz.MassAssign(63) = l63 ' VLM.Lampz;Inserts-l63
-		Lampz.MassAssign(64) = l64 ' VLM.Lampz;Inserts-l64
-		Lampz.MassAssign(65) = l65 ' VLM.Lampz;Inserts-l65
-			Lampz.MassAssign(66) = l66 ' VLM.Lampz;Inserts-l66
-		Lampz.MassAssign(67) = l67 ' VLM.Lampz;Inserts-l67
-		Lampz.MassAssign(68) = l68 ' VLM.Lampz;Inserts-l68
-		Lampz.MassAssign(77) = l77 ' VLM.Lampz;Inserts-l77
-			Lampz.MassAssign(78) = l78 ' VLM.Lampz;Inserts-l78
-				Lampz.MassAssign(79) = l79 ' VLM.Lampz;Inserts-l79
-		Lampz.MassAssign(80) = l80 ' VLM.Lampz;Inserts-l80
-		Lampz.MassAssign(81) = l81 ' VLM.Lampz;Inserts-l81
-			Lampz.MassAssign(82) = l82 ' VLM.Lampz;Inserts-l82
-			Lampz.MassAssign(83) = l83 ' VLM.Lampz;Inserts-l83
-		Lampz.MassAssign(84) = l84 ' VLM.Lampz;Inserts-l84
-		Lampz.MassAssign(90) = l90 ' VLM.Lampz;Inserts-l90
-		Lampz.MassAssign(91) = l91 ' VLM.Lampz;Inserts-l91
-				Lampz.MassAssign(92) = l92 ' VLM.Lampz;Inserts-l92
-		Lampz.MassAssign(93) = l93 ' VLM.Lampz;Inserts-l93
-		Lampz.MassAssign(94) = l94 ' VLM.Lampz;Inserts-l94
-			Lampz.MassAssign(95) = l95 ' VLM.Lampz;Inserts-l95
-		Lampz.MassAssign(160) = l160 ' VLM.Lampz;clock-l160
-		Lampz.MassAssign(161) = l161 ' VLM.Lampz;clock-l161
-		Lampz.MassAssign(162) = l162 ' VLM.Lampz;clock-l162
-		Lampz.MassAssign(163) = l163 ' VLM.Lampz;clock-l163
-		Lampz.MassAssign(164) = l164 ' VLM.Lampz;clock-l164
-		Lampz.MassAssign(165) = l165 ' VLM.Lampz;clock-l165
-		Lampz.MassAssign(166) = l166 ' VLM.Lampz;clock-l166
-		Lampz.MassAssign(167) = l167 ' VLM.Lampz;clock-l167
-		Lampz.MassAssign(168) = l168 ' VLM.Lampz;clock-l168
-		Lampz.MassAssign(169) = l169 ' VLM.Lampz;clock-l169
-		Lampz.MassAssign(150) = l150 ' VLM.Lampz;clock-l150
-		Lampz.MassAssign(151) = l151 ' VLM.Lampz;clock-l151
-		Lampz.MassAssign(152) = l152 ' VLM.Lampz;clock-l152
-		Lampz.MassAssign(153) = l153 ' VLM.Lampz;clock-l153
-		Lampz.MassAssign(154) = l154 ' VLM.Lampz;clock-l154
-		Lampz.MassAssign(155) = l155 ' VLM.Lampz;clock-l155
-		Lampz.MassAssign(156) = l156 ' VLM.Lampz;clock-l156
-		Lampz.MassAssign(157) = l157 ' VLM.Lampz;clock-l157
-		Lampz.MassAssign(158) = l158 ' VLM.Lampz;clock-l158
-		Lampz.MassAssign(159) = l159 ' VLM.Lampz;clock-l159
-	End Sub
-
 
 
 '***********************************************************************************************************************
-' Lights State Controller - 8.0.0
+' Lights State Controller - 9.0.0
 '  
 ' A light state controller for original vpx tables.
 '
@@ -12260,7 +12845,7 @@ Lampz.MassAssign(70) = l70 ' VLM.Lampz;neon-l70
 
 Class LStateController
 
-    Private m_currentFrameState, m_on, m_off, m_seqRunners, m_lights, m_seqs, m_vpxLightSyncRunning, m_vpxLightSyncClear, m_vpxLightSyncCollection, m_tableSeqColor, m_tableSeqOffset, m_tableSeqSpeed, m_tableSeqDirection, m_tableSeqFadeUp, m_tableSeqFadeDown, m_frametime, m_initFrameTime, m_pulse, m_pulseInterval, useVpxLights, m_lightmaps, m_seqOverrideRunners
+    Private m_currentFrameState, m_on, m_off, m_seqRunners, m_lights, m_seqs, m_vpxLightSyncRunning, m_vpxLightSyncClear, m_vpxLightSyncCollection, m_tableSeqColor, m_tableSeqOffset, m_tableSeqSpeed, m_tableSeqDirection, m_tableSeqFadeUp, m_tableSeqFadeDown, m_frametime, m_initFrameTime, m_pulse, m_pulseInterval, m_lightmaps, m_seqOverrideRunners, m_pauseMainLights, m_pausedLights, m_minX, m_minY, m_maxX, m_maxY, m_width, m_height, m_centerX, m_centerY, m_coordsX, m_coordsY, m_angles, m_radii
 
     Private Sub Class_Initialize()
         Set m_lights = CreateObject("Scripting.Dictionary")
@@ -12274,15 +12859,22 @@ Class LStateController
         Set m_on = CreateObject("Scripting.Dictionary")
         m_vpxLightSyncRunning = False
         m_vpxLightSyncCollection = Null
-		m_initFrameTime = 0
+        m_initFrameTime = 0
         m_frameTime = 0
         m_pulseInterval = 26
         m_vpxLightSyncClear = False
         m_tableSeqColor = Null
         m_tableSeqFadeUp = Null
         m_tableSeqFadeDown = Null
-        useVpxLights = False
+        m_pauseMainLights = False
+        Set m_pausedLights = CreateObject("Scripting.Dictionary")
         Set m_lightmaps = CreateObject("Scripting.Dictionary")
+        m_minX = 1000000
+        m_minY = 1000000
+        m_maxX = -1000000
+        m_maxY = -1000000
+        m_centerX = Round(tableWidth/2)
+        m_centerY = Round(tableHeight/2)
     End Sub
 
     Private Sub AssignStateForFrame(key, state)
@@ -12398,113 +12990,269 @@ Class LStateController
             lights = lights + "   y: "& light.y/tableheight & vbCrLf
         Next
         Dim objFileToWrite : Set objFileToWrite = CreateObject("Scripting.FileSystemObject").OpenTextFile(cGameName & "_LightShows/lights-"&name&".yaml",2,true)
-	    objFileToWrite.WriteLine(lights)
-	    objFileToWrite.Close
-	    Set objFileToWrite = Nothing
+        objFileToWrite.WriteLine(lights)
+        objFileToWrite.Close
+        Set objFileToWrite = Nothing
         Debug.print("Lights YAML File saved to: " & cGameName & "LightShows/lights-"&name&".yaml")
     End Sub
 
-	Dim leds()
-	Dim lightsToLeds(255)
-	Sub PrintLEDs
-		Dim light
+    Dim leds
+    Dim ledGrid()
+    Dim lightsToLeds
+
+    Sub PrintLEDs
+        Dim light
         Dim lights : lights = ""
+    
+        Dim row,col,value,i
+        For row = LBound(ledGrid, 1) To UBound(ledGrid, 1)
+            For col = LBound(ledGrid, 2) To UBound(ledGrid, 2)
+                ' Access the array element and do something with it
+                value = ledGrid(row, col)
+                lights = lights + cstr(value) & vbTab
+            Next
+            lights = lights + vbCrLf
+        Next
+
+        Dim objFileToWrite : Set objFileToWrite = CreateObject("Scripting.FileSystemObject").OpenTextFile(cGameName & "_LightShows/led-grid.txt",2,true)
+        objFileToWrite.WriteLine(lights)
+        objFileToWrite.Close
+        Set objFileToWrite = Nothing
+        Debug.print("Lights File saved to: " & cGameName & "LightShows/led-grid.txt")
+
+
+        lights = ""
+        For i = 0 To UBound(leds)
+            value = leds(i)
+            If IsArray(value) Then
+                lights = lights + "Index: " & cstr(value(0)) & ". X: " & cstr(value(1)) & ". Y:" & cstr(value(2)) & ". Angle:" & cstr(value(3)) & ". Radius:" & cstr(value(4)) & ". CoordsX:" & cstr(value(5)) & ". CoordsY:" & cstr(value(6)) & ". Angle256:" & cstr(value(7)) &". Radii256:" & cstr(value(8)) &","
+            End If
+            lights = lights + vbCrLf
+            'lights = lights + cstr(value) & ","
+            
+        Next
+
         
-		Dim row,col,value
-		For row = LBound(leds, 1) To UBound(leds, 1)
-			For col = LBound(leds, 2) To UBound(leds, 2)
-				' Access the array element and do something with it
-				value = leds(row, col)
-				lights = lights + cstr(value) & vbTab
-			Next
-			lights = lights + vbCrLf
-		Next
+        Set objFileToWrite = CreateObject("Scripting.FileSystemObject").OpenTextFile(cGameName & "_LightShows/coordsX.txt",2,true)
+        objFileToWrite.WriteLine(lights)
+        objFileToWrite.Close
+        Set objFileToWrite = Nothing
+        Debug.print("Lights File saved to: " & cGameName & "LightShows/coordsX.txt")
 
-		Dim objFileToWrite : Set objFileToWrite = CreateObject("Scripting.FileSystemObject").OpenTextFile(cGameName & "_LightShows/leds.txt",2,true)
-	    objFileToWrite.WriteLine(lights)
-	    objFileToWrite.Close
-	    Set objFileToWrite = Nothing
-        Debug.print("Lights File saved to: " & cGameName & "LightShows/leds.txt")
 
-	End Sub
+    End Sub
 
     Public Sub RegisterLights(mode)
 
         Dim idx,tmp,vpxLight,lcItem
-        If mode = "Lampz" Then
-            
-            For idx = 0 to UBound(Lampz.obj)
-                If Lampz.IsLight(idx) Then
-                    Set lcItem = new LCItem
-                    If IsArray(Lampz.obj(idx)) Then
-                        tmp = Lampz.obj(idx)
-                        Set vpxLight = tmp(0)
-						
-                    Else
-                        Set vpxLight = Lampz.obj(idx)
-                        
-                    End If
-                    Lampz.Modulate(idx) = 1/100
-                    Lampz.FadeSpeedUp(idx) = 100/30 : Lampz.FadeSpeedDown(idx) = 100/120
-                    lcItem.Init idx, vpxLight.BlinkInterval, Array(vpxLight.color, vpxLight.colorFull), vpxLight.name, vpxLight.x, vpxLight.y
-                    
-                    m_lights.Add vpxLight.Name, lcItem
-                    m_seqRunners.Add "lSeqRunner" & CStr(vpxLight.name), new LCSeqRunner
-                End If
-            Next        
-        ElseIf mode = "VPX" Then
-            useVpxLights = True
-
-			Dim colCount : colCount = Round(tablewidth/20)
-			Dim rowCount : rowCount = Round(tableheight/20)
-			
-			ReDim leds(rowCount,colCount)
-				
-			dim ledIdx : ledIdx = 0
+    
+            vpmMapLights aLights
+            Dim colCount : colCount = Round(tablewidth/40)
+            Dim rowCount : rowCount = Round(tableheight/40)
+                
+            dim ledIdx : ledIdx = 0
+            redim leds(UBound(Lights)-1)
+            redim lightsToLeds(UBound(Lights)-1)
+            ReDim ledGrid(rowCount,colCount)
             For idx = 0 to UBound(Lights)
                 vpxLight = Null
                 Set lcItem = new LCItem
-				debug.print("TRYING TO REGISTER IDX: " & idx)
+                debug.print("TRYING TO REGISTER IDX: " & idx)
                 If IsArray(Lights(idx)) Then
                     tmp = Lights(idx)
                     Set vpxLight = tmp(0)
-					debug.print("TEMP LIGHT NAME for idx:" & idx & ", light: " & vpxLight.name)
+                    debug.print("TEMP LIGHT NAME for idx:" & idx & ", light: " & vpxLight.name)
                 ElseIf IsObject(Lights(idx)) Then
                     Set vpxLight = Lights(idx)
                 End If
                 If Not IsNull(vpxLight) Then
-					Debug.print("Registering Light: "& vpxLight.name)
+                    Debug.print("Registering Light: "& vpxLight.name)
 
 
-					Dim r : r = Round(vpxLight.y/20)
-					Dim c : c = Round(vpxLight.x/20)
-                    If r < rowCount And c < colCount Then
-                        If Not leds(r,c) = "" Then
-                            MsgBox("Move your lights punk: " & idx)
+                    Dim r : r = Round(vpxLight.y/40)
+                    Dim c : c = Round(vpxLight.x/40)
+                    If r < rowCount And c < colCount And r >= 0 And c >= 0 Then
+                        If Not ledGrid(r,c) = "" Then
+                            MsgBox(vpxLight.name & " is too close to another light")
                         End If
-                        leds(r,c) = ledIdx
+                        leds(ledIdx) = Array(ledIdx, c, r, 0,0,0,0,0,0) 'index, row, col, angle, radius, x256, y256, angle256, radius256
                         lightsToLeds(idx) = ledIdx
+                        ledGrid(r,c) = ledIdx
                         ledIdx = ledIdx + 1
+                        If (c < m_minX) Then : m_minX = c
+                        if (c > m_maxX) Then : m_maxX = c
+                
+                        if (r < m_minY) Then : m_minY = r
+                        if (r > m_maxY) Then : m_maxY = r
                     End If
                     Dim e, lmStr: lmStr = "lmArr = Array("    
                     For Each e in GetElements()
-                        If InStr(e.Name, "_" & vpxLight.Name) Or InStr(e.Name, "_" & vpxLight.Name & "_") Or InStr(e.Name, "_" & vpxLight.UserValue & "_") Then
+                        If InStr(e.Name, "_" & vpxLight.Name & "_") Or InStr(e.Name, "_" & vpxLight.UserValue & "_") Then
                             Debug.Print(e.Name)
                             lmStr = lmStr & e.Name & ","
                         End If
                     Next
                     lmStr = lmStr & "Null)"
                     lmStr = Replace(lmStr, ",Null)", ")")
-			        ExecuteGlobal "Dim lmArr : "&lmStr
+                    ExecuteGlobal "Dim lmArr : "&lmStr
                     m_lightmaps.Add vpxLight.Name, lmArr
                     Debug.print("Registering Light: "& vpxLight.name) 
                     lcItem.Init idx, vpxLight.BlinkInterval, Array(vpxLight.color, vpxLight.colorFull), vpxLight.name, vpxLight.x, vpxLight.y
                     m_lights.Add vpxLight.Name, lcItem
                     m_seqRunners.Add "lSeqRunner" & CStr(vpxLight.name), new LCSeqRunner
                 End If
-            Next  
-        End If
+            Next
+            'ReDim Preserve leds(ledIdx)
+            m_width = m_maxX - m_minX + 1
+            m_height = m_maxY - m_minY + 1
+            m_centerX = m_width / 2
+            m_centerY = m_height / 2
+            GenerateLedMapCode()
     End Sub
+
+    Private Sub GenerateLedMapCode()
+
+        Dim minX256, minY256, minAngle, minAngle256, minRadius, minRadius256
+        Dim maxX256, maxY256, maxAngle, maxAngle256, maxRadius, maxRadius256
+        Dim i, led
+        minX256 = 1000000
+        minY256 = 1000000
+        minAngle = 1000000
+        minAngle256 = 1000000
+        minRadius = 1000000
+        minRadius256 = 1000000
+
+        maxX256 = -1000000
+        maxY256 = -1000000
+        maxAngle = -1000000
+        maxAngle256 = -1000000
+        maxRadius = -1000000
+        maxRadius256 = -1000000
+
+        For i = 0 To UBound(leds)
+            led = leds(i)
+            If IsArray(led) Then
+                
+                Dim x : x = led(1)
+                Dim y : y = led(2)
+            
+                Dim radius : radius = Sqr((x - m_centerX) ^ 2 + (y - m_centerY) ^ 2)
+                Dim radians: radians = Atn2(m_centerY - y, m_centerX - x)
+            
+                angle = radians * (180 / 3.141592653589793)
+                Do While angle < 0
+                    angle = angle + 360
+                Loop
+                Do While angle > 360
+                    angle = angle - 360
+                Loop
+            
+                If angle < minAngle Then
+                    minAngle = angle
+                End If
+                If angle > maxAngle Then
+                    maxAngle = angle
+                End If
+            
+                If radius < minRadius Then
+                    minRadius = radius
+                End If
+                If radius > maxRadius Then
+                    maxRadius = radius
+                End If
+            
+                led(3) = angle
+                led(4) = radius
+                leds(i) = led
+            End If
+        Next
+
+        For i = 0 To UBound(leds)
+            led = leds(i)
+            If IsArray(led) Then
+                Dim x256 : x256 = MapNumber(led(1), m_minX, m_maxX, 0, 255)
+                Dim y256 : y256 = MapNumber(led(2), m_minY, m_maxY, 0, 255)
+                Dim angle256 : angle256 = MapNumber(led(3), 0, 360, 0, 255)
+                Dim radius256 : radius256 = MapNumber(led(4), 0, maxRadius, 0, 255)
+            
+                led(5) = Round(x256)
+                led(6) = Round(y256)
+                led(7) = Round(angle256)
+                led(8) = Round(radius256)
+            
+                If x256 < minX256 Then minX256 = x256
+                If x256 > maxX256 Then maxX256 = x256
+            
+                If y256 < minY256 Then minY256 = y256
+                If y256 > maxY256 Then maxY256 = y256
+            
+                If angle256 < minAngle256 Then minAngle256 = angle256
+                If angle256 > maxAngle256 Then maxAngle256 = angle256
+            
+                If radius256 < minRadius256 Then minRadius256 = radius256
+                If radius256 > maxRadius256 Then maxRadius256 = radius256
+                leds(i) = led
+            End If
+        Next
+
+        reDim m_coordsX(UBound(leds)-1)
+        reDim m_coordsY(UBound(leds)-1)
+        reDim m_angles(UBound(leds)-1)
+        reDim m_radii(UBound(leds)-1)
+        
+        For i = 0 To UBound(leds)
+            led = leds(i)
+            If IsArray(led) Then
+                m_coordsX(i)    =  leds(i)(5) 'x256
+                m_coordsY(i)    =  leds(i)(6) 'y256
+                m_angles(i)     =  leds(i)(7) 'angle256
+                m_radii(i)      =  leds(i)(8) 'radius256
+            End If
+        Next
+
+    End Sub
+
+    Private Function MapNumber(l, inMin, inMax, outMin, outMax)
+        If (inMax - inMin + outMin) = 0 Then
+            MapNumber = 0
+        Else
+            MapNumber = ((l - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
+        End If
+    End Function
+
+    Private Function ReverseArray(arr)
+        Dim i, upperBound
+        upperBound = UBound(arr)
+
+        ' Create a new array of the same size
+        Dim reversedArr()
+        ReDim reversedArr(upperBound)
+
+        ' Fill the new array with elements in reverse order
+        For i = 0 To upperBound
+            reversedArr(i) = arr(upperBound - i)
+        Next
+
+        ReverseArray = reversedArr
+    End Function
+
+    Private Function Atn2(dy, dx)
+        If dx > 0 Then
+            Atn2 = Atn(dy / dx)
+        ElseIf dx < 0 Then
+            If dy = 0 Then 
+                Atn2 = pi
+            Else
+                Atn2 = Sgn(dy) * (pi - Atn(Abs(dy / dx)))
+            end if
+        ElseIf dx = 0 Then
+            if dy = 0 Then
+                Atn2 = 0
+            else
+                Atn2 = Sgn(dy) * pi / 2
+            end if
+        End If
+    End Function
 
     Private Function ColtoArray(aDict)	'converts a collection to an indexed array. Indexes will come out random probably.
         redim a(999)
@@ -12513,15 +13261,15 @@ Class LStateController
         redim preserve a(count-1) : ColtoArray = a
     End Function
 
-	Function IncrementUInt8(x, increment)
-	  If x + increment > 255 Then
-		IncrementUInt8 = x + increment - 256
-	  Else
-		IncrementUInt8 = x + increment
-	  End If
-	End Function
+    Function IncrementUInt8(x, increment)
+    If x + increment > 255 Then
+        IncrementUInt8 = x + increment - 256
+    Else
+        IncrementUInt8 = x + increment
+    End If
+    End Function
 
-	Public Sub AddLight(light, idx)
+    Public Sub AddLight(light, idx)
         If m_lights.Exists(light.name) Then
             Exit Sub
         End If
@@ -12550,16 +13298,23 @@ Class LStateController
 
     Public Sub FadeLightToColor(light, color, fadeSpeed)
         If m_lights.Exists(light.name) Then
-                dim lightColor : lightColor = m_lights(light.name).Color
-                
-                Dim seq : Set seq = new LCSeq
-                seq.Name = light.name & "Fade"
-                seq.Sequence = FadeRGB(light.name, lightColor(0), color, fadeSpeed/20)
-                seq.Color = Null
-                seq.UpdateInterval = 20
-                seq.Repeat = False
-                m_lights(light.name).Color = color
-                m_seqRunners("lSeqRunner"&CStr(light.name)).AddItem seq
+            dim lightColor, steps
+            steps = Round(fadeSpeed/20)
+            If steps < 10 Then
+                steps = 10
+            End If
+            lightColor = m_lights(light.name).Color
+            Dim seq : Set seq = new LCSeq
+            seq.Name = light.name & "Fade"
+            seq.Sequence = FadeRGB(light.name, lightColor(0), color, steps)
+            seq.Color = Null
+            seq.UpdateInterval = 20
+            seq.Repeat = False
+            m_lights(light.name).Color = color
+            m_seqRunners("lSeqRunner"&CStr(light.name)).AddItem seq
+            If color = RGB(0,0,0) Then
+                m_lightOff(light.name)
+            End If
         End If
     End Sub
 
@@ -12588,9 +13343,9 @@ Class LStateController
     End Sub
 
     Private Sub m_LightOn(name)
-		
+        
         If m_lights.Exists(name) Then
-			
+            
             If m_off.Exists(name) Then 
                 m_off.Remove(name)
             End If
@@ -12746,7 +13501,7 @@ Class LStateController
         If m_lights.Exists(light.name) And m_seqs.Exists(name & light.name) Then
             m_seqRunners("lSeqRunner"&CStr(light.name)).RemoveItem m_seqs(name & light.name)
             If IsNUll(m_seqRunners("lSeqRunner"&CStr(light.name)).CurrentItem) Then
-               LightOff(light)
+            LightOff(light)
             End If
         End If
     End Sub
@@ -12860,7 +13615,7 @@ Class LStateController
         Dim lcSeqKey, light, seqs, lcSeq
         Set seqs = m_seqRunners(lcSeqRunner).Items()
         For Each lcSeqKey in seqs.Keys()
-			Set lcSeq = seqs(lcSeqKey)
+            Set lcSeq = seqs(lcSeqKey)
             For Each light in lcSeq.LightsInSeq
                 If(m_lights.Exists(light)) Then
                     AssignStateForFrame light, (new FrameState)(0, Null, m_lights(light).Idx)
@@ -12915,20 +13670,20 @@ Class LStateController
         For Each runner in m_seqOverrideRunners.Keys()
             m_seqOverrideRunners(runner).RemoveAll()
         Next
-		For Each light in m_lights.Keys()
+        For Each light in m_lights.Keys()
             AssignStateForFrame light, (new FrameState)(0, Null, m_lights(light).Idx)
         Next
     End Sub
 
-   Public Sub SyncLightMapColors()
+Public Sub SyncLightMapColors()
         dim light,lm
         For Each light in m_lights.Keys()
             If m_lightmaps.Exists(light) Then
                 For Each lm in m_lightmaps(light)
                     dim color : color = m_lights(light).Color
                     If not IsNull(lm) Then
-						lm.Color = color(0)
-					End If
+                        lm.Color = color(0)
+                    End If
                 Next
             End If
         Next
@@ -12937,60 +13692,73 @@ Class LStateController
     Public Sub SyncWithVpxLights(lightSeq)
         m_vpxLightSyncCollection = ColToArray(eval(lightSeq.collection))
         m_vpxLightSyncRunning = True
-		m_tableSeqSpeed = Null
-		m_tableSeqOffset = 0
-		m_tableSeqDirection = Null
+        m_tableSeqSpeed = Null
+        m_tableSeqOffset = 0
+        m_tableSeqDirection = Null
     End Sub
 
     Public Sub StopSyncWithVpxLights()
         m_vpxLightSyncRunning = False
         m_vpxLightSyncClear = True
-		m_tableSeqColor = Null
+        m_tableSeqColor = Null
         m_tableSeqFadeUp = Null
         m_tableSeqFadeDown = Null
-		m_tableSeqSpeed = Null
-		m_tableSeqOffset = 0
-		m_tableSeqDirection = Null
+        m_tableSeqSpeed = Null
+        m_tableSeqOffset = 0
+        m_tableSeqDirection = Null
     End Sub
 
-	Public Sub SetVpxSyncLightColor(color)
-		m_tableSeqColor = color
-	End Sub
-	Public Sub SetVpxSyncLightGradientColor(gradient, direction, speed)
-		m_tableSeqColor = gradient
-		m_tableSeqDirection = direction
-		m_tableSeqSpeed = speed
-	End Sub
+    Public Sub SetVpxSyncLightColor(color)
+        m_tableSeqColor = color
+    End Sub
+    
+    Public Sub SetVpxSyncLightsPalette(palette, direction, speed)
+        m_tableSeqColor = palette
+        Select Case direction:
+            Case "BottomToTop": 
+                m_tableSeqDirection = m_coordsY
+                m_tableSeqColor = ReverseArray(palette)
+            Case "TopToBottom": 
+                m_tableSeqDirection = m_coordsY
+            Case "RightToLeft": 
+                m_tableSeqDirection = m_coordsX
+            Case "LeftToRight": 
+                m_tableSeqDirection = m_coordsX
+                m_tableSeqColor = ReverseArray(palette)       
+            Case "RadialOut": 
+                m_tableSeqDirection = m_radii      
+            Case "RadialIn": 
+                m_tableSeqDirection = m_radii
+                m_tableSeqColor = ReverseArray(palette) 
+            Case "Clockwise": 
+                m_tableSeqDirection = m_angles
+            Case "AntiClockwise": 
+                m_tableSeqDirection = m_angles
+                m_tableSeqColor = ReverseArray(palette) 
+        End Select  
+
+        m_tableSeqSpeed = speed
+    End Sub
 
     Public Sub SetTableSequenceFade(fadeUp, fadeDown)
-		m_tableSeqFadeUp = fadeUp
+        m_tableSeqFadeUp = fadeUp
         m_tableSeqFadeDown = fadeDown
-	End Sub
-
-    Public Sub UseToolkitColoredLightMaps()
-        If useVpxLights = True Then
-            Exit Sub
-        End If
-
-        Dim sUpdateLightMap
-        sUpdateLightMap = "Sub UpdateLightMap(idx, lightmap, intensity, ByVal aLvl)" + vbCrLf    
-        sUpdateLightMap = sUpdateLightMap + "   if Lampz.UseFunc then aLvl = Lampz.FilterOut(aLvl)	'Callbacks don't get this filter automatically" + vbCrLf
-        sUpdateLightMap = sUpdateLightMap + "   lightmap.Opacity = aLvl * intensity" + vbCrLf
-        sUpdateLightMap = sUpdateLightMap + "   If IsArray(Lampz.obj(idx) ) Then" + vbCrLf
-        sUpdateLightMap = sUpdateLightMap + "       lightmap.Color = Lampz.obj(idx)(0).color" + vbCrLf
-        sUpdateLightMap = sUpdateLightMap + "   Else" + vbCrLf
-        sUpdateLightMap = sUpdateLightMap + "       lightmap.color = Lampz.obj(idx).color" + vbCrLf
-        sUpdateLightMap = sUpdateLightMap + "   End If" + vbCrLf
-        sUpdateLightMap = sUpdateLightMap + "End Sub" + vbCrLf
-
-        ExecuteGlobal sUpdateLightMap
-
-        Dim x
-        For x=0 to Ubound(Lampz.cCallback)
-            Lampz.cCallback(x) = Replace(Lampz.cCallback(x), "UpdateLightMap ", "UpdateLightMap " & x & ",")
-            Lampz.Callback(x) = "" 'Force Callback Sub to be build
-        Next
     End Sub
+
+    Public Function GetLightIdx(light)
+        dim syncLight : syncLight = Null
+        If m_lights.Exists(light.name) Then
+            'found a light
+            Set syncLight = m_lights(light.name)
+        End If
+        If Not IsNull(syncLight) Then
+            'Found a light to sync.
+            GetLightIdx = lightsToLeds(syncLight.Idx)
+        Else
+            GetLightIdx = Null
+        End If
+        
+    End Function
 
     Private Function m_buildBlinkSeq(light)
         Dim i, buff : buff = Array()
@@ -13007,20 +13775,11 @@ Class LStateController
     End Function
 
     Private Function GetTmpLight(idx)
-        If useVpxLights = True Then
-          If IsArray(Lights(idx) ) Then	'if array
-                Set GetTmpLight = Lights(idx)(0)
-            Else
-                Set GetTmpLight = Lights(idx)
-            End If
+        If IsArray(Lights(idx) ) Then	'if array
+            Set GetTmpLight = Lights(idx)(0)
         Else
-            If IsArray(Lampz.obj(idx) ) Then	'if array
-                Set GetTmpLight = Lampz.obj(idx)(0)
-            Else
-                Set GetTmpLight = Lampz.obj(idx)
-            End If
+            Set GetTmpLight = Lights(idx)
         End If
-        
     End Function
 
     Public Sub ResetLights()
@@ -13039,13 +13798,113 @@ Class LStateController
 
     End Sub
 
+    Public Sub PauseMainLights
+        If m_pauseMainLights = False Then
+            m_pauseMainLights = True
+            m_pausedLights.RemoveAll
+            Dim pon
+            Set pon = CreateObject("Scripting.Dictionary")
+            Dim poff : Set poff = CreateObject("Scripting.Dictionary")
+            Dim ppulse : Set ppulse = CreateObject("Scripting.Dictionary")
+            Dim pseqs : Set pseqs = CreateObject("Scripting.Dictionary")
+            Dim lightProps : Set lightProps = CreateObject("Scripting.Dictionary")
+            'Add State in
+            Dim light, item
+            For Each item in m_on.Keys()
+                pon.add item, m_on(Item)
+            Next
+            For Each item in m_off.Keys()
+                poff.add item, m_off(Item)
+            Next
+            For Each item in m_pulse.Keys()
+                ppulse.add item, m_pulse(Item)
+            Next
+            For Each item in m_seqRunners.Keys()
+                dim tmpSeq : Set tmpSeq = new LCSeqRunner
+                dim seqItem
+                For Each seqItem in m_seqRunners(Item).Items.Items()
+                    tmpSeq.AddItem seqItem
+                Next
+                tmpSeq.CurrentItemIdx = m_seqRunners(Item).CurrentItemIdx
+                pseqs.add item, tmpSeq
+            Next
+            
+            Dim savedProps(1,3)
+            
+            For Each light in m_lights.Keys()
+                    
+                savedProps(0,0) = m_lights(light).Color
+                savedProps(0,1) = m_lights(light).Level
+                If m_seqs.Exists(light & "Blink") Then
+                    savedProps(0,2) = m_seqs.Item(light & "Blink").UpdateInterval
+                Else
+                    savedProps(0,2) = Empty
+                End If
+                lightProps.add light, savedProps
+            Next
+            m_pausedLights.Add "on", pon
+            m_pausedLights.Add "off", poff
+            m_pausedLights.Add "pulse", ppulse
+            m_pausedLights.Add "runners", pseqs
+            m_pausedLights.Add "lightProps", lightProps
+            m_on.RemoveAll
+            m_off.RemoveAll
+            m_pulse.RemoveAll
+            For Each item in m_seqRunners.Items()
+                item.removeAll
+            Next
+            For Each light in m_lights.Keys()
+                AssignStateForFrame light, (new FrameState)(0, Null, m_lights(light).Idx)
+            Next		
+        End If
+    End Sub
+
+    Public Sub ResumeMainLights
+        If m_pauseMainLights = True Then
+            m_pauseMainLights = False
+            m_on.RemoveAll
+            m_off.RemoveAll
+            m_pulse.RemoveAll
+            Dim light, item
+            For Each light in m_lights.Keys()
+                AssignStateForFrame light, (new FrameState)(0, Null, m_lights(light).Idx)
+            Next
+            For Each item in m_seqRunners.Items()
+                item.removeAll
+            Next
+            'Add State in
+            For Each item in m_pausedLights("on").Keys()
+                m_on.add item, m_pausedLights("on")(Item)
+            Next
+            For Each item in m_pausedLights("off").Keys()
+                m_off.add item, m_pausedLights("off")(Item)
+            Next			
+            For Each item in m_pausedLights("pulse").Keys()
+                m_pulse.add item, m_pausedLights("pulse")(Item)
+            Next
+            For Each item in m_pausedLights("runners").Keys()
+                
+                
+                Set m_seqRunners(Item) = m_pausedLights("runners")(Item)
+            Next
+            For Each item in m_pausedLights("lightProps").Keys()
+                LightColor Eval(Item), m_pausedLights("lightProps")(Item)(0,0)
+                LightLevel Eval(Item), m_pausedLights("lightProps")(Item)(0,1)
+                If Not IsEmpty(m_pausedLights("lightProps")(Item)(0,2)) Then
+                    UpdateBlinkInterval Eval(Item), m_pausedLights("lightProps")(Item)(0,2)
+                End If
+            Next			
+            m_pausedLights.RemoveAll
+        End If
+    End Sub
+
     Public Sub Update()
 
-		m_frameTime = gametime - m_initFrameTime : m_initFrameTime = gametime
-		Dim x
+        m_frameTime = gametime - m_initFrameTime : m_initFrameTime = gametime
+        Dim x
         Dim lk
         dim color
-		dim idx
+        dim idx
         Dim lightKey
         Dim lcItem
         Dim tmpLight
@@ -13059,10 +13918,6 @@ Class LStateController
         Next
         If hasOverride = False Then
         
-
-
-
-
             If HasKeys(m_on) Then   
                 For Each lightKey in m_on.Keys()
                     Set lcItem = m_on(lightKey)
@@ -13072,12 +13927,12 @@ Class LStateController
 
             If HasKeys(m_pulse) Then   
                 For Each lightKey in m_pulse.Keys()
-					Dim pulseColor : pulseColor = m_pulse(lightKey).Color
-					If IsNull(pulseColor) Then
-						AssignStateForFrame lightKey, (new FrameState)(m_pulse(lightKey).PulseAt(m_pulse(lightKey).idx), m_pulse(lightKey).Light.Color, m_pulse(lightKey).light.Idx)
-					Else
-						AssignStateForFrame lightKey, (new FrameState)(m_pulse(lightKey).PulseAt(m_pulse(lightKey).idx), m_pulse(lightKey).Color, m_pulse(lightKey).light.Idx)
-					End If						
+                    Dim pulseColor : pulseColor = m_pulse(lightKey).Color
+                    If IsNull(pulseColor) Then
+                        AssignStateForFrame lightKey, (new FrameState)(m_pulse(lightKey).PulseAt(m_pulse(lightKey).idx), m_pulse(lightKey).Light.Color, m_pulse(lightKey).light.Idx)
+                    Else
+                        AssignStateForFrame lightKey, (new FrameState)(m_pulse(lightKey).PulseAt(m_pulse(lightKey).idx), m_pulse(lightKey).Color, m_pulse(lightKey).light.Idx)
+                    End If						
                     
                     Dim pulseUpdateInt : pulseUpdateInt = m_pulse(lightKey).interval - m_frameTime
                     Dim pulseIdx : pulseIdx = m_pulse(lightKey).idx
@@ -13087,18 +13942,18 @@ Class LStateController
                     End If
                     
                     Dim pulses : pulses = m_pulse(lightKey).pulses
-					Dim pulseCount : pulseCount = m_pulse(lightKey).Cnt
-					
-					
+                    Dim pulseCount : pulseCount = m_pulse(lightKey).Cnt
+                    
+                    
                     If pulseIdx > UBound(m_pulse(lightKey).pulses) Then
-						m_pulse.Remove lightKey    
-						If pulseCount > 0 Then
+                        m_pulse.Remove lightKey    
+                        If pulseCount > 0 Then
                             pulseCount = pulseCount - 1
                             pulseIdx = 0
                             m_pulse.Add lightKey, (new PulseState)(m_lights(lightKey),pulses, pulseIdx, pulseUpdateInt, pulseCount, pulseColor)
                         End If
                     Else
-						m_pulse.Remove lightKey
+                        m_pulse.Remove lightKey
                         m_pulse.Add lightKey, (new PulseState)(m_lights(lightKey),pulses, pulseIdx, pulseUpdateInt, pulseCount, pulseColor)
                     End If
                 Next
@@ -13111,8 +13966,8 @@ Class LStateController
                 Next
             End If
 
-			
-			
+            
+            
             If HasKeys(m_seqRunners) Then
                 Dim k
                 For Each k in m_seqRunners.Keys()
@@ -13135,9 +13990,8 @@ Class LStateController
                         End If
                         If Not IsNull(syncLight) Then
                             'Found a light to sync.
-							
-
-							Dim lightState
+                            
+                            Dim lightState
 
                             If IsNull(m_tableSeqColor) Then
                                 color = syncLight.Color
@@ -13145,43 +13999,33 @@ Class LStateController
                                 If Not IsArray(m_tableSeqColor) Then
                                     color = Array(m_tableSeqColor, Null)
                                 Else
-									If Not IsNull(m_tableSeqSpeed) And Not m_tableSeqSpeed = 0 Then
-										'dim step : step = m_tableSeqSpeed(m_tableSeqOffset)
-										
-										Dim colorPalleteIdx : colorPalleteIdx = IncrementUInt8(m_tableSeqDirection(lightsToLeds(syncLight.Idx)),m_tableSeqOffset)
-										If gametime mod m_tableSeqSpeed = 0 Then
-											m_tableSeqOffset = m_tableSeqOffset + 1
-											If m_tableSeqOffset > 255 Then
-												m_tableSeqOffset = 0
-											End If	
-										End If
-										If colorPalleteIdx < 0 Then 
-											colorPalleteIdx = 0
-										End If
-										color = Array(m_TableSeqColor(Round(colorPalleteIdx)), Null)
-										'color = syncLight.Color
-									Else
-										color = Array(m_TableSeqColor(m_tableSeqDirection(lightsToLeds(syncLight.Idx))), Null)
-									End If
-									
-                                End If
-                            End If
-							
+                                    
+                                    If Not IsNull(m_tableSeqSpeed) And Not m_tableSeqSpeed = 0 Then
 
-                            'TODO - Fix VPX Fade
-                            If Not useVpxLights = True Then
-                                If Not IsNull(m_tableSeqFadeUp) Then
-                                    Lampz.FadeSpeedUp(syncLight.Idx) = m_tableSeqFadeUp
-                                End If
-                                If Not IsNull(m_tableSeqFadeDown) Then
-                                    Lampz.FadeSpeedDown(syncLight.Idx) = m_tableSeqFadeDown
+                                        Dim colorPalleteIdx : colorPalleteIdx = IncrementUInt8(m_tableSeqDirection(lightsToLeds(syncLight.Idx)),m_tableSeqOffset)
+                                        If gametime mod m_tableSeqSpeed = 0 Then
+                                            m_tableSeqOffset = m_tableSeqOffset + 1
+                                            If m_tableSeqOffset > 255 Then
+                                                m_tableSeqOffset = 0
+                                            End If	
+                                        End If
+                                        If colorPalleteIdx < 0 Then 
+                                            colorPalleteIdx = 0
+                                        End If
+                                        color = Array(m_TableSeqColor(Round(colorPalleteIdx)), Null)
+                                        'color = syncLight.Color
+                                    Else
+                                        color = Array(m_TableSeqColor(m_tableSeqDirection(lightsToLeds(syncLight.Idx))), Null)
+                                    End If
+                                    
                                 End If
                             End If
+                        
                     
                             AssignStateForFrame syncLight.name, (new FrameState)(lx.GetInPlayState*100,color, syncLight.Idx)                     
                         End If
                     Next
-		        End If
+                End If
             End If
 
             If m_vpxLightSyncClear = True Then  
@@ -13195,22 +14039,17 @@ Class LStateController
                         End If
                         If Not IsNull(syncClearLight) Then
                             AssignStateForFrame syncClearLight.name, (new FrameState)(0, Null, syncClearLight.idx) 
-                            'TODO - Only do fade speed for lampz
-                            If Not useVpxLights = True Then
-                                Lampz.FadeSpeedUp(syncClearLight.Idx) = 100/30
-                                Lampz.FadeSpeedDown(syncClearLight.Idx) = 100/120
-                            End If
                         End If
                     Next
                 End If
-               
+            
                 m_vpxLightSyncClear = False
             End If
         End If
         
 
         If HasKeys(m_currentFrameState) Then
-			
+            
             Dim frameStateKey
             For Each frameStateKey in m_currentFrameState.Keys()
                 idx = m_currentFrameState(frameStateKey).idx
@@ -13223,85 +14062,62 @@ Class LStateController
                     
                     Set tmpLight = GetTmpLight(idx)
 
-					Dim c, cf
-					c = newColor(0)
-					cf= newColor(1)
+                    Dim c, cf
+                    c = newColor(0)
+                    cf= newColor(1)
 
-					If Not IsNull(c) Then
-						If Not CStr(tmpLight.Color) = CStr(c) Then
-							bUpdate = True
-						End If
-					End If
-
-					If Not IsNull(cf) Then
-						If Not CStr(tmpLight.ColorFull) = CStr(cf) Then
-							bUpdate = True
-						End If
-					End If
-            	End If
-
-                If useVpxLights = False Then
-                    If bUpdate Then
-                        'Update lamp color
-                        If IsArray(Lampz.obj(idx)) Then
-                            for each x in Lampz.obj(idx)
-                                If Not IsNull(c) Then
-                                    x.color = c
-                                End If
-                                If Not IsNull(cf) Then
-                                    x.colorFull = cf
-                                End If
-                            Next
-                        Else
-                            If Not IsNull(c) Then
-                                Lampz.obj(idx).color = c
-                            End If
-                            If Not IsNull(cf) Then
-                                Lampz.obj(idx).colorFull = cf
-                            End If
+                    If Not IsNull(c) Then
+                        If Not CStr(tmpLight.Color) = CStr(c) Then
+                            bUpdate = True
                         End If
-                        If Lampz.UseCallBack(idx) then Proc Lampz.name & idx,Lampz.Lvl(idx)*Lampz.Modulate(idx)	'Force Callbacks Proc
                     End If
-                    Lampz.state(idx) = CInt(m_currentFrameState(frameStateKey).level) 'Lampz will handle redundant updates
-                Else
-                    Dim lm
-                    If IsArray(Lights(idx)) Then
-                        For Each x in Lights(idx)
-                            If bUpdate Then 
-                                If Not IsNull(c) Then
-                                    x.color = c
-                                End If
-                                If Not IsNull(cf) Then
-                                    x.colorFull = cf
-                                End If
-                                If m_lightmaps.Exists(x.Name) Then
-                                    For Each lm in m_lightmaps(x.Name)
-                                        lm.Color = c
-                                    Next
-                                End If
-                            End If
-                            x.State = m_currentFrameState(frameStateKey).level/100
-                        Next
-                    Else
-                        If bUpdate Then    
+
+                    If Not IsNull(cf) Then
+                        If Not CStr(tmpLight.ColorFull) = CStr(cf) Then
+                            bUpdate = True
+                        End If
+                    End If
+                End If
+
+               
+                Dim lm
+                If IsArray(Lights(idx)) Then
+                    For Each x in Lights(idx)
+                        If bUpdate Then 
                             If Not IsNull(c) Then
-                                Lights(idx).color = c
+                                x.color = c
                             End If
                             If Not IsNull(cf) Then
-                                Lights(idx).colorFull = cf
+                                x.colorFull = cf
                             End If
-                            If m_lightmaps.Exists(Lights(idx).Name) Then
-                                For Each lm in m_lightmaps(Lights(idx).Name)
+                            If m_lightmaps.Exists(x.Name) Then
+                                For Each lm in m_lightmaps(x.Name)
                                     If Not IsNull(lm) Then
                                         lm.Color = c
                                     End If
                                 Next
                             End If
                         End If
-                        Lights(idx).State = m_currentFrameState(frameStateKey).level/100
+                        x.State = m_currentFrameState(frameStateKey).level/100
+                    Next
+                Else
+                    If bUpdate Then    
+                        If Not IsNull(c) Then
+                            Lights(idx).color = c
+                        End If
+                        If Not IsNull(cf) Then
+                            Lights(idx).colorFull = cf
+                        End If
+                        If m_lightmaps.Exists(Lights(idx).Name) Then
+                            For Each lm in m_lightmaps(Lights(idx).Name)
+                                If Not IsNull(lm) Then
+                                    lm.Color = c
+                                End If
+                            Next
+                        End If
                     End If
+                    Lights(idx).State = m_currentFrameState(frameStateKey).level/100
                 End If
-
             Next
         End If
         m_currentFrameState.RemoveAll
@@ -13315,11 +14131,11 @@ Class LStateController
 
     Function RGBToHex(r, g, b)
         RGBToHex = Right("0" & Hex(r), 2) & _
-               Right("0" & Hex(g), 2) & _
-               Right("0" & Hex(b), 2)
+            Right("0" & Hex(g), 2) & _
+            Right("0" & Hex(b), 2)
     End Function
 
-    Function FadeRGB(light, color1, color2, steps)
+    Public Function FadeRGB(light, color1, color2, steps)
 
     
         Dim r1, g1, b1, r2, g2, b2
@@ -13352,77 +14168,74 @@ Class LStateController
         FadeRGB = outputArray
     End Function
 
-	Public Function GetGradientColors(startColor, endColor)
-	  Dim colors()
-	  ReDim colors(255)
-	  
-	  Dim startRed, startGreen, startBlue, endRed, endGreen, endBlue
-	  startRed = HexToInt(Left(startColor, 2))
-	  startGreen = HexToInt(Mid(startColor, 3, 2))
-	  startBlue = HexToInt(Right(startColor, 2))
-	  endRed = HexToInt(Left(endColor, 2))
-	  endGreen = HexToInt(Mid(endColor, 3, 2))
-	  endBlue = HexToInt(Right(endColor, 2))
-	  
-	  Dim redDiff, greenDiff, blueDiff
-	  redDiff = endRed - startRed
-	  greenDiff = endGreen - startGreen
-	  blueDiff = endBlue - startBlue
-	  
-	  Dim i
-	  For i = 0 To 255
-		Dim red, green, blue
-		red = startRed + (redDiff * (i / 255))
-		green = startGreen + (greenDiff * (i / 255))
-		blue = startBlue + (blueDiff * (i / 255))
-		colors(i) = RGB(red,green,blue)'IntToHex(red, 2) & IntToHex(green, 2) & IntToHex(blue, 2)
-	  Next
-	  
-	  GetGradientColors = colors
-	End Function
+    Public Function CreateColorPalette(startColor, endColor, steps)
+    Dim colors()
+    ReDim colors(steps)
+    
+    Dim startRed, startGreen, startBlue, endRed, endGreen, endBlue
+    startRed = HexToInt(Left(startColor, 2))
+    startGreen = HexToInt(Mid(startColor, 3, 2))
+    startBlue = HexToInt(Right(startColor, 2))
+    endRed = HexToInt(Left(endColor, 2))
+    endGreen = HexToInt(Mid(endColor, 3, 2))
+    endBlue = HexToInt(Right(endColor, 2))
+    
+    Dim redDiff, greenDiff, blueDiff
+    redDiff = endRed - startRed
+    greenDiff = endGreen - startGreen
+    blueDiff = endBlue - startBlue
+    
+    Dim i
+    For i = 0 To steps
+        Dim red, green, blue
+        red = startRed + (redDiff * (i / steps))
+        green = startGreen + (greenDiff * (i / steps))
+        blue = startBlue + (blueDiff * (i / steps))
+        colors(i) = RGB(red,green,blue)'IntToHex(red, 2) & IntToHex(green, 2) & IntToHex(blue, 2)
+    Next
+    
+    CreateColorPalette = colors
+    End Function
 
 
-	Function GetGradientColorsWithStops(startColor, endColor, stopPositions, stopColors)
+    Function CreateColorPaletteWithStops(startColor, endColor, stopPositions, stopColors)
 
-	  Dim colors(255)
+    Dim colors(255)
 
-	  Dim fStop : fStop = GetGradientColors(startColor, stopColors(0))
-	  Dim i, istep
-	  For i = 0 to stopPositions(0)
-		colors(i) = fStop(i)
-	  Next
-	  For i = 1 to Ubound(stopColors)
-		Dim stopStep : stopStep = GetGradientColors(stopColors(i-1), stopColors(i))
-		Dim ii
-	   ' MsgBox(stopPositions(i) - stopPositions(i-1))
-		istep = 0
-		For ii = stopPositions(i-1)+1 to stopPositions(i)
-		'  MsgBox(ii)
-		  colors(ii) = stopStep(iStep)
-		  iStep = iStep + 1
-		Next
-	  Next
-	   ' MsgBox("Here")
-	  Dim eStop : eStop = GetGradientColors(stopColors(UBound(stopColors)), endColor)
-	  'MsgBox(UBound(stopPositions))
-	  iStep = 0
-	  For i = (255-stopPositions(UBound(stopPositions))) to 254
-		colors(i) = eStop(iStep)
-		iStep = iStep + 1
-	  Next
+    Dim fStop : fStop = CreateColorPalette(startColor, stopColors(0), stopPositions(0))
+    Dim i, istep
+    For i = 0 to stopPositions(0)
+        colors(i) = fStop(i)
+    Next
+    For i = 1 to Ubound(stopColors)
+        Dim stopStep : stopStep = CreateColorPalette(stopColors(i-1), stopColors(i), stopPositions(i))
+        Dim ii
+    ' MsgBox(stopPositions(i) - stopPositions(i-1))
+        istep = 0
+        For ii = stopPositions(i-1)+1 to stopPositions(i)
+        '  MsgBox(ii)
+        colors(ii) = stopStep(iStep)
+        iStep = iStep + 1
+        Next
+    Next
+    ' MsgBox("Here")
+    Dim eStop : eStop = CreateColorPalette(stopColors(UBound(stopColors)), endColor, 255-stopPositions(UBound(stopPositions)))
+    'MsgBox(UBound(eStop))
+    iStep = 0
+    For i = 255-(255-stopPositions(UBound(stopPositions))) to 254
+        colors(i) = eStop(iStep)
+        iStep = iStep + 1
+    Next
 
-	  GetGradientColorsWithStops = colors
-	End Function
+    CreateColorPaletteWithStops = colors
+    End Function
 
     Private Function HasKeys(o)
-        Dim Success
-        Success = False
-
-        On Error Resume Next
-            o.Keys()
-            Success = (Err.Number = 0)
-        On Error Goto 0
-        HasKeys = Success
+        If Ubound(o.Keys())>-1 Then
+            HasKeys = True
+        Else
+            HasKeys = False
+        End If
     End Function
 
     Private Sub RunLightSeq(seqRunner)
@@ -13446,7 +14259,7 @@ Class LStateController
             'I remember: Only reset the light if there isn't frame data for the light. 
             'e.g. a previous seq has affected the light, we don't want to clear that here on this frame
                 If m_lights.Exists(lightInSeq) = True AND NOT m_currentFrameState.Exists(lightInSeq) Then
-                   AssignStateForFrame lightInSeq, (new FrameState)(0, Null, m_lights(lightInSeq).Idx)
+                AssignStateForFrame lightInSeq, (new FrameState)(0, Null, m_lights(lightInSeq).Idx)
                 End If
             Else
                 
@@ -13458,7 +14271,7 @@ Class LStateController
                     'already frame data for this light.
                     'replace with the last known state from this seq
                     If Not IsNull(lcSeq.LastLightState(lightInSeq)) Then
-						AssignStateForFrame lightInSeq, lcSeq.LastLightState(lightInSeq)
+                        AssignStateForFrame lightInSeq, lcSeq.LastLightState(lightInSeq)
                     End If
                 End If
 
@@ -13485,14 +14298,14 @@ Class LStateController
                     If m_lights.Exists(name) Then
                         Set ls = m_lights(name)
                         
-						color = lcSeq.Color
+                        color = lcSeq.Color
 
                         If IsNull(color) Then
-							color = ls.Color
+                            color = ls.Color
                         End If
-						
+                        
                         If Ubound(lsName) = 2 Then
-							If lsName(2) = "" Then
+                            If lsName(2) = "" Then
                                 AssignStateForFrame name, (new FrameState)(lsName(1), color, ls.Idx)
                             Else
                                 AssignStateForFrame name, (new FrameState)(lsName(1), Array( RGB( HexToInt(Left(lsName(2), 2)), HexToInt(Mid(lsName(2), 3, 2)), HexToInt(Right(lsName(2), 2)) ), RGB(0,0,0)), ls.Idx)
@@ -13509,7 +14322,7 @@ Class LStateController
                 If m_lights.Exists(name) Then
                     Set ls = m_lights(name)
                     
-					color = lcSeq.Color
+                    color = lcSeq.Color
                     If IsNull(color) Then
                         color = ls.Color
                     End If
@@ -13550,18 +14363,18 @@ Class FrameState
     Public Property Let Idx(input): m_idx = input: End Property
 
     Public default function init(level, colors, idx)
-		m_level = level
-		m_colors = colors
-		m_idx = idx 
+        m_level = level
+        m_colors = colors
+        m_idx = idx 
 
-		Set Init = Me
+        Set Init = Me
     End Function
 
     Public Function ColorAt(idx)
         ColorAt = m_colors(idx) 
     End Function
 End Class
- 
+
 Class PulseState
     Private m_light, m_pulses, m_idx, m_interval, m_cnt, m_color
 
@@ -13580,19 +14393,19 @@ Class PulseState
     Public Property Get Cnt(): Cnt = m_cnt: End Property
     Public Property Let Cnt(input): m_cnt = input: End Property
 
-	Public Property Get Color(): Color = m_color: End Property
-	Public Property Let Color(input): m_color = input: End Property		
+    Public Property Get Color(): Color = m_color: End Property
+    Public Property Let Color(input): m_color = input: End Property		
 
     Public default function init(light, pulses, idx, interval, cnt, color)
-		Set m_light = light
-		m_pulses = pulses
-		'debug.Print(Join(Pulses))
-		m_idx = idx 
-		m_interval = interval
-		m_cnt = cnt
-		m_color = color
+        Set m_light = light
+        m_pulses = pulses
+        'debug.Print(Join(Pulses))
+        m_idx = idx 
+        m_interval = interval
+        m_cnt = cnt
+        m_color = color
 
-		Set Init = Me
+        Set Init = Me
     End Function
 
     Public Function PulseAt(idx)
@@ -13601,8 +14414,8 @@ Class PulseState
 End Class
 
 Class LCItem
-	
-	Private m_Idx, m_State, m_blinkSeq, m_color, m_name, m_level, m_x, m_y
+    
+    Private m_Idx, m_State, m_blinkSeq, m_color, m_name, m_level, m_x, m_y
 
         Public Property Get Idx()
             Idx=m_Idx
@@ -13614,18 +14427,18 @@ Class LCItem
 
         Public Property Let Color(input)
             If IsNull(input) Then
-				m_Color = Null
-			Else
-				If Not IsArray(input) Then
-					input = Array(input, null)
-				End If
-				m_Color = input
-			End If
-	    End Property
+                m_Color = Null
+            Else
+                If Not IsArray(input) Then
+                    input = Array(input, null)
+                End If
+                m_Color = input
+            End If
+        End Property
 
         Public Property Let Level(input)
             m_level = input
-	    End Property
+        End Property
 
         Public Property Get Level()
             Level=m_level
@@ -13643,6 +14456,14 @@ Class LCItem
             Y=m_y
         End Property
 
+        Public Property Get Row()
+            Row=Round(m_x/40)
+        End Property
+
+        Public Property Get Col()
+            Col=Round(m_y/40)
+        End Property
+
         Public Sub Init(idx, intervalMs, color, name, x, y)
             m_Idx = idx
             If Not IsArray(color) Then
@@ -13654,20 +14475,20 @@ Class LCItem
             m_level = 100
             m_x = x
             m_y = y
-	    End Sub
+        End Sub
 
 End Class
 
 Class LCSeq
-	
-	Private m_currentIdx, m_sequence, m_name, m_image, m_color, m_updateInterval, m_Frames, m_repeat, m_lightsInSeq, m_lastLightStates
+    
+    Private m_currentIdx, m_sequence, m_name, m_image, m_color, m_updateInterval, m_Frames, m_repeat, m_lightsInSeq, m_lastLightStates, m_palette
 
     Public Property Get CurrentIdx()
         CurrentIdx=m_currentIdx
     End Property
 
     Public Property Let CurrentIdx(input)
-		m_lastLightStates.RemoveAll()
+        m_lastLightStates.RemoveAll()
         m_currentIdx = input
     End Property
 
@@ -13679,8 +14500,8 @@ Class LCSeq
         Sequence=m_sequence
     End Property
     
-	Public Property Let Sequence(input)
-		m_sequence = input
+    Public Property Let Sequence(input)
+        m_sequence = input
         dim item, light, lightItem
         for each item in input
             If IsArray(item) Then
@@ -13697,24 +14518,24 @@ Class LCSeq
                 End If
             End If
         next
-	End Property
+    End Property
 
     Public Property Get LastLightState(light)
-		If m_lastLightStates.Exists(light) Then
-			dim c : Set c = m_lastLightStates(light)
-			Set LastLightState = c
-		Else
-			LastLightState = Null
-		End If
+        If m_lastLightStates.Exists(light) Then
+            dim c : Set c = m_lastLightStates(light)
+            Set LastLightState = c
+        Else
+            LastLightState = Null
+        End If
     End Property
 
     Public Property Let LastLightState(light, input)
         If m_lastLightStates.Exists(light) Then
             m_lastLightStates.Remove light
         End If
-		If input.level > 0 Then
-			m_lastLightStates.Add light, input
-		End If
+        If input.level > 0 Then
+            m_lastLightStates.Add light, input
+        End If
     End Property
 
     Public Sub SetLastLightState(light, input)	
@@ -13730,24 +14551,40 @@ Class LCSeq
         Color=m_color
     End Property
     
-	Public Property Let Color(input)
-		If IsNull(input) Then
-			m_Color = Null
-		Else
-			If Not IsArray(input) Then
-				input = Array(input, null)
-			End If
-			m_Color = input
-		End If
-	End Property
+    Public Property Let Color(input)
+        If IsNull(input) Then
+            m_Color = Null
+        Else
+            If Not IsArray(input) Then
+                input = Array(input, null)
+            End If
+            m_Color = input
+        End If
+    End Property
+
+    Public Property Get Palette()
+        Palette=m_palette
+    End Property
+    
+    Public Property Let Palette(input)
+        If IsNull(input) Then
+            m_palette = Null
+        Else
+            If Not IsArray(input) Then
+                m_palette = Null
+            Else
+                m_palette = input
+            End If
+        End If
+    End Property
 
     Public Property Get Name()
         Name=m_name
     End Property
     
-	Public Property Let Name(input)
-		m_name = input
-	End Property        
+    Public Property Let Name(input)
+        m_name = input
+    End Property        
 
     Public Property Get UpdateInterval()
         UpdateInterval=m_updateInterval
@@ -13793,20 +14630,28 @@ Class LCSeq
 End Class
 
 Class LCSeqRunner
-	
-	Private m_name, m_items,m_currentItemIdx
+    
+    Private m_name, m_items,m_currentItemIdx
 
     Public Property Get Name()
         Name=m_name
     End Property
     
-	Public Property Let Name(input)
-		m_name = input
-	End Property
+    Public Property Let Name(input)
+        m_name = input
+    End Property
 
     Public Property Get Items()
-		Set Items = m_items
-	End Property
+        Set Items = m_items
+    End Property
+
+    Public Property Get CurrentItemIdx()
+        CurrentItemIdx = m_currentItemIdx
+    End Property
+
+    Public Property Let CurrentItemIdx(input)
+        m_currentItemIdx = input
+    End Property
 
     Public Property Get CurrentItem()
         Dim items: items = m_items.Items()
@@ -13873,7 +14718,9 @@ Class LCSeqRunner
         End If
     End Function
 
-End Class
+    End Class
+
+
 '******************************************************
 '  TRACK ALL BALL VELOCITIES
 '  FOR RUBBER DAMPENER AND DROP TARGETS
@@ -14008,14 +14855,43 @@ End Class
 
 
 
+
+Dim RStep, Lstep
+
 Sub RightSlingShot_Slingshot
-	RS.VelocityCorrect(ActiveBall)
-	RandomSoundSlingshotRight ActiveBall
+	If GameTilted = False Then
+		RS.VelocityCorrect(ActiveBall)
+		RandomSoundSlingshotRight ActiveBall
+		DOF 104,DOFPulse
+		DOF 202,DOFPulse
+	End If
 End Sub
 
 Sub LeftSlingShot_Slingshot
-	LS.VelocityCorrect(ActiveBall)
-	RandomSoundSlingshotLeft ActiveBall
+	If GameTilted = False Then
+		LS.VelocityCorrect(ActiveBall)
+		RandomSoundSlingshotLeft ActiveBall
+		DOF 103,DOFPulse
+		DOF 201,DOFPulse
+		LeftSlingShot.TimerInterval = 17
+    	LeftSlingShot.TimerEnabled = 1
+	End If
+End Sub
+
+Sub LeftSlingShot_Timer
+	Exit Sub
+	Dim BL
+	Dim x1, x2, y: x1 = True:x2 = False:y = 25
+	Select Case LStep
+		Case 3:x1 = False:x2= True: y = 15
+		Case 4:x1 = False:x2 = False:y = 0:LeftSlingShot.TimerEnabled = 0
+	End Select
+
+	For Each BL in BP_LSling1 : BL.Visible = x1: Next
+	For Each BL in BP_LSling2 : BL.Visible = x2: Next
+	For Each BL in BP_LEMK : BL.transx = y: Next
+
+	LStep = LStep + 1
 End Sub
 
 '******************************************************
@@ -16266,16 +17142,16 @@ Dim ST10, ST11, ST12, ST18, ST19, ST20, ST21, ST22, ST23, ST25
 'You will also need to add a secondary hit object for each stand up (name sw11o, sw12o, and sw13o on the example Table1)
 'these are inclined primitives to simulate hitting a bent target and should provide so z velocity on high speed impacts
 
-Set ST10 = (new StandupTarget)(sw10, sw10_BM_World, 10, 0)
-Set ST11 = (new StandupTarget)(sw11, sw11_BM_World, 11, 0)
-Set ST12 = (new StandupTarget)(sw12, sw12_BM_World, 12, 0)
-Set ST18 = (new StandupTarget)(sw18, sw18_BM_World, 18, 0)
-Set ST19 = (new StandupTarget)(sw19, sw19_BM_World, 19, 0)
-Set ST20 = (new StandupTarget)(sw20, sw20_BM_World, 20, 0)
-Set ST21 = (new StandupTarget)(sw21, sw21_BM_World, 21, 0)
-Set ST22 = (new StandupTarget)(sw22, sw22_BM_World, 22, 0)
-Set ST23 = (new StandupTarget)(sw23, sw23_BM_World, 23, 0)
-Set ST25 = (new StandupTarget)(sw25, sw25_BM_World, 25, 0)
+Set ST10 = (new StandupTarget)(sw10, BM_sw10, 10, 0)
+Set ST11 = (new StandupTarget)(sw11, BM_sw11, 11, 0)
+Set ST12 = (new StandupTarget)(sw12, BM_sw12, 12, 0)
+Set ST18 = (new StandupTarget)(sw18, BM_sw18, 18, 0)
+Set ST19 = (new StandupTarget)(sw19, BM_sw19, 19, 0)
+Set ST20 = (new StandupTarget)(sw20, BM_sw20, 20, 0)
+Set ST21 = (new StandupTarget)(sw21, BM_sw21, 21, 0)
+Set ST22 = (new StandupTarget)(sw22, BM_sw22, 22, 0)
+Set ST23 = (new StandupTarget)(sw23, BM_sw23, 23, 0)
+Set ST25 = (new StandupTarget)(sw25, BM_sw25, 25, 0)
 
 'Add all the Stand-up Target Arrays to Stand-up Target Animation Array
 ' STAnimationArray = Array(ST1, ST2, ....)
@@ -16500,9 +17376,9 @@ Function SetPlayerState(key, value)
     playerState(currentPlayer).Add key, value
 
     If IsArray(value) Then
-        AdvDebug.SendPlayerState key, Join(value)
+        'AdvDebug.SendPlayerState key, Join(value)
     Else
-        AdvDebug.SendPlayerState key, value
+        'AdvDebug.SendPlayerState key, value
     End If
     If playerEvents.Exists(key) Then
         Dim x
@@ -16562,44 +17438,44 @@ End Sub
 
 Sub FrameTimer_Timer()
 	Dim el, a 
-	Disc_BM_World.RotZ = (Disc_BM_World.RotZ + (ttSpinner.Speed/4)) Mod 360
-	a = Disc_BM_World.RotZ
-	For Each el in Disc_LM
+	BM_Disc.RotZ = (BM_Disc.RotZ + (ttSpinner.Speed/4)) Mod 360
+	a = BM_Disc.RotZ
+	For Each el in BP_Disc
 		el.Rotz = a		
 	Next
-	FlipperVisualUpdate()
+	
 
-	For Each el in sw18_LM
+	For Each el in BP_Disc
 		el.Rotz = a		
 	Next
 
 	
 	calloutsQ.Tick
-	
+	TimerTick
 
 End Sub
 
 Sub TargetMovableHelper
 	Dim t
-	For each t in sw10_LM : t.transy = sw10_BM_World.transy : Next
+	For each t in BP_sw10 : t.transy = BM_sw10.transy : Next
 
-	For each t in sw11_LM : t.transy = sw11_BM_World.transy : Next
+	For each t in BP_sw11 : t.transy = BM_sw11.transy : Next
 
-	For each t in sw12_LM : t.transy = sw12_BM_World.transy : Next
+	For each t in BP_sw12 : t.transy = BM_sw12.transy : Next
 
-	For each t in sw18_LM : t.transy = sw18_BM_World.transy : Next
+	For each t in BP_sw18 : t.transy = BM_sw18.transy : Next
 
-	For each t in sw19_LM : t.transy = sw19_BM_World.transy : Next
+	For each t in BP_sw19 : t.transy = BM_sw19.transy : Next
 
-	For each t in sw20_LM : t.transy = sw20_BM_World.transy : Next
+	For each t in BP_sw20 : t.transy = BM_sw20.transy : Next
 
-	For each t in sw21_LM : t.transy = sw21_BM_World.transy : Next
+	For each t in BP_sw21 : t.transy = BM_sw21.transy : Next
 
-	For each t in sw22_LM : t.transy = sw22_BM_World.transy : Next
+	For each t in BP_sw22 : t.transy = BM_sw22.transy : Next
 
-	For each t in sw23_LM : t.transy = sw23_BM_World.transy : Next
+	For each t in BP_sw23 : t.transy = BM_sw23.transy : Next
 
-	For each t in sw25_LM : t.transy = sw25_BM_World.transy : Next
+	For each t in BP_sw25 : t.transy = BM_sw25.transy : Next
 
 End Sub
 
@@ -16643,9 +17519,25 @@ Sub Table1_KeyDown(ByVal Keycode)
             StartGame()
         End If
     Else
+        If GAME_DRAIN_BALLS_AND_RESET = True Or GameTilted = True Then
+            Exit Sub
+        End If
 
-
-        If GameTimers(GAME_BONUS_TIMER_IDX) > 0 Then Exit Sub 
+        If GameTimers(GAME_BONUS_TIMER_IDX) > 0 Then 
+            
+            If keycode = LeftFlipperKey Then
+                LFlipperDown = True   
+                If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
+            End If
+            
+            If keycode = RightFlipperKey Then 
+                RFlipperDown = True
+                If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
+            End If    
+            
+            Exit Sub 
+        End If
+        
         
         If keycode = StartGameKey Then
             AddPlayer()
@@ -16658,16 +17550,22 @@ Sub Table1_KeyDown(ByVal Keycode)
             Plunger.Pullback
         End If
     
-        If keycode = LeftTiltKey Then Nudge 90, 6:PlaySound SoundFX("fx_nudge",0), 0, 1, -0.1, 0.25
-        If keycode = RightTiltKey Then Nudge 270, 6:PlaySound SoundFX("fx_nudge",0), 0, 1, 0.1, 0.25
-        If keycode = CenterTiltKey Then Nudge 0, 7:PlaySound SoundFX("fx_nudge",0), 0, 1, 1, 0.25
+        If keycode = LeftTiltKey Then Nudge 90, 2: SoundNudgeLeft : CheckTilt
+        If keycode = RightTiltKey Then Nudge 270, 2: SoundNudgeRight : CheckTilt
+        If keycode = CenterTiltKey Then Nudge 0, 3: SoundNudgeCenter : CheckTilt
         
+        If keycode = MechanicalTilt Then 
+            SoundNudgeCenter
+            CheckMechTilt
+        End If
+
         If(keycode = PlungerKey OR keycode = Lockbarkey) Then
             DispatchPinEvent(SWITCH_SELECT_EVENT_KEY)
         End If
 
         If keycode = LeftFlipperKey Then
-            LFlipperDown = True   
+            LFlipperDown = True
+            DOF 101,DOFOn
             If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
             FlipperActivate LeftFlipper,LFPress
             LF.Fire    
@@ -16685,6 +17583,7 @@ Sub Table1_KeyDown(ByVal Keycode)
             FlipperActivate RightFlipper, RFPress
             RF.Fire
             RFlipperDown = True
+            DOF 102,DOFOn
             If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
 			If StagedFlipperMod <> 1 Then
 				UpRightFlipper.RotateToEnd
@@ -16731,6 +17630,7 @@ Sub Table1_KeyUp(ByVal keycode)
         End If
         
         If keycode = LeftFlipperKey Then
+            DOF 101,DOFOff
             LFlipperDown = False
             FlipperDeActivate LeftFlipper, LFPress
             LeftFlipper.RotateToStart
@@ -16741,6 +17641,7 @@ Sub Table1_KeyUp(ByVal keycode)
             DispatchPinEvent(SWITCH_LEFT_FLIPPER_UP)
         End If
         If keycode = RightFlipperKey Then
+            DOF 102,DOFOff
             RFlipperDown = False
             FlipperDeActivate RightFlipper, RFPress
             RightFlipper.RotateToStart
@@ -17502,23 +18403,27 @@ Sub RightFlipper_Collide(parm)
 End Sub
 
 Sub FlipperVisualUpdate
-	Dim lfa: lfa = -145.5 - (123-LeftFlipper.currentangle)
-	Dim rfa: rfa = -34.5 + (123+RightFlipper.currentangle)
-	Dim ufa: ufa = -34.5 + (123+UpRightFlipper.currentangle)
-	FlipperR_BM_World.RotZ = rfa ' VLM.Props;BM;1;FlipperR
 	Dim el
-	For Each el in FlipperR_LM
-		el.Rotz = FlipperR_BM_World.Rotz
+	For Each el in BP_FlipperR
+		el.Rotz = RightFlipper.currentangle
 	Next
-	FlipperL_BM_World.RotZ = lfa ' VLM.Props;BM;1;FlipperL
-	For Each el in FlipperL_LM
-		el.Rotz = FlipperL_BM_World.Rotz
+	For Each el in BP_FlipperL
+		el.Rotz = LeftFlipper.currentangle
 	Next
-	FlipperU_BM_World.RotZ = ufa ' VLM.Props;BM;1;FlipperU
-	For Each el in FlipperU_LM
-		el.Rotz = FlipperU_BM_World.Rotz
+	For Each el in BP_FlipperU
+		el.Rotz = UpRightFlipper.currentangle
 	Next
 End Sub
+
+Function Gray2RGB(gray)
+	if gray < 0 then gray = 0
+	if gray > 255 Then gray = 255
+	Gray2RGB = RGB(gray, gray, gray)
+End Function
+
+
+
+
 
 '######################### Add new FlippersD Profile
 '#########################    Adjust these values to increase or lessen the elasticity
@@ -17529,6 +18434,54 @@ End Sub
 '*****************************************************************************************************
 '*******************************************************************************************************
 'END nFOZZY FLIPPERS'
+
+'********************************************
+' ZTLT : Tilt
+'********************************************
+
+'NOTE: The TiltDecreaseTimer Subtracts .01 from the "Tilt" variable every round
+Sub CheckTilt                                    	'Called when table is nudged
+	If Not gameStarted Then Exit Sub
+	Tilt = Tilt + TiltSensitivity                	'Add to tilt count
+	TiltDecreaseTimer.Enabled = True
+	If(Tilt > TiltSensitivity) AND (Tilt <= 15) Then ShowTiltWarning 'show a warning
+	If Tilt > 15 Then TiltMachine  					'If more than 15 then TILT the table
+End Sub
+
+Sub CheckMechTilt                                	'Called when mechanical tilt bob switch closed
+	If Not gameStarted Then Exit Sub
+	If Not bMechTiltJustHit Then
+		MechTilt = MechTilt + 1               		'Add to tilt count
+		If(MechTilt > 0) AND (MechTilt <= 2) Then ShowTiltWarning 'show a warning
+		If MechTilt > 2 Then TiltMachine  			'If more than 2 then TILT the table
+		bMechTiltJustHit = True
+		TiltDebounceTimer.Enabled = True
+        Debounce "mechTilt", "bMechTiltJustHit = False", 3000
+	End If
+End Sub
+
+Sub ShowTiltWarning
+    FlexTiltWarningScene()
+End Sub
+
+Sub TiltMachine
+    DmdQ.RemoveAll()
+    lightCtrl.PauseMainLights()
+    GameTilted = True
+    MusicOff
+    CancelBallSaver()
+    FlexTiltScene()
+End Sub
+
+Sub TiltDecreaseTimer_Timer
+	' DecreaseTilt
+	If Tilt> 0 Then
+		Tilt = Tilt - 0.1
+	Else
+		TiltDecreaseTimer.Enabled = False
+	End If
+End Sub
+
 Class QueueItem
     Public Name
     Public Duration
@@ -17622,6 +18575,8 @@ Class Queue
     private Frame
     private CurrentMSGdone
     private DMD_slide
+    public FlexDMDItem
+    public FlexDMDOverlayAssets
 
     Private Sub Class_Initialize()
         Set Items = CreateObject("Scripting.Dictionary")
@@ -17645,12 +18600,12 @@ Class Queue
             item.Label7 = queueItem.Label7
             If IsObject(CurrentItem) Then
 				If item.Name = CurrentItem.Name Then
-					If CurrentItem.BGImage <> "noimage"  Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).Visible = False
-					If CurrentItem.BGVideo <> "novideo" Then FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).Visible = False
+					If CurrentItem.BGImage <> "noimage"  Then FlexDMDItem.Stage.GetImage(CurrentItem.BGImage).Visible = False
+					If CurrentItem.BGVideo <> "novideo" Then FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).Visible = False
 					item.BGImage = queueItem.BGImage
 					item.BGVideo = queueItem.BGVideo
-					If CurrentItem.BGImage  <> "noimage" Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).Visible=True : FlexDMD.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
-					If CurrentItem.BGVideo <> "novideo" Then FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).Visible=True : FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide
+					If CurrentItem.BGImage  <> "noimage" Then FlexDMDItem.Stage.GetImage(CurrentItem.BGImage).Visible=True : FlexDMDItem.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
+					If CurrentItem.BGVideo <> "novideo" Then FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).Visible=True : FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide
 				End If
             Else
                 item.BGImage = queueItem.BGImage
@@ -17721,8 +18676,8 @@ Class Queue
             If DMD_Slide < 0 Then DMD_slide = DMD_slide + 2
         End If
 
-        If CurrentItem.BGImage <> "noimage"  Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
-        If CurrentItem.BGVideo <> "novideo" Then FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide
+        If CurrentItem.BGImage <> "noimage"  Then FlexDMDItem.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
+        If CurrentItem.BGVideo <> "novideo" Then FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide
 
         Dim i
          For i = 1 to 7
@@ -17730,7 +18685,7 @@ Class Queue
              dim label : label = CurrentItem.GetLabel(i)
             If Not IsNull(label) Then
 
-                Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
+                Set flabel = FlexDMDItem.Stage.GetLabel("TextSmalLine" & CStr(i))
                 flabel.Font = label(1)
                 flabel.visible = True
                 If InStr(1, label(0), "GetPlayerState") > 0 Then
@@ -17793,8 +18748,8 @@ Class Queue
         if CurrentItem.Action = "slidedown" Then DMD_slide = DMDHeight
         if CurrentItem.Action = "slideup" Then DMD_slide = -DMDHeight
 
-        If CurrentItem.BGImage  <> "noimage" Then FlexDMD.Stage.GetImage(CurrentItem.BGImage).Visible=True : FlexDMD.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
-        If CurrentItem.BGVideo <> "novideo" Then FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).Visible=True : FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide * 1.5 : FlexDMD.Stage.GetVideo(CurrentItem.BGVideo).Seek(0)
+        If CurrentItem.BGImage  <> "noimage" Then FlexDMDItem.Stage.GetImage(CurrentItem.BGImage).Visible=True : FlexDMDItem.Stage.GetImage(CurrentItem.BGImage).SetPosition 0, - DMD_slide
+        If CurrentItem.BGVideo <> "novideo" Then FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).Visible=True : FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).SetPosition 0, - DMD_slide * 1.5 : FlexDMDItem.Stage.GetVideo(CurrentItem.BGVideo).Seek(0)
         
         Dim i
         For i = 1 to 7
@@ -17802,7 +18757,7 @@ Class Queue
             dim label : label = CurrentItem.GetLabel(i)
             If Not IsNull(label) Then
 
-                Set flabel = FlexDMD.Stage.GetLabel("TextSmalLine" & CStr(i))
+                Set flabel = FlexDMDItem.Stage.GetLabel("TextSmalLine" & CStr(i))
                 flabel.Font = label(1)
                 If InStr(1, label(0), "GetPlayerState") > 0 Then
                     flabel.Text = Eval(label(0))
@@ -17832,56 +18787,67 @@ Class Queue
     End Sub
 
     Public Sub DMDResetAll
-		
-        FlexDMD.Stage.GetImage("BGBlack").Visible=False 
-		FlexDMD.Stage.GetImage("BG001").Visible=False
-        FlexDMD.Stage.GetImage("BG002").Visible=False 
-        FlexDMD.Stage.GetImage("BG003").Visible=False 
-        FlexDMD.Stage.GetImage("BG004").Visible=False 
-        FlexDMD.Stage.GetImage("BG005").Visible=False 
-        FlexDMD.Stage.GetVideo("BGBoost").Visible=False
-
-        FlexDMD.Stage.GetVideo("BGBetMode").Visible=False
-        FlexDMD.Stage.GetVideo("BGBoost").Visible=False
-        FlexDMD.Stage.GetVideo("BGCyber").Visible=False
-        FlexDMD.Stage.GetVideo("BGEmp").Visible=False
-        FlexDMD.Stage.GetVideo("BGNodes").Visible=False
-        FlexDMD.Stage.GetVideo("BGSkills").Visible=False
-
-        FlexDMD.Stage.GetVideo("BGEngine").Visible=False
-        FlexDMD.Stage.GetVideo("BGCooling").Visible=False
-        FlexDMD.Stage.GetVideo("BGFuel").Visible=False
-
-        FlexDMD.Stage.GetVideo("BGNode").Visible=False
-        FlexDMD.Stage.GetVideo("BGNodeComplete").Visible=False
-
-        
-        FlexDMD.Stage.GetVideo("BGRace1").Visible=False
-        FlexDMD.Stage.GetVideo("BGRace2").Visible=False
-        FlexDMD.Stage.GetVideo("BGRace3").Visible=False
-        FlexDMD.Stage.GetVideo("BGRace4").Visible=False
-        FlexDMD.Stage.GetVideo("BGRaceLocked").Visible=False
-
-        FlexDMD.Stage.GetVideo("BGBonus1").Visible=False
-        FlexDMD.Stage.GetVideo("BGBonus2").Visible=False
-        FlexDMD.Stage.GetVideo("BGBonus3").Visible=False
-        FlexDMD.Stage.GetVideo("BGBonus4").Visible=False
-        FlexDMD.Stage.GetVideo("BGBonus5").Visible=False
-        
-        FlexDMD.Stage.GetVideo("BGJackpot").Visible=False
-
-		FlexDMD.Stage.GetLabel("TextSmalLine1").Visible=False
-		FlexDMD.Stage.GetLabel("TextSmalLine2").Visible=False
-		FlexDMD.Stage.GetLabel("TextSmalLine3").Visible=False
-		FlexDMD.Stage.GetLabel("TextSmalLine4").Visible=False
-        FlexDMD.Stage.GetLabel("TextSmalLine5").Visible=False
-        FlexDMD.Stage.GetLabel("TextSmalLine6").Visible=False
-        FlexDMD.Stage.GetLabel("TextSmalLine7").Visible=False
+        Dim child
+        For Each child in FlexDMDOverlayAssets
+            dim asset
+            asset = Split(child, "|")
+            Select Case asset(1)
+                Case "image"
+                    FlexDMDItem.Stage.GetImage(asset(0)).Visible=False 
+                Case "video"
+                    FlexDMDItem.Stage.GetVideo(asset(0)).Visible=False 
+                Case "text"
+                    FlexDMDItem.Stage.GetLabel(asset(0)).Visible=False 
+            End Select
+        Next
     End Sub
-
-
 End Class
 
+
+' Create a dictionary to store the callbacks with their names and execution times
+Dim timerQueue : Set timerQueue = CreateObject("Scripting.Dictionary")
+
+' Function to add a callback to the queue
+Sub SetTimer(name, callbackFunc, delayInMs)
+    ' Calculate the execution time
+    Dim executionTime
+    executionTime = gametime + delayInMs
+    ' Create a small dictionary to hold both the execution time and the callback function
+    Dim cbDict
+    Set cbDict = CreateObject("Scripting.Dictionary")
+    cbDict.Add "executionTime", executionTime
+    cbDict.Add "callbackFunc", callbackFunc
+    
+    If timerQueue.Exists(name) Then
+        timerQueue.Remove(name)
+    End If
+    ' Add the callback information to the main timer queue dictionary with the name as the key
+    timerQueue.Add name, cbDict
+End Sub
+
+Sub Debounce(name, callbackFunc, delayInMs)
+    SetTimer name, callbackFunc, delayInMs
+End Sub
+
+Sub TimerTick()
+    Dim key, callbackInfo, callbacksToExecute, name
+    Set callbacksToExecute = CreateObject("Scripting.Dictionary")
+    
+    ' Check each timer in the queue
+    For Each key In timerQueue.Keys()
+        Set callbackInfo = timerQueue(key)
+        ' If the execution time has come or passed, mark it for execution
+        If callbackInfo("executionTime") <= gametime Then
+            callbacksToExecute.Add key, callbackInfo("callbackFunc")
+        End If
+    Next
+
+    ' Execute and remove callbacks that are due
+    For Each name In callbacksToExecute
+        timerQueue.Remove(name)        
+        ExecuteGlobal callbacksToExecute(name)
+    Next
+End Sub
 '***************************************************************
 ' ZQUE: VPIN WORKSHOP ADVANCED QUEUING SYSTEM - 1.1.3
 '***************************************************************
@@ -18901,7 +19867,6 @@ Sub SetRoomBrightness(lvl)
 
 	' Lighting level
 	Dim v: v=(lvl * 225 + 30)/255
-
 	Dim i: For i = 0 to UBound(RoomBrightnessMtlArray)
 		ModulateMaterialBaseColor RoomBrightnessMtlArray(i), i, v
 	Next

@@ -65,7 +65,7 @@ Sub Waddball(input, RampInput)	'Add ball
 			exit Sub
 		End If
 		if x = uBound(RampBalls) then 	'debug
-			Debug.print "WireRampOn error, ball queue is full: " & vbnewline & _
+			'Debug.print "WireRampOn error, ball queue is full: " & vbnewline & _
 			RampBalls(0, 0) & vbnewline & _
 			Typename(RampBalls(1, 0)) & " ID:" & RampBalls(1, 1) & "type:" & RampType(1) & vbnewline & _
 			Typename(RampBalls(2, 0)) & " ID:" & RampBalls(2, 1) & "type:" & RampType(2) & vbnewline & _

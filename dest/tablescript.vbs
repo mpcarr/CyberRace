@@ -27,7 +27,8 @@ Const myVersion = "0.0.34"
 'v33: mcarter78 - Add plunger material, fix collision sounds for ramp ends, sleeves, rollovers, gates, upper flipper
 'v34: flux: fix spinner labels, balance: balance: revert race kick out so there is a chance of bouncing into secret garage, add: inlane speed limit, fix: repeated callouts on spinners, update: skillshot change lane
 'v35: apophis: Fixed a few physics material assignments. Changed ball image and set to spherical map. Added ambient ball shadows. Enabled playfield reflections. Fleep volume fix. Added DisableStaticPrerendering functionality to options menu. Changed desktop POV. 
-
+'v36: apophis: Added some mechanical hit sounds. 
+'v37: flux : fixed sling animations, missing plastic textures and screws. Synced VR Room Lights With GI
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -194,6 +195,9 @@ Sub Table1_Init()
 		.CreateEvents "plungerIM"
 	End With
 	Options_Load
+
+	LeftSlingShot_Timer
+	RightSlingShot_Timer
 	
 	'lightCtrl.AddTableLightSeq "Attract", lSeqAttract3
 	lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm1
@@ -1351,7 +1355,7 @@ Sub FlexDMDRaceSelectScene()
     r4 = GetPlayerState(RACE_4)
     racesComplete = (r1+r2+r3+r4)
     Dim selection : selection = GetPlayerState(RACE_MODE_SELECTION)
-    debug.print(racesComplete)
+    'debug.print(racesComplete)
     Select Case selection:
         Case 1: 
             bgVideo = "BGRace1"
@@ -2533,28 +2537,28 @@ Sub PS_Hyper()
     lightCtrl.LightOff l39
     lightCtrl.LightOff l40
     lightCtrl.LightOff l41
-    debug.print(GetPlayerState(HYPER))
+    'debug.print(GetPlayerState(HYPER))
     Select Case GetPlayerState(HYPER)
         Case 1:
-            debug.print("Running 1")
+            'debug.print("Running 1")
             lightCtrl.FlickerOn l37
         Case 2:
-            debug.print("Running 2")
+            'debug.print("Running 2")
             lightCtrl.FlickerOn l37
             lightCtrl.FlickerOn l38
         Case 3:
-            debug.print("Running 3")
+            'debug.print("Running 3")
             lightCtrl.FlickerOn l37
             lightCtrl.FlickerOn l38
             lightCtrl.FlickerOn l39
         Case 4:
-            debug.print("Running 4")
+            'debug.print("Running 4")
             lightCtrl.FlickerOn l37
             lightCtrl.FlickerOn l38
             lightCtrl.FlickerOn l39
             lightCtrl.FlickerOn l40
         Case 5:
-            debug.print("Running 5")    
+            'debug.print("Running 5")    
             lightCtrl.FlickerOn l37
             lightCtrl.FlickerOn l38
             lightCtrl.FlickerOn l39
@@ -12775,12 +12779,12 @@ End Sub
 '
 '*****************************
 Sub AutoPlungeBall()
-    Debug.print("AutoPlungeBall")
+    'Debug.print("AutoPlungeBall")
     If ballInPlungerLane = False And swTrough1.BallCntOver = 1 Then
         ReleaseBall()
         autoPlunge = True
     Else
-        Debug.print("adding ball to q")
+        'Debug.print("adding ball to q")
         ballsInQ = ballsInQ + 1
         BallReleaseTimer.Enabled = True
     End If
@@ -12865,7 +12869,7 @@ End Sub
 
 '******************************************
 Sub Drain_Hit 
-    debug.print("drain hit")
+    'debug.print("drain hit")
     RandomSoundDrain Drain
     UpdateTrough()
     DispatchPinEvent BALL_DRAIN
@@ -13120,9 +13124,9 @@ Sub RPin_Hit()
 End Sub
 '******************************************
 Sub ScoopBackWall_Hit()
-	debug.print "velz: " & activeball.velz
-    debug.print "velx: " & activeball.velx
-    debug.print "vely: " & activeball.vely
+	'debug.print "velz: " & activeball.velz
+    'debug.print "velx: " & activeball.velx
+    'debug.print "vely: " & activeball.vely
     activeball.vely = 1
     activeball.velx = 1
 End Sub
@@ -13789,16 +13793,16 @@ Class LStateController
             For idx = 0 to UBound(Lights)
                 vpxLight = Null
                 Set lcItem = new LCItem
-                debug.print("TRYING TO REGISTER IDX: " & idx)
+                'debug.print("TRYING TO REGISTER IDX: " & idx)
                 If IsArray(Lights(idx)) Then
                     tmp = Lights(idx)
                     Set vpxLight = tmp(0)
-                    debug.print("TEMP LIGHT NAME for idx:" & idx & ", light: " & vpxLight.name)
+                    'debug.print("TEMP LIGHT NAME for idx:" & idx & ", light: " & vpxLight.name)
                 ElseIf IsObject(Lights(idx)) Then
                     Set vpxLight = Lights(idx)
                 End If
                 If Not IsNull(vpxLight) Then
-                    Debug.print("Registering Light: "& vpxLight.name)
+                   ' Debug.print("Registering Light: "& vpxLight.name)
 
 
                     Dim r : r = Round(vpxLight.y/40)
@@ -13820,7 +13824,7 @@ Class LStateController
                     Dim e, lmStr: lmStr = "lmArr = Array("    
                     For Each e in GetElements()
                         If InStr(e.Name, "_" & vpxLight.Name & "_") Or InStr(e.Name, "_" & vpxLight.UserValue & "_") Then
-                            Debug.Print(e.Name)
+                            'Debug.Print(e.Name)
                             lmStr = lmStr & e.Name & ","
                         End If
                     Next
@@ -13828,7 +13832,7 @@ Class LStateController
                     lmStr = Replace(lmStr, ",Null)", ")")
                     ExecuteGlobal "Dim lmArr : "&lmStr
                     m_lightmaps.Add vpxLight.Name, lmArr
-                    Debug.print("Registering Light: "& vpxLight.name) 
+                   ' Debug.print("Registering Light: "& vpxLight.name) 
                     lcItem.Init idx, vpxLight.BlinkInterval, Array(vpxLight.color, vpxLight.colorFull), vpxLight.name, vpxLight.x, vpxLight.y
                     m_lights.Add vpxLight.Name, lcItem
                     m_seqRunners.Add "lSeqRunner" & CStr(vpxLight.name), new LCSeqRunner
@@ -15633,14 +15637,31 @@ End Sub
 
 
 Dim RStep, Lstep
-
+LStep = 4
+RStep = 4
 Sub RightSlingShot_Slingshot
 	If GameTilted = False Then
 		RS.VelocityCorrect(ActiveBall)
+		RStep = 0
 		RandomSoundSlingshotRight ActiveBall
 		DOF 104,DOFPulse
 		DOF 202,DOFPulse
+		RightSlingShot.TimerInterval = 17
+    	RightSlingShot.TimerEnabled = 1
 	End If
+End Sub
+
+Sub RightSlingShot_Timer
+	Dim x1, x2, y: x1 = True:x2 = False:y = -20
+	Select Case RStep
+		Case 3:x1 = False:x2 = True:y = -10 :
+		Case 4:x1 = False:x2 = False:y = 0:RightSlingShot.TimerEnabled = 0 
+	End Select
+	Dim x	
+	For Each BL in BP_RSling1 : BL.Visible = x1: Next
+	For Each BL in BP_RSling2 : BL.Visible = x2: Next
+	For Each BL in BP_REMK : BL.transx = -y: Next	
+	RStep = RStep + 1
 End Sub
 
 Sub LeftSlingShot_Slingshot
@@ -15649,24 +15670,24 @@ Sub LeftSlingShot_Slingshot
 		RandomSoundSlingshotLeft ActiveBall
 		DOF 103,DOFPulse
 		DOF 201,DOFPulse
+		LStep = 0
 		LeftSlingShot.TimerInterval = 17
     	LeftSlingShot.TimerEnabled = 1
 	End If
 End Sub
 
+
 Sub LeftSlingShot_Timer
-	Exit Sub
-	Dim BL
-	Dim x1, x2, y: x1 = True:x2 = False:y = 25
+	Dim x1, x2, y: x1 = True:x2 = False:y = -20
 	Select Case LStep
-		Case 3:x1 = False:x2= True: y = 15
+		Case 3:x1 = False:x2 = True:y = -10 : 
 		Case 4:x1 = False:x2 = False:y = 0:LeftSlingShot.TimerEnabled = 0
 	End Select
 
+	Dim x	
 	For Each BL in BP_LSling1 : BL.Visible = x1: Next
 	For Each BL in BP_LSling2 : BL.Visible = x2: Next
-	For Each BL in BP_LEMK : BL.transx = y: Next
-
+	For Each BL in BP_LEMK : BL.transx = -y: Next		
 	LStep = LStep + 1
 End Sub
 
@@ -17001,35 +17022,35 @@ Sub PlaySoundAtLevelStatic(playsoundparams, aVol, tableobj)
 End Sub
 
 Sub PlaySoundAtLevelExistingStatic(playsoundparams, aVol, tableobj)
-	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(tableobj), 0, 0, 1, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, 0, Min(1, aVol) * VolumeDial, AudioPan(tableobj), 0, 0, 1, 0, AudioFade(tableobj)
 End Sub
 
 Sub PlaySoundAtLevelStaticLoop(playsoundparams, aVol, tableobj)
-	PlaySound playsoundparams, -1, Min(1, aVol) VolumeDial, AudioPan(tableobj), 0, 0, 0, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, -1, Min(1, aVol) * VolumeDial, AudioPan(tableobj), 0, 0, 0, 0, AudioFade(tableobj)
 End Sub
 
 Sub PlaySoundAtLevelStaticRandomPitch(playsoundparams, aVol, randomPitch, tableobj)
-	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(tableobj), randomPitch, 0, 0, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, 0, Min(1, aVol) * VolumeDial, AudioPan(tableobj), randomPitch, 0, 0, 0, AudioFade(tableobj)
 End Sub
 
 Sub PlaySoundAtLevelActiveBall(playsoundparams, aVol)
-	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(ActiveBall), 0, 0, 0, 0, AudioFade(ActiveBall)
+	PlaySound playsoundparams, 0, Min(1, aVol) * VolumeDial, AudioPan(ActiveBall), 0, 0, 0, 0, AudioFade(ActiveBall)
 End Sub
 
 Sub PlaySoundAtLevelExistingActiveBall(playsoundparams, aVol)
-	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(ActiveBall), 0, 0, 1, 0, AudioFade(ActiveBall)
+	PlaySound playsoundparams, 0, Min(1, aVol) * VolumeDial, AudioPan(ActiveBall), 0, 0, 1, 0, AudioFade(ActiveBall)
 End Sub
 
 Sub PlaySoundAtLeveTimerActiveBall(playsoundparams, aVol, ballvariable)
-	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(ballvariable), 0, 0, 0, 0, AudioFade(ballvariable)
+	PlaySound playsoundparams, 0, Min(1, aVol) * VolumeDial, AudioPan(ballvariable), 0, 0, 0, 0, AudioFade(ballvariable)
 End Sub
 
 Sub PlaySoundAtLevelTimerExistingActiveBall(playsoundparams, aVol, ballvariable)
-	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(ballvariable), 0, 0, 1, 0, AudioFade(ballvariable)
+	PlaySound playsoundparams, 0, Min(1, aVol) * VolumeDial, AudioPan(ballvariable), 0, 0, 1, 0, AudioFade(ballvariable)
 End Sub
 
 Sub PlaySoundAtLevelRoll(playsoundparams, aVol, pitch)
-	PlaySound playsoundparams, -1, Min(1, aVol) VolumeDial, AudioPan(tableobj), randomPitch, 0, 0, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, -1, Min(1, aVol) * VolumeDial, AudioPan(tableobj), randomPitch, 0, 0, 0, AudioFade(tableobj)
 End Sub
 
 ' Previous Positional Sound Subs
@@ -17656,7 +17677,7 @@ Sub Waddball(input, RampInput)	'Add ball
 			exit Sub
 		End If
 		if x = uBound(RampBalls) then 	'debug
-			Debug.print "WireRampOn error, ball queue is full: " & vbnewline & _
+			'Debug.print "WireRampOn error, ball queue is full: " & vbnewline & _
 			RampBalls(0, 0) & vbnewline & _
 			Typename(RampBalls(1, 0)) & " ID:" & RampBalls(1, 1) & "type:" & RampType(1) & vbnewline & _
 			Typename(RampBalls(2, 0)) & " ID:" & RampBalls(2, 1) & "type:" & RampType(2) & vbnewline & _
@@ -18188,9 +18209,6 @@ lastimeupdate = gametime
 
 Sub GameTimer_timer()
 	period = gametime - lastimeupdate
-	If period > 500 Then
-		debug.Print(period)
-	End If
 	lastimeupdate = gametime
 	DoSTAnim						'handle stand up target animations
 	RollingUpdate
@@ -18269,17 +18287,17 @@ Sub Table1_KeyDown(ByVal Keycode)
 	End If
 
 
-    If keycode = 46 then ' C Key
-        If contball = 1 Then
-            contball = 0
-        Else
-            contball = 1
-        End If
-    End If
-    if keycode = 203 then bcleft = 1 ' Left Arrow
-    if keycode = 200 then bcup = 1 ' Up Arrow
-    if keycode = 208 then bcdown = 1 ' Down Arrow
-    if keycode = 205 then bcright = 1 ' Right Arrow
+    'If keycode = 46 then ' C Key
+    '    If contball = 1 Then
+    '        contball = 0
+    '    Else
+    '        contball = 1
+    '    End If
+    'End If
+    'if keycode = 203 then bcleft = 1 ' Left Arrow
+    'if keycode = 200 then bcup = 1 ' Up Arrow
+    'if keycode = 208 then bcdown = 1 ' Down Arrow
+    'if keycode = 205 then bcright = 1 ' Right Arrow
    
 
     If gameStarted = False Then

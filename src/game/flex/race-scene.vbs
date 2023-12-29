@@ -8,7 +8,7 @@ Sub FlexDMDRaceSelectScene()
     r4 = GetPlayerState(RACE_4)
     racesComplete = (r1+r2+r3+r4)
     Dim selection : selection = GetPlayerState(RACE_MODE_SELECTION)
-    debug.print(racesComplete)
+    'debug.print(racesComplete)
     Select Case selection:
         Case 1: 
             bgVideo = "BGRace1"

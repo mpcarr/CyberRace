@@ -29,12 +29,12 @@ End Sub
 '
 '*****************************
 Sub AutoPlungeBall()
-    Debug.print("AutoPlungeBall")
+    'Debug.print("AutoPlungeBall")
     If ballInPlungerLane = False And swTrough1.BallCntOver = 1 Then
         ReleaseBall()
         autoPlunge = True
     Else
-        Debug.print("adding ball to q")
+        'Debug.print("adding ball to q")
         ballsInQ = ballsInQ + 1
         BallReleaseTimer.Enabled = True
     End If

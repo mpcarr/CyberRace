@@ -4,9 +4,6 @@ lastimeupdate = gametime
 
 Sub GameTimer_timer()
 	period = gametime - lastimeupdate
-	If period > 500 Then
-		debug.Print(period)
-	End If
 	lastimeupdate = gametime
 	DoSTAnim						'handle stand up target animations
 	RollingUpdate

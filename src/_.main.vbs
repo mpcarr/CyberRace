@@ -27,7 +27,8 @@ Const myVersion = "0.0.34"
 'v33: mcarter78 - Add plunger material, fix collision sounds for ramp ends, sleeves, rollovers, gates, upper flipper
 'v34: flux: fix spinner labels, balance: balance: revert race kick out so there is a chance of bouncing into secret garage, add: inlane speed limit, fix: repeated callouts on spinners, update: skillshot change lane
 'v35: apophis: Fixed a few physics material assignments. Changed ball image and set to spherical map. Added ambient ball shadows. Enabled playfield reflections. Fleep volume fix. Added DisableStaticPrerendering functionality to options menu. Changed desktop POV. 
-
+'v36: apophis: Added some mechanical hit sounds. 
+'v37: flux : fixed sling animations, missing plastic textures and screws. Synced VR Room Lights With GI
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -194,6 +195,9 @@ Sub Table1_Init()
 		.CreateEvents "plungerIM"
 	End With
 	Options_Load
+
+	LeftSlingShot_Timer
+	RightSlingShot_Timer
 	
 	'lightCtrl.AddTableLightSeq "Attract", lSeqAttract3
 	lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm1

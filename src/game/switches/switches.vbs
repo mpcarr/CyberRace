@@ -1,7 +1,7 @@
 
 '******************************************
 Sub Drain_Hit 
-    debug.print("drain hit")
+    'debug.print("drain hit")
     RandomSoundDrain Drain
     UpdateTrough()
     DispatchPinEvent BALL_DRAIN
@@ -256,9 +256,9 @@ Sub RPin_Hit()
 End Sub
 '******************************************
 Sub ScoopBackWall_Hit()
-	debug.print "velz: " & activeball.velz
-    debug.print "velx: " & activeball.velx
-    debug.print "vely: " & activeball.vely
+	'debug.print "velz: " & activeball.velz
+    'debug.print "velx: " & activeball.velx
+    'debug.print "vely: " & activeball.vely
     activeball.vely = 1
     activeball.velx = 1
 End Sub

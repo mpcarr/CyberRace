@@ -224,16 +224,16 @@ Class LStateController
             For idx = 0 to UBound(Lights)
                 vpxLight = Null
                 Set lcItem = new LCItem
-                debug.print("TRYING TO REGISTER IDX: " & idx)
+                'debug.print("TRYING TO REGISTER IDX: " & idx)
                 If IsArray(Lights(idx)) Then
                     tmp = Lights(idx)
                     Set vpxLight = tmp(0)
-                    debug.print("TEMP LIGHT NAME for idx:" & idx & ", light: " & vpxLight.name)
+                    'debug.print("TEMP LIGHT NAME for idx:" & idx & ", light: " & vpxLight.name)
                 ElseIf IsObject(Lights(idx)) Then
                     Set vpxLight = Lights(idx)
                 End If
                 If Not IsNull(vpxLight) Then
-                    Debug.print("Registering Light: "& vpxLight.name)
+                   ' Debug.print("Registering Light: "& vpxLight.name)
 
 
                     Dim r : r = Round(vpxLight.y/40)
@@ -255,7 +255,7 @@ Class LStateController
                     Dim e, lmStr: lmStr = "lmArr = Array("    
                     For Each e in GetElements()
                         If InStr(e.Name, "_" & vpxLight.Name & "_") Or InStr(e.Name, "_" & vpxLight.UserValue & "_") Then
-                            Debug.Print(e.Name)
+                            'Debug.Print(e.Name)
                             lmStr = lmStr & e.Name & ","
                         End If
                     Next
@@ -263,7 +263,7 @@ Class LStateController
                     lmStr = Replace(lmStr, ",Null)", ")")
                     ExecuteGlobal "Dim lmArr : "&lmStr
                     m_lightmaps.Add vpxLight.Name, lmArr
-                    Debug.print("Registering Light: "& vpxLight.name) 
+                   ' Debug.print("Registering Light: "& vpxLight.name) 
                     lcItem.Init idx, vpxLight.BlinkInterval, Array(vpxLight.color, vpxLight.colorFull), vpxLight.name, vpxLight.x, vpxLight.y
                     m_lights.Add vpxLight.Name, lcItem
                     m_seqRunners.Add "lSeqRunner" & CStr(vpxLight.name), new LCSeqRunner

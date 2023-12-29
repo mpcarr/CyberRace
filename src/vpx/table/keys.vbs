@@ -18,17 +18,17 @@ Sub Table1_KeyDown(ByVal Keycode)
 	End If
 
 
-    If keycode = 46 then ' C Key
-        If contball = 1 Then
-            contball = 0
-        Else
-            contball = 1
-        End If
-    End If
-    if keycode = 203 then bcleft = 1 ' Left Arrow
-    if keycode = 200 then bcup = 1 ' Up Arrow
-    if keycode = 208 then bcdown = 1 ' Down Arrow
-    if keycode = 205 then bcright = 1 ' Right Arrow
+    'If keycode = 46 then ' C Key
+    '    If contball = 1 Then
+    '        contball = 0
+    '    Else
+    '        contball = 1
+    '    End If
+    'End If
+    'if keycode = 203 then bcleft = 1 ' Left Arrow
+    'if keycode = 200 then bcup = 1 ' Up Arrow
+    'if keycode = 208 then bcdown = 1 ' Down Arrow
+    'if keycode = 205 then bcright = 1 ' Right Arrow
    
 
     If gameStarted = False Then

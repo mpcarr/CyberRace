@@ -377,7 +377,7 @@ Sub RaceMode1SpinnerHit()
                 .BGVideo = "novideo"
                 .Action = "slideup"
             End With
-            qItem.AddLabel "GetPlayerState(RACE_MODE_2_SPIN1) & ""/ 30 Spins to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            qItem.AddLabel "30-GetPlayerState(RACE_MODE_2_SPIN1) & "" Spins to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
             DmdQ.Enqueue qItem
         End If
     End If
@@ -403,7 +403,7 @@ Sub RaceMode2SpinnerHit()
                 .BGVideo = "novideo"
                 .Action = "slideup"
             End With
-            qItem.AddLabel "GetPlayerState(RACE_MODE_2_SPIN2) & ""/ 30 Spins to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            qItem.AddLabel "30-GetPlayerState(RACE_MODE_2_SPIN2) & "" Spins to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
             DmdQ.Enqueue qItem
         End If
     End If
@@ -873,7 +873,7 @@ Sub RaceMode6SpinnerHit()
                     .BGVideo = "novideo"
                     .Action = "slideup"
                 End With
-                qItem.AddLabel "GetPlayerState(RACE_MODE_6_SPIN2) & ""/ 30 Spins to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+                qItem.AddLabel "30-GetPlayerState(RACE_MODE_6_SPIN2) & "" Spins to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
                 DmdQ.Enqueue qItem
             End If
         End If

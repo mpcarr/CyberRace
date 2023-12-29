@@ -26,6 +26,8 @@ Const myVersion = "0.0.34"
 'v32: flux - Add BackGlass Calls 
 'v33: mcarter78 - Add plunger material, fix collision sounds for ramp ends, sleeves, rollovers, gates, upper flipper
 'v34: flux: fix spinner labels, balance: balance: revert race kick out so there is a chance of bouncing into secret garage, add: inlane speed limit, fix: repeated callouts on spinners, update: skillshot change lane
+'v35: apophis: Fixed a few physics material assignments. Changed ball image and set to spherical map. Added ambient ball shadows. Enabled playfield reflections. Fleep volume fix. Added DisableStaticPrerendering functionality to options menu. Changed desktop POV. 
+
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -158,6 +160,9 @@ Sub Table1_Init()
 	kickerCaptiveBall1.kick 0,0
 	kickerCaptiveBall2.CreateSizedballWithMass Ballsize/2, BallMass
 	kickerCaptiveBall2.kick 0,0
+
+	kickerCaptiveBall1.enabled = false
+	kickerCaptiveBall2.enabled = false
 
 	DiverterOn.IsDropped = 1
 	DiverterOff.IsDropped = 0
@@ -13285,6 +13290,55 @@ Function FlattenArrays(arrays)
 
     FlattenArrays = resultArray
 End Function
+
+
+'***************************************************************
+'	Ambient ball shadows
+'***************************************************************
+
+'Ambient (Room light source)
+Const AmbientBSFactor = 0.9    '0 To 1, higher is darker
+Const AmbientMovement = 1	   '1+ higher means more movement as the ball moves left and right
+Const offsetX = 0			   'Offset x position under ball (These are if you want to change where the "room" light is for calculating the shadow position,)
+Const offsetY = 0			   'Offset y position under ball (^^for example 5,5 if the light is in the back left corner)
+
+' *** Trim or extend these to match the number of balls/primitives/flashers on the table!  (will throw errors if there aren't enough objects)
+Dim objBallShadow(8)
+
+'Initialization
+BSInit
+
+Sub BSInit()
+	Dim iii
+	'Prepare the shadow objects before play begins
+	For iii = 0 To tnob - 1
+		Set objBallShadow(iii) = Eval("BallShadow" & iii)
+		objBallShadow(iii).material = "BallShadow" & iii
+		UpdateMaterial objBallShadow(iii).material,1,0,0,0,0,0,AmbientBSFactor,RGB(0,0,0),0,0,False,True,0,0,0,0
+		objBallShadow(iii).Z = 3 + iii / 1000
+		objBallShadow(iii).visible = 0
+	Next
+End Sub
+
+
+Sub BSUpdate
+	Dim s: For s = lob To UBound(gBOT)
+		' *** Normal "ambient light" ball shadow
+		
+		'Primitive shadow on playfield, flasher shadow in ramps
+		'** If on main and upper pf
+		If gBOT(s).Z > 20 Then
+			objBallShadow(s).visible = 1
+			objBallShadow(s).X = gBOT(s).X + (gBOT(s).X - (tablewidth / 2)) / (Ballsize / AmbientMovement) + offsetX
+			objBallShadow(s).Y = gBOT(s).Y + offsetY
+			'objBallShadow(s).Z = gBOT(s).Z + s/1000 + 1.04 - 25	
+
+		'** Under pf, no shadow
+		Else
+			objBallShadow(s).visible = 0
+		End If
+	Next
+End Sub
 '*******************************************
 '  ZDRA : Drain, Trough, and Ball Release, ballsave
 '*******************************************
@@ -16901,8 +16955,8 @@ BallWithBallCollisionSoundFactor = 3.2									'volume multiplier; must not be z
 RubberStrongSoundFactor = 0.055/5											'volume multiplier; must not be zero
 RubberWeakSoundFactor = 0.075/5											'volume multiplier; must not be zero
 RubberFlipperSoundFactor = 0.075/5										'volume multiplier; must not be zero
-BallBouncePlayfieldSoftFactor = 0.025									'volume multiplier; must not be zero
-BallBouncePlayfieldHardFactor = 0.025									'volume multiplier; must not be zero
+BallBouncePlayfieldSoftFactor = 0.125									'volume multiplier; must not be zero
+BallBouncePlayfieldHardFactor = 0.125									'volume multiplier; must not be zero
 DelayedBallDropOnPlayfieldSoundLevel = 0.8									'volume level; range [0, 1]
 WallImpactSoundFactor = 0.075											'volume multiplier; must not be zero
 MetalImpactSoundFactor = 0.075/3
@@ -16943,39 +16997,39 @@ ArchSoundFactor = 0.025/5													'volume multiplier; must not be zero
 ' PlaySound full syntax - PlaySound(string, int loopcount, float volume, float pan, float randompitch, int pitch, bool useexisting, bool restart, float front_rear_fade)
 ' Note - These functions will not work (currently) for walls/slingshots as these do not feature a simple, single X,Y position
 Sub PlaySoundAtLevelStatic(playsoundparams, aVol, tableobj)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(tableobj), 0, 0, 0, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, 0, Min(1, aVol) * VolumeDial, AudioPan(tableobj), 0, 0, 0, 0, AudioFade(tableobj)
 End Sub
 
 Sub PlaySoundAtLevelExistingStatic(playsoundparams, aVol, tableobj)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(tableobj), 0, 0, 1, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(tableobj), 0, 0, 1, 0, AudioFade(tableobj)
 End Sub
 
 Sub PlaySoundAtLevelStaticLoop(playsoundparams, aVol, tableobj)
-	PlaySound playsoundparams, -1, aVol * VolumeDial, AudioPan(tableobj), 0, 0, 0, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, -1, Min(1, aVol) VolumeDial, AudioPan(tableobj), 0, 0, 0, 0, AudioFade(tableobj)
 End Sub
 
 Sub PlaySoundAtLevelStaticRandomPitch(playsoundparams, aVol, randomPitch, tableobj)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(tableobj), randomPitch, 0, 0, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(tableobj), randomPitch, 0, 0, 0, AudioFade(tableobj)
 End Sub
 
 Sub PlaySoundAtLevelActiveBall(playsoundparams, aVol)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(ActiveBall), 0, 0, 0, 0, AudioFade(ActiveBall)
+	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(ActiveBall), 0, 0, 0, 0, AudioFade(ActiveBall)
 End Sub
 
 Sub PlaySoundAtLevelExistingActiveBall(playsoundparams, aVol)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(ActiveBall), 0, 0, 1, 0, AudioFade(ActiveBall)
+	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(ActiveBall), 0, 0, 1, 0, AudioFade(ActiveBall)
 End Sub
 
 Sub PlaySoundAtLeveTimerActiveBall(playsoundparams, aVol, ballvariable)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(ballvariable), 0, 0, 0, 0, AudioFade(ballvariable)
+	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(ballvariable), 0, 0, 0, 0, AudioFade(ballvariable)
 End Sub
 
 Sub PlaySoundAtLevelTimerExistingActiveBall(playsoundparams, aVol, ballvariable)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(ballvariable), 0, 0, 1, 0, AudioFade(ballvariable)
+	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(ballvariable), 0, 0, 1, 0, AudioFade(ballvariable)
 End Sub
 
 Sub PlaySoundAtLevelRoll(playsoundparams, aVol, pitch)
-	PlaySound playsoundparams, -1, aVol * VolumeDial, AudioPan(tableobj), randomPitch, 0, 0, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, -1, Min(1, aVol) VolumeDial, AudioPan(tableobj), randomPitch, 0, 0, 0, AudioFade(tableobj)
 End Sub
 
 ' Previous Positional Sound Subs
@@ -16985,7 +17039,7 @@ Sub PlaySoundAt(soundname, tableobj)
 End Sub
 
 Sub PlaySoundAtVol(soundname, tableobj, aVol)
-	PlaySound soundname, 1, aVol * VolumeDial, AudioPan(tableobj), 0,0,0, 1, AudioFade(tableobj)
+	PlaySound soundname, 1, Min(1,aVol) * VolumeDial, AudioPan(tableobj), 0,0,0, 1, AudioFade(tableobj)
 End Sub
 
 Sub PlaySoundAtBall(soundname)
@@ -16993,11 +17047,11 @@ Sub PlaySoundAtBall(soundname)
 End Sub
 
 Sub PlaySoundAtBallVol (Soundname, aVol)
-	Playsound soundname, 1,aVol * VolumeDial, AudioPan(ActiveBall), 0,0,0, 1, AudioFade(ActiveBall)
+	Playsound soundname, 1,Min(1,aVol) * VolumeDial, AudioPan(ActiveBall), 0,0,0, 1, AudioFade(ActiveBall)
 End Sub
 
 Sub PlaySoundAtBallVolM (Soundname, aVol)
-	Playsound soundname, 1,aVol * VolumeDial, AudioPan(ActiveBall), 0,0,0, 0, AudioFade(ActiveBall)
+	Playsound soundname, 1,Min(1,aVol) * VolumeDial, AudioPan(ActiveBall), 0,0,0, 0, AudioFade(ActiveBall)
 End Sub
 
 Sub PlaySoundAtVolLoops(sound, tableobj, Vol, Loops)
@@ -17767,7 +17821,6 @@ Sub RollingUpdate()
 	' stop the sound of deleted balls
 	For b = UBound(gBOT) + 1 to tnob - 1
 		' Comment the next line if you are not implementing Dyanmic Ball Shadows
-		If AmbientBallShadowOn = 0 Then BallShadowA(b).visible = 0
 		rolling(b) = False
 		StopSound("BallRoll_" & b)
 	Next
@@ -17804,18 +17857,6 @@ Sub RollingUpdate()
 			DropCount(b) = DropCount(b) + 1
 		End If
 
-		' "Static" Ball Shadows
-		' Comment the next If block, if you are not implementing the Dyanmic Ball Shadows
-		If AmbientBallShadowOn = 0 Then
-			If gBOT(b).Z > 30 Then
-				BallShadowA(b).height=gBOT(b).z - BallSize/4		'This is technically 1/4 of the ball "above" the ramp, but it keeps it from clipping the ramp
-			Else
-				BallShadowA(b).height=0.1
-			End If
-			BallShadowA(b).Y = gBOT(b).Y + offsetY
-			BallShadowA(b).X = gBOT(b).X + offsetX
-			BallShadowA(b).visible = 1
-		End If
 	Next
 End Sub
 
@@ -18172,6 +18213,7 @@ Sub FrameTimer_Timer()
 		el.Rotz = a		
 	Next
 	
+	BSUpdate
 
 	For Each el in BP_Disc
 		el.Rotz = a		
@@ -20289,6 +20331,7 @@ Sub Options_Open
 	OptionDMD.Stage.AddActor scene
 	OptionDMD.UnlockRenderThread
 	OptionDMDFlasher.Visible = True
+	DisableStaticPrerendering = True
 End Sub
 
 Sub Options_UpdateDMD
@@ -20322,6 +20365,7 @@ Sub Options_Close
 	If OptionDMD is Nothing Then Exit Sub
 	OptionDMD.Run = False
 	Set OptionDMD = Nothing
+	DisableStaticPrerendering = False
 End Sub
 
 Function Options_OnOffText(opt)

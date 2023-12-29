@@ -15,6 +15,10 @@ Sub BGStartGame()
     DOF 7, 1 'A
     DOF 8, 1 'C
     DOF 9, 1 'E
+
+    If timerQueue.Exists("BGAttract") Then
+        timerQueue.Remove("BGAttract")
+    End If
 End Sub
 
 '****************************

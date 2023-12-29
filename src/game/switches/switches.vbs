@@ -17,7 +17,7 @@ End Sub
 Sub raceVuk_Timer()
     raceVuk.TimerEnabled = False
     SoundSaucerKick 1,raceVuk
-    raceVuk.Kick 65, RndInt(10,15)
+    raceVuk.Kick 65, RndInt(7,15)
     lightCtrl.pulse l141, 0
 End Sub
 

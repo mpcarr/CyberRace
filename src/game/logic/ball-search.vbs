@@ -4,7 +4,7 @@ Sub BallSearch
         If GameTilted = True Then
             SoundDropTargetDrop(RPinTarget)     
             garageKicker.Kick -45, 5
-            raceVuk.Kick 65, RndInt(10,15)
+            raceVuk.Kick 65, RndInt(7,15)
             SoundSaucerKick 1,raceVuk
             sw_38.Kick 0, 60, 1.36
             SoundSaucerKick 1, sw_38

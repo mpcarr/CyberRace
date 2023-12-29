@@ -16,4 +16,5 @@ Sub StartGame()
             Scorbit.StartSession()
         End If
     End If
+    DOF 105, DOFPulse
 End Sub

@@ -6,7 +6,7 @@ RegisterPinEvent SWITCH_HIT_HYPER, "SwitchHyper"
 '
 '*****************************
 Sub SwitchHyper()
-    If GetPlayerState(HYPER_PLAYED) = False Then
+    If GetPlayerState(HYPER_PLAYED) = False And BlockAllPinEvents = False Then
         AddScore POINTS_BASE
         If GetPlayerState(HYPER)+1 = 5 Then
             SetPlayerState HYPER, 0

@@ -56,25 +56,6 @@ Sub GrandSlamWizardCheck()
         End If
 End Sub
 
-Dim WizNeonl48
-WizNeonl48 = FlattenArrays(Array( _
-    lightCtrl.FadeRGB("l48", RGB(255, 20, 147), RGB(30, 144, 255), 10), _
-    lightCtrl.FadeRGB("l48", RGB(30, 144, 255), RGB(127, 255, 0), 10), _
-    lightCtrl.FadeRGB("l48", RGB(127, 255, 0), RGB(255, 255, 0), 10), _
-    lightCtrl.FadeRGB("l48", RGB(255, 255, 0), RGB(255, 165, 0), 10), _
-    lightCtrl.FadeRGB("l48", RGB(255, 165, 0), RGB(138, 43, 226), 10), _
-    lightCtrl.FadeRGB("l48", RGB(138, 43, 226), RGB(0, 128, 128), 10), _
-    lightCtrl.FadeRGB("l48", RGB(0, 128, 128), RGB(255, 20, 147), 10)))
-
-Dim wizardFadeL48Seq : Set wizardFadeL48Seq = new LCSeq
-wizardFadeL48Seq.Name = "wizardFadeL48Seq"
-wizardFadeL48Seq.Sequence = WizNeonl48
-wizardFadeL48Seq.Color = Null
-wizardFadeL48Seq.UpdateInterval = 20
-wizardFadeL48Seq.Repeat = True
-
-
-
 '****************************
 ' CheckWizardReady
 ' Event Listeners:  
@@ -86,8 +67,39 @@ Sub CheckWizardReady()
         'LightShow
         'DMD
         'Callout
-        lightCtrl.AddTableLightSeq "WIZARD", wizardFadeL48Seq
-        lightCtrl.AddTableLightSeq "WIZARD1", lSeqRGBCircle
-        
+        ' Adding the wizard light sequences to the lightCtrl object
+        SetPlayerState MODE_WIZARD, True
+        SetPlayerState GRANDSLAM_WIZARD_READY, False
+        lightCtrl.AddTableLightSeq "WIZARDL48", wizardFadeL48Seq
+        lightCtrl.AddTableLightSeq "WIZARDL46", wizardFadeL46Seq
+        lightCtrl.AddTableLightSeq "WIZARDL47", wizardFadeL47Seq
+        lightCtrl.AddTableLightSeq "WIZARDL23", wizardFadeL23Seq
+        lightCtrl.AddTableLightSeq "WIZARDL64", wizardFadeL64Seq
+        lightCtrl.AddTableLightSeq "WIZARDL63", wizardFadeL63Seq
+        lightCtrl.AddTableLightSeq "WIZARDL65", wizardFadeL65Seq
+        lightCtrl.AddTableLightSeq "WIZARD1", lSeqWizCorners
+        lightCtrl.AddTableLightSeq "WIZARDGI", lSeqGIWiz
+        SetTimer "WizKickOut", "raceVuk.TimerEnabled = True", 8000
+        SetTimer "WizAddBall1", "DispatchPinEvent ADD_BALL", 9000
+        SetTimer "WizAddBall2", "DispatchPinEvent ADD_BALL", 10000
+        SetTimer "WizAddBall3", "DispatchPinEvent ADD_BALL", 11000
+        SetTimer "WizAddBall4", "DispatchPinEvent ADD_BALL", 12000
+        BlockAllPinEvents = True
+        AllowPinEventsList.RemoveAll
+        AllowPinEventsList.Add SWITCH_HIT_SHORTCUT_WIZARD, True
+        AllowPinEventsList.Add SWITCH_HIT_RIGHT_RAMP_WIZARD, True
+        AllowPinEventsList.Add SWITCH_HIT_LEFT_RAMP_WIZARD, True
+        AllowPinEventsList.Add SWITCH_HIT_LEFT_ORBIT_WIZARD, True
+        AllowPinEventsList.Add SWITCH_HIT_RIGHT_ORBIT_WIZARD, True
+        AllowPinEventsList.Add SWITCH_HIT_SPINNER1_WIZARD, True
+        AllowPinEventsList.Add SWITCH_HIT_SPINNER2_WIZARD, True
+        AllowPinEventsList.Add SWITCH_HIT_HYPER, True
+        AllowPinEventsList.Add BALL_DRAIN, True
+        AllowPinEventsList.Add ADD_BALL, True
+        AllowPinEventsList.Add BALL_SAVE, True
+        AllowPinEventsList.Add SWITCH_HIT_RACE_KICKER, True
+        AllowPinEventsList.Add GAME_BONUS_TIMER_ENDED, True
+        garageKicker.enabled=False
+        EnableBallSaver 30
     End If
 End Sub

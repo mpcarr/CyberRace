@@ -154,6 +154,7 @@ Function InitNewPlayer()
     state.Add MODE_PERK_SELECT, False
     state.Add MODE_RACE, False
     state.Add MODE_HISCORE, False
+    state.Add MODE_WIZARD, False
 
     state.Add RACE_MODE_FINISH, False
 

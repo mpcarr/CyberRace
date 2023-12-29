@@ -96,6 +96,7 @@ Sub EndOfBall()
         lightCtrl.RemoveAllLightSeq "RaceMode"
         lightCtrl.RemoveAllLightSeq "NodesGrid"
         lightCtrl.RemoveAllLightSeq "BetMode"
+        lightCtrl.RemoveAllTableLightSeqs()
 
         GameTimers(GAME_BONUS_TIMER_IDX) = 10
         'PlayFlexDMD End Of Ball Bonus
@@ -119,6 +120,12 @@ Sub EndOfBonus()
     SetPlayerState GI_COLOR, GAME_NORMAL_COLOR
     lightCtrl.RemoveTableLightSeq "GI", lSeqGIOff
     DmdQ.RemoveAll()
+    If GetPlayerState(MODE_WIZARD) = True Then
+        BlockAllPinEvents = False
+        AllowPinEventsList.RemoveAll
+        SetPlayerState EXTRA_BALLS, 0
+        SetPlayerState CURRENT_BALL, BALLS_PER_GAME
+    End If
 
     If GetPlayerState(EXTRA_BALLS) > 0 Then
         SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) - 1

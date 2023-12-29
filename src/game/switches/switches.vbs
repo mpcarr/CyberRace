@@ -131,22 +131,26 @@ Sub Spinner1_Spin()
     SoundSpinner(Spinner1)
     lightCtrl.pulse l143, 0
     DispatchPinEvent SWITCH_HIT_SPINNER1
+    DispatchPinEvent SWITCH_HIT_SPINNER1_WIZARD
 End Sub
 '******************************************
 Sub Spinner2_Spin()
     SoundSpinner(Spinner2)
     lightCtrl.pulse l141, 0
     DispatchPinEvent SWITCH_HIT_SPINNER2
+    DispatchPinEvent SWITCH_HIT_SPINNER2_WIZARD
 End Sub
 '******************************************
 Sub sw08_Hit()
     If Not IsNull(lOrbitBall) AND lOrbitBall = ActiveBall.ID Then
         DispatchPinEvent SWITCH_HIT_LEFT_ORBIT
+        DispatchPinEvent SWITCH_HIT_LEFT_ORBIT_WIZARD
     End If
 End Sub
 '******************************************
 Sub sw09_Hit()
     DispatchPinEvent SWITCH_HIT_RIGHT_RAMP
+    DispatchPinEvent SWITCH_HIT_RIGHT_RAMP_WIZARD
     For Each light in GIControlLights
         lightCtrl.PulseWithProfile light,Array(80,60,40,0,40,60,80,100),2
     Next
@@ -169,6 +173,7 @@ End Sub
 '******************************************
 Sub sw13_Hit()
     DispatchPinEvent SWITCH_HIT_LEFT_RAMP
+    DispatchPinEvent SWITCH_HIT_LEFT_RAMP_WIZARD
     lightCtrl.PulseWithProfile l94,Array(80,60,40,0,40,60,80,100,0),2 'speeder
     For Each light in GIControlLights
         lightCtrl.PulseWithProfile light,Array(80,60,40,0,40,60,80,100),2
@@ -178,6 +183,7 @@ End Sub
 Sub sw14_Hit()
     If Not IsNull(rOrbitBall) AND rOrbitBall = ActiveBall.ID Then
         DispatchPinEvent SWITCH_HIT_RIGHT_ORBIT
+        DispatchPinEvent SWITCH_HIT_RIGHT_ORBIT_WIZARD
     End If
 End Sub
 '******************************************
@@ -240,6 +246,7 @@ End Sub
 '******************************************
 Sub sw31_Hit()
     DispatchPinEvent SWITCH_HIT_SHORTCUT
+    DispatchPinEvent SWITCH_HIT_SHORTCUT_WIZARD
 End Sub
 '******************************************
 Sub RPin_Hit()

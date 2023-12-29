@@ -1,3 +1,7 @@
+
+Dim BlockAllPinEvents : BlockAllPinEvents = False
+Dim AllowPinEventsList : Set AllowPinEventsList = CreateObject("Scripting.Dictionary")
+
 Sub DispatchPinEvent(e)
     If Not pinEvents.Exists(e) Then
         Exit Sub
@@ -14,13 +18,15 @@ Sub DispatchPinEvent(e)
     Else
         SetTimer "BallSearch", "BallSearch", 6000
     End If
-    For Each x in pinEvents(e).Keys()
-        If pinEvents(e)(x) = True Then
-            WriteToLog "Dispatching Pin Event", e &": "&x
-            ExecuteGlobal x
-            'AdvDebug.SendPinEvent e &": "&x
-        End If
-    Next
+    If BlockAllPinEvents = False Or (BlockAllPinEvents=True And AllowPinEventsList.Exists(e)) Then
+        For Each x in pinEvents(e).Keys()
+            If pinEvents(e)(x) = True Then
+                WriteToLog "Dispatching Pin Event", e &": "&x
+                ExecuteGlobal x
+                'AdvDebug.SendPinEvent e &": "&x
+            End If
+        Next
+    End If
 End Sub
 
 Sub RegisterPinEvent(e, v)

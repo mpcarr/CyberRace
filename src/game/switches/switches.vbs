@@ -49,6 +49,7 @@ Sub sw02_Hit()
     End If
     HitInLanes(LANE_A)
     DispatchPinEvent SWITCH_HIT_LANE_A
+    leftInlaneSpeedLimit()
 End Sub
 '******************************************
 Sub sw03_Hit()
@@ -56,6 +57,7 @@ Sub sw03_Hit()
         lightCtrl.Pulse l44, 0
     End If
     HitInLanes(LANE_C)
+    rightInlaneSpeedLimit()
 End Sub
 '******************************************
 Sub sw04_Hit()

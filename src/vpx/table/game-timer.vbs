@@ -29,6 +29,7 @@ Sub FrameTimer_Timer()
 		el.Rotz = a		
 	Next
 	
+	BSUpdate
 
 	For Each el in BP_Disc
 		el.Rotz = a		

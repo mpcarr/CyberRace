@@ -42,8 +42,8 @@ BallWithBallCollisionSoundFactor = 3.2									'volume multiplier; must not be z
 RubberStrongSoundFactor = 0.055/5											'volume multiplier; must not be zero
 RubberWeakSoundFactor = 0.075/5											'volume multiplier; must not be zero
 RubberFlipperSoundFactor = 0.075/5										'volume multiplier; must not be zero
-BallBouncePlayfieldSoftFactor = 0.025									'volume multiplier; must not be zero
-BallBouncePlayfieldHardFactor = 0.025									'volume multiplier; must not be zero
+BallBouncePlayfieldSoftFactor = 0.125									'volume multiplier; must not be zero
+BallBouncePlayfieldHardFactor = 0.125									'volume multiplier; must not be zero
 DelayedBallDropOnPlayfieldSoundLevel = 0.8									'volume level; range [0, 1]
 WallImpactSoundFactor = 0.075											'volume multiplier; must not be zero
 MetalImpactSoundFactor = 0.075/3
@@ -84,39 +84,39 @@ ArchSoundFactor = 0.025/5													'volume multiplier; must not be zero
 ' PlaySound full syntax - PlaySound(string, int loopcount, float volume, float pan, float randompitch, int pitch, bool useexisting, bool restart, float front_rear_fade)
 ' Note - These functions will not work (currently) for walls/slingshots as these do not feature a simple, single X,Y position
 Sub PlaySoundAtLevelStatic(playsoundparams, aVol, tableobj)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(tableobj), 0, 0, 0, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, 0, Min(1, aVol) * VolumeDial, AudioPan(tableobj), 0, 0, 0, 0, AudioFade(tableobj)
 End Sub
 
 Sub PlaySoundAtLevelExistingStatic(playsoundparams, aVol, tableobj)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(tableobj), 0, 0, 1, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(tableobj), 0, 0, 1, 0, AudioFade(tableobj)
 End Sub
 
 Sub PlaySoundAtLevelStaticLoop(playsoundparams, aVol, tableobj)
-	PlaySound playsoundparams, -1, aVol * VolumeDial, AudioPan(tableobj), 0, 0, 0, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, -1, Min(1, aVol) VolumeDial, AudioPan(tableobj), 0, 0, 0, 0, AudioFade(tableobj)
 End Sub
 
 Sub PlaySoundAtLevelStaticRandomPitch(playsoundparams, aVol, randomPitch, tableobj)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(tableobj), randomPitch, 0, 0, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(tableobj), randomPitch, 0, 0, 0, AudioFade(tableobj)
 End Sub
 
 Sub PlaySoundAtLevelActiveBall(playsoundparams, aVol)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(ActiveBall), 0, 0, 0, 0, AudioFade(ActiveBall)
+	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(ActiveBall), 0, 0, 0, 0, AudioFade(ActiveBall)
 End Sub
 
 Sub PlaySoundAtLevelExistingActiveBall(playsoundparams, aVol)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(ActiveBall), 0, 0, 1, 0, AudioFade(ActiveBall)
+	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(ActiveBall), 0, 0, 1, 0, AudioFade(ActiveBall)
 End Sub
 
 Sub PlaySoundAtLeveTimerActiveBall(playsoundparams, aVol, ballvariable)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(ballvariable), 0, 0, 0, 0, AudioFade(ballvariable)
+	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(ballvariable), 0, 0, 0, 0, AudioFade(ballvariable)
 End Sub
 
 Sub PlaySoundAtLevelTimerExistingActiveBall(playsoundparams, aVol, ballvariable)
-	PlaySound playsoundparams, 0, aVol * VolumeDial, AudioPan(ballvariable), 0, 0, 1, 0, AudioFade(ballvariable)
+	PlaySound playsoundparams, 0, Min(1, aVol) VolumeDial, AudioPan(ballvariable), 0, 0, 1, 0, AudioFade(ballvariable)
 End Sub
 
 Sub PlaySoundAtLevelRoll(playsoundparams, aVol, pitch)
-	PlaySound playsoundparams, -1, aVol * VolumeDial, AudioPan(tableobj), randomPitch, 0, 0, 0, AudioFade(tableobj)
+	PlaySound playsoundparams, -1, Min(1, aVol) VolumeDial, AudioPan(tableobj), randomPitch, 0, 0, 0, AudioFade(tableobj)
 End Sub
 
 ' Previous Positional Sound Subs
@@ -126,7 +126,7 @@ Sub PlaySoundAt(soundname, tableobj)
 End Sub
 
 Sub PlaySoundAtVol(soundname, tableobj, aVol)
-	PlaySound soundname, 1, aVol * VolumeDial, AudioPan(tableobj), 0,0,0, 1, AudioFade(tableobj)
+	PlaySound soundname, 1, Min(1,aVol) * VolumeDial, AudioPan(tableobj), 0,0,0, 1, AudioFade(tableobj)
 End Sub
 
 Sub PlaySoundAtBall(soundname)
@@ -134,11 +134,11 @@ Sub PlaySoundAtBall(soundname)
 End Sub
 
 Sub PlaySoundAtBallVol (Soundname, aVol)
-	Playsound soundname, 1,aVol * VolumeDial, AudioPan(ActiveBall), 0,0,0, 1, AudioFade(ActiveBall)
+	Playsound soundname, 1,Min(1,aVol) * VolumeDial, AudioPan(ActiveBall), 0,0,0, 1, AudioFade(ActiveBall)
 End Sub
 
 Sub PlaySoundAtBallVolM (Soundname, aVol)
-	Playsound soundname, 1,aVol * VolumeDial, AudioPan(ActiveBall), 0,0,0, 0, AudioFade(ActiveBall)
+	Playsound soundname, 1,Min(1,aVol) * VolumeDial, AudioPan(ActiveBall), 0,0,0, 0, AudioFade(ActiveBall)
 End Sub
 
 Sub PlaySoundAtVolLoops(sound, tableobj, Vol, Loops)

@@ -1,5 +1,5 @@
 Const cGameName = "cyberrace"
-Const myVersion = "0.0.33"
+Const myVersion = "0.0.34"
 
 'v7 - flux: end of ball bonus, end of game bug fixes. Added lightshows for race mode, various bug fixes. 
 'v8 - flux: fix duplicate sub name, update VR cab
@@ -25,6 +25,8 @@ Const myVersion = "0.0.33"
 'v31: flux - Add New DMD Animations, Fix Tilt. Fix MB SuperJackpot, Moved ExtraBall to end of bonus.
 'v32: flux - Add BackGlass Calls 
 'v33: mcarter78 - Add plunger material, fix collision sounds for ramp ends, sleeves, rollovers, gates, upper flipper
+'v34: flux: fix spinner labels, balance: balance: revert race kick out so there is a chance of bouncing into secret garage, add: inlane speed limit, fix: repeated callouts on spinners, update: skillshot change lane
+'v35: apophis: Fixed a few physics material assignments. Changed ball image and set to spherical map. Added ambient ball shadows. Enabled playfield reflections. Fleep volume fix. Added DisableStaticPrerendering functionality to options menu. Changed desktop POV. 
 
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
@@ -158,6 +160,9 @@ Sub Table1_Init()
 	kickerCaptiveBall1.kick 0,0
 	kickerCaptiveBall2.CreateSizedballWithMass Ballsize/2, BallMass
 	kickerCaptiveBall2.kick 0,0
+
+	kickerCaptiveBall1.enabled = false
+	kickerCaptiveBall2.enabled = false
 
 	DiverterOn.IsDropped = 1
 	DiverterOff.IsDropped = 0

@@ -89,6 +89,7 @@ Sub Options_Open
 	OptionDMD.Stage.AddActor scene
 	OptionDMD.UnlockRenderThread
 	OptionDMDFlasher.Visible = True
+	DisableStaticPrerendering = True
 End Sub
 
 Sub Options_UpdateDMD
@@ -122,6 +123,7 @@ Sub Options_Close
 	If OptionDMD is Nothing Then Exit Sub
 	OptionDMD.Run = False
 	Set OptionDMD = Nothing
+	DisableStaticPrerendering = False
 End Sub
 
 Function Options_OnOffText(opt)

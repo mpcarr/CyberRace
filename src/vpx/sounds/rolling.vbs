@@ -25,7 +25,6 @@ Sub RollingUpdate()
 	' stop the sound of deleted balls
 	For b = UBound(gBOT) + 1 to tnob - 1
 		' Comment the next line if you are not implementing Dyanmic Ball Shadows
-		If AmbientBallShadowOn = 0 Then BallShadowA(b).visible = 0
 		rolling(b) = False
 		StopSound("BallRoll_" & b)
 	Next
@@ -62,18 +61,6 @@ Sub RollingUpdate()
 			DropCount(b) = DropCount(b) + 1
 		End If
 
-		' "Static" Ball Shadows
-		' Comment the next If block, if you are not implementing the Dyanmic Ball Shadows
-		If AmbientBallShadowOn = 0 Then
-			If gBOT(b).Z > 30 Then
-				BallShadowA(b).height=gBOT(b).z - BallSize/4		'This is technically 1/4 of the ball "above" the ramp, but it keeps it from clipping the ramp
-			Else
-				BallShadowA(b).height=0.1
-			End If
-			BallShadowA(b).Y = gBOT(b).Y + offsetY
-			BallShadowA(b).X = gBOT(b).X + offsetX
-			BallShadowA(b).visible = 1
-		End If
 	Next
 End Sub
 

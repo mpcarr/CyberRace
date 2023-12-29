@@ -43,6 +43,10 @@ Sub HitBonusLanes(lane)
     If GetPlayerState(lane) = 0 Then
         SetPlayerState lane, 1
         PlaySound("fx_rollover")
+    Else
+        If GetPlayerState(MODE_SKILLSHOT_ACTIVE) = True Then
+            AwardSkillshot()
+        End If
     End If
     If GetPlayerState(LANE_BO) = 1 AND GetPlayerState(LANE_N) = 1 AND GetPlayerState(LANE_US) = 1 Then
         AddScore POINTS_BONUS_X
@@ -59,11 +63,7 @@ Sub HitBonusLanes(lane)
         SetPlayerState LANE_N, 0
         SetPlayerState LANE_US, 0
     End If
-    If lane = LANE_BO Then
-        If lightCtrl.IsShotLit("skillshotLanes", l66) Then
-            AwardSkillshot()
-        End If
-    End If
+    
 End Sub
 
 Sub HitInLanes(lane)
@@ -80,6 +80,7 @@ Sub HitInLanes(lane)
                 lightCtrl.AddTableLightSeq "RaceReady", lSeqRGBCircle
                 calloutsQ.Add "raceready", "PlayCallout(""raceready"")", 1, 0, 0, 2500, 0, False
                 'FlexDMDRaceReadyScene()
+                FlashSeq1()
             End If
         End If
     End If

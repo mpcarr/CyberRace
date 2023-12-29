@@ -8,13 +8,16 @@ RegisterPinEvent NEXT_PLAYER,   "StartSkillShot"
 '
 '*****************************
 Sub StartSkillShot()
-    lightCtrl.AddShot "skillshotLanes", l66, RGB(255,255,0)
+    'lightCtrl.AddShot "skillshotLanes", l66, RGB(255,255,0)
+    SetPlayerState MODE_SKILLSHOT_ACTIVE, True
+    SetPlayerState LANE_BO, 1
     lightCtrl.AddShot "skillshotramp", l47, RGB(255,255,0)
 End Sub
 
 Sub CancelSkillshot
     lightCtrl.RemoveShot "skillshotramp", l47
-    lightCtrl.RemoveShot "skillshotLanes", l66
+    SetPlayerState MODE_SKILLSHOT_ACTIVE, False
+    'lightCtrl.RemoveShot "skillshotLanes", l66
 End Sub
 '****************************
 ' SkillshotLeftRamp
@@ -30,8 +33,7 @@ End Sub
 
 Sub AwardSkillshot()
     AddScore POINTS_MODE_SHOT
-    lightCtrl.RemoveShot "skillshotramp", l47
-    lightCtrl.RemoveShot "skillshotLanes", l66
+    CancelSkillshot()
     SetPlayerState LANE_R, 1
     SetPlayerState LANE_A, 1
     SetPlayerState LANE_C, 1

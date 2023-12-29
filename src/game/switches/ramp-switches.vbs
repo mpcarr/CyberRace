@@ -29,3 +29,13 @@ Sub swExitLeftRamp_Hit()
 	WireRampOff()	
 	WireRampOn(False)
 End Sub
+
+Sub swWireRampEndLeft_UnHit()
+    RandomSoundRampStop swWireRampEndLeft
+    RandomSoundDelayedBallDropOnPlayfield ActiveBall
+End Sub
+
+Sub swWireRampEndRight_UnHit()
+    RandomSoundRampStop swWireRampEndRight
+    RandomSoundDelayedBallDropOnPlayfield ActiveBall
+End Sub

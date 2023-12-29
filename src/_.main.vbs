@@ -1,5 +1,5 @@
 Const cGameName = "cyberrace"
-Const myVersion = "0.0.30"
+Const myVersion = "0.0.33"
 
 'v7 - flux: end of ball bonus, end of game bug fixes. Added lightshows for race mode, various bug fixes. 
 'v8 - flux: fix duplicate sub name, update VR cab
@@ -24,6 +24,7 @@ Const myVersion = "0.0.30"
 'v30: flux - VR Room Update
 'v31: flux - Add New DMD Animations, Fix Tilt. Fix MB SuperJackpot, Moved ExtraBall to end of bonus.
 'v32: flux - Add BackGlass Calls 
+'v33: mcarter78 - Add plunger material, fix collision sounds for ramp ends, sleeves, rollovers, gates, upper flipper
 
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 

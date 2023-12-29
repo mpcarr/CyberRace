@@ -365,7 +365,7 @@ End Sub
 '*****************************
 Sub RaceMode1SpinnerHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
-        If GetPlayerState(RACE_MODE_SELECTION) = 2 Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 2  AND GetPlayerState(RACE_MODE_2_SPIN1) < 30  Then
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_2_SPIN1, GetPlayerState(RACE_MODE_2_SPIN1) + 1
@@ -391,7 +391,7 @@ End Sub
 '*****************************
 Sub RaceMode2SpinnerHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
-        If GetPlayerState(RACE_MODE_SELECTION) = 2 Then
+        If GetPlayerState(RACE_MODE_SELECTION) = 2 AND GetPlayerState(RACE_MODE_2_SPIN2) < 30 Then
             AddScore POINTS_MODE_SHOT
             lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
             SetPlayerState RACE_MODE_2_SPIN2, GetPlayerState(RACE_MODE_2_SPIN2) + 1
@@ -418,17 +418,17 @@ End Sub
 '*****************************
 Sub RaceMode2()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 2 Then
-        If GetPlayerState(RACE_MODE_2_SPIN1) >= 30 Then
+        If GetPlayerState(RACE_MODE_2_SPIN1) >= 30 And lightCtrl.IsShotLit(GAME_SHOT_SHORTCUT, l65)=False Then
             lightCtrl.RemoveShot "RaceMode2a", l48    
             lightCtrl.AddShot GAME_SHOT_SHORTCUT, l65, GAME_NORMAL_COLOR
             calloutsQ.Add "shortcut", "PlayCallout(""shortcut"")", 1, 0, 0, 1200, 0, False
         End If
-        If GetPlayerState(RACE_MODE_2_SPIN2) >= 30 Then
+        If GetPlayerState(RACE_MODE_2_SPIN2) >= 30  And lightCtrl.IsShotLit(GAME_SHOT_SHORTCUT, l65)=False Then
             lightCtrl.RemoveShot "RaceMode2b", l23    
             lightCtrl.AddShot GAME_SHOT_SHORTCUT, l65, GAME_NORMAL_COLOR
             calloutsQ.Add "shortcut", "PlayCallout(""shortcut"")", 1, 0, 0, 1200, 0, False
         End If
-        If GetPlayerState(RACE_MODE_2_SPIN1) >= 30 AND GetPlayerState(RACE_MODE_2_SPIN2) >= 30 Then
+        If GetPlayerState(RACE_MODE_2_SPIN1) >= 30 AND GetPlayerState(RACE_MODE_2_SPIN2) >= 30 AND GetPlayerState(RACE_MODE_FINISH) = False Then
             lightCtrl.RemoveShot "RaceMode2a", l48
             lightCtrl.RemoveShot "RaceMode2b", l23
             lightCtrl.RemoveShot GAME_SHOT_SHORTCUT, l65

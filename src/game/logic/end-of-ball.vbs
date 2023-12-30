@@ -139,6 +139,7 @@ Sub EndOfBonus()
             .BGVideo = "ShootAgain"
         End With
         DmdQ.Enqueue qItem
+        MusicOn
         Exit Sub
     End If
 

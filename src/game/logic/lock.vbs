@@ -51,6 +51,7 @@ Sub SwitchHitRampLockGate()
             lightCtrl.AddTableLightSeq "Multiball", lSeqMBStart
             LockPin1.TimerEnabled = True
             LockPin1.TimerInterval = 5000
+            SetTimer "bridgeReleaseCheck", "LockPin1.isDropped = 1 : LockPin2.isDropped = 1 : LockPin3.isDropped = 1", 8000
             bStartMB = True
     End Select
 

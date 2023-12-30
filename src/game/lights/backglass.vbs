@@ -15,7 +15,7 @@ Sub BGStartGame()
     DOF 7, 1 'A
     DOF 8, 1 'C
     DOF 9, 1 'E
-
+    DOF 500, DOFOff
     If timerQueue.Exists("BGAttract") Then
         timerQueue.Remove("BGAttract")
     End If
@@ -38,7 +38,7 @@ Sub BGStartAttract()
     DOF 7, 0 'A
     DOF 8, 0 'C
     DOF 9, 0 'E
-
+    DOF 500, DOFOn
     BGAttractIndex = 1
     DOF BGAttractIndex, 1
     SetTimer "BGAttract", "BGAttractNext", 200

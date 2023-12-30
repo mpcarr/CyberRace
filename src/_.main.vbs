@@ -100,6 +100,9 @@ Const myVersion = "0.0.37"
 'v35: apophis: Fixed a few physics material assignments. Changed ball image and set to spherical map. Added ambient ball shadows. Enabled playfield reflections. Fleep volume fix. Added DisableStaticPrerendering functionality to options menu. Changed desktop POV. 
 'v36: apophis: Added some mechanical hit sounds. 
 'v37: flux : fixed sling animations, missing plastic textures and screws. Synced VR Room Lights With GI
+'v38: flux : disable problematic texture
+'v39: flux : fix music after extra ball, add check to bridge release to make sure all pins are released
+
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1

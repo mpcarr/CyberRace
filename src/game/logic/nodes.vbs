@@ -186,6 +186,7 @@ Sub NodeCollectPerk()
             PlayGrandSlamSeq()
         Else
             lSeqCollectPerk.Repeat = True
+            DOF 301, DOFOn
             calloutsQ.Add "nodes-choose-perk", "PlayCallout(""nodes-choose-perk"")", 1, 0, 0, 1660, 0, False
             lightCtrl.AddTableLightSeq "Nodes", lSeqCollectPerk
             SetPlayerState MODE_PERK_SELECT, True
@@ -254,6 +255,7 @@ Sub NodePerkSelectLeftPerk()
         GameTimers(GAME_SELECTION_TIMER_IDX) = 0
         DmdQ.Dequeue "nodes"
         lightCtrl.RemoveTableLightSeq "Nodes", lSeqCollectPerk
+        DOF 301, DOFOff
         sw39.TimerEnabled = True
     End iF
 
@@ -290,7 +292,7 @@ Sub NodePerkSelectRightPerk()
         GameTimers(GAME_SELECTION_TIMER_IDX) = 0
         DmdQ.Dequeue "nodes"
         sw39.TimerEnabled = True
-
+        DOF 301, DOFOff
         lightCtrl.RemoveTableLightSeq "Nodes", lSeqCollectPerk
     End If
 End Sub

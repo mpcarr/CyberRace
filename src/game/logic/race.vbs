@@ -230,7 +230,7 @@ Sub RaceMode1RampHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 1 Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_1_HITS, GetPlayerState(RACE_MODE_1_HITS) + 1
             Dim qItem : Set qItem = New QueueItem
             With qItem
@@ -367,7 +367,7 @@ Sub RaceMode1SpinnerHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 2  AND GetPlayerState(RACE_MODE_2_SPIN1) < 30  Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_2_SPIN1, GetPlayerState(RACE_MODE_2_SPIN1) + 1
             Dim qItem : Set qItem = New QueueItem
             With qItem
@@ -393,7 +393,7 @@ Sub RaceMode2SpinnerHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 2 AND GetPlayerState(RACE_MODE_2_SPIN2) < 30 Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_2_SPIN2, GetPlayerState(RACE_MODE_2_SPIN2) + 1
             Dim qItem : Set qItem = New QueueItem
             With qItem
@@ -530,7 +530,7 @@ Sub RaceMode3Spinner1Hit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 0 Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
             RaceMode3DmdMsg()
         End If
@@ -547,7 +547,7 @@ Sub RaceMode3LeftOrbitHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 1 Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
             RaceMode3DmdMsg()
         End If
@@ -564,7 +564,7 @@ Sub RaceMode3LeftRampHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 2 Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
             RaceMode3DmdMsg()
         End If
@@ -581,7 +581,7 @@ Sub RaceMode3Spinner2Hit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 3 Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
             RaceMode3DmdMsg()
         End If
@@ -598,7 +598,7 @@ Sub RaceMode3RightRampHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 4 Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
             RaceMode3DmdMsg()
         End If
@@ -615,7 +615,7 @@ Sub RaceMode3RightOrbitHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 5 Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
             RaceMode3DmdMsg()
         End If
@@ -694,7 +694,7 @@ Sub RaceMode4LeftOrbitHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 4 And lightCtrl.IsShotLit("RaceMode4a", l46) Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_4_HITS, GetPlayerState(RACE_MODE_4_HITS) + 1
             RaceMode4DmdMsg()
         End If
@@ -711,7 +711,7 @@ Sub RaceMode4RightOrbitHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 4 And lightCtrl.IsShotLit("RaceMode4b", l63) Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_4_HITS, GetPlayerState(RACE_MODE_4_HITS) + 1
             RaceMode4DmdMsg()
         End If
@@ -730,7 +730,7 @@ Sub RaceMode4NodesHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 4 And (GetPlayerState(RACE_MODE_4_HITS) = 2 Or GetPlayerState(RACE_MODE_4_HITS) = 5) Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_4_HITS, GetPlayerState(RACE_MODE_4_HITS) + 1
             RaceMode4DmdMsg()
         End If
@@ -786,7 +786,7 @@ Sub RaceMode6LeftOrbitHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l46) Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
             lightCtrl.RemoveShot "RaceMode6", l46
             RaceMode6DmdMsg()
@@ -804,7 +804,7 @@ Sub RaceMode6LeftRampHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l47) Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
             lightCtrl.RemoveShot "RaceMode6", l47
             RaceMode6DmdMsg()
@@ -822,7 +822,7 @@ Sub RaceMode6RightOrbitHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l63) Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
             lightCtrl.RemoveShot "RaceMode6", l63
             RaceMode6DmdMsg()
@@ -840,7 +840,7 @@ Sub RaceMode6RightRampHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l64) Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
             lightCtrl.RemoveShot "RaceMode6", l64
             RaceMode6DmdMsg()
@@ -858,7 +858,7 @@ Sub RaceMode6SpinnerHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 6 AND GetPlayerState(RACE_MODE_6_SPIN2) < 30 Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_6_SPIN2, GetPlayerState(RACE_MODE_6_SPIN2) + 1
 
             If GetPlayerState(RACE_MODE_6_SPIN2) = 30 Then
@@ -913,7 +913,7 @@ Sub RaceMode5RampHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 5 Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_5_HITS, GetPlayerState(RACE_MODE_5_HITS) + 1
             Dim qItem : Set qItem = New QueueItem
             With qItem
@@ -942,7 +942,7 @@ Sub RaceMode5NodesHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 5 And (GetPlayerState(RACE_MODE_5_HITS) = 1 Or GetPlayerState(RACE_MODE_5_HITS) = 3 Or GetPlayerState(RACE_MODE_5_HITS) = 5) Then
             AddScore POINTS_MODE_SHOT
-            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+            lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_5_HITS, GetPlayerState(RACE_MODE_5_HITS) + 1
             Dim qItem : Set qItem = New QueueItem
             With qItem

@@ -28,6 +28,7 @@ Sub SecretGarageEnter()
     End If
 
     If GetPlayerState(GARAGE_ENGINE) = 0 Then
+        DOF 256, DOFOn
         lightCtrl.AddTableLightSeq "RGB", lSeqGaragePart2
         FlexDMDGarageEngineScene()
         calloutsQ.Add "engineUpgrade", "PlayCallout(""engine-upgrade"")", 1, 0, 0, 3500, 0, False
@@ -38,6 +39,7 @@ Sub SecretGarageEnter()
         'RPin.TimerEnabled = True
         'RPin.TimerInterval = 5000
     ElseIf GetPlayerState(GARAGE_COOLING) = 0 Then
+        DOF 256, DOFOn
         lightCtrl.AddTableLightSeq "RGB", lSeqGaragePart2
         FlexDMDGarageCoolingScene()
         calloutsQ.Add "coolingUpgrade", "PlayCallout(""cooling-upgrade"")", 1, 0, 0, 3500, 0, False
@@ -49,6 +51,7 @@ Sub SecretGarageEnter()
         'RPin.TimerEnabled = True
         'RPin.TimerInterval = 5000
     ElseIF GetPlayerState(GARAGE_HULL) = 0 Then
+        DOF 256, DOFOn
         lightCtrl.AddTableLightSeq "RGB", lSeqGaragePart2
         FlexDMDGarageFuelScene()
         calloutsQ.Add "fuelUpgrade", "PlayCallout(""fuel-upgrade"")", 1, 0, 0, 3500, 0, False
@@ -65,6 +68,7 @@ Sub SecretGarageEnter()
 End Sub
 
 Sub releaseGarageLock()
+    DOF 256, DOFOff
     lightCtrl.RemoveTableLightSeq "RGB", lSeqGaragePart2
     lightCtrl.pulse l141, 2
     SoundDropTargetDrop(RPinTarget)        

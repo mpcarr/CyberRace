@@ -1,6 +1,77 @@
-Const cGameName = "cyberrace"
-Const myVersion = "0.0.34"
+'  _______     ______  ______ _____  _____            _____ ______ 
+'  / ____\ \   / /  _ \|  ____|  __ \|  __ \     /\   / ____|  ____|
+'  | |     \ \_/ /| |_) | |__  | |__) | |__) |   /  \ | |    | |__   
+'  | |      \   / |  _ <|  __| |  _  /|  _  /   / /\ \| |    |  __|  
+'  | |____   | |  | |_) | |____| | \ \| | \ \  / ____ \ |____| |____ 
+'  \_____|  |_|  |____/|______|_|  \_\_|  \_\/_/    \_\_____|______|
+																 
 
+'🚀🕹️ CyberRace Pinball is Here! 🌃🔥
+
+'I’m thrilled to announce the launch of my visual pinball creation: CyberRace! 🎉 Get ready to dive into a neon-drenched, 
+'adrenaline-fueled cyberpunk world like you've never seen before.
+
+'👾 What’s Inside?
+
+'Futuristic Aesthetics: Immerse yourself in a stunning cyberpunk cityscape, complete with neon lights and retro-futuristic vibes.
+'High-Octane Gameplay: Experience intense pinball action that keeps you at the edge of your seat with every flipper hit.
+
+'🎮 Download and Play!
+'Ready to race through cyberspace? Download CyberRace now and start your adventure in the virtual pinball world of tomorrow!
+
+'Credits
+'-------------------------
+'Design
+'Layout
+'Coding
+'Lighting
+'Blender Toolkit
+'VR Room
+
+'By Flux
+'-------------------------
+'-------------------------
+
+'Music: Karl Casey @ White Bat Audio
+
+'----------------------------------
+
+'Direct Contributions:
+'Sixtoe: 		VPX Walls and Prims Around Scoop
+'Primetime5k: 	Staged Flippers
+'jsm:			Standalone Patches
+'mcarter78:		Ramp/Fleep Sound Fixes
+'apophis:		Physics material tweaks, ambient ball shadows
+'Tomate:		Ramps Rebuild
+'AstroNasty:	Playfield bottom third redesign, physics tweaks, cyberrace flyer
+
+'In-Direct Contributions:
+'Niwak: 		VPX Lightmapper AKA Blender Toolkit (https://github.com/vbousquet/vpx_lightmapper)
+'Apophis: 		Guidance and Advice
+'Sixtoe: 		More Guidance and Advice
+'eMBee:			DMD Gif help
+'arelyel:		Queue Script
+'fleep:			Fleep Sounds
+'nfozzy:		nFozzy Physics
+'Wylte:			Shadow Code / Inlane Slowdown Code
+
+'Testing:
+'PinStratsDan, Studlygoorite, passion4pins, mcarter78, bietekwiet , somatik, jsm and the rest of VPW.
+
+'REQUIRED:
+
+'Visual Pinball 10.8.0 beta 7, 64-bit (or later)
+'FlexDMD 1.9 +
+
+'PLEASE NOTE:
+
+'You need 64 bits. Welcome to future. 
+ 
+Const cGameName = "cyberrace"
+Const myVersion = "0.0.37"
+
+'2021-2022: who knows.
+'Rebuild
 'v7 - flux: end of ball bonus, end of game bug fixes. Added lightshows for race mode, various bug fixes. 
 'v8 - flux: fix duplicate sub name, update VR cab
 'v9 - flux: Finished Race modes 1-4, added secret garage multiball, fixed missing fleep sounds for metals, tweaked vr cab.

@@ -102,6 +102,8 @@ Const myVersion = "0.0.37"
 'v37: flux : fixed sling animations, missing plastic textures and screws. Synced VR Room Lights With GI
 'v38: flux : disable problematic texture
 'v39: flux : fix music after extra ball, add check to bridge release to make sure all pins are released
+'v40: flux : RC1, DOF Config
+
 
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 

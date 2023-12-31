@@ -19,7 +19,6 @@ Sub CheckMechTilt                                	'Called when mechanical tilt b
 		If(MechTilt > 0) AND (MechTilt <= 2) Then ShowTiltWarning 'show a warning
 		If MechTilt > 2 Then TiltMachine  			'If more than 2 then TILT the table
 		bMechTiltJustHit = True
-		TiltDebounceTimer.Enabled = True
         Debounce "mechTilt", "bMechTiltJustHit = False", 3000
 	End If
 End Sub

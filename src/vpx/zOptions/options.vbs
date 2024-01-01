@@ -11,6 +11,7 @@ Dim VolumeDial : VolumeDial = 0.8			'Overall Mechanical sound effect volume. Rec
 Dim BallRollVolume : BallRollVolume = 0.5 	'Level of ball rolling volume. Value between 0 and 1
 Dim RampRollVolume : RampRollVolume = 0.5 	'Level of ramp rolling volume. Value between 0 and 1
 Dim StagedFlipperMod
+Dim OptionsCabinetMode : OptionsCabinetMode = 0
 
 'Dim Cabinetmode	: Cabinetmode = 0			'0 - Siderails On, 1 - Siderails Off
 
@@ -20,18 +21,21 @@ Dim VRRoomChoice : VRRoomChoice = 1				'0 - Minimal Room, 1 = Default Room
 Const Opt_Light = 0
 Const Opt_LUT = 1
 Const Opt_Scorbit = 2
-Const Opt_Volume = 3
-Const Opt_Volume_Ramp = 4
-Const Opt_Volume_Ball = 5
+
+Const Opt_CabinetMode = 3
+
+Const Opt_Volume = 4
+Const Opt_Volume_Ramp = 5
+Const Opt_Volume_Ball = 6
 ' Table mods & toys
 'Const Opt_Cabinet = 8
-Const Opt_Staged_Flipper = 6
+Const Opt_Staged_Flipper = 7
 ' Shadow options
 ' Informations
-Const Opt_Info_1 = 7
-Const Opt_Info_2 = 8
+Const Opt_Info_1 = 8
+Const Opt_Info_2 = 9
 
-Const NOptions = 9
+Const NOptions = 10
 
 Dim OptionDMD: Set OptionDMD = Nothing
 Dim bOptionsMagna, bInOptions : bOptionsMagna = False
@@ -188,6 +192,10 @@ Sub Options_OnOptChg
 		if ScorbitActive = 0 Then OptBot.text = "OFF"
 		if ScorbitActive = 1 Then OptBot.text = "ACTIVE" : InitFlexScorbitDMD
 		SaveValue cGameName, "SCORBIT", ScorbitActive
+	ElseIf OptPos = Opt_CabinetMode Then
+		OptTop.Text = "CABINET MODE"
+		OptBot.Text = Options_OnOffText(OptionsCabinetMode)
+		SaveValue cGameName, "CABMODE", OptionsCabinetMode
 	ElseIf OptPos = Opt_Volume Then
 		OptTop.Text = "MECH VOLUME"
 		OptBot.Text = "LEVEL " & CInt(VolumeDial * 100)
@@ -257,6 +265,8 @@ Sub Options_Toggle(amount)
 		If BallRollVolume > 1 Then BallRollVolume = 0
 	ElseIf OptPos = Opt_Staged_Flipper Then
 		StagedFlipperMod = 1 - StagedFlipperMod
+	ElseIf OptPos = Opt_CabinetMode Then
+		OptionsCabinetMode = 1 - OptionsCabinetMode
 	End If
 End Sub
 
@@ -304,6 +314,7 @@ Sub Options_Load
     x = LoadValue(cGameName, "RAMPVOLUME") : If x <> "" Then RampRollVolume = CNCDbl(x) Else RampRollVolume = 0.5
     x = LoadValue(cGameName, "BALLVOLUME") : If x <> "" Then BallRollVolume = CNCDbl(x) Else BallRollVolume = 0.5
     x = LoadValue(cGameName, "STAGED") : If x <> "" Then StagedFlipperMod = CInt(x) Else StagedFlipperMod = 0
+	x = LoadValue(cGameName, "CABMODE") : If x <> "" Then OptionsCabinetMode = CInt(x) Else OptionsCabinetMode = 0
 	UpdateMods
 End Sub
 
@@ -348,6 +359,17 @@ Sub UpdateMods
 		End If
 		CloseFlexScorbitClaimDMD()
 	End IF
+
+	Dim element
+	If OptionsCabinetMode = 1 Then
+		For Each element in BP_PinCab_Rails
+			element.Visible = False
+		Next
+	Else
+		For Each element in BP_PinCab_Rails
+			element.Visible = True
+		Next
+	End If
 End Sub
 
 

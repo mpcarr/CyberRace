@@ -174,3 +174,14 @@ Sub AnimateLockPin()
 		PlaySoundAtLevelStatic "lipper_L04", SoundFxLevel, sw02
 	End If
 End Sub
+
+'VR Plunger Animation
+Sub TimerPlunger_Timer
+  If VR_CabShooter_BM.Y < 150 then
+      VR_CabShooter_BM.Y = VR_CabShooter_BM.Y + 5
+  End If
+End Sub
+
+Sub TimerPlunger2_Timer
+	VR_CabShooter_BM.Y = 15 + (5* Plunger.Position) -20
+End Sub

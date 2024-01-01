@@ -7,6 +7,13 @@ Dim bFlippersPressed : bFlippersPressed = False
 
 Sub Table1_KeyDown(ByVal Keycode)
 
+    If keycode = LeftFlipperKey Then
+        VRFlipperLeft.X = VRFlipperLeft.X + 10
+    End if
+    If keycode = RightFlipperKey Then
+        VRFlipperRight.X = VRFlipperRight.X - 10
+    End if
+
     If bInOptions Then
 		Options_KeyDown keycode
 		Exit Sub
@@ -132,6 +139,13 @@ End Sub
 
 
 Sub Table1_KeyUp(ByVal keycode)
+
+    If keycode = LeftFlipperKey Then
+        VRFlipperLeft.X = VRFlipperLeft.X - 10
+    End if
+    If keycode = RightFlipperKey Then
+        VRFlipperRight.X = VRFlipperRight.X + 10
+    End if
 
     If keycode = LeftMagnaSave And Not bInOptions Then bOptionsMagna = False
     If keycode = RightMagnaSave And Not bInOptions Then bOptionsMagna = False

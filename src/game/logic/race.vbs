@@ -32,6 +32,48 @@ Sub CheckRaceReady()
     End If
 End Sub
 
+Sub RaceIdleTimer
+
+    If GetPlayerState(MODE_RACE) = True Then
+        Select Case GetPlayerState(RACE_MODE_SELECTION):
+            Case 1: 
+                If GetPlayerState(RACE_MODE_1_HITS) = 6 Then
+                    'Callout Go For Finish.
+                    'DMD Go For Finish
+                Else
+                    'Show Progress
+                End If
+            Case 2
+                
+                If GetPlayerState(RACE_MODE_2_SPIN1) >= 30 Then
+                    
+                End If
+                If GetPlayerState(RACE_MODE_2_SPIN2) >= 30 Then
+                    
+                End If
+                If GetPlayerState(RACE_MODE_2_SPIN1) >= 30 AND GetPlayerState(RACE_MODE_2_SPIN2) >= 30 Then
+                    
+                End If                
+            Case 3:
+                If GetPlayerState(RACE_MODE_3_HITS) = 6 Then
+                    
+                Else
+                    
+                End If
+            Case 4:
+                
+            Case 5:
+                
+            Case 6:
+                If GetPlayerState(RACE_MODE_6_HITS) = 5 Then
+                
+                Else
+                
+                End If
+        End Select
+    End If
+End Sub
+
 '****************************
 ' Race Selection Timer Ended
 ' Event Listeners:      
@@ -490,7 +532,7 @@ Sub RaceMode3DmdMsg()
         .BGVideo = "novideo"
         .Action = "slideup"
     End With
-    qItem.AddLabel "GetPlayerState(RACE_MODE_3_HITS) & ""/ 6 Shots to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+    qItem.AddLabel "6 - GetPlayerState(RACE_MODE_3_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
     DmdQ.Enqueue qItem
 End Sub
 
@@ -503,7 +545,7 @@ Sub RaceMode4DmdMsg()
         .BGVideo = "novideo"
         .Action = "slideup"
     End With
-    qItem.AddLabel "GetPlayerState(RACE_MODE_4_HITS) & ""/ 6 Shots to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+    qItem.AddLabel "6-GetPlayerState(RACE_MODE_4_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
     DmdQ.Enqueue qItem
 End Sub
 
@@ -516,7 +558,7 @@ Sub RaceMode6DmdMsg()
         .BGVideo = "novideo"
         .Action = "slideup"
     End With
-    qItem.AddLabel "GetPlayerState(RACE_MODE_6_HITS) & ""/ 6 Shots to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+    qItem.AddLabel "6- GetPlayerState(RACE_MODE_6_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
     DmdQ.Enqueue qItem
 End Sub
 

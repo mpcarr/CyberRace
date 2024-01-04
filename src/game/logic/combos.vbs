@@ -15,6 +15,7 @@ Sub ComboShotSpinner1
         SetPlayerState BONUS_COMBOS_MADE, GetPlayerState(BONUS_COMBOS_MADE) + 1
         SetPlayerState COMBO_SHOT_SPINNER, 0
         SetPlayerState COMBO_COUNT, GetPlayerState(COMBO_COUNT) + 1
+        AddScore (POINTS_MODE_SHOT * GetPlayerState(COMBO_COUNT))
     End If
 End Sub
 
@@ -35,6 +36,7 @@ Sub ComboShotLeftOrbit
         SetPlayerState BONUS_COMBOS_MADE, GetPlayerState(BONUS_COMBOS_MADE) + 1
         SetPlayerState COMBO_SHOT_LEFT_ORBIT, 0
         SetPlayerState COMBO_COUNT, GetPlayerState(COMBO_COUNT) + 1
+        AddScore (POINTS_MODE_SHOT * GetPlayerState(COMBO_COUNT))
     End If
 End Sub
 
@@ -55,6 +57,7 @@ Sub ComboShotLeftRamp
         SetPlayerState BONUS_COMBOS_MADE, GetPlayerState(BONUS_COMBOS_MADE) + 1
         SetPlayerState COMBO_SHOT_LEFT_RAMP, 0
         SetPlayerState COMBO_COUNT, GetPlayerState(COMBO_COUNT) + 1
+        AddScore (POINTS_MODE_SHOT * GetPlayerState(COMBO_COUNT))
     End If
 End Sub
 
@@ -75,6 +78,7 @@ Sub ComboShotRightRamp
         SetPlayerState BONUS_COMBOS_MADE, GetPlayerState(BONUS_COMBOS_MADE) + 1
         SetPlayerState COMBO_SHOT_RIGHT_RAMP, 0
         SetPlayerState COMBO_COUNT, GetPlayerState(COMBO_COUNT) + 1
+        AddScore (POINTS_MODE_SHOT * GetPlayerState(COMBO_COUNT))
     End If
 End Sub
 
@@ -95,6 +99,7 @@ Sub ComboShotRightOrbit
         SetPlayerState BONUS_COMBOS_MADE, GetPlayerState(BONUS_COMBOS_MADE) + 1
         SetPlayerState COMBO_SHOT_RIGHT_ORBIT, 0
         SetPlayerState COMBO_COUNT, GetPlayerState(COMBO_COUNT) + 1
+        AddScore (POINTS_MODE_SHOT * GetPlayerState(COMBO_COUNT))
     End If
 End Sub
 

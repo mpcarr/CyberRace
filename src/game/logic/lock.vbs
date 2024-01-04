@@ -8,6 +8,7 @@
 Sub SwitchHitCaptive()
     If GetPlayerState(LOCK_LIT) = False AND GetPlayerState(MODE_MULTIBALL) = False Then
         SetPlayerState LOCK_HITS, GetPlayerState(LOCK_HITS) + 1
+        AddScore POINTS_BASE
         If GetPlayerState(LOCK_HITS) = 4 Then
             calloutsQ.Add "lock-lit", "PlayCallout(""locks-lit"")", 1, 0, 0, 1300, 0, False         
         End If

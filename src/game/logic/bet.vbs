@@ -8,6 +8,7 @@
 Sub SwitchBet1Hit()
     If GetPlayerState(MODE_BET) = False And GetPlayerState(BET_1) = 2 Then
         SetPlayerState BET_1, 1
+        AddScore POINTS_BASE
         PlaySoundAtLevelStatic "fx_bet", SoundFxLevel, sw21
         lightCtrl.AddLightSeq "BoostUp", lSeqBetHit
         FlexDMDBetScene "blink", "", ""
@@ -24,6 +25,7 @@ RegisterPinEvent SWITCH_HIT_BET2, "SwitchBet2Hit"
 Sub SwitchBet2Hit()
     If GetPlayerState(MODE_BET) = False And GetPlayerState(BET_2) = 2 Then
         SetPlayerState BET_2, 1
+        AddScore POINTS_BASE
         PlaySoundAtLevelStatic "fx_bet", SoundFxLevel, sw22
         lightCtrl.AddLightSeq "BoostUp", lSeqBetHit
         FlexDMDBetScene "", "blink", ""
@@ -40,6 +42,7 @@ RegisterPinEvent SWITCH_HIT_BET3, "SwitchBet3Hit"
 Sub SwitchBet3Hit()
     If GetPlayerState(MODE_BET) = False And GetPlayerState(BET_3) = 2 Then
         SetPlayerState BET_3, 1
+        AddScore POINTS_BASE
         PlaySoundAtLevelStatic "fx_bet", SoundFxLevel, sw23
         lightCtrl.AddLightSeq "BoostUp", lSeqBetHit
         FlexDMDBetScene "", "", "blink"
@@ -98,7 +101,8 @@ End Sub
 '
 '*****************************
 Sub BetModeSpinnerHit()
-    If GetPlayerState(MODE_BET) = True Then        
+    If GetPlayerState(MODE_BET) = True Then
+        AddScore POINTS_SPINNER 
         SetPlayerState BET_VALUE, GetPlayerState(BET_VALUE) + POINTS_BET_SPIN
         Dim qItem : Set qItem = New QueueItem
         With qItem

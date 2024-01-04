@@ -7,6 +7,7 @@ RegisterPinEvent SWITCH_HIT_MYSTERY, "HitMystery"
 '*****************************
 Sub HitMystery()
     If lightCtrl.IsShotLit("mystery", l49) = False Then
+        AddScore POINTS_BASE
         SetPlayerState MYSTERY_HITS, GetPlayerState(MYSTERY_HITS) + 1
         lightCtrl.Pulse l49, 0
         If GetPlayerState(MYSTERY_HITS) MOD 6 = 0 Then
@@ -15,6 +16,7 @@ Sub HitMystery()
     Else
         'Collect Mystery
         Dim randomNumber
+        AddScore POINTS_BASE
         randomNumber = Int((totalMysteryWeight * Rnd) + 1)
         Dim cumulativeWeight, selectedAward
         cumulativeWeight = 0

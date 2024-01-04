@@ -80,6 +80,6 @@ End Sub
 '
 '*****************************
 Sub HyperModeTimerEnded()
-    SetPlayerState PF_MULTIPLIER, 0
+    SetPlayerState PF_MULTIPLIER, 1
     DmdQ.Dequeue "hypermsg"
 End Sub

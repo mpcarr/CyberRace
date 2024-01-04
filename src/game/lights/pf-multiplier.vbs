@@ -6,7 +6,7 @@
 '*****************************
 Sub PFMultiplierLights()
     Select Case GetPlayerState(PF_MULTIPLIER):
-        Case 0:
+        Case 1:
             lightCtrl.LightOff l50
             lightCtrl.LightOff l51
             lightCtrl.LightOff l52

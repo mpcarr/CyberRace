@@ -14,6 +14,7 @@ Const SWITCH_HIT_NODE_C = "Switch Hit Node C"
 Const SWITCH_HIT_SCOOP = "Switch Hit SCOOP"
 Const SWITCH_HIT_LEFT_ORBIT = "Switches Hit Left Orbit"
 Const SWITCH_HIT_LEFT_ORBIT_WIZARD = "Switches Hit Left Orbit Wizard"
+Const SWITCH_LEFT_FLIPPER_DOWN = "Switches Hit Left Flipper Down"
 Const SWITCH_RIGHT_FLIPPER_DOWN = "Switches Right Flipper Down"
 Const SWITCH_LEFT_FLIPPER_UP = "Switches Left Flipper Up"
 Const SWITCH_RIGHT_FLIPPER_UP = "Switches Right Flipper Up"
@@ -169,7 +170,7 @@ Const BALLS_PER_GAME = 3
 
 
 'Base Points
-Const POINTS_BASE = 750
+Const POINTS_BASE = 7500
 Const POINTS_MODE_SHOT = 50000
 Const POINTS_JACKPOT = 250000
 Const POINTS_BUMPERS = 1675

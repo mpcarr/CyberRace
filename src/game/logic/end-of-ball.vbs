@@ -72,7 +72,7 @@ Sub EndOfBall()
         SetPlayerState MODE_BET, False
 
         SetPlayerState HYPER_PLAYED, False
-        SetPlayerState PF_MULTIPLIER, 0
+        SetPlayerState PF_MULTIPLIER, 1
 
         SetPlayerState MODE_MULTIBALL, False
         SetPlayerState MODE_TT_MULTIBALL, False
@@ -139,6 +139,8 @@ Sub EndOfBonus()
             .BGVideo = "ShootAgain"
         End With
         DmdQ.Enqueue qItem
+        PlayShootAgainSeq()
+        calloutsQ.Add "shootagain", "PlayCallout(""shoot-again"")", 1, 0, 0, 1600, 0, False
         MusicOn
         Exit Sub
     End If

@@ -9,6 +9,7 @@ Dim DMDFontMain
 Dim DMDFontBig
 Dim DMDFontSmall
 Dim DMDFontSmallBold
+Dim TeenyTinyPixls5Font
 
 sub CreateGameDMD
 
@@ -47,6 +48,8 @@ sub CreateGameDMD
 	Set FontCyber5  = FlexDMD.NewFont("FlexDMD.Resources.udmd-f4by5.fnt", vbWhite, RGB(0, 0, 0), 0)
 	Set Font7  = FlexDMD.NewFont(DMDFontSmall, vbWhite, RGB(0, 0, 0), 0)
 	Set Font5  = FlexDMD.NewFont("FlexDMD.Resources.udmd-f7by5.fnt", vbWhite, RGB(0, 0, 0), 0)
+	Set TeenyTinyPixls5Font  = FlexDMD.NewFont("FONTS/arial16.fnt", vbWhite, RGB(0, 0, 0), 0)
+
 
 	Dim scene 
 	Set scene = FlexDMD.NewGroup("Score")

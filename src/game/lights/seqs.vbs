@@ -7,6 +7,10 @@ Sub LightSeqGI_PlayDone()
 	lightCtrl.StopSyncWithVpxLights()
 End Sub
 
+Sub LightSeqAll_PlayDone()
+	lightCtrl.StopSyncWithVpxLights()
+End Sub
+
 Sub PlayShootAgainSeq
     LightSeqRGB.UpdateInterval = 5
     LightSeqRGB.Play SeqRandom,40,,1000
@@ -15,6 +19,22 @@ Sub PlayShootAgainSeq
 
     lightCtrl.SyncWithVpxLights lightSeqRGB
     lightCtrl.SetVpxSyncLightColor RGB(127,127,0)
+End Sub
+
+Sub PlayRaceWonSeq
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqRandom,40,,1000
+	LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqDownOff,25,2
+
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(240,0,0)
+End Sub
+
+Sub PlayShootAgainSeq
+    LightSeqAll.UpdateInterval = 5
+    LightSeqAll.Play SeqRandom,40,,1000
+    lightCtrl.SyncWithVpxLights LightSeqAll
 End Sub
 
 Dim lSeqRaceMode1On : Set lSeqRaceMode1On = New LCSeq

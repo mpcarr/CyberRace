@@ -68,7 +68,7 @@
 'You need 64 bits. Welcome to future. 
  
 Const cGameName = "cyberrace"
-Const myVersion = "0.0.37"
+Const myVersion = "1.1.0"
 
 '2021-2022: who knows.
 'Rebuild
@@ -103,8 +103,30 @@ Const myVersion = "0.0.37"
 'v38: flux : disable problematic texture
 'v39: flux : fix music after extra ball, add check to bridge release to make sure all pins are released
 'v40: flux : RC1, DOF Config
-
-
+'v42: DGrimmReaper: add missing VR Cab buttons, animate VR Plunger
+'v1.1.1: flux:
+'- Fixed: Tilt Debounce (bug with mech tilt only)
+'- Fixed: If the last race shoot was the ramp, the shoot also registered the final shot. Fixed so that the finish shot must be made.
+'- Fixed: On the final shot the shortcut is now disabled.
+'- Fixed: Issue where Playfield Multipliers were not applied
+'- Fixed: DOF Config for 8 bumper pack
+'- Fixed: Stuck balls in nodes scoop
+'- Fixed: Bonus sound moved to backglass instead of SSF
+'- Added: cabinet mode to options
+'- Added: race progress to mode selection
+'- Added: callout and light seq when race won
+'- Added: callout for race time expired
+'- Added: callout and light seq for shoot again
+'- Added: race modes, active shots / race progress is displayed every 6 seconds during race.
+'- Added: VR Cabinet Buttons and Animate VR Plunger (DGrimmReaper)
+'- Balance: Changed AddTime activation from last 10 seconds to 20 seconds and increased addtime value from 12 seconds to 20 seconds.
+'- Quality Of Life: Prioritised Race Timer on the display: If a race is running it will always show the race timer
+'v1.1.2: flux
+'- Fixed: Missing Const definition (thanks somatik)
+'- Updated: Table Info
+'- Fixed: CYBER score Multiplier
+'- Adjusted Base Points Value from 750 to 7500
+'- Combos now score the base value * the combo count
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -247,6 +269,7 @@ Sub Table1_Init()
 	LockPin1.IsDropped = 1
 	LockPin2.IsDropped = 1
 	LockPin3.IsDropped = 1
+	WallScoopProtect.IsDropped = 1
 	LockPin4.IsDropped = True
 	AnimateLockPin()
 

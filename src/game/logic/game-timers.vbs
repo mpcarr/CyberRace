@@ -43,6 +43,9 @@ Sub GameTimersUpdate_Timer()
 	ProcessGameTimer GAME_SELECTION_TIMER_IDX, activeTimer
 	ProcessGameTimer GAME_MULTIPLIER_TIMER_IDX, activeTimer
     ClearTimerDisplay
+	If GameTimers(GAME_RACE_TIMER_IDX) > 0 Then
+		activeTimer = Array(GameTimers(GAME_RACE_TIMER_IDX), GameTimerColors(GAME_RACE_TIMER_IDX))
+	End If
     If activeTimer(0) = 1000 Then
 		If GameTimers(GAME_BALLSAVE_TIMER_IDX) > 0 Then
 			activeTimer = Array(GameTimers(GAME_BALLSAVE_TIMER_IDX), GameTimerColors(GAME_BALLSAVE_TIMER_IDX))
@@ -80,13 +83,21 @@ Function ProcessGameTimer(timer, activeTimer)
         End If
         dbstime = GameTimers(timer) - dbsdelta
 		GameTimers(timer) = dbstime
-		If dbstime < 10 And GameTimersHurry(timer) = 0 Then
+		If timer = GAME_RACE_TIMER_IDX And dbstime < 20 And GameTimersHurry(timer) = 0 Then
 			GameTimersHurry(timer) = 1
 			DispatchPinEvent GameTimerHurryEvent(timer)
+		Else
+			If dbstime < 10 And GameTimersHurry(timer) = 0 Then
+				GameTimersHurry(timer) = 1
+				DispatchPinEvent GameTimerHurryEvent(timer)
+			End If
 		End If
 		If dbstime <= 0 Then
             GameTimers(timer) = 0
 			GameTimersHurry(timer) = 0
+			If timer = GAME_RACE_TIMER_IDX Then
+				calloutsQ.Add "raceexpired", "PlayCallout(""race-expired"")", 1, 0, 0, 1500, 0, False
+			End If
 			DispatchPinEvent GameTimerEndEvent(timer)
         End If
     End If

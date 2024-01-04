@@ -1,10 +1,9 @@
 Sub AddScore(v)
-    'TODO Apply Any Multipliers
-    SetPlayerState SCORE, GetPlayerState(SCORE) + v
+    SetPlayerState SCORE, GetPlayerState(SCORE) + (v*GetPlayerState(PF_MULTIPLIER))
 End Sub
 
 Sub AwardJackpot()
-    SetPlayerState SCORE, GetPlayerState(SCORE) + GetPlayerState(JACKPOT_VALUE)
+    SetPlayerState SCORE, GetPlayerState(SCORE) + (GetPlayerState(JACKPOT_VALUE)* GetPlayerState(PF_MULTIPLIER))
     Dim qItem : Set qItem = New QueueItem
 	With qItem
 		.Name = "jackpot"

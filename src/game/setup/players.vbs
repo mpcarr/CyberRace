@@ -66,7 +66,7 @@ Function InitNewPlayer()
 
     state.Add BONUS_X,  0
 
-    state.Add PF_MULTIPLIER, 0
+    state.Add PF_MULTIPLIER, 1
 
     state.Add EMP_CHARGE, 0
     state.Add EMP_ACTIVATIONS, 1

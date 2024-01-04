@@ -32,45 +32,52 @@ Sub CheckRaceReady()
     End If
 End Sub
 
-Sub RaceIdleTimer
 
-    If GetPlayerState(MODE_RACE) = True Then
+'****************************
+' Race Mode Finish
+' Event Listeners:      
+RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "CheckRaceModeFinish"
+'
+'*****************************
+Sub CheckRaceModeFinish()
+    If GetPlayerState(RACE_MODE_FINISH) = True Then
+        SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
+        SetPlayerState RACE_MODE_FINISH, False
         Select Case GetPlayerState(RACE_MODE_SELECTION):
             Case 1: 
-                If GetPlayerState(RACE_MODE_1_HITS) = 6 Then
-                    'Callout Go For Finish.
-                    'DMD Go For Finish
-                Else
-                    'Show Progress
-                End If
+                SetPlayerState RACE_1, 1
             Case 2
-                
-                If GetPlayerState(RACE_MODE_2_SPIN1) >= 30 Then
-                    
-                End If
-                If GetPlayerState(RACE_MODE_2_SPIN2) >= 30 Then
-                    
-                End If
-                If GetPlayerState(RACE_MODE_2_SPIN1) >= 30 AND GetPlayerState(RACE_MODE_2_SPIN2) >= 30 Then
-                    
-                End If                
+                SetPlayerState RACE_2, 1
             Case 3:
-                If GetPlayerState(RACE_MODE_3_HITS) = 6 Then
-                    
-                Else
-                    
-                End If
+                SetPlayerState RACE_3, 1
             Case 4:
-                
+                SetPlayerState RACE_4, 1
             Case 5:
-                
+                SetPlayerState RACE_5, 1
             Case 6:
-                If GetPlayerState(RACE_MODE_6_HITS) = 5 Then
-                
-                Else
-                
-                End If
+                SetPlayerState RACE_6, 1
         End Select
+        PlayRaceWonSeq()
+        calloutsQ.Add "racewon", "PlayCallout(""race-complete"")", 1, 0, 0, 1700, 0, False
+        RaceModeTimerEnded
+        MusicOn
+    End If
+
+End Sub
+
+Sub RaceIdleTimer
+    If GetPlayerState(MODE_RACE) = True Then
+        Dim qItem : Set qItem = New QueueItem
+        With qItem
+            .Name = "racemsg"
+            .Duration = 4
+            .BGImage = "BG004"
+            .BGVideo = "novideo"
+            .Action = "slideup"
+        End With
+        qItem.AddLabel "GetPlayerState(EMPTY_STR) & GetRaceLabelForFlexScene", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+        DmdQ.Enqueue qItem
+        SetTimer "RaceIdleTimer", "RaceIdleTimer", 6000
     End If
 End Sub
 
@@ -165,6 +172,7 @@ Sub RaceSelectConfirm()
         SetPlayerState RACE_MODE_READY, False
         GameTimers(GAME_RACE_TIMER_IDX) = GetPlayerState(RACE_TIMERS)
         SetPlayerState MODE_RACE, True
+        RaceIdleTimer
         PlayMusic "cyberrace\" & MUSIC_RACE & ".mp3", MusicVol
         Select Case GetPlayerState(RACE_MODE_SELECTION):
             Case 1: 
@@ -329,7 +337,7 @@ RegisterPinEvent SWITCH_HIT_ADDTIME, "RaceModeAddTime"
 '*****************************
 Sub RaceModeAddTime()
     If GetPlayerState(MODE_RACE) = True And lightCtrl.IsShotLit("AddTime", l98) = True Then
-        GameTimers(GAME_RACE_TIMER_IDX) = GameTimers(GAME_RACE_TIMER_IDX) + 12
+        GameTimers(GAME_RACE_TIMER_IDX) = GameTimers(GAME_RACE_TIMER_IDX) + 20
         lightCtrl.RemoveShot "AddTime", l98
         Dim qItem : Set qItem = New QueueItem
         With qItem
@@ -392,6 +400,9 @@ Sub RaceModeTimerEnded()
         SetPlayerState LANE_E, 0
         SetPlayerState RACE_MODE_FINISH, False
         SetPlayerState MODE_RACE, False
+        If timerQueue.Exists("RaceIdleTimer") Then
+            timerQueue.Remove("RaceIdleTimer")
+        End If
         SetPlayerState RACE_MODE_SELECTION, 1
         lightCtrl.RemoveLightSeq "RaceMode", lSeqModeFinish
         GameTimers(GAME_RACE_TIMER_IDX) = 0
@@ -480,35 +491,6 @@ Sub RaceMode2()
     End If
 End Sub
 
-'****************************
-' Race Mode Finish
-' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "CheckRaceModeFinish"
-'
-'*****************************
-Sub CheckRaceModeFinish()
-    If GetPlayerState(RACE_MODE_FINISH) = True Then
-        SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
-        SetPlayerState RACE_MODE_FINISH, False
-        Select Case GetPlayerState(RACE_MODE_SELECTION):
-            Case 1: 
-                SetPlayerState RACE_1, 1
-            Case 2
-                SetPlayerState RACE_2, 1
-            Case 3:
-                SetPlayerState RACE_3, 1
-            Case 4:
-                SetPlayerState RACE_4, 1
-            Case 5:
-                SetPlayerState RACE_5, 1
-            Case 6:
-                SetPlayerState RACE_6, 1
-        End Select
-        RaceModeTimerEnded
-        MusicOn
-    End If
-
-End Sub
 
 '****************************
 ' Race Mode Finish
@@ -519,6 +501,7 @@ End Sub
 Sub RaceModeFinish()
     If GetPlayerState(RACE_MODE_FINISH) = True Then
         lightCtrl.AddLightSeq "RaceMode", lSeqModeFinish
+        lightCtrl.RemoveShot GAME_SHOT_SHORTCUT, l65
     End If
 End Sub
 

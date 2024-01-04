@@ -10,6 +10,7 @@ Sub BallSearch
             SoundSaucerKick 1, sw_38
             If sw39.BallCntOver = 1 Then
                 KickBall KickerBall39, 0, 0, 55, 10
+                WallScoopProtect.IsDropped = 1
             End If
             If ballInPlungerLane = True Then
                 autoPlunge = True

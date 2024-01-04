@@ -1,5 +1,7 @@
 Sub AddScore(v)
-    SetPlayerState SCORE, GetPlayerState(SCORE) + (v*GetPlayerState(PF_MULTIPLIER))
+    If GameTilted = False Then
+        SetPlayerState SCORE, GetPlayerState(SCORE) + (v*GetPlayerState(PF_MULTIPLIER))
+    End If
 End Sub
 
 Sub AwardJackpot()

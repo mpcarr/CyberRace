@@ -22,6 +22,7 @@ Sub raceVuk_Timer()
 End Sub
 
 Sub garageKicker_Hit()
+    AddScore POINTS_BASE
     DispatchPinEvent SWITCH_HIT_RAMP_PIN
 End Sub
 '******************************************

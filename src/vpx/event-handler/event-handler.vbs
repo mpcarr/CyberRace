@@ -1,7 +1,7 @@
 
 Dim BlockAllPinEvents : BlockAllPinEvents = False
 Dim AllowPinEventsList : Set AllowPinEventsList = CreateObject("Scripting.Dictionary")
-
+Dim lastPinEvent : lastPinEvent = Null
 Sub DispatchPinEvent(e)
     If Not pinEvents.Exists(e) Then
         Exit Sub
@@ -19,6 +19,7 @@ Sub DispatchPinEvent(e)
         SetTimer "BallSearch", "BallSearch", 6000
     End If
     If BlockAllPinEvents = False Or (BlockAllPinEvents=True And AllowPinEventsList.Exists(e)) Then
+        lastPinEvent = e
         For Each x in pinEvents(e).Keys()
             If pinEvents(e)(x) = True Then
                 WriteToLog "Dispatching Pin Event", e &": "&x

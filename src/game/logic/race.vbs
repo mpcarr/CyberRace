@@ -179,7 +179,7 @@ Sub RaceSelectConfirm()
         PlayMusic "cyberrace\" & MUSIC_RACE & ".mp3", MusicVol
         Select Case GetPlayerState(RACE_MODE_SELECTION):
             Case 1: 
-                If GetPlayerState(RACE_MODE_1_HITS) = 6 Then
+                If GetPlayerState(RACE_MODE_1_HITS) >= 6 Then
                     SetPlayerState RACE_MODE_FINISH, True
                 Else
                     lightCtrl.AddShot "RaceMode1a", l47, GAME_RACE_COLOR
@@ -206,7 +206,7 @@ Sub RaceSelectConfirm()
                     SetPlayerState RACE_MODE_FINISH, True
                 End If                
             Case 3:
-                If GetPlayerState(RACE_MODE_3_HITS) = 6 Then
+                If GetPlayerState(RACE_MODE_3_HITS) >= 6 Then
                     SetPlayerState RACE_MODE_FINISH, True
                 Else
                     RaceModeTimer.Enabled = False
@@ -228,7 +228,7 @@ Sub RaceSelectConfirm()
             Case 5:
                 RaceMode5HitsCheck()
             Case 6:
-                If GetPlayerState(RACE_MODE_6_HITS) = 6 Then
+                If GetPlayerState(RACE_MODE_6_HITS) >= 6 Then
                     SetPlayerState RACE_MODE_FINISH, True
                 Else
                     lightCtrl.AddShot "RaceMode6", l23, GAME_RACE_COLOR
@@ -861,7 +861,7 @@ Sub RaceMode4HitsCheck()
             lightCtrl.RemoveShot "RaceMode4a", l46
             lightCtrl.AddLightSeq "RaceMode", lSeqRaceMode4Nodes
         End If
-        If GetPlayerState(RACE_MODE_4_HITS) = 6 Then
+        If GetPlayerState(RACE_MODE_4_HITS) >= 6 Then
             lightCtrl.RemoveShot "RaceMode4b", l63
             lightCtrl.RemoveShot "RaceMode4a", l46
             lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes
@@ -1064,7 +1064,7 @@ RegisterPlayerStateEvent RACE_MODE_5_HITS, "RaceMode5HitsCheck"
 '*****************************
 Sub RaceMode5HitsCheck()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 5 And GetPlayerState(RACE_GRACE) = False Then
-        If GetPlayerState(RACE_MODE_5_HITS) = 6 Then
+        If GetPlayerState(RACE_MODE_5_HITS) >= 6 Then
             lightCtrl.RemoveShot "RaceMode5", l47
             lightCtrl.RemoveShot "RaceMode5", l64   
             lightCtrl.RemoveLightSeq "RaceMode", lSeqRaceMode4Nodes

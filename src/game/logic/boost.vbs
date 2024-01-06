@@ -7,7 +7,7 @@
 '*****************************
 Sub SwitchBOOST1Hit()
     If GetPlayerState(BOOST_1) = 2 Then
-        StartTurnTable(5000)
+        Debounce "startMotor", "StartTurnTable(5000)", 600
         PlaySoundAtLevelStatic "fx_boost", SoundFxLevel, sw18
         If GetPlayerState(MODE_BOOST) = True Then
             AddScore POINTS_MODE_SHOT
@@ -35,7 +35,7 @@ End Sub
 '*****************************
 Sub SwitchBOOST2Hit
     If GetPlayerState(BOOST_2) = 2 Then
-        StartTurnTable(5000)
+        Debounce "startMotor", "StartTurnTable(5000)", 600
         PlaySoundAtLevelStatic "fx_boost", SoundFxLevel, sw19
         If GetPlayerState(MODE_BOOST) = True Then
             AddScore POINTS_MODE_SHOT
@@ -62,7 +62,7 @@ RegisterPinEvent SWITCH_HIT_BOOST3, "SwitchBOOST3Hit"
 '*****************************
 Sub SwitchBOOST3Hit
     If GetPlayerState(BOOST_3) = 2 Then
-        StartTurnTable(5000)
+        Debounce "startMotor", "StartTurnTable(5000)", 600
         PlaySoundAtLevelStatic "fx_boost", SoundFxLevel, sw20
         If GetPlayerState(MODE_BOOST) = True Then
             AddScore POINTS_MODE_SHOT

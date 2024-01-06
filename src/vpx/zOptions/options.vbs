@@ -12,6 +12,7 @@ Dim BallRollVolume : BallRollVolume = 0.5 	'Level of ball rolling volume. Value 
 Dim RampRollVolume : RampRollVolume = 0.5 	'Level of ramp rolling volume. Value between 0 and 1
 Dim StagedFlipperMod
 Dim OptionsCabinetMode : OptionsCabinetMode = 0
+Dim OptionsBonusSound : OptionsBonusSound = "fx-bonus"
 
 'Dim Cabinetmode	: Cabinetmode = 0			'0 - Siderails On, 1 - Siderails Off
 
@@ -23,19 +24,20 @@ Const Opt_LUT = 1
 Const Opt_Scorbit = 2
 
 Const Opt_CabinetMode = 3
+Const Opt_BonusSound = 4
 
-Const Opt_Volume = 4
-Const Opt_Volume_Ramp = 5
-Const Opt_Volume_Ball = 6
+Const Opt_Volume = 5
+Const Opt_Volume_Ramp = 6
+Const Opt_Volume_Ball = 7
 ' Table mods & toys
 'Const Opt_Cabinet = 8
-Const Opt_Staged_Flipper = 7
+Const Opt_Staged_Flipper = 8
 ' Shadow options
 ' Informations
-Const Opt_Info_1 = 8
-Const Opt_Info_2 = 9
+Const Opt_Info_1 = 9
+Const Opt_Info_2 = 10
 
-Const NOptions = 10
+Const NOptions = 11
 
 Dim OptionDMD: Set OptionDMD = Nothing
 Dim bOptionsMagna, bInOptions : bOptionsMagna = False
@@ -196,6 +198,14 @@ Sub Options_OnOptChg
 		OptTop.Text = "CABINET MODE"
 		OptBot.Text = Options_OnOffText(OptionsCabinetMode)
 		SaveValue cGameName, "CABMODE", OptionsCabinetMode
+	ElseIf OptPos = Opt_BonusSound Then
+		OptTop.Text = "BONUS SOUND"
+		If OptionsBonusSound = "fx-bonus" Then
+			OptBot.Text = "Main"
+		Else
+			OptBot.Text = "Alt"
+		End If
+		SaveValue cGameName, "BONUS", OptionsBonusSound
 	ElseIf OptPos = Opt_Volume Then
 		OptTop.Text = "MECH VOLUME"
 		OptBot.Text = "LEVEL " & CInt(VolumeDial * 100)
@@ -267,6 +277,13 @@ Sub Options_Toggle(amount)
 		StagedFlipperMod = 1 - StagedFlipperMod
 	ElseIf OptPos = Opt_CabinetMode Then
 		OptionsCabinetMode = 1 - OptionsCabinetMode
+	ElseIf OptPos = Opt_BonusSound Then
+		If OptionsBonusSound = "fx-bonus" Then 
+			OptionsBonusSound = "fx-bonus-alt"
+		Else
+			OptionsBonusSound = "fx-bonus"
+		End If
+		PlaySound(OptionsBonusSound)
 	End If
 End Sub
 
@@ -315,6 +332,7 @@ Sub Options_Load
     x = LoadValue(cGameName, "BALLVOLUME") : If x <> "" Then BallRollVolume = CNCDbl(x) Else BallRollVolume = 0.5
     x = LoadValue(cGameName, "STAGED") : If x <> "" Then StagedFlipperMod = CInt(x) Else StagedFlipperMod = 0
 	x = LoadValue(cGameName, "CABMODE") : If x <> "" Then OptionsCabinetMode = CInt(x) Else OptionsCabinetMode = 0
+	x = LoadValue(cGameName, "BONUS") : If x <> "" Then OptionsBonusSound = CStr(x) Else OptionsBonusSound = "fx-bonus"
 	UpdateMods
 End Sub
 
@@ -370,6 +388,7 @@ Sub UpdateMods
 			element.Visible = True
 		Next
 	End If
+
 End Sub
 
 

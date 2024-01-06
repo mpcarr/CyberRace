@@ -11,22 +11,19 @@ Sub LightSeqAll_PlayDone()
 	lightCtrl.StopSyncWithVpxLights()
 End Sub
 
-Sub PlayShootAgainSeq
-    LightSeqRGB.UpdateInterval = 5
-    LightSeqRGB.Play SeqRandom,40,,1000
-	LightSeqRGB.UpdateInterval = 5
-    LightSeqRGB.Play SeqDownOff,25,2
-
-    lightCtrl.SyncWithVpxLights lightSeqRGB
-    lightCtrl.SetVpxSyncLightColor RGB(127,127,0)
-End Sub
-
 Sub PlayRaceWonSeq
     LightSeqRGB.UpdateInterval = 5
     LightSeqRGB.Play SeqRandom,40,,1000
 	LightSeqRGB.UpdateInterval = 5
     LightSeqRGB.Play SeqDownOff,25,2
 
+    lightCtrl.SyncWithVpxLights lightSeqRGB
+    lightCtrl.SetVpxSyncLightColor RGB(240,0,0)
+End Sub
+
+Sub PlayRaceModeSeq
+    LightSeqRGB.UpdateInterval = 5
+    LightSeqRGB.Play SeqUpOn,40,,500
     lightCtrl.SyncWithVpxLights lightSeqRGB
     lightCtrl.SetVpxSyncLightColor RGB(240,0,0)
 End Sub

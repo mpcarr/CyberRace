@@ -10,7 +10,11 @@ Sub GameTimer_timer()
 	cor.update
 	Options_UpdateDMD
 	TargetMovableHelper
-	'lightCtrl.Update
+	Dim el
+	BM_Disc.RotZ = (BM_Disc.RotZ + (ttSpinner.Speed/4)) Mod 360
+	For Each el in BP_Disc
+		el.Rotz = BM_Disc.RotZ	
+	Next
 End Sub
 
 
@@ -19,26 +23,13 @@ Sub LightTimer_timer()
 End Sub
 
 Sub FrameTimer_Timer()
-	Dim el, a 
-	BM_Disc.RotZ = (BM_Disc.RotZ + (ttSpinner.Speed/4)) Mod 360
-	a = BM_Disc.RotZ
-	For Each el in BP_Disc
-		el.Rotz = a		
-	Next
-	
-	BSUpdate
-
-	For Each el in BP_Disc
-		el.Rotz = a		
-	Next
-
-	
+	BSUpdate	
 	calloutsQ.Tick
 	TimerTick
-
 End Sub
 
 Sub TargetMovableHelper
+	Exit Sub
 	Dim t
 	For each t in BP_sw10 : t.transy = BM_sw10.transy : Next
 

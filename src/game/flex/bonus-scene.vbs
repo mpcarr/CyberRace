@@ -8,7 +8,7 @@ Sub FlexDMDBonusScene()
         .Duration = 2
         .BGImage = "noimage"
         .BGVideo = "BGBonus1"
-		.Callback = "PlaySound(""fx-bonus"") : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus1"
+		.Callback = "PlaySound(OptionsBonusSound) : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus1"
     End With
     bonusRaces.AddLabel """RACES WON: "" & GetPlayerState(BONUS_RACES_WON) & "" x 100K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
     bonusRaces.AddLabel "FormatScore(GetPlayerState(BONUS_RACES_WON) * 100000)", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
@@ -20,7 +20,7 @@ Sub FlexDMDBonusScene()
         .Duration = 2
         .BGImage = "noimage"
         .BGVideo = "BGBonus2"
-		.Callback = "PlaySound(""fx-bonus"") : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus2"
+		.Callback = "PlaySound(OptionsBonusSound) : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus2"
     End With
     bonusNodes.AddLabel """NODES: "" & GetPlayerState(BONUS_NODES_COMPLETED) & "" x 75K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
     bonusNodes.AddLabel "FormatScore(GetPlayerState(BONUS_NODES_COMPLETED) * 75000)", 		                   Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
@@ -32,10 +32,10 @@ Sub FlexDMDBonusScene()
         .Duration = 2
         .BGImage = "noimage"
         .BGVideo = "BGBonus3"
-		.Callback = "PlaySound(""fx-bonus"") : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus3"
+		.Callback = "PlaySound(OptionsBonusSound) : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus3"
     End With
-    bonusSkills.AddLabel """SKILLS TRAIL: "" & GetPlayerState(BONUS_NODES_COMPLETED) & "" x 75K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
-    bonusSkills.AddLabel "FormatScore(GetPlayerState(BONUS_NODES_COMPLETED) * 75000)", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
+    bonusSkills.AddLabel """SKILLS TRIAL: "" & GetPlayerState(BONUS_SKILLS_COMPLETED) & "" x 90K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
+    bonusSkills.AddLabel "FormatScore(GetPlayerState(BONUS_SKILLS_COMPLETED) * 90000)", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue bonusSkills
 
 	Dim bonusTT : Set bonusTT = New QueueItem
@@ -44,10 +44,10 @@ Sub FlexDMDBonusScene()
         .Duration = 2
         .BGImage = "noimage"
         .BGVideo = "BGBonus4"
-		.Callback = "PlaySound(""fx-bonus"") : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus4"
+		.Callback = "PlaySound(OptionsBonusSound) : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus4"
     End With
-    bonusTT.AddLabel """TIME TRAIL: "" & GetPlayerState(BONUS_NODES_COMPLETED) & "" x 75K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
-    bonusTT.AddLabel "xxx", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
+    bonusTT.AddLabel """TIME TRIAL: "" & GetPlayerState(BONUS_TT_COMPLETED) & "" x 75K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
+    bonusTT.AddLabel "FormatScore(GetPlayerState(BONUS_TT_COMPLETED) * 75000)", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue bonusTT
 
 	Dim bonusCombos : Set bonusCombos = New QueueItem
@@ -56,14 +56,28 @@ Sub FlexDMDBonusScene()
         .Duration = 2
         .BGImage = "noimage"
         .BGVideo = "BGBonus5"
-		.Callback = "PlaySound(""fx-bonus"") : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus5"
+		.Callback = "PlaySound(OptionsBonusSound) : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus5"
     End With
     bonusCombos.AddLabel """COMBOS: "" & GetPlayerState(BONUS_COMBOS_MADE) & "" x 50K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
     bonusCombos.AddLabel "FormatScore(GetPlayerState(BONUS_COMBOS_MADE) * 50000)", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue bonusCombos
 	
-	AddScore(GetPlayerState(BONUS_COMBOS_MADE) * 50000)
-	AddScore(GetPlayerState(BONUS_RACES_WON) * 100000)
-	AddScore(GetPlayerState(BONUS_NODES_COMPLETED) * 75000)
+    Dim bonusScore : bonusScore = 0
+	bonusScore = bonusScore + GetPlayerState(BONUS_COMBOS_MADE) * 50000
+	bonusScore = bonusScore + GetPlayerState(BONUS_RACES_WON) * 100000
+	bonusScore = bonusScore + GetPlayerState(BONUS_NODES_COMPLETED) * 75000
+    bonusScore = bonusScore + GetPlayerState(BONUS_SKILLS_COMPLETED) * 90000
+    bonusScore = bonusScore + GetPlayerState(BONUS_TT_COMPLETED) * 75000
+
+    Select Case GetPlayerState(BONUS_X):
+        Case 0:
+            AddScore bonusScore
+        Case 1:
+            AddScore bonusScore*2
+        Case 2:
+            AddScore bonusScore*3
+        Case 3:
+            AddScore bonusScore*5
+    End Select
 
 End Sub

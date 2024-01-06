@@ -34,8 +34,14 @@ Sub sw01_Hit()
         End If
         ballSaverIgnoreCount = ballSaverIgnoreCount+1
     Else
-        PlaySoundAtLevelStatic "drain", SoundFxLevel, sw01
-        DOF 220, DOFPulse
+        If lastPinEvent = SWITCH_HIT_SPINNER1 Then
+            If Round(RndNum(0,1)) = 1 Then
+                DispatchPinEvent BALL_SAVE
+            End If
+        Else
+            PlaySoundAtLevelStatic "drain", SoundFxLevel, sw01
+            DOF 220, DOFPulse
+        End If
     End If
     If GetPlayerState(LANE_R) > 0 Then
         lightCtrl.Pulse l42, 0

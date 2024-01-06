@@ -183,6 +183,7 @@ Sub NodeCollectPerk()
             'COMPLETE
             Debounce "nodesCompleteed", "sw39.TimerEnabled = True", 4000
             SetPlayerState GRANDSLAM_NODES, True
+            calloutsQ.Add "nodesGS", "PlayCallout(""nodes-grandslam"")", 1, 0, 0, 5500, 0, False
             PlayGrandSlamSeq()
         Else
             lSeqCollectPerk.Repeat = True

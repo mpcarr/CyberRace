@@ -84,6 +84,7 @@ Sub EndOfBall()
             SetPlayerState LANE_E, 0
         End If
         SetPlayerState MODE_RACE, False
+        SetPlayerState RACE_GRACE, False
         SetPlayerState RACE_MODE_SELECTION, 1
         SetPlayerState RACE_MODE_FINISH, False
 
@@ -130,7 +131,6 @@ Sub EndOfBonus()
     If GetPlayerState(EXTRA_BALLS) > 0 Then
         SetPlayerState EXTRA_BALLS, GetPlayerState(EXTRA_BALLS) - 1
         DispatchPinEvent RELEASE_BALL
-        PlayShootAgainSeq()
         Set qItem = New QueueItem
         With qItem
             .Name = "shootagain"

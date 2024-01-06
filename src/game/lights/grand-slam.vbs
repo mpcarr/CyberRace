@@ -50,9 +50,9 @@ RegisterPlayerStateEvent GRANDSLAM_SKILLS, "PS_GrandSlamSkills"
 '*****************************
 Sub PS_GrandSlamSkills()
     If GetPlayerState(GRANDSLAM_SKILLS) = True Then
-        lightCtrl.LightOn l81
+        lightCtrl.LightOn l82
     Else
-        lightCtrl.LightOff l81
+        lightCtrl.LightOff l82
     End If
 End Sub
 
@@ -64,9 +64,9 @@ RegisterPlayerStateEvent GRANDSLAM_NODES, "PS_GrandSlamNodes"
 '*****************************
 Sub PS_GrandSlamNodes()
     If GetPlayerState(GRANDSLAM_NODES) = True Then
-        lightCtrl.LightOn l82
+        lightCtrl.LightOn l81
     Else
-        lightCtrl.LightOff l82
+        lightCtrl.LightOff l81
     End If
 End Sub
 

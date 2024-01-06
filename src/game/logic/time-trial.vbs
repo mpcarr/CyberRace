@@ -95,7 +95,7 @@ Sub PS_TTCollected()
     If GetPlayerState(TT_COLLECTED) = 10 * GetPlayerState(TT_ACTIVATIONS) Then
         'Start TT_MULTIBALL
         SetPlayerState TT_ACTIVATIONS, GetPlayerState(TT_ACTIVATIONS) + 1
-
+        SetPlayerState BONUS_TT_COMPLETED, GetPlayerState(BONUS_TT_COMPLETED) + 1
         SetPlayerState TT_ORBIT, 0
         SetPlayerState TT_TARGET, 0
         SetPlayerState TT_RAMP, 0
@@ -164,7 +164,19 @@ Sub PS_TTJackpots()
         SetPlayerState TT_RAMP, 1
         SetPlayerState TT_CAPTIVE, 1
         SetPlayerState TT_SHORTCUT, 1
+        SetPlayerState BONUS_TT_COMPLETED, GetPlayerState(BONUS_TT_COMPLETED) + 1
         PlayGrandSlamSeq()
+        lightCtrl.AddShot "MBTTSpinner", l48, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTLeftOrbit", l46, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTLeftRamp", l47, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTRightRamp", l64, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTRightOrbit", l63, RGB(127,0,127)
+    ElseIf GetPlayerState(MODE_TT_MULTIBALL) = True And GetPlayerState(TT_JACKPOTS) MOD 5 = 0 Then
+        lightCtrl.AddShot "MBTTSpinner", l48, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTLeftOrbit", l46, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTLeftRamp", l47, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTRightRamp", l64, RGB(127,0,127)
+        lightCtrl.AddShot "MBTTRightOrbit", l63, RGB(127,0,127)
     End If
 End Sub
 
@@ -178,6 +190,7 @@ Sub MBTTSpinnerShot
     If GetPlayerState(MODE_TT_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBTTSpinner", l48) = True Then
             lightCtrl.RemoveShot "MBTTSpinner", l48
+            SetPlayerState BONUS_TT_COMPLETED, GetPlayerState(BONUS_TT_COMPLETED) + 1
             SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
             AwardJackpot()
         End If
@@ -194,6 +207,7 @@ Sub MBTTLeftOrbitShot
     If GetPlayerState(MODE_TT_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBTTLeftOrbit", l46) = True Then
             lightCtrl.RemoveShot "MBTTLeftOrbit", l46
+            SetPlayerState BONUS_TT_COMPLETED, GetPlayerState(BONUS_TT_COMPLETED) + 1
             SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
             AwardJackpot()
         End If
@@ -210,6 +224,7 @@ Sub MBTTLeftRampShot
     If GetPlayerState(MODE_TT_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBTTLeftRamp", l47) = True Then
             lightCtrl.RemoveShot "MBTTLeftRamp", l47
+            SetPlayerState BONUS_TT_COMPLETED, GetPlayerState(BONUS_TT_COMPLETED) + 1
             SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
             AwardJackpot()
         End If
@@ -226,6 +241,7 @@ Sub MBTTRightRampShot
     If GetPlayerState(MODE_TT_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBTTRightRamp", l64) = True Then
             lightCtrl.RemoveShot "MBTTRightRamp", l64
+            SetPlayerState BONUS_TT_COMPLETED, GetPlayerState(BONUS_TT_COMPLETED) + 1
             SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
             AwardJackpot()
         End If
@@ -242,6 +258,7 @@ Sub MBTTRightOrbitShot
     If GetPlayerState(MODE_TT_MULTIBALL) = True Then
         If lightCtrl.IsShotLit("MBTTRightOrbit", l63) = True Then
             lightCtrl.RemoveShot "MBTTRightOrbit", l63
+            SetPlayerState BONUS_TT_COMPLETED, GetPlayerState(BONUS_TT_COMPLETED) + 1
             SetPlayerState TT_JACKPOTS, GetPlayerState(TT_JACKPOTS) + 1
             AwardJackpot()
         End If
@@ -283,6 +300,6 @@ Sub MBTTTimerEnd
         lightCtrl.RemoveShot "MBTTRightRamp", l64
         lightCtrl.RemoveShot "MBTTRightOrbit", l63
         GAME_DRAIN_BALLS_AND_RESET = True
-        lightCtrl.AddTableLightSeq "GI", lSeqGIOff
+        lightCtrl.PauseMainLights()
     End If
 End Sub

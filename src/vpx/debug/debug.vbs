@@ -115,6 +115,6 @@ Sub TestMB()
 End Sub
 
 Sub TestLights
-	lightCtrl.AddLightSeq "RaceMode", lSeqRgbRandomRed
+	PlayRaceModeSeq
 	lightCtrl.AddLightSeq "RaceMode", lSeqRaceMode4Nodes
 End Sub 

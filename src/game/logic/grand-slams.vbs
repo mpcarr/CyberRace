@@ -23,6 +23,7 @@ Sub GrandSlamRacesCheck()
             SetPlayerState LANE_C, 1
             SetPlayerState LANE_E, 1
             SetPlayerState GRANDSLAM_RACES, True
+            calloutsQ.Add "racesGS", "PlayCallout(""races-grandslam"")", 1, 0, 0, 5500, 0, False
             PlayGrandSlamSeq()
         End If
     End If

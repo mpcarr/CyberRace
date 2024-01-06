@@ -200,16 +200,19 @@ End Sub
 '******************************************
 Sub sw18_Hit()
     STHit 18
+    AddScore POINTS_BASE
     DispatchPinEvent SWITCH_HIT_BOOST1
 End Sub
 '******************************************
 Sub sw19_Hit()
     STHit 19
+    AddScore POINTS_BASE
     DispatchPinEvent SWITCH_HIT_BOOST2
 End Sub
 '******************************************
 Sub sw20_Hit()
     STHit 20
+    AddScore POINTS_BASE
     DispatchPinEvent SWITCH_HIT_BOOST3
 End Sub
 '******************************************
@@ -227,25 +230,30 @@ End Sub
 '******************************************
 Sub sw21_Hit()
     STHit 21
+    AddScore POINTS_BASE
     DispatchPinEvent SWITCH_HIT_BET1
 End Sub
 '******************************************
 Sub sw22_Hit()
     STHit 22
+    AddScore POINTS_BASE
     DispatchPinEvent SWITCH_HIT_BET2
 End Sub
 '******************************************
 Sub sw23_Hit()
     STHit 23
+    AddScore POINTS_BASE
     DispatchPinEvent SWITCH_HIT_BET3
 End Sub
 '******************************************
 Sub sw24_Hit()
+    AddScore POINTS_BASE
     DispatchPinEvent SWITCH_HIT_CAPTIVE
 End Sub
 '******************************************
 Sub sw25_Hit()
     STHit 25
+    AddScore POINTS_BASE
     DispatchPinEvent SWITCH_HIT_MYSTERY
     DispatchPinEvent SWITCH_HIT_ADDTIME
 End Sub
@@ -257,6 +265,7 @@ Sub sw26_Hit()
 End Sub
 '******************************************
 Sub sw31_Hit()
+    AddScore POINTS_BASE
     DispatchPinEvent SWITCH_HIT_SHORTCUT
     DispatchPinEvent SWITCH_HIT_SHORTCUT_WIZARD
 End Sub

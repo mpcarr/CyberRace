@@ -712,6 +712,20 @@ Class LStateController
         End If
     End Sub
 
+    Public Sub AddLightToBlinkGroup(group, light)
+        CreateSeqRunner(group)
+
+        If IsNull(m_seqRunners(group).CurrentItem) Then
+            Msgbox("empty")
+        Else
+            MsgBox("Add light to current item")
+        End If
+    End Sub
+
+    Public Sub RemoveLightToBlinkGroup(group, light)
+
+    End Sub
+
     Public Function GetLightState(light)
         GetLightState = 0
         If(m_lights.Exists(light.name)) Then
@@ -1885,5 +1899,5 @@ Class LCSeqRunner
         End If
     End Function
 
-    End Class
+End Class
 

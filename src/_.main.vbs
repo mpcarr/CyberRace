@@ -68,7 +68,7 @@
 'You need 64 bits. Welcome to future. 
  
 Const cGameName = "cyberrace"
-Const myVersion = "1.1.0"
+Const myVersion = "1.2.0"
 
 '2021-2022: who knows.
 'Rebuild
@@ -104,7 +104,7 @@ Const myVersion = "1.1.0"
 'v39: flux : fix music after extra ball, add check to bridge release to make sure all pins are released
 'v40: flux : RC1, DOF Config
 'v42: DGrimmReaper: add missing VR Cab buttons, animate VR Plunger
-'v1.1.1: flux:
+'v1.1.0: flux:
 '- Fixed: Tilt Debounce (bug with mech tilt only)
 '- Fixed: If the last race shoot was the ramp, the shoot also registered the final shot. Fixed so that the finish shot must be made.
 '- Fixed: On the final shot the shortcut is now disabled.
@@ -121,12 +121,18 @@ Const myVersion = "1.1.0"
 '- Added: VR Cabinet Buttons and Animate VR Plunger (DGrimmReaper)
 '- Balance: Changed AddTime activation from last 10 seconds to 20 seconds and increased addtime value from 12 seconds to 20 seconds.
 '- Quality Of Life: Prioritised Race Timer on the display: If a race is running it will always show the race timer
-'v1.1.2: flux
+'v1.2.0: flux
 '- Fixed: Missing Const definition (thanks somatik)
 '- Updated: Table Info
 '- Fixed: CYBER score Multiplier
 '- Adjusted Base Points Value from 750 to 7500
 '- Combos now score the base value * the combo count
+'- Added: more base points scoring to secret garage and bet targets
+'- Added: Race Grace period. Race shots will count upto 2 seconds after timer expired.
+'- Balance: Prevent Skills and Bet Modes from starting during race
+'- Added: Countdown callouts on race timer 5,4,3,2,1
+'- Fixed: Issue with Time Trial MB draining and lights locking up.
+'- Fixed: Bonus Screen Scoring.
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1

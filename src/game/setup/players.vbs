@@ -182,10 +182,13 @@ Function InitNewPlayer()
     state.Add RACE_5, 0
     state.Add RACE_6, 0
     state.Add RACE_EXTRABALL, 0
+    state.Add RACE_GRACE, False
 
     state.Add BONUS_COMBOS_MADE, 0
     state.Add BONUS_RACES_WON, 0
     state.Add BONUS_NODES_COMPLETED, 0
+    state.Add BONUS_SKILLS_COMPLETED, 0
+    state.Add BONUS_TT_COMPLETED, 0
 
     state.Add MYSTERY_HITS, 0
 

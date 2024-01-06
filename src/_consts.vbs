@@ -368,6 +368,7 @@ Const RACE_4 = "Race 4 Complete"
 Const RACE_5 = "Race 5 Complete"
 Const RACE_6 = "Race 6 Complete"
 Const RACE_EXTRABALL = "Race Extra Ball"
+Const RACE_GRACE = "Race Grace"
 
 Const OUTLANE_SAVE = "Outlane Save"
 Const JACKPOTS_MULTIPLIER = "Jackpots Multiplier"
@@ -376,6 +377,8 @@ Const JACKPOTS_MULTIPLIER = "Jackpots Multiplier"
 Const BONUS_COMBOS_MADE = "Bonus Combos Make"
 Const BONUS_RACES_WON = "Bonus Races Won"
 Const BONUS_NODES_COMPLETED = "Bonus Nodes Completed"
+Const BONUS_SKILLS_COMPLETED = "Bonus Skills Completed"
+Const BONUS_TT_COMPLETED = "Bonus TT Completed"
 
 'Grand Slam
 

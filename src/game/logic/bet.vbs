@@ -6,7 +6,7 @@
 '
 '*****************************
 Sub SwitchBet1Hit()
-    If GetPlayerState(MODE_BET) = False And GetPlayerState(BET_1) = 2 Then
+    If GetPlayerState(MODE_BET) = False And GetPlayerState(MODE_RACE) = False And GetPlayerState(BET_1) = 2 Then
         SetPlayerState BET_1, 1
         AddScore POINTS_BASE
         PlaySoundAtLevelStatic "fx_bet", SoundFxLevel, sw21
@@ -23,7 +23,7 @@ RegisterPinEvent SWITCH_HIT_BET2, "SwitchBet2Hit"
 '
 '*****************************
 Sub SwitchBet2Hit()
-    If GetPlayerState(MODE_BET) = False And GetPlayerState(BET_2) = 2 Then
+    If GetPlayerState(MODE_BET) = False And GetPlayerState(MODE_RACE) = False And GetPlayerState(BET_2) = 2 Then
         SetPlayerState BET_2, 1
         AddScore POINTS_BASE
         PlaySoundAtLevelStatic "fx_bet", SoundFxLevel, sw22
@@ -40,7 +40,7 @@ RegisterPinEvent SWITCH_HIT_BET3, "SwitchBet3Hit"
 '
 '*****************************
 Sub SwitchBet3Hit()
-    If GetPlayerState(MODE_BET) = False And GetPlayerState(BET_3) = 2 Then
+    If GetPlayerState(MODE_BET) = False And GetPlayerState(MODE_RACE) = False And GetPlayerState(BET_3) = 2 Then
         SetPlayerState BET_3, 1
         AddScore POINTS_BASE
         PlaySoundAtLevelStatic "fx_bet", SoundFxLevel, sw23

@@ -70,7 +70,12 @@ Sub GameTimersUpdate_Timer()
 
 End Sub
 
-
+Dim timerCountDown1,timerCountDown2,timerCountDown3,timerCountDown4,timerCountDown5
+timerCountDown1 = False
+timerCountDown2 = False
+timerCountDown3 = False
+timerCountDown4 = False
+timerCountDown5 = False
 
 Function ProcessGameTimer(timer, activeTimer)
     Dim a, b,dbstime
@@ -92,10 +97,35 @@ Function ProcessGameTimer(timer, activeTimer)
 				DispatchPinEvent GameTimerHurryEvent(timer)
 			End If
 		End If
+		If (timer = GAME_RACE_TIMER_IDX Or timer = GAME_TT_TIMER_IDX) And dbstime < 5 And timerCountDown5 = False Then
+			PlayCallout("timer-5")
+			timerCountDown5 = True
+		End If
+		If (timer = GAME_RACE_TIMER_IDX Or timer = GAME_TT_TIMER_IDX) And dbstime < 4 And timerCountDown4 = False Then
+			PlayCallout("timer-4")
+			timerCountDown4 = True
+		End If
+		If (timer = GAME_RACE_TIMER_IDX Or timer = GAME_TT_TIMER_IDX) And dbstime < 3 And timerCountDown3 = False Then
+			PlayCallout("timer-3")
+			timerCountDown3 = True
+		End If
+		If (timer = GAME_RACE_TIMER_IDX Or timer = GAME_TT_TIMER_IDX) And dbstime < 2 And timerCountDown2 = False Then
+			PlayCallout("timer-2")
+			timerCountDown2 = True
+		End If
+		If (timer = GAME_RACE_TIMER_IDX Or timer = GAME_TT_TIMER_IDX) And dbstime < 1 And timerCountDown1 = False Then
+			PlayCallout("timer-1")
+			timerCountDown1 = True
+		End If
 		If dbstime <= 0 Then
             GameTimers(timer) = 0
 			GameTimersHurry(timer) = 0
 			If timer = GAME_RACE_TIMER_IDX Then
+				timerCountDown1 = False
+				timerCountDown2 = False
+				timerCountDown3 = False
+				timerCountDown4 = False
+				timerCountDown5 = False
 				calloutsQ.Add "raceexpired", "PlayCallout(""race-expired"")", 1, 0, 0, 1500, 0, False
 			End If
 			DispatchPinEvent GameTimerEndEvent(timer)

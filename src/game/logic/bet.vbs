@@ -103,7 +103,7 @@ End Sub
 Sub BetModeSpinnerHit()
     If GetPlayerState(MODE_BET) = True Then
         AddScore POINTS_SPINNER 
-        SetPlayerState BET_VALUE, GetPlayerState(BET_VALUE) + POINTS_BET_SPIN
+        SetPlayerState BET_VALUE, GetPlayerState(BET_VALUE) + (POINTS_BET_SPIN * GetPlayerState(BET_MULTIPLIER))
         Dim qItem : Set qItem = New QueueItem
         With qItem
             .Name = "bet-mode"

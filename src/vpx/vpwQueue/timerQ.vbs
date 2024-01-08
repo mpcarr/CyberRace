@@ -21,11 +21,11 @@ Sub SetTimer(name, callbackFunc, delayInMs)
 End Sub
 
 Function TimerExists(name)
-If timerQueue.Exists(name) Then
-    TimerExists = True
-Else
-    TimerExists = False
-End If
+    If timerQueue.Exists(name) Then
+        TimerExists = True
+    Else
+        TimerExists = False
+    End If
 End Function
 
 Sub Debounce(name, callbackFunc, delayInMs)

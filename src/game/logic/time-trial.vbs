@@ -119,7 +119,7 @@ Sub PS_TTCollected()
         lightCtrl.SyncWithVpxLights lightSeqRGB
         lightCtrl.SetVpxSyncLightColor RGB(127,0,127)
     Else
-        If GetPlayerState(MODE_TT_MULTIBALL) = False Then
+        If GetPlayerState(MODE_TT_MULTIBALL) = False And GetPlayerState(GRANDSLAM_TT) = False Then
             Dim t1,t2,t3,t4,t5
             SetPlayerState TT_ORBIT, 2
             SetPlayerState TT_TARGET, 2

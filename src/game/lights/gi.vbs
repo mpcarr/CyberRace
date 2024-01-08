@@ -32,9 +32,6 @@ Sub GIState()
     End If
     state = GetPlayerState(GI_STATE)
     DOF dofEvent, DOFOn
-    If GetPlayerState(GRANDSLAM_WIZARD_READY) = True Then
-        state = 0
-    End If
     
     For Each light in GIControlLights
         lightCtrl.LightState light, state

@@ -11,7 +11,7 @@ Sub HitPopBumpers(bumper)
         DOF 205, DOFPulse
         DOFBumperPulse = False
     End If
-    If GetPlayerState(MODE_EMP) = True Then
+    If GetPlayerState(MODE_EMP) = True or GetPlayerState(MODE_WIZARD) = True Then
         lightCtrl.Pulse bumper, 0
         Exit Sub
     End If

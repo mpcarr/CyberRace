@@ -119,9 +119,11 @@ Sub CheckComboCount
         SetPlayerState COMBO_SHOT_RIGHT_RAMP, 0
         SetPlayerState COMBO_SHOT_RIGHT_OrBIT, 0
         ComboTimer.Enabled = 0
-        SetPlayerState GRANDSLAM_COMBO, True
-        calloutsQ.Add "comboGS", "PlayCallout(""combo-grandslam"")", 1, 0, 0, 5500, 0, False
-        PlayGrandSlamSeq()
+        If GetPlayerState(GRANDSLAM_COMBO) = False Then
+            SetPlayerState GRANDSLAM_COMBO, True
+            calloutsQ.Add "comboGS", "PlayCallout(""combo-grandslam"")", 1, 0, 0, 5500, 0, False
+            PlayGrandSlamSeq()
+        End If
     ElseIf GetPlayerState(COMBO_COUNT) > 0 Then
         If GetPlayerState(COMBO_COUNT) > 1 Then
             FlexSceneCombo(GetPlayerState(COMBO_COUNT))

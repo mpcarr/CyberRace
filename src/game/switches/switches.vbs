@@ -51,21 +51,27 @@ Sub sw01_Hit()
 End Sub
 '******************************************
 Sub sw02_Hit()
+    leftInlaneSpeedLimit()    
     If GetPlayerState(LANE_A) > 0 Then
         lightCtrl.Pulse l43, 0
     End If
     HitInLanes(LANE_A)
     DispatchPinEvent SWITCH_HIT_LANE_A
-    leftInlaneSpeedLimit()
+    
 End Sub
 '******************************************
 Sub sw03_Hit()
+    rightInlaneSpeedLimit()    
     If GetPlayerState(LANE_C) > 0 Then
         lightCtrl.Pulse l44, 0
     End If
     HitInLanes(LANE_C)
-    rightInlaneSpeedLimit()
 End Sub
+
+Sub Wall018_UnHit()
+    activeball.AngMomZ = -40
+End Sub
+
 '******************************************
 Sub sw04_Hit()
     If ballSaver = True Or GetPlayerState(OUTLANE_SAVE) = True Then

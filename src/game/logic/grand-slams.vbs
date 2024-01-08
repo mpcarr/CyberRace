@@ -49,6 +49,7 @@ Sub GrandSlamWizardCheck()
             GetPlayerState(GRANDSLAM_SKILLS) = True Then
             'Play Callout
             'DMD Animation
+            calloutsQ.Add "wizardready", "PlayCallout(""wizard-ready"")", 1, 0, 0, 3000, 0, False
             SetPlayerState GRANDSLAM_WIZARD_READY, True
             lightCtrl.AddShot "WizardMode1", l63, RGB(255,0,0)
             lightCtrl.AddShot "WizardMode2", l63, RGB(255,255,0)
@@ -70,7 +71,20 @@ Sub CheckWizardReady()
         'Callout
         ' Adding the wizard light sequences to the lightCtrl object
         SetPlayerState MODE_WIZARD, True
-        SetPlayerState GRANDSLAM_WIZARD_READY, False
+        SetPlayerState BOOST_1, 1
+        SetPlayerState BOOST_2, 1
+        SetPlayerState BOOST_3, 1
+        SetPlayerState BET_1, 1
+        SetPlayerState BET_2, 1
+        SetPlayerState BET_3, 1
+        SetPlayerState RACE_EXTRABALL, 2
+        SetPlayerState CYBER_C, 1
+        SetPlayerState CYBER_Y, 1
+        SetPlayerState CYBER_B, 1
+        SetPlayerState CYBER_E, 1
+        SetPlayerState CYBER_R, 1
+        MusicOff
+        calloutsQ.Add "wizard", "PlayCallout(""wizard"")", 1, 0, 0, 7000, 0, False
         lightCtrl.AddTableLightSeq "WIZARDL48", wizardFadeL48Seq
         lightCtrl.AddTableLightSeq "WIZARDL46", wizardFadeL46Seq
         lightCtrl.AddTableLightSeq "WIZARDL47", wizardFadeL47Seq
@@ -80,27 +94,38 @@ Sub CheckWizardReady()
         lightCtrl.AddTableLightSeq "WIZARDL65", wizardFadeL65Seq
         lightCtrl.AddTableLightSeq "WIZARD1", lSeqWizCorners
         lightCtrl.AddTableLightSeq "WIZARDGI", lSeqGIWiz
-        SetTimer "WizKickOut", "raceVuk.TimerEnabled = True", 8000
+        Debounce "SetWizFalse", "SetPlayerState GRANDSLAM_WIZARD_READY, False", 500
+        SetTimer "WizKickOut", "raceVuk.TimerEnabled = True : PlayMusic ""cyberrace\"" & MUSIC_RACE & "".mp3"", MusicVol", 8000 
         SetTimer "WizAddBall1", "DispatchPinEvent ADD_BALL", 9000
         SetTimer "WizAddBall2", "DispatchPinEvent ADD_BALL", 10000
         SetTimer "WizAddBall3", "DispatchPinEvent ADD_BALL", 11000
         SetTimer "WizAddBall4", "DispatchPinEvent ADD_BALL", 12000
-        BlockAllPinEvents = True
-        AllowPinEventsList.RemoveAll
-        AllowPinEventsList.Add SWITCH_HIT_SHORTCUT_WIZARD, True
-        AllowPinEventsList.Add SWITCH_HIT_RIGHT_RAMP_WIZARD, True
-        AllowPinEventsList.Add SWITCH_HIT_LEFT_RAMP_WIZARD, True
-        AllowPinEventsList.Add SWITCH_HIT_LEFT_ORBIT_WIZARD, True
-        AllowPinEventsList.Add SWITCH_HIT_RIGHT_ORBIT_WIZARD, True
-        AllowPinEventsList.Add SWITCH_HIT_SPINNER1_WIZARD, True
-        AllowPinEventsList.Add SWITCH_HIT_SPINNER2_WIZARD, True
-        AllowPinEventsList.Add SWITCH_HIT_HYPER, True
-        AllowPinEventsList.Add BALL_DRAIN, True
-        AllowPinEventsList.Add ADD_BALL, True
-        AllowPinEventsList.Add BALL_SAVE, True
-        AllowPinEventsList.Add SWITCH_HIT_RACE_KICKER, True
-        AllowPinEventsList.Add GAME_BONUS_TIMER_ENDED, True
-        garageKicker.enabled=False
+        Dim qItem : Set qItem = New QueueItem
+        With qItem
+            .Name = "wizardmode"
+            .Duration = 15
+            .BGImage = "noimage"
+            .BGVideo = "BGWizardMode"
+            .Action = "slideup"
+        End With
+        DmdQ.Enqueue qItem
+        'BlockAllPinEvents = True
+        'AllowPinEventsList.RemoveAll
+        'AllowPinEventsList.Add SWITCH_HIT_SHORTCUT_WIZARD, True
+        'AllowPinEventsList.Add SWITCH_HIT_RIGHT_RAMP_WIZARD, True
+        'AllowPinEventsList.Add SWITCH_HIT_LEFT_RAMP_WIZARD, True
+        'AllowPinEventsList.Add SWITCH_HIT_LEFT_ORBIT_WIZARD, True
+        'AllowPinEventsList.Add SWITCH_HIT_RIGHT_ORBIT_WIZARD, True
+        'AllowPinEventsList.Add SWITCH_HIT_SPINNER1_WIZARD, True
+        'AllowPinEventsList.Add SWITCH_HIT_SPINNER2_WIZARD, True
+        'AllowPinEventsList.Add SWITCH_HIT_HYPER, True
+        'AllowPinEventsList.Add BALL_DRAIN, True
+        'AllowPinEventsList.Add ADD_BALL, True
+        'AllowPinEventsList.Add BALL_SAVE, True
+        'AllowPinEventsList.Add SWITCH_HIT_RACE_KICKER, True
+        'AllowPinEventsList.Add GAME_BONUS_TIMER_ENDED, True
+        'garageKicker.enabled=False
         EnableBallSaver 30
+        
     End If
 End Sub

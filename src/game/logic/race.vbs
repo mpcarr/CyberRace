@@ -41,8 +41,8 @@ RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "CheckRaceModeFinish"
 '*****************************
 Sub CheckRaceModeFinish()
     If GetPlayerState(RACE_MODE_FINISH) = True Then
-        SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         SetPlayerState RACE_MODE_FINISH, False
+        SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         Select Case GetPlayerState(RACE_MODE_SELECTION):
             Case 1: 
                 SetPlayerState RACE_1, 1
@@ -58,6 +58,15 @@ Sub CheckRaceModeFinish()
                 SetPlayerState RACE_6, 1
         End Select
         PlayRaceWonSeq()
+        Dim qItem : Set qItem = New QueueItem
+        With qItem
+            .Name = "racewon"
+            .Duration = 3
+            .BGImage = "noimage"
+            .BGVideo = "BGRaceWon"
+            .Action = "slidedown"
+        End With
+        DmdQ.Enqueue qItem
         calloutsQ.Add "racewon", "PlayCallout(""race-complete"")", 1, 0, 0, 1700, 0, False
         If GetPlayerState(RACE_GRACE) = False Then
             RaceModeTimerEnded
@@ -248,8 +257,7 @@ End Sub
 '*****************************
 Sub RaceModeShortcutHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False And lightCtrl.IsShotLit(GAME_SHOT_SHORTCUT, l65) = True Then
-            'TODO Add Lightshow for shortcut
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         Select Case GetPlayerState(RACE_MODE_SELECTION):
             Case 1: 
                 SetPlayerState RACE_MODE_1_HITS, 6
@@ -278,7 +286,7 @@ End Sub
 Sub RaceMode1RampHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 1 Then
-            AddScore POINTS_MODE_SHOT
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_1_HITS, GetPlayerState(RACE_MODE_1_HITS) + 1
             Dim qItem : Set qItem = New QueueItem
@@ -293,7 +301,7 @@ Sub RaceMode1RampHit()
             DmdQ.Enqueue qItem
         End If    
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 1 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_1_HITS, GetPlayerState(RACE_MODE_1_HITS) + 1
     End If
@@ -421,13 +429,8 @@ End Sub
 Sub RaceMode2Spinner1Hit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 2  AND GetPlayerState(RACE_MODE_2_SPIN1) < 30  Then
-            AddScore POINTS_MODE_SHOT
-
-            If TimerExists("racemodeseq") = True Then
-                Debounce "racemodeseq", "PlayRaceModeSeq : DOF 300, DOFPulse", 300
-            Else
-                PlayRaceModeSeq : DOF 300, DOFPulse
-            End If
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
+            Debounce "racemodeseq", "PlayRaceModeSeq : DOF 300, DOFPulse", 400
             SetPlayerState RACE_MODE_2_SPIN1, GetPlayerState(RACE_MODE_2_SPIN1) + 1
             If (30-GetPlayerState(RACE_MODE_2_SPIN1)) = 20 Then
                 calloutsQ.Add "20spins", "PlayCallout(""20spins"")", 1, 0, 0, 1700, 0, False
@@ -447,7 +450,7 @@ Sub RaceMode2Spinner1Hit()
             DmdQ.Enqueue qItem
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 2  AND GetPlayerState(RACE_MODE_2_SPIN1) < 30 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_2_SPIN1, GetPlayerState(RACE_MODE_2_SPIN1) + 1    
     End If
@@ -462,12 +465,8 @@ End Sub
 Sub RaceMode2Spinner2Hit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 2 AND GetPlayerState(RACE_MODE_2_SPIN2) < 30 Then
-            AddScore POINTS_MODE_SHOT
-            If TimerExists("racemodeseq") = True Then
-                Debounce "racemodeseq", "PlayRaceModeSeq : DOF 300, DOFPulse", 300
-            Else
-                PlayRaceModeSeq : DOF 300, DOFPulse
-            End If
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
+            Debounce "racemodeseq", "PlayRaceModeSeq : DOF 300, DOFPulse", 400
             SetPlayerState RACE_MODE_2_SPIN2, GetPlayerState(RACE_MODE_2_SPIN2) + 1
             If (30-GetPlayerState(RACE_MODE_2_SPIN2)) = 20 Then
                 calloutsQ.Add "20spins", "PlayCallout(""20spins"")", 1, 0, 0, 1700, 0, False
@@ -487,7 +486,7 @@ Sub RaceMode2Spinner2Hit()
             DmdQ.Enqueue qItem
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 2 AND GetPlayerState(RACE_MODE_2_SPIN2) < 30 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_2_SPIN2, GetPlayerState(RACE_MODE_2_SPIN2) + 1
     End If
@@ -585,14 +584,14 @@ RegisterPinEvent SWITCH_HIT_SPINNER1, "RaceMode3Spinner1Hit"
 Sub RaceMode3Spinner1Hit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 0 Then
-            AddScore POINTS_MODE_SHOT
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
             RaceMode3DmdMsg()
             RaceModeTimer_Timer
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 0 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
     End If
@@ -607,13 +606,13 @@ RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "RaceMode3LeftOrbitHit"
 Sub RaceMode3LeftOrbitHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 1 Then
-            AddScore POINTS_MODE_SHOT
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
             RaceMode3DmdMsg()
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 1 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
     End If
@@ -628,13 +627,13 @@ RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "RaceMode3LeftRampHit"
 Sub RaceMode3LeftRampHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 2 Then
-            AddScore POINTS_MODE_SHOT
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
             RaceMode3DmdMsg()
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 2 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
     End If
@@ -649,18 +648,14 @@ RegisterPinEvent SWITCH_HIT_SPINNER2, "RaceMode3Spinner2Hit"
 Sub RaceMode3Spinner2Hit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 3 Then
-            AddScore POINTS_MODE_SHOT
-            If TimerExists("racemodeseq") = True Then
-                Debounce "racemodeseq", "PlayRaceModeSeq : DOF 300, DOFPulse", 300
-            Else
-                PlayRaceModeSeq : DOF 300, DOFPulse
-            End If
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
+            Debounce "racemodeseq", "PlayRaceModeSeq : DOF 300, DOFPulse", 400
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
             RaceMode3DmdMsg()
             RaceModeTimer_Timer
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 3 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
         SetPlayerState RACE_GRACE, False
@@ -676,13 +671,13 @@ RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "RaceMode3RightRampHit"
 Sub RaceMode3RightRampHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 4 Then
-            AddScore POINTS_MODE_SHOT
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
             RaceMode3DmdMsg()
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 4 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
     End If
@@ -697,13 +692,13 @@ RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "RaceMode3RightOrbitHit"
 Sub RaceMode3RightOrbitHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 5 Then
-            AddScore POINTS_MODE_SHOT
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
             RaceMode3DmdMsg()
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 5 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
     End If
@@ -780,13 +775,13 @@ End Sub
 Sub RaceMode4LeftOrbitHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 4 And lightCtrl.IsShotLit("RaceMode4a", l46) Then
-            AddScore POINTS_MODE_SHOT
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_4_HITS, GetPlayerState(RACE_MODE_4_HITS) + 1
             RaceMode4DmdMsg()
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 4 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_4_HITS, GetPlayerState(RACE_MODE_4_HITS) + 1
     End If
@@ -801,13 +796,13 @@ End Sub
 Sub RaceMode4RightOrbitHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 4 And lightCtrl.IsShotLit("RaceMode4b", l63) Then
-            AddScore POINTS_MODE_SHOT
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_4_HITS, GetPlayerState(RACE_MODE_4_HITS) + 1
             RaceMode4DmdMsg()
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 4 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_4_HITS, GetPlayerState(RACE_MODE_4_HITS) + 1
     End If
@@ -824,13 +819,13 @@ End Sub
 Sub RaceMode4NodesHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 4 And (GetPlayerState(RACE_MODE_4_HITS) = 2 Or GetPlayerState(RACE_MODE_4_HITS) = 5) Then
-            AddScore POINTS_MODE_SHOT
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_4_HITS, GetPlayerState(RACE_MODE_4_HITS) + 1
             RaceMode4DmdMsg()
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 4 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_4_HITS, GetPlayerState(RACE_MODE_4_HITS) + 1
     End If
@@ -884,14 +879,14 @@ RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "RaceMode6LeftOrbitHit"
 Sub RaceMode6LeftOrbitHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l46) Then
-            AddScore POINTS_MODE_SHOT
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
             lightCtrl.RemoveShot "RaceMode6", l46
             RaceMode6DmdMsg()
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 6 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
     End If
@@ -908,14 +903,14 @@ RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "RaceMode6RightOrbitHit"
 Sub RaceMode6RightOrbitHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 6 AND lightCtrl.IsShotLit("RaceMode6", l63) Then
-            AddScore POINTS_MODE_SHOT
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
             lightCtrl.RemoveShot "RaceMode6", l63
             RaceMode6DmdMsg()
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 6 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
     End If
@@ -931,13 +926,8 @@ RegisterPinEvent SWITCH_HIT_SPINNER2, "RaceMode6SpinnerHit"
 Sub RaceMode6SpinnerHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 6 AND GetPlayerState(RACE_MODE_6_SPIN2) < 30 Then
-            AddScore POINTS_MODE_SHOT
-            If TimerExists("racemodeseq") = True Then
-                Debounce "racemodeseq", "PlayRaceModeSeq : DOF 300, DOFPulse", 300
-            Else
-                PlayRaceModeSeq : DOF 300, DOFPulse
-            End If
-
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
+            Debounce "racemodeseq", "PlayRaceModeSeq : DOF 300, DOFPulse", 400
             SetPlayerState RACE_MODE_6_SPIN2, GetPlayerState(RACE_MODE_6_SPIN2) + 1
             If (30-GetPlayerState(RACE_MODE_6_SPIN2)) = 20 Then
                 calloutsQ.Add "20spins", "PlayCallout(""20spins"")", 1, 0, 0, 1700, 0, False
@@ -962,7 +952,7 @@ Sub RaceMode6SpinnerHit()
             End If
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 6 AND GetPlayerState(RACE_MODE_6_SPIN2) < 30 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_6_SPIN2, GetPlayerState(RACE_MODE_6_SPIN2) + 1
         If GetPlayerState(RACE_MODE_6_SPIN2) = 30 Then
@@ -1001,7 +991,7 @@ RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "RaceMode5RampHit"
 Sub RaceMode5RampHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 5 Then
-            AddScore POINTS_MODE_SHOT
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_5_HITS, GetPlayerState(RACE_MODE_5_HITS) + 1
             Dim qItem : Set qItem = New QueueItem
@@ -1016,7 +1006,7 @@ Sub RaceMode5RampHit()
             DmdQ.Enqueue qItem
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 5 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_5_HITS, GetPlayerState(RACE_MODE_5_HITS) + 1
     End If
@@ -1034,7 +1024,7 @@ RegisterPinEvent SWITCH_HIT_NODE_C, "RaceMode5NodesHit"
 Sub RaceMode5NodesHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 5 And (GetPlayerState(RACE_MODE_5_HITS) = 1 Or GetPlayerState(RACE_MODE_5_HITS) = 3 Or GetPlayerState(RACE_MODE_5_HITS) = 5) Then
-            AddScore POINTS_MODE_SHOT
+            AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_5_HITS, GetPlayerState(RACE_MODE_5_HITS) + 1
             Dim qItem : Set qItem = New QueueItem
@@ -1049,7 +1039,7 @@ Sub RaceMode5NodesHit()
             DmdQ.Enqueue qItem
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 5 Then
-        AddScore POINTS_MODE_SHOT
+        AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_5_HITS, GetPlayerState(RACE_MODE_5_HITS) + 1
     End If

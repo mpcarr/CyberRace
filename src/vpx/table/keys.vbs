@@ -139,7 +139,7 @@ End Sub
 
 
 Sub Table1_KeyUp(ByVal keycode)
-
+    
     If keycode = LeftFlipperKey Then
         VRFlipperLeft.X = VRFlipperLeft.X - 10
     End if

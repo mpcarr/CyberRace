@@ -598,6 +598,8 @@ dim LFState, RFState
 dim EOST, EOSA,Frampup, FElasticity,FReturn
 dim RFEndAngle, LFEndAngle
 
+Const FlipperCoilRampupMode = 0 '0 = fast, 1 = medium, 2 = slow (tap passes should work)
+
 LFState = 1
 RFState = 1
 EOST = leftflipper.eostorque

@@ -2,6 +2,10 @@
 ' VPW TargetBouncer for targets and posts by Iaakki, Wrd1972, Apophis
 '******************************************************
 
+Const TargetBouncerEnabled = 1	  '0 = normal standup targets, 1 = bouncy targets
+Const TargetBouncerFactor = 0.7	 'Level of bounces. Recommmended value of 0.7
+
+
 sub TargetBouncer(aBall,defvalue)
     dim zMultiplier, vel, vratio
     if TargetBouncerEnabled = 1 and aball.z < 30 then

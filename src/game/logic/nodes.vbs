@@ -183,6 +183,14 @@ Sub NodeCollectPerk()
             'COMPLETE
             Debounce "nodesCompleteed", "sw39.TimerEnabled = True", 4000
             SetPlayerState GRANDSLAM_NODES, True
+            Dim qItem : Set qItem = New QueueItem
+            With qItem
+                .Name = "nodes-complete"
+                .Duration = 4
+                .BGImage = "noimage"
+                .BGVideo = "BGNodeComplete"
+            End With
+            DmdQ.Enqueue qItem
             calloutsQ.Add "nodesGS", "PlayCallout(""nodes-grandslam"")", 1, 0, 0, 5500, 0, False
             PlayGrandSlamSeq()
         Else
@@ -219,7 +227,7 @@ Sub NodePerkSelectLeftPerk()
     If GetPlayerState(MODE_PERK_SELECT) = True Then
         Dim qItem
         Select Case GetPlayerState(NODE_LEVEL):
-            Case 2: 'Level 2.  Increase Jackpot 250K OR 5 Million
+            Case 2: 'Level 2.  Increase Jackpot 250K
                 SetPlayerState JACKPOT_VALUE, GetPlayerState(JACKPOT_VALUE) + 250000
                 Set qItem = New QueueItem
                 With qItem
@@ -231,7 +239,7 @@ Sub NodePerkSelectLeftPerk()
                 End With
                 qItem.AddLabel """JACKPOTS: "" & FormatScore(GetPlayerState(JACKPOT_VALUE))", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
                 DmdQ.Enqueue qItem
-            Case 3:'Level 3.  Race Timers + 20 Seconds OR 2x Bet Hurry
+            Case 3:'Level 3.  Race Timers + 20 Seconds
                 SetPlayerState RACE_TIMERS, 80
                 Set qItem = New QueueItem
                 With qItem
@@ -271,9 +279,9 @@ RegisterPinEvent SWITCH_RIGHT_FLIPPER_DOWN, "NodePerkSelectRightPerk"
 Sub NodePerkSelectRightPerk()
     If GetPlayerState(MODE_PERK_SELECT) = True Then
         Select Case GetPlayerState(NODE_LEVEL):
-            Case 2: 'Level 1.  Increase Jackpot 250K OR 5 Million
+            Case 2: 'Level 1.  5 Million
                 AddScore 5000000
-            Case 3:'Level 2.  Race Timers + 20 Seconds OR 5x Bonus
+            Case 3:'Level 2.  2x Bet Hurry Up
                  SetPlayerState BET_MULTIPLIER, 2
             Case 4:'Level 3. outlane save OR Instant MB
                 SetPlayerState MODE_MULTIBALL, True

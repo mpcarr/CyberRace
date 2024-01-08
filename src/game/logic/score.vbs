@@ -5,7 +5,7 @@ Sub AddScore(v)
 End Sub
 
 Sub AwardJackpot()
-    SetPlayerState SCORE, GetPlayerState(SCORE) + (GetPlayerState(JACKPOT_VALUE)* GetPlayerState(PF_MULTIPLIER))
+    SetPlayerState SCORE, GetPlayerState(SCORE) + ((GetPlayerState(JACKPOT_VALUE)*GetPlayerState(JACKPOTS_MULTIPLIER)) * GetPlayerState(PF_MULTIPLIER))
     Dim qItem : Set qItem = New QueueItem
 	With qItem
 		.Name = "jackpot"
@@ -16,6 +16,24 @@ Sub AwardJackpot()
 	End With
 	DmdQ.Enqueue qItem
     calloutsQ.Add "jackpot", "PlayCallout(""jackpot"")", 1, 0, 0, 1000, 0, False
+    lightCtrl.AddTableLightSeq "RGB", lSeqJackpotRGB
+    lightCtrl.AddTableLightSeq "NonRGB", lSeqJackpotNonRGB
+    DOF 250, DOFPulse
+End Sub
+
+
+Sub AwardSuperJackpot()
+SetPlayerState SCORE, GetPlayerState(SCORE) + (((GetPlayerState(JACKPOT_VALUE)*2) * GetPlayerState(JACKPOTS_MULTIPLIER)) * GetPlayerState(PF_MULTIPLIER))
+    Dim qItem : Set qItem = New QueueItem
+	With qItem
+		.Name = "superjackpot"
+		.Duration = 3
+		.BGImage = "noimage"
+		.BGVideo = "BGSuperJackpot"
+        .Action = "slidedown"
+	End With
+	DmdQ.Enqueue qItem
+    calloutsQ.Add "jackpot", "PlayCallout(""super-jackpot"")", 1, 0, 0, 1000, 0, False
     lightCtrl.AddTableLightSeq "RGB", lSeqJackpotRGB
     lightCtrl.AddTableLightSeq "NonRGB", lSeqJackpotNonRGB
     DOF 250, DOFPulse

@@ -13,6 +13,7 @@ Sub FlexDMDNodesCompleteScene()
     DmdQ.Enqueue qItem
 End Sub
 
+
 Sub FlexDMDNodePerkCollectScene()
     DmdQ.RemoveAll()
     Dim perkLeftTitle,perkLeftDesc,perkRightTitle,perkRightDesc

@@ -217,8 +217,7 @@ Sub MBLeftRampShot
             AwardJackpot()
         Else
             If lightCtrl.IsShotLit("MBSuperLeftRamp", l47) = True Then
-                'AwardSuperJackpot
-                AwardJackpot()
+                AwardSuperJackpot()
                 lightCtrl.AddShot "MBSpinner", l48, RGB(0,255,0)
                 lightCtrl.AddShot "MBLeftOrbit", l46, RGB(0,255,0)
                 lightCtrl.AddShot "MBLeftRamp", l47, RGB(0,255,0)

@@ -10,7 +10,7 @@ Sub FlexDMDBonusScene()
         .BGVideo = "BGBonus1"
 		.Callback = "PlaySound(OptionsBonusSound) : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus1"
     End With
-    bonusRaces.AddLabel """RACES WON: "" & GetPlayerState(BONUS_RACES_WON) & "" x 100K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
+    bonusRaces.AddLabel """RACES: "" & GetPlayerState(BONUS_RACES_WON) & "" x 100K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
     bonusRaces.AddLabel "FormatScore(GetPlayerState(BONUS_RACES_WON) * 100000)", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue bonusRaces
 

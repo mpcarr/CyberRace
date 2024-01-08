@@ -15,6 +15,7 @@ Sub HitMystery()
         End If
     Else
         'Collect Mystery
+        lightCtrl.RemoveShot "mystery", l49
         Dim randomNumber
         AddScore POINTS_BASE
         randomNumber = Int((totalMysteryWeight * Rnd) + 1)

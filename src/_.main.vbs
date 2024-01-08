@@ -68,7 +68,7 @@
 'You need 64 bits. Welcome to future. 
  
 Const cGameName = "cyberrace"
-Const myVersion = "1.2.0"
+Const myVersion = "1.3.0"
 
 '2021-2022: who knows.
 'Rebuild
@@ -133,6 +133,20 @@ Const myVersion = "1.2.0"
 '- Added: Countdown callouts on race timer 5,4,3,2,1
 '- Fixed: Issue with Time Trial MB draining and lights locking up.
 '- Fixed: Bonus Screen Scoring.
+'v1.3.0: flux
+'- Fixed: Spelling mistake on DMD Bonus screen
+'- Performance: Change Race Mode Hit Seq to be less intense
+'- Performance: Added debounce to spinner disc, it will start 600ms after hitting boost target
+'- Performance: Moved animations of standup targets into standup code so it isn't ran on gametimer
+'- Performance: Moved Disc animation onto gametimer from frametimer
+'- Added: An Alt bonus sound to the options menu (thanks lminimart)
+'- Fixed: Bug in race modes where more than the required shots were being registered
+'- Added: 50% Chance of ball save if the ball drains to the left outlane after hitting the spinner shot
+'- Balance: Adjusted walls on exit on top spinner to try and prevent stright down the middle issues.
+'v1.3.1: flux
+'- Fixed: Issue with shortcut light during spinner modes
+'- Added: Super Jackpot callout and DMD Animation
+'- Added: Race Won DMD Animation
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -208,7 +222,6 @@ End If
 
 '/////////////////////-----Scorbit Options-----////////////////////
 dim TablesDir : TablesDir = GetTablesFolder
-
 Const     ScorbitAlternateUUID  = 0 	' Force Alternate UUID from Windows Machine and saves it in VPX Users directory (C:\Visual Pinball\User\ScorbitUUID.dat)	
 
 If debugLogOn = True Then

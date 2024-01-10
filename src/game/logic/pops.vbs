@@ -45,6 +45,23 @@ Sub GrabMagnetTimer_Timer()
 	GrabMagnetTimer.Enabled = false
 	GrabMag.MagnetOn = 0
     lightCtrl.AddLightSeq "GI", lSeqGIEmpOn
+    EmpIdleTimer()
+End Sub
+
+Sub EmpIdleTimer
+    If GetPlayerState(MODE_EMP) = True Then
+        Dim qItem : Set qItem = New QueueItem
+        With qItem
+            .Name = "empmsg"
+            .Duration = 3
+            .BGImage = "BG006"
+            .BGVideo = "novideo"
+            .Action = "slideup"
+        End With
+        qItem.AddLabel """EMP VALUE: "" & GetPlayerState(EMPTY_STR) & FormatScore(Round(GameTimers(GAME_EMP_TIMER_IDX)*50000))", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, ""
+        DmdQ.Enqueue qItem
+        SetTimer "EmpIdleTimer", "EmpIdleTimer", 5000
+    End If
 End Sub
 
 '****************************
@@ -57,6 +74,10 @@ End Sub
 Sub GameEmpTimerEnded()
 	SetPlayerState EMP_SHOT, 0
     SetPlayerState MODE_EMP, False
+    If timerQueue.Exists("empmsg") Then
+        timerQueue.Remove("empmsg")
+    End If
+    DmdQ.Dequeue "EmpIdleTimer"
     lightCtrl.RemoveLightSeq "GI", lSeqGIEMPon
     lightCtrl.RemoveShot "EMP1", l23
 End Sub
@@ -69,13 +90,16 @@ End Sub
 '*****************************
 Sub EMPModeShot1()
     If GetPlayerState(MODE_EMP) = True AND GetPlayerState(EMP_SHOT) = 1 Then
-        'MsgBox("Here")
+        AddScore GameTimers(GAME_EMP_TIMER_IDX)*50000
         calloutsQ.Add "emp-energised", "PlayCallout(""emp-energised"")", 1, 0, 0, 2560, 0, False
         lightCtrl.RemoveShot "EMP1", l23
         For Each light in RGBControlLights
             lightCtrl.Pulse light, 3
         Next
-        AddScore POINTS_EMP_MODE * 5
+        If timerQueue.Exists("empmsg") Then
+            timerQueue.Remove("empmsg")
+        End If
+        DmdQ.Dequeue "EmpIdleTimer"
         SetPlayerState EMP_SHOT, 0
         SetPlayerState MODE_EMP, False
         lightCtrl.RemoveLightSeq "GI", lSeqGIEmpOn

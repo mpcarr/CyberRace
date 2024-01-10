@@ -41,11 +41,12 @@ Sub FlexDMDCyberScene(cb,yb,bb,eb,rb)
         .BGVideo = "BGCyber"
         .Action = "slidedown"
     End With
-    qItem.AddLabel "C", 		c, DMDWidth*.166, DMDHeight/2, DMDWidth*.166, DMDHeight/2, cb
-    qItem.AddLabel "Y", 		y, DMDWidth*.333, DMDHeight/2, DMDWidth*.333, DMDHeight/2, yb
-    qItem.AddLabel "B", 		b, DMDWidth*.499, DMDHeight/2, DMDWidth*.499, DMDHeight/2, bb
-    qItem.AddLabel "E", 		e, DMDWidth*.665, DMDHeight/2, DMDWidth*.665, DMDHeight/2, eb
-    qItem.AddLabel "R", 		r, DMDWidth*.831, DMDHeight/2, DMDWidth*.831, DMDHeight/2, rb
+    qItem.AddLabel "C", 		c, DMDWidth*.166, DMDHeight*.4, DMDWidth*.166, DMDHeight*.4, cb
+    qItem.AddLabel "Y", 		y, DMDWidth*.333, DMDHeight*.4, DMDWidth*.333, DMDHeight*.4, yb
+    qItem.AddLabel "B", 		b, DMDWidth*.499, DMDHeight*.4, DMDWidth*.499, DMDHeight*.4, bb
+    qItem.AddLabel "E", 		e, DMDWidth*.665, DMDHeight*.4, DMDWidth*.665, DMDHeight*.4, eb
+    qItem.AddLabel "R", 		r, DMDWidth*.831, DMDHeight*.4, DMDWidth*.831, DMDHeight*.4, rb
+    qItem.AddLabel "INCREASES SHOT VALUE", FontWhite3, DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, ""
     DmdQ.Enqueue qItem
 
     lightCtrl.pulse l29, 0

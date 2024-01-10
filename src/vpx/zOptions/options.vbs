@@ -111,21 +111,6 @@ End Sub
 Sub Options_Close
 	bInOptions = False
 	OptionDMDFlasher.Visible = False
-	DMDScorebit.Visible = False
-	DMDScorebit.TimerEnabled = False
-	If Not IsNull(Scorbit) Then
-		If Scorbit.bNeedsPairing = True Then
-			Scorbit = Null
-			tmrScorbit.Enabled=False
-			ScorbitActive = 0
-			If Not IsNull(FlexDMDScorbit) Then
-				FlexDMDScorbit.Show = False
-				FlexDMDScorbit.Run = False
-				FlexDMDScorbit = NULL
-			End If
-			CloseFlexScorbitClaimDMD()
-		End If
-	End If
 	If OptionDMD is Nothing Then Exit Sub
 	OptionDMD.Run = False
 	Set OptionDMD = Nothing
@@ -145,22 +130,10 @@ Sub Options_OnOptChg
 	OptionDMD.LockRenderThread
 
 
-	If Not OptPos=2 And Not IsNull(FlexDMDScorbit) Then
-		FlexDMDScorbit.Show = False
-		FlexDMDScorbit.Run = False
-		FlexDMDScorbit = NULL
-		DMDScorebit.Visible = False
-		DMDScorebit.TimerEnabled = False
+	If Not OptPos=2 Then
+		
 	End If
-'	If RenderingMode <> 2 Then
-'		If OptPos < Opt_VRRoomChoice Then
-'			OptN.Text = (OptPos+1) & "/" & (NOptions - 4)
-'		Else
-'			OptN.Text = (OptPos+1 - 4) & "/" & (NOptions - 4)
-'		End If
-'	Else
-'		OptN.Text = (OptPos+1) & "/" & NOptions
-'	End If
+
 	If OptSelected Then
 		OptTop.Font = OptFontLo
 		OptBot.Font = OptFontHi
@@ -192,7 +165,7 @@ Sub Options_OnOptChg
 	ElseIf OptPos = Opt_Scorbit Then
 		OptTop.Text = "SCORBIT"
 		if ScorbitActive = 0 Then OptBot.text = "OFF"
-		if ScorbitActive = 1 Then OptBot.text = "ACTIVE" : InitFlexScorbitDMD
+		if ScorbitActive = 1 Then OptBot.text = "ACTIVE"
 		SaveValue cGameName, "SCORBIT", ScorbitActive
 	ElseIf OptPos = Opt_CabinetMode Then
 		OptTop.Text = "CABINET MODE"
@@ -256,10 +229,8 @@ Sub Options_Toggle(amount)
 	ElseIf OptPos = Opt_Scorbit Then
 		If ScorbitActive = 1 Then 
 			ScorbitActive = 0
-			CloseFlexScorbitClaimDMD
 		Else 
 			ScorbitActive = 1
-			InitFlexScorbitDMD 
 		End If
 	ElseIf OptPos = Opt_Volume Then
 		VolumeDial = VolumeDial + amount * 0.1
@@ -365,18 +336,12 @@ Sub UpdateMods
 	'MsgBox(ScorbitActive)
 	If ScorbitActive = 1 Then
 		StartScorbit
-	Else
-		DMDScorebit.Visible = False
-		DMDScorebit.TimerEnabled = False
-		Scorbit = Null
-		tmrScorbit.Enabled=False
-		If Not IsNull(FlexDMDScorbit) Then
-			FlexDMDScorbit.Show = False
-			FlexDMDScorbit.Run = False
-			FlexDMDScorbit = NULL
+		If ScorbitActive = 1 And Scorbit.bNeedsPairing = True Then
+			ScorbitFlasher.Visible = True
 		End If
-		CloseFlexScorbitClaimDMD()
-	End IF
+	Else
+		ScorbitFlasher.Visible = False
+	End If
 
 	Dim element
 	If OptionsCabinetMode = 1 Then

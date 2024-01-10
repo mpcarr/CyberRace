@@ -10,7 +10,7 @@ Sub FlexDMDBonusScene()
         .BGVideo = "BGBonus1"
 		.Callback = "PlaySound(OptionsBonusSound) : lightCtrl.AddTableLightSeq ""Bonus"", lSeqBonus1"
     End With
-    bonusRaces.AddLabel """RACES: "" & GetPlayerState(BONUS_RACES_WON) & "" x 100K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
+    bonusRaces.AddLabel """RACE SHOTS: "" & GetPlayerState(BONUS_RACES_WON) & "" x 100K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
     bonusRaces.AddLabel "FormatScore(GetPlayerState(BONUS_RACES_WON) * 100000)", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue bonusRaces
 
@@ -61,23 +61,5 @@ Sub FlexDMDBonusScene()
     bonusCombos.AddLabel """COMBOS: "" & GetPlayerState(BONUS_COMBOS_MADE) & "" x 50K""", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
     bonusCombos.AddLabel "FormatScore(GetPlayerState(BONUS_COMBOS_MADE) * 50000)", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue bonusCombos
-	
-    Dim bonusScore : bonusScore = 0
-	bonusScore = bonusScore + GetPlayerState(BONUS_COMBOS_MADE) * 50000
-	bonusScore = bonusScore + GetPlayerState(BONUS_RACES_WON) * 100000
-	bonusScore = bonusScore + GetPlayerState(BONUS_NODES_COMPLETED) * 75000
-    bonusScore = bonusScore + GetPlayerState(BONUS_SKILLS_COMPLETED) * 90000
-    bonusScore = bonusScore + GetPlayerState(BONUS_TT_COMPLETED) * 75000
-
-    Select Case GetPlayerState(BONUS_X):
-        Case 0:
-            AddScore bonusScore
-        Case 1:
-            AddScore bonusScore*2
-        Case 2:
-            AddScore bonusScore*3
-        Case 3:
-            AddScore bonusScore*5
-    End Select
 
 End Sub

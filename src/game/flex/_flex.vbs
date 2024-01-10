@@ -1,7 +1,5 @@
 
 Dim FlexDMD
-Dim FlexDMDScorbit : FlexDMDScorbit = Null
-Dim FlexDMDScorbitClaim : FlexDMDScorbitClaim = Null
 Dim DmdWidth : DmdWidth = 128
 Dim DmdHeight : DmdHeight = 32
 ' FlexDMD constants
@@ -53,7 +51,7 @@ Sub InitFlexDMD()
 	End With
 	Set DmdQ = New Queue
 	Set DmdQ.FlexDMDItem = FlexDMD
-	DmdQ.FlexDMDOverlayAssets = Array("BGBlack|image","BG001|image","BG002|image","BG003|image","BG004|image","BGSuperJackpot|video","BGRaceWon|video","BG005|image","BGBoost|video","BGBetMode|video","BGCyber|video","BGEmp|video","BGNodes|video","BGSkills|video","BGEngine|video","BGCooling|video","BGFuel|video","BGNode|video","BGNodeComplete|video","BGRace1|video","BGRace2|video","BGRace3|video","BGRace4|video","BGRace5|video","BGRace6|video""BGRaceLocked|video","BGBonus1|video","BGBonus2|video","BGBonus3|video","BGBonus4|video","BGBonus5|video","BGJackpot|video","TextSmalLine1|text","TextSmalLine2|text","TextSmalLine3|text","TextSmalLine4|text","TextSmalLine5|text","TextSmalLine6|text","TextSmalLine7|text", "Mystery0|video", "Mystery1|video", "Mystery2|video", "Mystery3|video", "Mystery4|video", "TiltWarning|video", "Tilt|video", "ExtraBall|video", "ShootAgain|video", "BGWizardMode|video")
+	DmdQ.FlexDMDOverlayAssets = Array("BGBlack|image","BG001|image","BG006|image","BG002|image","BG003|image","BG004|image","BGSuperJackpot|video","BGRaceWon|video","BG005|image","BGBoost|video","BGBetMode|video","BGCyber|video","BGEmp|video","BGNodes|video","BGSkills|video","BGEngine|video","BGCooling|video","BGFuel|video","BGNode|video","BGNodeComplete|video","BGRace1|video","BGRace2|video","BGRace3|video","BGRace4|video","BGRace5|video","BGRace6|video""BGRaceLocked|video","BGBonus1|video","BGBonus2|video","BGBonus3|video","BGBonus4|video","BGBonus5|video","BGJackpot|video","TextSmalLine1|text","TextSmalLine2|text","TextSmalLine3|text","TextSmalLine4|text","TextSmalLine5|text","TextSmalLine6|text","TextSmalLine7|text", "Mystery0|video", "Mystery1|video", "Mystery2|video", "Mystery3|video", "Mystery4|video", "TiltWarning|video", "Tilt|video", "ExtraBall|video", "ShootAgain|video", "BGWizardMode|video", "BGHyper|video")
 	CreateGameDMD()
 End Sub
 

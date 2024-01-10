@@ -72,6 +72,7 @@ Sub EndOfBall()
         SetPlayerState MODE_BET, False
 
         SetPlayerState HYPER_PLAYED, False
+        SetPlayerState HYPER, 0
         SetPlayerState PF_MULTIPLIER, 1
 
         SetPlayerState MODE_MULTIBALL, False
@@ -113,14 +114,45 @@ End Sub
     RegisterPinEvent GAME_BONUS_TIMER_ENDED, "EndOfBonus"
 '
 '*****************************
+Dim bonusScore : bonusScore = 0
 Sub EndOfBonus()
+
+    DmdQ.RemoveAll()
+    bonusScore = 0
+    bonusScore = bonusScore + GetPlayerState(BONUS_COMBOS_MADE) * 50000
+    bonusScore = bonusScore + GetPlayerState(BONUS_RACES_WON) * 100000
+    bonusScore = bonusScore + GetPlayerState(BONUS_NODES_COMPLETED) * 75000
+    bonusScore = bonusScore + GetPlayerState(BONUS_SKILLS_COMPLETED) * 90000
+    bonusScore = bonusScore + GetPlayerState(BONUS_TT_COMPLETED) * 75000
+
+    Select Case GetPlayerState(BONUS_X):
+        Case 1:
+            bonusScore = bonusScore*2
+        Case 2:
+            bonusScore = bonusScore*3
+        Case 3:
+            bonusScore = bonusScore*5
+    End Select
+    AddScore bonusScore
+    Set qItem = New QueueItem
+    With qItem
+        .Name = "bonustotal"
+        .Duration = 3
+        .BGImage = "BGBlack"
+        .BGVideo = "novideo"
+    End With
+    qItem.AddLabel "BONUS TOTAL", 		Font7, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
+    qItem.AddLabel "GetPlayerState(EMPTY_STR) & FormatScore(bonusScore)", 		        Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
+    DmdQ.Enqueue qItem
+    
+
     SetPlayerState BONUS_COMBOS_MADE, 0
     SetPlayerState BONUS_RACES_WON, 0
     SetPlayerState BONUS_NODES_COMPLETED, 0
     SetPlayerState BONUS_X, 0
     SetPlayerState GI_COLOR, GAME_NORMAL_COLOR
     lightCtrl.RemoveTableLightSeq "GI", lSeqGIOff
-    DmdQ.RemoveAll()
+    
     If GetPlayerState(MODE_WIZARD) = True Then
         BlockAllPinEvents = False
         AllowPinEventsList.RemoveAll
@@ -141,6 +173,7 @@ Sub EndOfBonus()
         DmdQ.Enqueue qItem
         PlayShootAgainSeq()
         calloutsQ.Add "shootagain", "PlayCallout(""shoot-again"")", 1, 0, 0, 1600, 0, False
+        SetPlayerState ENABLE_BALLSAVER, True
         MusicOn
         Exit Sub
     End If
@@ -185,11 +218,11 @@ Sub EndOfBonus()
     End Select
 
     If GetPlayerState(CURRENT_BALL) > 1 Then
+        ScorbitFlasher.Visible = False
         FlexDMD.Stage.GetFrame("VSeparator1").Visible = False
         FlexDMD.Stage.GetFrame("VSeparator2").Visible = False
         FlexDMD.Stage.GetFrame("VSeparator3").Visible = False
         FlexDMD.Stage.GetFrame("VSeparator4").Visible = False
-        CloseFlexScorbitClaimDMD()
         Select Case UBound(playerState.Keys())
             Case 0:
                 FlexDMD.Stage.GetFrame("VSeparator1").Visible = True

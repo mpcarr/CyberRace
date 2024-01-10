@@ -10,12 +10,14 @@ End Sub
 Sub Drain_UnHit : UpdateTrough : End Sub
 
 Sub raceVuk_Hit()
+    GameTimersUpdate.Enabled = False
     DispatchPinEvent SWITCH_HIT_RACE_KICKER
     SoundSaucerLock()
 End Sub
 
 Sub raceVuk_Timer()
     raceVuk.TimerEnabled = False
+    GameTimersUpdate.Enabled = True
     SoundSaucerKick 1,raceVuk
     raceVuk.Kick 65, RndInt(7,15)
     lightCtrl.pulse l141, 0
@@ -119,6 +121,7 @@ End Sub
 Sub sw39_Hit()
     set KickerBall39 = activeball
     DispatchPinEvent SWITCH_HIT_SCOOP
+    GameTimersUpdate.Enabled = False
     SoundSaucerLock()
     If GetPlayerState(MODE_PERK_SELECT) = False Or (GetPlayerState(MODE_PERK_SELECT) = False And GetPlayerState(NODE_LEVEL) < 6) Then
         sw39.TimerEnabled = True
@@ -128,6 +131,7 @@ End Sub
 Sub sw39_Timer()
 	sw39.TimerEnabled = False
     WallScoopProtect.IsDropped = 1
+    GameTimersUpdate.Enabled = True
     SoundSaucerKick 1, sw39
     DOF 235, DOFPulse
     KickBall KickerBall39, 0, 0, 55, 10

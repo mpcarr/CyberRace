@@ -8,8 +8,9 @@ RegisterPinEvent SWITCH_HIT_HYPER, "SwitchHyper"
 Sub SwitchHyper()
     If GetPlayerState(HYPER_PLAYED) = False And BlockAllPinEvents = False Then
         AddScore POINTS_BASE
-        If GetPlayerState(HYPER)+1 = 5 Then
-            SetPlayerState HYPER, 0
+        SetPlayerState HYPER, GetPlayerState(HYPER) + 1
+        FlexDMDHyperScene
+        If GetPlayerState(HYPER) = 5 Then
            	Dim qItem : Set qItem = New QueueItem
             With qItem
                 .Name = "hypermsg"
@@ -38,8 +39,7 @@ Sub SwitchHyper()
             DmdQ.Enqueue qItem
             
             calloutsQ.Add "hyperRelease", "GameTimers(GAME_MULTIPLIER_TIMER_IDX) = 30 : KickSwitch38()", 1, 0, 0, 1000, 0, False
-        Else
-            SetPlayerState HYPER, GetPlayerState(HYPER) + 1
+        Else  
             KickSwitch38()
         End If
     Else
@@ -65,11 +65,11 @@ Sub HyperModeTimerHurry()
 	With qItem
 		.Name = "hypermsg"
 		.Duration = 2
-		.BGImage = "BG003"
+		.BGImage = "BG006"
 		.BGVideo = "novideo"
         .Action = "slideup"
 	End With
-	qItem.AddLabel "Multiplier Ends In 10 Secs", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+	qItem.AddLabel "MULTIPLIER ENDS IN 10 SECS", FontWhite3, DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
 	DmdQ.Enqueue qItem
 End Sub
 
@@ -81,5 +81,6 @@ End Sub
 '*****************************
 Sub HyperModeTimerEnded()
     SetPlayerState PF_MULTIPLIER, 1
+    SetPlayerState HYPER, 0            
     DmdQ.Dequeue "hypermsg"
 End Sub

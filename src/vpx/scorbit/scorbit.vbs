@@ -19,170 +19,6 @@ Sub StartScorbit
 	End If
 End Sub
 
-Sub InitFlexScorbitDMD()
-	If IsNull(FlexDMDScorbit) Then
-		Set FlexDMDScorbit = CreateObject("FlexDMD.FlexDMD")
-		If FlexDMDScorbit is Nothing Then
-			MsgBox "No FlexDMD found. This table will NOT run without it."
-			Exit Sub
-		End If
-		With FlexDMDScorbit
-			.ProjectFolder = TablesDir & "\CRQR"
-		End With
-		FlexDMDScorbit.RenderMode = FlexDMD_RenderMode_DMD_GRAY_4
-		FlexDMDScorbit.Width = 400
-		FlexDMDScorbit.Height = 200
-		FlexDMDScorbit.Clear = True
-		FlexDMDScorbit.Show = False
-		FlexDMDScorbit.Run = False
-
-		dim scene
-		Set scene = FlexDMDScorbit.NewGroup("scene")
-		dim qrImage, qrLabel
-		Set qrLabel = FlexDMDScorbit.NewLabel("Loading", FlexDMDScorbit.NewFont("FlexDMD.Resources.bm_army-12.fnt", vbWhite, RGB(0, 0, 0), 0), "Loading Scorbit") : qrLabel.Visible = False : scene.AddActor qrLabel
-		qrLabel.SetAlignedPosition 200, 50, FlexDMD_Align_Center
-		FlexDMDScorbit.LockRenderThread
-		FlexDMDScorbit.RenderMode =  FlexDMD_RenderMode_DMD_RGB
-		FlexDMDScorbit.Stage.RemoveAll
-		FlexDMDScorbit.Stage.AddActor scene
-		FlexDMDScorbit.Show = False
-		FlexDMDScorbit.Run = True
-		FlexDMDScorbit.UnlockRenderThread
-
-
-		CreateScorebitLoadingDMD()
-		'Flasher
-		DMDScorebit.Visible = True
-		DMDScorebit.TimerEnabled = True
-		If ShowDT Then DMDScorebit.RotX = -(Table1.Inclination + Table1.Layback)
-	End If
-
-End Sub
-
-
-Sub InitFlexScorbitClaimDMD()
-	If IsNull(FlexDMDScorbitClaim) Then
-		Set FlexDMDScorbitClaim = CreateObject("FlexDMD.FlexDMD")
-		If FlexDMDScorbitClaim is Nothing Then
-			MsgBox "No FlexDMD found. This table will NOT run without it."
-			Exit Sub
-		End If
-		With FlexDMDScorbitClaim
-			.ProjectFolder = TablesDir & "\CRQR"
-		End With
-		FlexDMDScorbitClaim.RenderMode = FlexDMD_RenderMode_DMD_GRAY_4
-		FlexDMDScorbitClaim.Width = 256
-		FlexDMDScorbitClaim.Height = 256
-		FlexDMDScorbitClaim.Clear = True
-		FlexDMDScorbitClaim.Show = False
-		FlexDMDScorbitClaim.Run = False
-
-		dim scene
-		Set scene = FlexDMDScorbitClaim.NewGroup("scene")
-		dim qrImage
-		Set qrImage = FlexDMDScorbitClaim.NewImage("QRClaim",		"QRClaim.png")	: qrImage.SetBounds 0, 0, 256, 256 : qrImage.Visible = True : scene.AddActor qrImage
-		FlexDMDScorbitClaim.LockRenderThread
-		FlexDMDScorbitClaim.RenderMode =  FlexDMD_RenderMode_DMD_RGB
-		FlexDMDScorbitClaim.Stage.RemoveAll
-		FlexDMDScorbitClaim.Stage.AddActor scene
-		FlexDMDScorbitClaim.Show = False
-		FlexDMDScorbitClaim.Run = True
-		FlexDMDScorbitClaim.UnlockRenderThread
-		'Flasher
-		DMDScorebitClaim.Visible = True
-		DMDScorebitClaim.TimerEnabled = True
-		If ShowDT Then DMDScorebitClaim.RotX = -(Table1.Inclination + Table1.Layback)
-	End If
-End Sub
-
-Sub CloseFlexScorbitClaimDMD()
-
-	If Not IsNull(FlexDMDScorbitClaim) Then
-		FlexDMDScorbitClaim.Show = False
-		FlexDMDScorbitClaim.Run = False
-		FlexDMDScorbitClaim = NULL
-		DMDScorebitClaim.TimerEnabled = False
-		DMDScorebitClaim.Visible = False
-    End If
-
-End Sub
-
-Sub DMDScorebit_Timer()
-	Dim DMDScoreBitp
-	DMDScoreBitp = FlexDMDScorbit.DmdColoredPixels
-	If Not IsEmpty(DMDScoreBitp) Then
-		DMDScorebit.DMDWidth = FlexDMDScorbit.Width
-		DMDScorebit.DMDHeight = FlexDMDScorbit.Height
-		DMDScorebit.DMDColoredPixels = DMDScoreBitp
-	End If
-End Sub
-
-Sub DMDScorebitClaim_Timer()
-	Dim DMDScoreBitp
-	DMDScoreBitp = FlexDMDScorbitClaim.DmdColoredPixels
-	If Not IsEmpty(DMDScoreBitp) Then
-		DMDScorebitClaim.DMDWidth = FlexDMDScorbitClaim.Width
-		DMDScorebitClaim.DMDHeight = FlexDMDScorbitClaim.Height
-		DMDScorebitClaim.DMDColoredPixels = DMDScoreBitp
-	End If
-End Sub
-
-
-Sub CreateScorebitLoadingDMD
-
-	FlexDMDScorbit.LockRenderThread
-	dim scene
-	Set scene = FlexDMDScorbit.Stage.GetGroup("scene")
-	FlexDMDScorbit.Stage.GetLabel("Loading").Visible = True
-	FlexDMDScorbit.Stage.GetLabel("Loading").Text = "LOADING SCORBIT"
-	If Not IsNull(Scorbit) Then
-		If Scorbit.bNeedsPairing = False Then
-			FlexDMDScorbit.Stage.GetLabel("Loading").Text = "PAIRED"
-		End If
-	End If
-	
-	FlexDMDScorbit.Stage.GetLabel("Loading").SetAlignedPosition 200, 50, FlexDMD_Align_Center
-	If scene.HasChild("QRPairing") = True Then
-		FlexDMDScorbit.Stage.GetImage("QRPairing").Visible = False
-	End If
-	If scene.HasChild("QRClaim") = True Then
-		FlexDMDScorbit.Stage.GetImage("QRClaim").Visible = False
-	End If
-	FlexDMDScorbit.Show = False
-	FlexDMDScorbit.Run = True
-	FlexDMDScorbit.UnlockRenderThread
-
-End Sub
-
-
-Sub CreateScorebitPairingDMD
-
-	FlexDMDScorbit.LockRenderThread
-	dim scene, qrImage
-	Set scene = FlexDMDScorbit.Stage.GetGroup("scene")
-	If scene.HasChild("QRPairing") = False Then
-		Set qrImage = FlexDMDScorbit.NewImage("QRPairing",		"QRCode.png")	: qrImage.SetBounds 0, 0, 200, 200 : qrImage.Visible = False : scene.AddActor qrImage
-	End If
-	If Scorbit.bNeedsPairing = True Then
-		FlexDMDScorbit.Stage.GetLabel("Loading").Text = "MACHINE NEEDS PAIRING"
-	Else
-		FlexDMDScorbit.Stage.GetLabel("Loading").Text = "PAIRED"
-	End If
-	FlexDMDScorbit.Stage.GetLabel("Loading").SetAlignedPosition 300, 50, FlexDMD_Align_Center
-	FlexDMDScorbit.Stage.GetLabel("Loading").Visible = True
-	If scene.HasChild("QRPairing") = True Then
-		FlexDMDScorbit.Stage.GetImage("QRPairing").Visible = True
-	End If
-	If scene.HasChild("QRClaim") Then
-		FlexDMDScorbit.Stage.GetImage("QRClaim").Visible = False
-	End If
-	FlexDMDScorbit.Show = False
-	FlexDMDScorbit.Run = True
-	FlexDMDScorbit.UnlockRenderThread
-
-End Sub
-
-
 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ' X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  
 '/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
@@ -212,50 +48,24 @@ End Sub
 
 
 Sub Scorbit_NeedsPairing()								' Scorbit callback when new machine needs pairing 
-   
-	If bInOptions = False Or Not OptPos=2 Then
-
-		DMDScorebit.Visible = False
-		DMDScorebit.TimerEnabled = False
-		Scorbit = Null
-		tmrScorbit.Enabled=False
-		ScorbitActive = 0
-		If Not IsNull(FlexDMDScorbit) Then
-			FlexDMDScorbit.Show = False
-			FlexDMDScorbit.Run = False
-			FlexDMDScorbit = NULL
-		End If
-
-	Else
-		CreateScorebitPairingDMD()
-	End If
+   LoadTexture "", TablesDir & "\CRQR\QRcode.png"
+   ScorbitFlasher.ImageA = "QRcode"
+   ScorbitFlasher.Visible = True 
 End Sub 
 
 Sub Scorbit_Paired()								' Scorbit callback when new machine is paired 
-	If bInOptions = False Or Not OptPos=2 Then
-		DMDScorebit.Visible = False
-		DMDScorebit.TimerEnabled = False
-		If Not IsNull(FlexDMDScorbit) Then
-			FlexDMDScorbit.Show = False
-			FlexDMDScorbit.Run = False
-			FlexDMDScorbit = NULL
-		End If
-	Else
-		CreateScorebitLoadingDMD()
-	End If
-	
 	If gameStarted = True Then
 		If GetPlayerState(CURRENT_BALL) = 1 Then
 			If Not IsNull(Scorbit) Then
 				If ScorbitActive = 1 And Scorbit.bNeedsPairing = False Then
-					InitFlexScorbitClaimDMD()
 					Scorbit.StartSession()
+					LoadTexture "", TablesDir & "\CRQR\QRclaim.png"
+   					ScorbitFlasher.ImageA = "QRclaim"
+   					ScorbitFlasher.Visible = True
 				End If
 			End If
 		End If
 	End If
-
-
 End Sub 
 
 Sub Scorbit_PlayerClaimed(PlayerNum, PlayerName)	' Scorbit callback when QR Is Claimed 
@@ -827,7 +637,7 @@ Debug.print "Scorbit Stop Session"
 '		Dim QRFile:QRFile=puplayer.getroot&"\" & cGameName & "\" & dirQrCode
 		Dim QRFile:QRFile=TablesDir & "\" & dirQrCode
 '		Dim sTokenFile:sTokenFile=puplayer.getroot&"\" & cGameName & "\sToken.dat"
-		Dim sTokenFile:sTokenFile=TablesDir & "\sToken.dat"
+		Dim sTokenFile:sTokenFile=TablesDir & "\" & dirQrCode & "\sToken.dat"
 
 		' Set everything up
 		tmpUUID=MyUUID
@@ -856,10 +666,10 @@ Debug.print "Scorbit Stop Session"
 'msgbox "Return:" & rc
 '		if FileExists(puplayer.getroot&"\" & cGameName & "\sToken.dat") and rc=0 then
 '		msgbox """" & TablesDir & "\sToken.dat"""
-		if FileExists(TablesDir & "\sToken.dat") and rc=0 then
+		if FileExists(TablesDir & "\" & dirQrCode & "\sToken.dat") and rc=0 then
 '			Set objFileToRead = fso.OpenTextFile(puplayer.getroot&"\" & cGameName & "\sToken.dat",1)
 '			msgbox """" & TablesDir & "\sToken.dat"""
-			Set objFileToRead = fso.OpenTextFile(TablesDir & "\sToken.dat",1)
+			Set objFileToRead = fso.OpenTextFile(TablesDir & "\" & dirQrCode & "\sToken.dat",1)
 			result = objFileToRead.ReadLine()
 			objFileToRead.Close
 			Set objFileToRead = Nothing

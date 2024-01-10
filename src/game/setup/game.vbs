@@ -13,8 +13,10 @@ Sub StartGame()
         FlexDMD.Stage.GetFrame("VSeparator4").Visible = True
         If Not IsNull(Scorbit) Then
             If ScorbitActive = 1 And Scorbit.bNeedsPairing = False Then
-                InitFlexScorbitClaimDMD()
                 Scorbit.StartSession()
+                LoadTexture "", TablesDir & "\CRQR\QRclaim.png"
+   				ScorbitFlasher.ImageA = "QRclaim"
+   				ScorbitFlasher.Visible = True
             End If
         End If
         DOF 105, DOFPulse

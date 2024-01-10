@@ -7,6 +7,10 @@
 Sub NodeARowHit()
     Dim row : row = GetPlayerState(NODE_ROW_A)
     Dim success : success = False
+    If (row(4) = 0 Or row(4) = 2) And (row(3) = 0 Or row(3) = 2) And (row(2) = 0 Or row(2) = 2) And (row(1) = 0 Or row(1) = 2) And (row(0) = 0 Or row(0) = 2) Then
+        NodeBRowHit()
+        Exit Sub
+    End If
     If row(4) = 1 Then
         SetPlayerState NODE_ROW_A, Array(row(0), row(1), row(2), row(3), 2)
         AddScore POINTS_BASE
@@ -54,6 +58,10 @@ End Sub
 Sub NodeBRowHit()
     Dim row : row = GetPlayerState(NODE_ROW_B)
     Dim success : success = False
+    If (row(4) = 0 Or row(4) = 2) And (row(3) = 0 Or row(3) = 2) And (row(2) = 0 Or row(2) = 2) And (row(1) = 0 Or row(1) = 2) And (row(0) = 0 Or row(0) = 2) Then
+        NodeCRowHit()
+        Exit Sub
+    End If
     If row(4) = 1 Then
         SetPlayerState NODE_ROW_B, Array(row(0), row(1), row(2), row(3), 2)
         AddScore POINTS_BASE
@@ -193,6 +201,7 @@ Sub NodeCollectPerk()
             DmdQ.Enqueue qItem
             calloutsQ.Add "nodesGS", "PlayCallout(""nodes-grandslam"")", 1, 0, 0, 5500, 0, False
             PlayGrandSlamSeq()
+            NodePerkNextLevel()
         Else
             lSeqCollectPerk.Repeat = True
             DOF 301, DOFOn

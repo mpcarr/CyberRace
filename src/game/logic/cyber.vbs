@@ -17,7 +17,17 @@ Sub SwitchCyberCHit()
         If GetPlayerState(CYBER_C) = 2 Then
             AddScore POINTS_MODE_SHOT
             SetPlayerState MODE_CYBER, False
-            SetPlayerState SHOT_SPINNER1_MULTIPLIER, GetPlayerState(SHOT_SPINNER1_MULTIPLIER) + 1 
+            SetPlayerState SHOT_SPINNER1_MULTIPLIER, GetPlayerState(SHOT_SPINNER1_MULTIPLIER) + 1
+            Set qItem = New QueueItem
+            With qItem
+                .Name = "cybermode"
+                .Duration = 2
+                .BGImage = "BGBlack"
+                .BGVideo = "novideo"
+            End With
+            qItem.AddLabel "SPINNER SHOT", 		font12, DMDWidth/2, DMDHeight*.2, DMDWidth/2, DMDHeight*.2, "blink"
+            qItem.AddLabel "FormatScore(GetPlayerState(SHOT_SPINNER1_MULTIPLIER)*POINTS_SPINNER)", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
+            DmdQ.Enqueue qItem
         End If
     End If
 End Sub
@@ -41,6 +51,16 @@ Sub SwitchCyberYHit()
             AddScore POINTS_MODE_SHOT
             SetPlayerState MODE_CYBER, False
             SetPlayerState SHOT_LEFT_ORBIT_MULTIPLIER, GetPlayerState(SHOT_LEFT_ORBIT_MULTIPLIER) + 1
+            Set qItem = New QueueItem
+            With qItem
+                .Name = "cybermode"
+                .Duration = 2
+                .BGImage = "BGBlack"
+                .BGVideo = "novideo"
+            End With
+            qItem.AddLabel "LEFT ORBIT", 		font12, DMDWidth/2, DMDHeight*.2, DMDWidth/2, DMDHeight*.2, "blink"
+            qItem.AddLabel "FormatScore(GetPlayerState(SHOT_LEFT_ORBIT_MULTIPLIER)*POINTS_BASE)", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
+            DmdQ.Enqueue qItem
         End If
     End If
 End Sub
@@ -64,6 +84,16 @@ Sub SwitchCyberBHit()
             AddScore POINTS_MODE_SHOT
             SetPlayerState MODE_CYBER, False
             SetPlayerState SHOT_LEFT_RAMP_MULTIPLIER, GetPlayerState(SHOT_LEFT_RAMP_MULTIPLIER) + 1
+            Set qItem = New QueueItem
+            With qItem
+                .Name = "cybermode"
+                .Duration = 2
+                .BGImage = "BGBlack"
+                .BGVideo = "novideo"
+            End With
+            qItem.AddLabel "LEFT RAMP", 		font12, DMDWidth/2, DMDHeight*.2, DMDWidth/2, DMDHeight*.2, "blink"
+            qItem.AddLabel "FormatScore(GetPlayerState(SHOT_LEFT_RAMP_MULTIPLIER)*POINTS_BASE)", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
+            DmdQ.Enqueue qItem
         End If
     End If
 End Sub
@@ -87,6 +117,16 @@ Sub SwitchCyberEHit()
             AddScore POINTS_MODE_SHOT
             SetPlayerState MODE_CYBER, False
             SetPlayerState SHOT_RIGHT_RAMP_MULTIPLIER, GetPlayerState(SHOT_RIGHT_RAMP_MULTIPLIER) + 1
+            Set qItem = New QueueItem
+            With qItem
+                .Name = "cybermode"
+                .Duration = 2
+                .BGImage = "BGBlack"
+                .BGVideo = "novideo"
+            End With
+            qItem.AddLabel "RIGHT RAMP", 		font12, DMDWidth/2, DMDHeight*.2, DMDWidth/2, DMDHeight*.2, "blink"
+            qItem.AddLabel "FormatScore(GetPlayerState(SHOT_RIGHT_RAMP_MULTIPLIER)*POINTS_BASE)", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
+            DmdQ.Enqueue qItem
         End If
     End If
 End Sub
@@ -110,6 +150,16 @@ Sub SwitchCyberRHit()
             AddScore POINTS_MODE_SHOT
             SetPlayerState MODE_CYBER, False
             SetPlayerState SHOT_RIGHT_ORBIT_MULTIPLIER, GetPlayerState(SHOT_RIGHT_ORBIT_MULTIPLIER) + 1
+            Set qItem = New QueueItem
+            With qItem
+                .Name = "cybermode"
+                .Duration = 2
+                .BGImage = "BGBlack"
+                .BGVideo = "novideo"
+            End With
+            qItem.AddLabel "RIGHT ORBIT", 		font12, DMDWidth/2, DMDHeight*.2, DMDWidth/2, DMDHeight*.2, "blink"
+            qItem.AddLabel "FormatScore(GetPlayerState(SHOT_RIGHT_ORBIT_MULTIPLIER)*POINTS_BASE)", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
+            DmdQ.Enqueue qItem
         End If
     End If
 End Sub

@@ -147,6 +147,15 @@ Const myVersion = "1.3.0"
 '- Fixed: Issue with shortcut light during spinner modes
 '- Added: Super Jackpot callout and DMD Animation
 '- Added: Race Won DMD Animation
+'- Balance: Tried to reduce repeatable ski jump
+'v1.3.2: flux
+'- Fixed: Issue where you could start a new game when balls were releasing from bridge
+'- Added: Clearer DMD Text for Spelling CYBER
+'- Added: DMD shows EMP Hurry Up Value
+'- Added: DMD Text and Animation for HYPER
+'- Added: Ball Save for Extra Ball
+'- Added: Display Bonus Score on DMD
+'- Balance: Reworked Node Grid so if row hit is complete it will count for the next row
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -350,15 +359,5 @@ Sub Table1_Exit
 		FlexDMD.Show = False
 		FlexDMD.Run = False
 		FlexDMD = NULL
-    End If
-	If Not IsNull(FlexDMDScorbit) Then
-		FlexDMDScorbit.Show = False
-		FlexDMDScorbit.Run = False
-		FlexDMDScorbit = NULL
-    End If
-	If Not IsNull(FlexDMDScorbitClaim) Then
-		FlexDMDScorbitClaim.Show = False
-		FlexDMDScorbitClaim.Run = False
-		FlexDMDScorbitClaim = NULL
     End If
 End Sub

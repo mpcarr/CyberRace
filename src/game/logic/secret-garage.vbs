@@ -26,7 +26,7 @@ Sub SecretGarageEnter()
         releaseGarageLock()
         Exit Sub
     End If
-
+    GameTimersUpdate.Enabled = False
     If GetPlayerState(GARAGE_ENGINE) = 0 Then
         DOF 256, DOFOn
         lightCtrl.AddTableLightSeq "RGB", lSeqGaragePart2
@@ -73,4 +73,5 @@ Sub releaseGarageLock()
     lightCtrl.pulse l141, 2
     SoundDropTargetDrop(RPinTarget)        
     garageKicker.Kick -45, 5
+    GameTimersUpdate.Enabled = True
 End Sub

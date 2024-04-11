@@ -1,7 +1,8 @@
 
 ' Create a dictionary to store the callbacks with their names and execution times
 Dim timerQueue : Set timerQueue = CreateObject("Scripting.Dictionary")
-
+Dim timerCallbacks : Set timerCallbacks = CreateObject("Scripting.Dictionary")
+Dim timerCallbacksToExecute : Set timerCallbacksToExecute = CreateObject("Scripting.Dictionary")
 ' Function to add a callback to the queue
 Sub SetTimer(name, callbackFunc, delayInMs)
     ' Calculate the execution time
@@ -33,21 +34,21 @@ Sub Debounce(name, callbackFunc, delayInMs)
 End Sub
 
 Sub TimerTick()
-    Dim key, callbackInfo, callbacksToExecute, name
-    Set callbacksToExecute = CreateObject("Scripting.Dictionary")
+    Dim key, callbackInfo, name
+    timerCallbacksToExecute.RemoveAll()
     
     ' Check each timer in the queue
     For Each key In timerQueue.Keys()
         Set callbackInfo = timerQueue(key)
         ' If the execution time has come or passed, mark it for execution
         If callbackInfo("executionTime") <= gametime Then
-            callbacksToExecute.Add key, callbackInfo("callbackFunc")
+            timerCallbacksToExecute.Add key, callbackInfo("callbackFunc")
         End If
     Next
 
     ' Execute and remove callbacks that are due
-    For Each name In callbacksToExecute
+    For Each name In timerCallbacksToExecute
         timerQueue.Remove(name)        
-        ExecuteGlobal callbacksToExecute(name)
+        GetRef(timerCallbacksToExecute(name))()
     Next
 End Sub

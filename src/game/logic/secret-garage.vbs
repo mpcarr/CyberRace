@@ -19,7 +19,7 @@ End Sub
 '*****************************
 Sub SecretGarageEnter()
 
-    If RealBallsInPlay > 1 Then
+    If RealBallsInPlay > 1 Or GetPlayerState(MODE_WIZARD) = True Then
         'RPin.TimerEnabled = False
         'RPin.TimerEnabled = True
         'RPin.TimerInterval = 100
@@ -56,7 +56,7 @@ Sub SecretGarageEnter()
         FlexDMDGarageFuelScene()
         calloutsQ.Add "fuelUpgrade", "PlayCallout(""fuel-upgrade"")", 1, 0, 0, 3500, 0, False
         calloutsQ.Add "prepareformb", "PlayCallout(""prepareformb"")", 1, 0, 0, 3500, 0, False
-        calloutsQ.Add "startmb", "ballsInQ = ballsInQ + 1 : BallReleaseTimer.Enabled = True", 1, 0, 0, 0, 0, False
+        calloutsQ.Add "startmb", "DispatchPinEvent ADD_BALL", 1, 0, 0, 0, 0, False
         SetPlayerState GARAGE_HULL, 0
         SetPlayerState GARAGE_COOLING, 0
         SetPlayerState GARAGE_ENGINE, 0

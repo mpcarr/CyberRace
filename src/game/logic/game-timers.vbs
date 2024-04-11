@@ -61,13 +61,58 @@ Sub GameTimersUpdate_Timer()
 	dbsones = Int(dbstime-dbstens*10)
 	dbsdecimals = Int((dbstime-dbstens*10-dbsones)*10)
 	if dbstime > 10 then 
-		lightCtrl.LightOnWithColor Eval("l"&dbstens+150), activeTimer(1)
-		lightCtrl.LightOnWithColor Eval("l"&dbsones+160), activeTimer(1)
+		GetClockSegmentLightNumber dbstens+150, activeTimer(1)
+		GetClockSegmentLightNumber dbsones+160, activeTimer(1)
 	else
-		lightCtrl.LightOnWithColor Eval("l"&(dbsones)+150), activeTimer(1)
-		lightCtrl.LightOnWithColor Eval("l"&dbsdecimals+160), activeTimer(1)
+		GetClockSegmentLightNumber dbsones+150, activeTimer(1)
+		GetClockSegmentLightNumber dbsdecimals+160, activeTimer(1)
 	end if
 
+End Sub
+
+Sub GetClockSegmentLightNumber(x, color)
+	Select Case x
+		Case 150:
+			lightCtrl.LightOnWithColor l150, color	
+		Case 151:
+			lightCtrl.LightOnWithColor l151, color
+		Case 152:
+			lightCtrl.LightOnWithColor l152, color
+		Case 153:
+			lightCtrl.LightOnWithColor l153, color
+		Case 154:
+			lightCtrl.LightOnWithColor l154, color
+		Case 155:
+			lightCtrl.LightOnWithColor l155, color
+		Case 156:
+			lightCtrl.LightOnWithColor l156, color
+		Case 157:
+			lightCtrl.LightOnWithColor l157, color
+		Case 158:
+			lightCtrl.LightOnWithColor l158, color
+		Case 159:
+			lightCtrl.LightOnWithColor l159, color
+		Case 160:
+			lightCtrl.LightOnWithColor l160, color
+		Case 161:
+			lightCtrl.LightOnWithColor l161, color
+		Case 162:
+			lightCtrl.LightOnWithColor l162, color
+		Case 163:
+			lightCtrl.LightOnWithColor l163, color
+		Case 164:
+			lightCtrl.LightOnWithColor l164, color
+		Case 165:
+			lightCtrl.LightOnWithColor l165, color
+		Case 166:
+			lightCtrl.LightOnWithColor l166, color
+		Case 167:
+			lightCtrl.LightOnWithColor l167, color
+		Case 168:
+			lightCtrl.LightOnWithColor l168, color
+		Case 169:
+			lightCtrl.LightOnWithColor l169, color
+	End Select 
 End Sub
 
 Dim timerCountDown1,timerCountDown2,timerCountDown3,timerCountDown4,timerCountDown5
@@ -126,7 +171,9 @@ Function ProcessGameTimer(timer, activeTimer)
 				timerCountDown3 = False
 				timerCountDown4 = False
 				timerCountDown5 = False
-				calloutsQ.Add "raceexpired", "PlayCallout(""race-expired"")", 1, 0, 0, 1500, 0, False
+				If GetPlayerState(MODE_WIZARD) = False Then
+					calloutsQ.Add "raceexpired", "PlayCallout(""race-expired"")", 1, 0, 0, 1500, 0, False
+				End If
 			End If
 			DispatchPinEvent GameTimerEndEvent(timer)
         End If

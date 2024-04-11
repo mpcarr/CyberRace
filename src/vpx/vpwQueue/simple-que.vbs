@@ -12,6 +12,7 @@ Class QueueItem
     public Label5
     public Label6
     public Label7
+    public Replacements
     private LabelIdx
 
     Private Sub Class_Initialize()
@@ -23,6 +24,7 @@ Class QueueItem
         Label5 = Null
         Label6 = Null
         Label7 = Null
+        Replacements = Null
         LabelIdx = 1
         Action = ""
     End Sub
@@ -107,6 +109,7 @@ Class Queue
             item.Duration = queueItem.Duration
             item.Action = queueItem.Action
             item.callback = queueItem.Callback
+            item.Replacements = queueItem.Replacements
             item.Label1 = queueItem.Label1
             item.Label2 = queueItem.Label2
             item.Label3 = queueItem.Label3
@@ -174,7 +177,7 @@ Class Queue
             Set CurrentItem = mItems(0)
             PreviousItemExecutedTime = gameTime
             If Not IsNull(CurrentItem.Callback) Then
-                ExecuteGlobal CurrentItem.Callback
+                GetRef(CurrentItem.Callback)()
             End If
             DMDResetAll
             DMDNewOverlay
@@ -204,10 +207,15 @@ Class Queue
                 Set flabel = FlexDMDItem.Stage.GetLabel("TextSmalLine" & CStr(i))
                 flabel.Font = label(1)
                 flabel.visible = True
-                If InStr(1, label(0), "GetPlayerState") > 0 Then
-                    flabel.Text = Eval(label(0))
-                Else
-                    flabel.Text = label(0)
+                flabel.Text = label(0)
+                If InStr(1, label(0), "$") > 0 Then
+                    Dim x
+                    debug.print(CurrentItem.Name)
+                    For x=0 To UBound(CurrentItem.Replacements)
+                        If InStr(1, label(0), "$"&x+1) > 0 Then
+                            flabel.Text = Replace(flabel.Text, "$"&x+1, GetRef(CurrentItem.Replacements(x))())
+                        End If
+                    Next
                 End If
 
                 If label(6) = "blink" Then ' blinking
@@ -275,10 +283,16 @@ Class Queue
 
                 Set flabel = FlexDMDItem.Stage.GetLabel("TextSmalLine" & CStr(i))
                 flabel.Font = label(1)
-                If InStr(1, label(0), "GetPlayerState") > 0 Then
-                    flabel.Text = Eval(label(0))
-                Else
-                    flabel.Text = label(0)
+                flabel.Text = label(0)
+                If InStr(1, label(0), "$") > 0 Then
+                    Dim x
+                    debug.print(CurrentItem.Name)
+                    For x=0 To UBound(CurrentItem.Replacements)
+                        
+                        If InStr(1, label(0), "$"&x+1) > 0 Then
+                            flabel.Text = Replace(flabel.Text, "$"&x+1, GetRef(CurrentItem.Replacements(x))())
+                        End If
+                    Next
                 End If
 
                 flabel.SetAlignedPosition label(2),label(3) - DMD_slide ,FlexDMD_Align_Center

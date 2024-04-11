@@ -153,6 +153,10 @@ Sub Spinner1_Spin()
     lightCtrl.pulse l143, 0
     AddScore (POINTS_SPINNER * GetPlayerState(SHOT_SPINNER1_MULTIPLIER)) 
     DispatchPinEvent SWITCH_HIT_SPINNER1
+    Debounce "wizjackspin", "TimerWizJackSpin1", 500
+End Sub
+
+Sub TimerWizJackSpin1
     DispatchPinEvent SWITCH_HIT_SPINNER1_WIZARD
 End Sub
 '******************************************
@@ -161,6 +165,10 @@ Sub Spinner2_Spin()
     lightCtrl.pulse l141, 0
     AddScore (POINTS_SPINNER * GetPlayerState(SHOT_SPINNER1_MULTIPLIER)) 
     DispatchPinEvent SWITCH_HIT_SPINNER2
+    Debounce "wizjackspin2", "TimerWizJackSpin2", 500
+End Sub
+
+Sub TimerWizJackSpin2
     DispatchPinEvent SWITCH_HIT_SPINNER2_WIZARD
 End Sub
 '******************************************

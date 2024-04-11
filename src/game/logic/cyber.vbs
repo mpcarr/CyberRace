@@ -24,13 +24,18 @@ Sub SwitchCyberCHit()
                 .Duration = 2
                 .BGImage = "BGBlack"
                 .BGVideo = "novideo"
+                .Replacements = Array("GetDMDLabelCyberSpinnerShot")
             End With
             qItem.AddLabel "SPINNER SHOT", 		font12, DMDWidth/2, DMDHeight*.2, DMDWidth/2, DMDHeight*.2, "blink"
-            qItem.AddLabel "FormatScore(GetPlayerState(SHOT_SPINNER1_MULTIPLIER)*POINTS_SPINNER)", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
+            qItem.AddLabel "$1", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
             DmdQ.Enqueue qItem
         End If
     End If
 End Sub
+
+Function GetDMDLabelCyberSpinnerShot()
+    GetDMDLabelCyberSpinnerShot = FormatScore(GetPlayerState(SHOT_SPINNER1_MULTIPLIER)*POINTS_SPINNER)
+End Function
 
 '****************************
 ' Cyber Y 
@@ -57,13 +62,19 @@ Sub SwitchCyberYHit()
                 .Duration = 2
                 .BGImage = "BGBlack"
                 .BGVideo = "novideo"
+                .Replacements = Array("GetDMDLabelCyberLeftOrbit")
             End With
             qItem.AddLabel "LEFT ORBIT", 		font12, DMDWidth/2, DMDHeight*.2, DMDWidth/2, DMDHeight*.2, "blink"
-            qItem.AddLabel "FormatScore(GetPlayerState(SHOT_LEFT_ORBIT_MULTIPLIER)*POINTS_BASE)", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
+            qItem.AddLabel "$1", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
             DmdQ.Enqueue qItem
         End If
     End If
 End Sub
+
+Function GetDMDLabelCyberLeftOrbit()
+    GetDMDLabelCyberLeftOrbit = FormatScore(GetPlayerState(SHOT_LEFT_ORBIT_MULTIPLIER)*POINTS_BASE)
+End Function
+
 
 '****************************
 ' Cyber B
@@ -90,13 +101,18 @@ Sub SwitchCyberBHit()
                 .Duration = 2
                 .BGImage = "BGBlack"
                 .BGVideo = "novideo"
+                .Replacements = Array("GetDMDLabelCyberLeftRamp")
             End With
             qItem.AddLabel "LEFT RAMP", 		font12, DMDWidth/2, DMDHeight*.2, DMDWidth/2, DMDHeight*.2, "blink"
-            qItem.AddLabel "FormatScore(GetPlayerState(SHOT_LEFT_RAMP_MULTIPLIER)*POINTS_BASE)", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
+            qItem.AddLabel "$1", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
             DmdQ.Enqueue qItem
         End If
     End If
 End Sub
+
+Function GetDMDLabelCyberLeftRamp()
+    GetDMDLabelCyberLeftRamp = FormatScore(GetPlayerState(SHOT_LEFT_RAMP_MULTIPLIER)*POINTS_BASE)
+End Function
 
 '****************************
 ' Cyber E
@@ -123,13 +139,18 @@ Sub SwitchCyberEHit()
                 .Duration = 2
                 .BGImage = "BGBlack"
                 .BGVideo = "novideo"
+                .Replacements = Array("GetDMDLabelCyberRightRamp")
             End With
             qItem.AddLabel "RIGHT RAMP", 		font12, DMDWidth/2, DMDHeight*.2, DMDWidth/2, DMDHeight*.2, "blink"
-            qItem.AddLabel "FormatScore(GetPlayerState(SHOT_RIGHT_RAMP_MULTIPLIER)*POINTS_BASE)", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
+            qItem.AddLabel "$1", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
             DmdQ.Enqueue qItem
         End If
     End If
 End Sub
+
+Function GetDMDLabelCyberRightRamp()
+    GetDMDLabelCyberRightRamp = FormatScore(GetPlayerState(SHOT_RIGHT_RAMP_MULTIPLIER)*POINTS_BASE)
+End Function
 
 '****************************
 ' Cyber E
@@ -156,13 +177,18 @@ Sub SwitchCyberRHit()
                 .Duration = 2
                 .BGImage = "BGBlack"
                 .BGVideo = "novideo"
+                .Replacements = Array("GetDMDLabelCyberRightOrbit")
             End With
             qItem.AddLabel "RIGHT ORBIT", 		font12, DMDWidth/2, DMDHeight*.2, DMDWidth/2, DMDHeight*.2, "blink"
-            qItem.AddLabel "FormatScore(GetPlayerState(SHOT_RIGHT_ORBIT_MULTIPLIER)*POINTS_BASE)", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
+            qItem.AddLabel "$1", font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
             DmdQ.Enqueue qItem
         End If
     End If
 End Sub
+
+Function GetDMDLabelCyberRightOrbit()
+    GetDMDLabelCyberRightOrbit = FormatScore(GetPlayerState(SHOT_RIGHT_ORBIT_MULTIPLIER)*POINTS_BASE)
+End Function
 
 Sub CheckCyberModeActive()
     If GetPlayerState(CYBER_C) = 1 AND GetPlayerState(CYBER_Y) = 1 AND GetPlayerState(CYBER_B) = 1 AND GetPlayerState(CYBER_E) = 1 AND GetPlayerState(CYBER_R) = 1 Then

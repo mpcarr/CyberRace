@@ -80,7 +80,7 @@ Sub HitInLanes(lane)
                 lightCtrl.AddTableLightSeq "RaceReady", lSeqRGBCircle
                 calloutsQ.Add "raceready", "PlayCallout(""raceready"")", 1, 0, 0, 2500, 0, False
                 'FlexDMDRaceReadyScene()
-                FlashSeq1()
+                'FlashSeq1()
             End If
         End If
     End If

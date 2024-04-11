@@ -10,6 +10,10 @@ Sub TurnTableState()
     ttSpinner.MotorOn = GetPlayerState(MODE_MULTIBALL)
 End Sub
 
+Sub TimerStartTurnTable
+    StartTurnTable 5000
+End Sub
+
 Sub StartTurnTable(interval)
     ttSpinner.MotorOn = True
     DiscMotor.Enabled = True

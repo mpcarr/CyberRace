@@ -7,9 +7,10 @@ Sub FlexDMDTimeTrialScene()
         .Duration = 2
         .BGImage = "BGBlack"
         .BGVideo = "novideo"
+        .Replacements = Array("GetDMDLabelTTCollected")
     End With
     qItem.AddLabel "TT COLLECTED", 		Font12, DMDWidth/2, DMDHeight*.4, DMDWidth/2, DMDHeight*.4, ""
-    qItem.AddLabel "(10 * GetPlayerState(TT_ACTIVATIONS)) - GetPlayerState(TT_COLLECTED) & "" FOR TT MULTIBALL""", 		Font7, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
+    qItem.AddLabel "$1 MORE FOR TT MULTIBALL", 		FontWhite3, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue qItem
    
     LightSeqRGB.Play SeqStripe2VertOn,5,1
@@ -22,3 +23,7 @@ Sub FlexDMDTimeTrialScene()
     lightCtrl.pulse l95, 0
 
 End Sub
+
+Function GetDMDLabelTTCollected()
+    GetDMDLabelTTCollected = (10 * GetPlayerState(TT_ACTIVATIONS)) - GetPlayerState(TT_COLLECTED)
+End Function

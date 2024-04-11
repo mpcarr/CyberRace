@@ -86,12 +86,18 @@ Sub CheckBetHits()
                 .BGImage = "BG003"
                 .BGVideo = "novideo"
                 .Action = "slideup"
+                .Replacements = Array("GetDMDLabelBetActivations")
             End With
-            qItem.AddLabel "(3*GetPlayerState(BET_ACTIVATIONS))-GetPlayerState(BET_HITS) & "" MORE HITS FOR MODE""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            qItem.AddLabel "$1 MORE HITS FOR MODE", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
             DmdQ.Enqueue qItem
         End If
     End If
 End Sub
+
+
+Function GetDMDLabelBetActivations()
+    GetDMDLabelBetActivations = (3*GetPlayerState(BET_ACTIVATIONS)) - GetPlayerState(BET_HITS)
+End Function
 
 '****************************
 ' Bet Mode Spinner Hit
@@ -110,13 +116,18 @@ Sub BetModeSpinnerHit()
             .Duration = 2
             .BGImage = "BG001"
             .BGVideo = "novideo"
+            .Replacements = Array("GetDMDLabelBetValue")
         End With
         qItem.AddLabel "BET INCREASED", 		                        Font5, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, ""
-        qItem.AddLabel "FormatScore(GetPlayerState(BET_VALUE))", 		Font12, DMDWidth/2, DMDHeight*.7, DMDWidth/2, DMDHeight*.7, "blink"
+        qItem.AddLabel "$1", 		Font12, DMDWidth/2, DMDHeight*.7, DMDWidth/2, DMDHeight*.7, "blink"
    
         DmdQ.Enqueue qItem
     End If
 End Sub
+
+Function GetDMDLabelBetValue()
+    GetDMDLabelBetValue = FormatScore(GetPlayerState(BET_VALUE))
+End Function
 
 '****************************
 ' Bet Mode Collect Hit

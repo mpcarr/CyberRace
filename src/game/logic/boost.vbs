@@ -7,7 +7,7 @@
 '*****************************
 Sub SwitchBOOST1Hit()
     If GetPlayerState(BOOST_1) = 2 Then
-        Debounce "startMotor", "StartTurnTable(5000)", 600
+        Debounce "startMotor", "TimerStartTurnTable", 600
         PlaySoundAtLevelStatic "fx_boost", SoundFxLevel, sw18
         If GetPlayerState(MODE_BOOST) = True Then
             AddScore POINTS_MODE_SHOT
@@ -20,9 +20,6 @@ Sub SwitchBOOST1Hit()
             SetPlayerState BOOST_HITS, GetPlayerState(BOOST_HITS) + 1
             FlexDMDBoostScene()
         End If
-        
-    Else
-        'TODO: Add No Hit Sound
     End If
 End Sub
 
@@ -35,7 +32,7 @@ End Sub
 '*****************************
 Sub SwitchBOOST2Hit
     If GetPlayerState(BOOST_2) = 2 Then
-        Debounce "startMotor", "StartTurnTable(5000)", 600
+        Debounce "startMotor", "TimerStartTurnTable", 600
         PlaySoundAtLevelStatic "fx_boost", SoundFxLevel, sw19
         If GetPlayerState(MODE_BOOST) = True Then
             AddScore POINTS_MODE_SHOT
@@ -48,9 +45,6 @@ Sub SwitchBOOST2Hit
             SetPlayerState BOOST_HITS, GetPlayerState(BOOST_HITS) + 1
             FlexDMDBoostScene()
         End If
-        
-    Else
-        'TODO: Add No Hit Sound
     End If
 End Sub
 
@@ -62,7 +56,7 @@ RegisterPinEvent SWITCH_HIT_BOOST3, "SwitchBOOST3Hit"
 '*****************************
 Sub SwitchBOOST3Hit
     If GetPlayerState(BOOST_3) = 2 Then
-        Debounce "startMotor", "StartTurnTable(5000)", 600
+        Debounce "startMotor", "TimerStartTurnTable", 600
         PlaySoundAtLevelStatic "fx_boost", SoundFxLevel, sw20
         If GetPlayerState(MODE_BOOST) = True Then
             AddScore POINTS_MODE_SHOT
@@ -75,9 +69,6 @@ Sub SwitchBOOST3Hit
             SetPlayerState BOOST_HITS, GetPlayerState(BOOST_HITS) + 1
             FlexDMDBoostScene()
         End If
-        
-    Else
-        'TODO: Add No Hit Sound
     End If
 End Sub
 
@@ -131,7 +122,7 @@ End Sub
 '*****************************
 Sub CheckBoostModeStart
         If GetPlayerState(MODE_BOOST) = False AND GetPlayerState(BOOST_HITS) = (3 * GetPlayerState(BOOST_ACTIVATIONS)) Then
-            'TODO: Light Show
+
             SetPlayerState BOOST_SHOT, 0
             SetPlayerState MODE_BOOST, True
             calloutsQ.Add "boostmodeactivated", "PlayCallout(""boost-mode-activated"")", 1, 0, 0, 4284, 0, False

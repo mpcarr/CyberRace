@@ -18,14 +18,9 @@ Sub BallSearch
                 AutoPlungerDelay.Enabled = False
 	            AutoPlungerDelay.Enabled = True
             End If
-        Else
-            'Where are the balls
-            If RealBallsInPlay = 0 Then
-                If GameTimers(GAME_BONUS_TIMER_IDX) = 0 Then
-                    'bonus not running, release new ball?
-                    DispatchPinEvent RELEASE_BALL
-                End If
-            End If
+        End If
+        If RealBallsInPlay = 0 And GameTimers(GAME_BONUS_TIMER_IDX) = 0 Then
+            DispatchPinEvent RELEASE_BALL
         End If
     End If
     SetTimer "BallSearch", "BallSearch", 6000

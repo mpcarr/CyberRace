@@ -15,12 +15,13 @@ Sub CheckRaceReady()
                 i = 0
             End If
             x = i+1
-            If GetPlayerState(Eval("RACE_" & x)) = 1 Then
+            If GetPlayerState("RACE_" & x) = 1 Then
                 i = i + 1
                 x = 0
             End If
         Loop
         SetPlayerState RACE_MODE_SELECTION, x
+        GameTimersUpdate.Enabled = True
         FlexDMDRaceSelectScene()
         calloutsQ.Add "chooserace", "PlayCallout(""choose-race"")", 1, 0, 0, 1200, 0, False
         SetPlayerState RACE_MODE_READY, False
@@ -86,8 +87,9 @@ Sub RaceIdleTimer
             .BGImage = "BG004"
             .BGVideo = "novideo"
             .Action = "slideup"
+            .Replacements = Array("GetRaceLabelForFlexScene")
         End With
-        qItem.AddLabel "GetPlayerState(EMPTY_STR) & GetRaceLabelForFlexScene", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+        qItem.AddLabel "$1", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
         DmdQ.Enqueue qItem
         SetTimer "RaceIdleTimer", "RaceIdleTimer", 6000
     End If
@@ -122,7 +124,7 @@ Sub RaceSelectCycleLeft()
                 i = 7
             End If
             x = i-1
-            If GetPlayerState(Eval("RACE_" & x)) = 1 Then
+            If GetPlayerState("RACE_" & x) = 1 Then
                 i = i - 1
                 x = 0
             End If
@@ -149,7 +151,7 @@ Sub RaceSelectCycleRight()
                 i = 0
             End If
             x = i+1
-            If GetPlayerState(Eval("RACE_" & x)) = 1 Then
+            If GetPlayerState("RACE_" & x) = 1 Then
                 i = i + 1
                 x = 0
             End If
@@ -289,16 +291,7 @@ Sub RaceMode1RampHit()
             AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_1_HITS, GetPlayerState(RACE_MODE_1_HITS) + 1
-            Dim qItem : Set qItem = New QueueItem
-            With qItem
-                .Name = "racemsg"
-                .Duration = 4
-                .BGImage = "BG004"
-                .BGVideo = "novideo"
-                .Action = "slideup"
-            End With
-            qItem.AddLabel "6-GetPlayerState(RACE_MODE_1_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
-            DmdQ.Enqueue qItem
+
         End If    
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 1 Then
         AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
@@ -315,6 +308,19 @@ End Sub
 '*****************************
 Sub RaceMode1()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 1 And GetPlayerState(RACE_GRACE) = False Then
+        If GetPlayerState(RACE_MODE_1_HITS) < 6 Then
+            Dim qItem : Set qItem = New QueueItem
+            With qItem
+                .Name = "racemsg"
+                .Duration = 4
+                .BGImage = "BG004"
+                .BGVideo = "novideo"
+                .Action = "slideup"
+                .Replacements = Array("GetDMDLabelRace1Hits")
+            End With
+            qItem.AddLabel "$1 More Shots Left", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            DmdQ.Enqueue qItem
+        End If
         If GetPlayerState(RACE_MODE_1_HITS) = 3 Then
             lightCtrl.AddShot GAME_SHOT_SHORTCUT, l65, GAME_NORMAL_COLOR
             calloutsQ.Add "shortcut", "PlayCallout(""shortcut"")", 1, 0, 0, 1200, 0, False
@@ -328,6 +334,9 @@ Sub RaceMode1()
     End If
 End Sub
 
+Function GetDMDLabelRace1Hits()
+    GetDMDLabelRace1Hits = 6-GetPlayerState(RACE_MODE_1_HITS)
+End Function
 '****************************
 ' RaceModeTimerHurry
 ' Event Listeners:          
@@ -410,7 +419,8 @@ Sub RaceModeTimerEnded()
         SetPlayerState LANE_E, 0
         SetPlayerState RACE_GRACE, True
         SetPlayerState MODE_RACE, False
-        SetTimer "EndRaceGrace", "SetPlayerState RACE_GRACE, False : SetPlayerState RACE_MODE_SELECTION, 1 : SetPlayerState RACE_MODE_FINISH, False", 2000
+        SetTimer "EndRaceGrace", "TimerEndRaceGrace", 2000
+        SetTimer "EndRaceSelection", "TimerEndRaceSelection", 4000
         If timerQueue.Exists("RaceIdleTimer") Then
             timerQueue.Remove("RaceIdleTimer")
         End If
@@ -419,6 +429,14 @@ Sub RaceModeTimerEnded()
     End If
 End Sub
 
+Sub TimerEndRaceGrace
+    SetPlayerState RACE_GRACE, False
+    SetPlayerState RACE_MODE_FINISH, False
+End Sub
+
+Sub TimerEndRaceSelection
+    SetPlayerState RACE_MODE_SELECTION, 1
+End Sub
 
 '****************************
 ' RaceMode2Spinner1Hit
@@ -430,7 +448,7 @@ Sub RaceMode2Spinner1Hit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 2  AND GetPlayerState(RACE_MODE_2_SPIN1) < 30  Then
             AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
-            Debounce "racemodeseq", "PlayRaceModeSeq : DOF 300, DOFPulse", 400
+            Debounce "racemodeseq", "TimerRaceModeSeq", 400
             SetPlayerState RACE_MODE_2_SPIN1, GetPlayerState(RACE_MODE_2_SPIN1) + 1
             If (30-GetPlayerState(RACE_MODE_2_SPIN1)) = 20 Then
                 calloutsQ.Add "20spins", "PlayCallout(""20spins"")", 1, 0, 0, 1700, 0, False
@@ -445,8 +463,9 @@ Sub RaceMode2Spinner1Hit()
                 .BGImage = "BG004"
                 .BGVideo = "novideo"
                 .Action = "slideup"
+                .Replacements = Array("GetDMDLabelRace2Spins1")
             End With
-            qItem.AddLabel "30-GetPlayerState(RACE_MODE_2_SPIN1) & "" Spins to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            qItem.AddLabel "$1 Spins to Complete", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
             DmdQ.Enqueue qItem
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 2  AND GetPlayerState(RACE_MODE_2_SPIN1) < 30 Then
@@ -454,6 +473,15 @@ Sub RaceMode2Spinner1Hit()
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_2_SPIN1, GetPlayerState(RACE_MODE_2_SPIN1) + 1    
     End If
+End Sub
+
+Function GetDMDLabelRace2Spins1()
+    GetDMDLabelRace2Spins1 = 30-GetPlayerState(RACE_MODE_2_SPIN1)
+End Function
+
+Sub TimerRaceModeSeq
+    PlayRaceModeSeq
+    DOF 300, DOFPulse
 End Sub
 
 '****************************
@@ -466,7 +494,7 @@ Sub RaceMode2Spinner2Hit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 2 AND GetPlayerState(RACE_MODE_2_SPIN2) < 30 Then
             AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
-            Debounce "racemodeseq", "PlayRaceModeSeq : DOF 300, DOFPulse", 400
+            Debounce "racemodeseq", "TimerRaceModeSeq", 400
             SetPlayerState RACE_MODE_2_SPIN2, GetPlayerState(RACE_MODE_2_SPIN2) + 1
             If (30-GetPlayerState(RACE_MODE_2_SPIN2)) = 20 Then
                 calloutsQ.Add "20spins", "PlayCallout(""20spins"")", 1, 0, 0, 1700, 0, False
@@ -474,16 +502,19 @@ Sub RaceMode2Spinner2Hit()
             If (30-GetPlayerState(RACE_MODE_2_SPIN2)) = 10 Then
                 calloutsQ.Add "20spins", "PlayCallout(""10spins"")", 1, 0, 0, 1800, 0, False
             End If
-            Dim qItem : Set qItem = New QueueItem
-            With qItem
-                .Name = "racemsg"
-                .Duration = 2
-                .BGImage = "BG004"
-                .BGVideo = "novideo"
-                .Action = "slideup"
-            End With
-            qItem.AddLabel "30-GetPlayerState(RACE_MODE_2_SPIN2) & "" Spins to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
-            DmdQ.Enqueue qItem
+            If GetPlayerState(RACE_MODE_2_SPIN2) < 30 Then
+                Dim qItem : Set qItem = New QueueItem
+                With qItem
+                    .Name = "racemsg"
+                    .Duration = 2
+                    .BGImage = "BG004"
+                    .BGVideo = "novideo"
+                    .Action = "slideup"
+                    .Replacements = Array("GetDMDLabelRace2Spins2")
+                End With
+                qItem.AddLabel "$1 Spins to Complete", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+                DmdQ.Enqueue qItem
+            End If
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 2 AND GetPlayerState(RACE_MODE_2_SPIN2) < 30 Then
         AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
@@ -491,6 +522,10 @@ Sub RaceMode2Spinner2Hit()
         SetPlayerState RACE_MODE_2_SPIN2, GetPlayerState(RACE_MODE_2_SPIN2) + 1
     End If
 End Sub
+
+Function GetDMDLabelRace2Spins2()
+    GetDMDLabelRace2Spins2 = 30-GetPlayerState(RACE_MODE_2_SPIN2)
+End Function
 
 '****************************
 ' RaceMode2
@@ -537,43 +572,64 @@ End Sub
 
 
 Sub RaceMode3DmdMsg()
-    Dim qItem : Set qItem = New QueueItem
-    With qItem
-        .Name = "racemsg"
-        .Duration = 4
-        .BGImage = "BG004"
-        .BGVideo = "novideo"
-        .Action = "slideup"
-    End With
-    qItem.AddLabel "6 - GetPlayerState(RACE_MODE_3_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
-    DmdQ.Enqueue qItem
+    If GetPlayerState(RACE_MODE_3_HITS) < 6 Then
+        Dim qItem : Set qItem = New QueueItem
+        With qItem
+            .Name = "racemsg"
+            .Duration = 4
+            .BGImage = "BG004"
+            .BGVideo = "novideo"
+            .Action = "slideup"
+            .Replacements = Array("GetDMDLabelRace3Hits")
+        End With
+        qItem.AddLabel "$1 More Shots Left", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+        DmdQ.Enqueue qItem
+    End If
 End Sub
+
+Function GetDMDLabelRace3Hits()
+    GetDMDLabelRace3Hits = 6-GetPlayerState(RACE_MODE_3_HITS)
+End Function
 
 Sub RaceMode4DmdMsg()
-    Dim qItem : Set qItem = New QueueItem
-    With qItem
-        .Name = "racemsg"
-        .Duration = 4
-        .BGImage = "BG004"
-        .BGVideo = "novideo"
-        .Action = "slideup"
-    End With
-    qItem.AddLabel "6-GetPlayerState(RACE_MODE_4_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
-    DmdQ.Enqueue qItem
+    If GetPlayerState(RACE_MODE_4_HITS) < 6 Then
+        Dim qItem : Set qItem = New QueueItem
+        With qItem
+            .Name = "racemsg"
+            .Duration = 4
+            .BGImage = "BG004"
+            .BGVideo = "novideo"
+            .Action = "slideup"
+            .Replacements = Array("GetDMDLabelRace4Hits")
+        End With
+        qItem.AddLabel "$1 More Shots Left", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+        DmdQ.Enqueue qItem
+    End If
 End Sub
 
+Function GetDMDLabelRace4Hits()
+    GetDMDLabelRace4Hits = 6-GetPlayerState(RACE_MODE_4_HITS)
+End Function
+
 Sub RaceMode6DmdMsg()
-    Dim qItem : Set qItem = New QueueItem
-    With qItem
-        .Name = "racemsg"
-        .Duration = 4
-        .BGImage = "BG004"
-        .BGVideo = "novideo"
-        .Action = "slideup"
-    End With
-    qItem.AddLabel "6- GetPlayerState(RACE_MODE_6_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
-    DmdQ.Enqueue qItem
+    If GetPlayerState(RACE_MODE_6_HITS) < 6 Then
+        Dim qItem : Set qItem = New QueueItem
+        With qItem
+            .Name = "racemsg"
+            .Duration = 4
+            .BGImage = "BG004"
+            .BGVideo = "novideo"
+            .Action = "slideup"
+            .Replacements = Array("GetDMDLabelRace6Hits")
+        End With
+        qItem.AddLabel "$1 More Shots Left", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+        DmdQ.Enqueue qItem
+    End If
 End Sub
+
+Function GetDMDLabelRace6Hits()
+    GetDMDLabelRace6Hits = 6-GetPlayerState(RACE_MODE_6_HITS)
+End Function
 
 '****************************
 ' RaceMode3Spinner1Hit
@@ -649,7 +705,7 @@ Sub RaceMode3Spinner2Hit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 3 AND GetPlayerState(RACE_MODE_3_SHOT) = 3 Then
             AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
-            Debounce "racemodeseq", "PlayRaceModeSeq : DOF 300, DOFPulse", 400
+            Debounce "racemodeseq", "TimerRaceModeSeq", 400
             SetPlayerState RACE_MODE_3_HITS, GetPlayerState(RACE_MODE_3_HITS) + 1
             RaceMode3DmdMsg()
             RaceModeTimer_Timer
@@ -882,7 +938,7 @@ Sub RaceMode6LeftOrbitHit()
             AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
-            lightCtrl.RemoveShot "RaceMode6", l46
+           'lightCtrl.RemoveShot "RaceMode6", l46
             RaceMode6DmdMsg()
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 6 Then
@@ -906,7 +962,7 @@ Sub RaceMode6RightOrbitHit()
             AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
-            lightCtrl.RemoveShot "RaceMode6", l63
+            'lightCtrl.RemoveShot "RaceMode6", l63
             RaceMode6DmdMsg()
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 6 Then
@@ -927,7 +983,7 @@ Sub RaceMode6SpinnerHit()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_FINISH) = False Then
         If GetPlayerState(RACE_MODE_SELECTION) = 6 AND GetPlayerState(RACE_MODE_6_SPIN2) < 30 Then
             AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
-            Debounce "racemodeseq", "PlayRaceModeSeq : DOF 300, DOFPulse", 400
+            Debounce "racemodeseq", "TimerRaceModeSeq", 400
             SetPlayerState RACE_MODE_6_SPIN2, GetPlayerState(RACE_MODE_6_SPIN2) + 1
             If (30-GetPlayerState(RACE_MODE_6_SPIN2)) = 20 Then
                 calloutsQ.Add "20spins", "PlayCallout(""20spins"")", 1, 0, 0, 1700, 0, False
@@ -935,9 +991,9 @@ Sub RaceMode6SpinnerHit()
             If (30-GetPlayerState(RACE_MODE_6_SPIN2)) = 10 Then
                 calloutsQ.Add "20spins", "PlayCallout(""10spins"")", 1, 0, 0, 1800, 0, False
             End If
-            If GetPlayerState(RACE_MODE_6_SPIN2) = 30 Then
+            If GetPlayerState(RACE_MODE_6_SPIN2) >= 30 Then
                 lightCtrl.RemoveShot "RaceMode6", l23
-                SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
+                'SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
             Else
                 Dim qItem : Set qItem = New QueueItem
                 With qItem
@@ -946,8 +1002,9 @@ Sub RaceMode6SpinnerHit()
                     .BGImage = "BG004"
                     .BGVideo = "novideo"
                     .Action = "slideup"
+                    .Replacements = Array("GetDMDLabelRace6Spins2")
                 End With
-                qItem.AddLabel "30-GetPlayerState(RACE_MODE_6_SPIN2) & "" Spins to Complete""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+                qItem.AddLabel "$1 Spins to Complete", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
                 DmdQ.Enqueue qItem
             End If
         End If
@@ -955,11 +1012,13 @@ Sub RaceMode6SpinnerHit()
         AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
         PlayRaceModeSeq : DOF 300, DOFPulse
         SetPlayerState RACE_MODE_6_SPIN2, GetPlayerState(RACE_MODE_6_SPIN2) + 1
-        If GetPlayerState(RACE_MODE_6_SPIN2) = 30 Then
-            SetPlayerState RACE_MODE_6_HITS, GetPlayerState(RACE_MODE_6_HITS) + 1
-        End If
     End If
 End Sub
+
+Function GetDMDLabelRace6Spins2()
+    GetDMDLabelRace6Spins2 = 30-GetPlayerState(RACE_MODE_6_SPIN2)
+End Function
+
 
 '****************************
 ' RaceMode6HitsCheck
@@ -969,10 +1028,12 @@ RegisterPlayerStateEvent RACE_MODE_6_HITS, "RaceMode6HitsCheck"
 '*****************************
 Sub RaceMode6HitsCheck()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 6 And GetPlayerState(RACE_GRACE) = False Then
-        If GetPlayerState(RACE_MODE_6_HITS) = 5 Then
+        If GetPlayerState(RACE_MODE_6_HITS) >= 6 Then
             lightCtrl.RemoveShot "RaceMode6", l46
-            lightCtrl.RemoveShot "RaceMode6", l23
+            'lightCtrl.RemoveShot "RaceMode6", l23
             lightCtrl.RemoveShot "RaceMode6", l63
+        End If
+        If GetPlayerState(RACE_MODE_6_HITS) >= 6 And GetPlayerState(RACE_MODE_6_SPIN2) >= 30 Then
             SetPlayerState RACE_MODE_FINISH, True
             calloutsQ.Add "finishrace", "PlayCallout(""finishrace"")", 1, 0, 0, 2200, 0, False
         End If
@@ -994,16 +1055,6 @@ Sub RaceMode5RampHit()
             AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_5_HITS, GetPlayerState(RACE_MODE_5_HITS) + 1
-            Dim qItem : Set qItem = New QueueItem
-            With qItem
-                .Name = "racemsg"
-                .Duration = 4
-                .BGImage = "BG004"
-                .BGVideo = "novideo"
-                .Action = "slideup"
-            End With
-            qItem.AddLabel "6-GetPlayerState(RACE_MODE_5_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
-            DmdQ.Enqueue qItem
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 5 Then
         AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
@@ -1027,16 +1078,6 @@ Sub RaceMode5NodesHit()
             AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
             PlayRaceModeSeq : DOF 300, DOFPulse
             SetPlayerState RACE_MODE_5_HITS, GetPlayerState(RACE_MODE_5_HITS) + 1
-            Dim qItem : Set qItem = New QueueItem
-            With qItem
-                .Name = "racemsg"
-                .Duration = 4
-                .BGImage = "BG004"
-                .BGVideo = "novideo"
-                .Action = "slideup"
-            End With
-            qItem.AddLabel "6-GetPlayerState(RACE_MODE_5_HITS) & "" More Shots Left""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
-            DmdQ.Enqueue qItem
         End If
     ElseIf GetPlayerState(RACE_GRACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 5 Then
         AddScore POINTS_MODE_SHOT : SetPlayerState BONUS_RACES_WON, GetPlayerState(BONUS_RACES_WON) + 1
@@ -1054,6 +1095,21 @@ RegisterPlayerStateEvent RACE_MODE_5_HITS, "RaceMode5HitsCheck"
 '*****************************
 Sub RaceMode5HitsCheck()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 5 And GetPlayerState(RACE_GRACE) = False Then
+        
+        If GetPlayerState(RACE_MODE_5_HITS) < 6 Then
+            Dim qItem : Set qItem = New QueueItem
+            With qItem
+                .Name = "racemsg"
+                .Duration = 4
+                .BGImage = "BG004"
+                .BGVideo = "novideo"
+                .Action = "slideup"
+                .Replacements = Array("GetDMDLabelRaceMode5Hits")
+            End With
+            qItem.AddLabel "$1 More Shots Left", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+            DmdQ.Enqueue qItem
+        End If
+        
         If GetPlayerState(RACE_MODE_5_HITS) >= 6 Then
             lightCtrl.RemoveShot "RaceMode5", l47
             lightCtrl.RemoveShot "RaceMode5", l64   
@@ -1076,3 +1132,7 @@ Sub RaceMode5HitsCheck()
         End If
     End If
 End Sub
+
+Function GetDMDLabelRaceMode5Hits()
+    GetDMDLabelRaceMode5Hits = 6-GetPlayerState(RACE_MODE_5_HITS)
+End Function

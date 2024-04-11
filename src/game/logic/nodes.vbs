@@ -189,7 +189,7 @@ Sub NodeCollectPerk()
         SetPlayerState NODE_LEVEL, GetPlayerState(NODE_LEVEL) + 1
         If GetPlayerState(NODE_LEVEL) = 6 Then
             'COMPLETE
-            Debounce "nodesCompleteed", "sw39.TimerEnabled = True", 4000
+            Debounce "nodesCompleteed", "TimerNodesComplete", 4000
             SetPlayerState GRANDSLAM_NODES, True
             Dim qItem : Set qItem = New QueueItem
             With qItem
@@ -211,6 +211,10 @@ Sub NodeCollectPerk()
             FlexDMDNodePerkCollectScene()
         End If
     End If
+End Sub
+
+Sub TimerNodesComplete
+    sw39.TimerEnabled = True
 End Sub
 
 '****************************
@@ -245,8 +249,9 @@ Sub NodePerkSelectLeftPerk()
                     .BGImage = "BG005"
                     .BGVideo = "novideo"
                     .Action = "slideup"
+                    .Replacements = Array("GetDMDLabelJackpotTotal")
                 End With
-                qItem.AddLabel """JACKPOTS: "" & FormatScore(GetPlayerState(JACKPOT_VALUE))", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+                qItem.AddLabel "JACKPOTS: $1", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
                 DmdQ.Enqueue qItem
             Case 3:'Level 3.  Race Timers + 20 Seconds
                 SetPlayerState RACE_TIMERS, 80
@@ -257,8 +262,9 @@ Sub NodePerkSelectLeftPerk()
                     .BGImage = "BG005"
                     .BGVideo = "novideo"
                     .Action = "slideup"
+                    .Replacements = Array("GetDMDLabelRaceTimers")
                 End With
-                qItem.AddLabel """RACE TIMERS: "" & GetPlayerState(RACE_TIMERS) & "" Secs""", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+                qItem.AddLabel "RACE TIMERS: $1 Secs", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
                 DmdQ.Enqueue qItem
             Case 4:'Level 4. Outlane BallSave OR Instant MB
                 SetPlayerState OUTLANE_SAVE, True
@@ -279,6 +285,14 @@ Sub NodePerkSelectLeftPerk()
 
 End Sub
 
+Function GetDMDLabelJackpotTotal()
+    GetDMDLabelJackpotTotal = FormatScore(GetPlayerState(JACKPOT_VALUE))
+End Function
+
+Function GetDMDLabelRaceTimers()
+    GetDMDLabelRaceTimers = GetPlayerState(RACE_TIMERS)
+End Function
+
 '****************************
 ' NodePerkSelectRightPerk
 ' Event Listeners:  
@@ -294,6 +308,9 @@ Sub NodePerkSelectRightPerk()
                  SetPlayerState BET_MULTIPLIER, 2
             Case 4:'Level 3. outlane save OR Instant MB
                 SetPlayerState MODE_MULTIBALL, True
+                totalMbScore = 0
+                totalMbScore = GetPlayerState(SCORE)
+                MBIdleTimer()
                 ballsInQ = ballsInQ + 2
         		BallReleaseTimer.Enabled = True
                 lightCtrl.AddShot "MBSpinner", l48, RGB(0,255,0)
@@ -328,11 +345,11 @@ Sub NodePerkNextLevel
             SetPlayerState NODE_ROW_C, Array(0,0,1,0,1)
         Case 4:
             SetPlayerState NODE_ROW_A, Array(1,1,0,1,1)
-            SetPlayerState NODE_ROW_B, Array(1,1,1,0,1)
-            SetPlayerState NODE_ROW_C, Array(0,1,1,0,1)
+            SetPlayerState NODE_ROW_B, Array(1,0,1,0,1)
+            SetPlayerState NODE_ROW_C, Array(0,0,1,0,1)
         Case 5:
-            SetPlayerState NODE_ROW_A, Array(1,1,1,1,1)
-            SetPlayerState NODE_ROW_B, Array(1,1,1,1,1)
+            SetPlayerState NODE_ROW_A, Array(1,0,1,1,1)
+            SetPlayerState NODE_ROW_B, Array(0,1,0,1,1)
             SetPlayerState NODE_ROW_C, Array(0,1,1,0,1)
         Case 6:
             SetPlayerState NODE_ROW_A, Array(2,2,2,2,2)

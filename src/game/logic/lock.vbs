@@ -1,4 +1,6 @@
 
+Dim totalMbScore : totalMbScore = 0
+
 '****************************
 ' Captive Ball Hit
 ' Event Listeners:          
@@ -6,7 +8,7 @@
 '
 '*****************************
 Sub SwitchHitCaptive()
-    If GetPlayerState(LOCK_LIT) = False AND GetPlayerState(MODE_MULTIBALL) = False Then
+    If GetPlayerState(LOCK_LIT) = False AND GetPlayerState(MODE_MULTIBALL) = False And GetPlayerState(MODE_WIZARD) = False Then
         SetPlayerState LOCK_HITS, GetPlayerState(LOCK_HITS) + 1
         AddScore POINTS_BASE
         If GetPlayerState(LOCK_HITS) = 4 Then
@@ -15,7 +17,12 @@ Sub SwitchHitCaptive()
     End If
 End Sub
 
-
+Sub MBIdleTimer
+    If GetPlayerState(MODE_MULTIBALL) = True Then
+        SetTimer "MBIdleTimer1", "MBEnd", 6000
+        SetTimer "MBIdleTimer2", "MBIdleTimer", 6000
+    End If
+End Sub
 '****************************
 ' Ramp Lock Gate Hit
 ' Event Listeners:          
@@ -39,21 +46,55 @@ Sub SwitchHitRampLockGate()
             SetPlayerState BALLS_LOCKED, 1
             DOF 253, DOFPulse
             calloutsQ.Add "balllocked", "PlayCallout(""ball1locked"")", 1, 0, 0, 3500, 0, False
+            If GetPlayerState(MODE_WIZARD) = True And GetPlayerState(MODE_WIZARD_STAGE) = 2 Then
+                AwardWizardJackpot true
+            End If
         Case 1:
             SetPlayerState BALLS_LOCKED, 2
             DOF 254, DOFPulse
             calloutsQ.Add "balllocked", "PlayCallout(""ball2locked"")", 1, 0, 0, 3500, 0, False
+            If GetPlayerState(MODE_WIZARD) = True And GetPlayerState(MODE_WIZARD_STAGE) = 2 Then
+                AwardWizardJackpot true
+            End If
         Case 2:
-            DOF 255, DOFPulse
-            calloutsQ.Add "balllocked", "PlayCallout(""ball3locked"")", 1, 0, 0, 3500, 0, False
-            calloutsQ.Add "prepareformb", "PlayCallout(""prepareformb"")", 1, 0, 0, 3500, 0, False
-            SetPlayerState LOCK_LIT, False
-            lSeqMBStart.Repeat = True
-            lightCtrl.AddTableLightSeq "Multiball", lSeqMBStart
-            LockPin1.TimerEnabled = True
-            LockPin1.TimerInterval = 5000
-            SetTimer "bridgeReleaseCheck", "LockPin1.isDropped = 1 : LockPin2.isDropped = 1 : LockPin3.isDropped = 1", 8000
-            bStartMB = True
+            If GetPlayerState(MODE_WIZARD) = True And GetPlayerState(MODE_WIZARD_STAGE) = 2 Then
+                DOF 255, DOFPulse
+                AwardWizardJackpot true
+                If timerQueue.Exists("closeWizLock") Then
+                    timerQueue.Remove("closeWizLock")
+                End If
+                SetPlayerState LOCK_LIT, False
+                calloutsQ.Add "balllocked", "PlayCallout(""ball3locked"")", 1, 0, 0, 3500, 0, False
+                calloutsQ.Add "wizStage3", "PlayCallout(""wizard-stage3"")", 1, 0, 0, 6000, 0, False
+                bStartMB = True
+                lightCtrl.RemoveAllTableLightSeqs()
+                Debounce "setwizstage2", "TimerSetWizStage2", 9500
+                lightCtrl.AddTableLightSeq "WIZARDL48", wizardFadeL48Seq
+                lightCtrl.AddTableLightSeq "WIZARDL46", wizardFadeL46Seq
+                lightCtrl.AddTableLightSeq "WIZARDL47", wizardFadeL47Seq
+                lightCtrl.AddTableLightSeq "WIZARDL23", wizardFadeL23Seq
+                lightCtrl.AddTableLightSeq "WIZARDL64", wizardFadeL64Seq
+                lightCtrl.AddTableLightSeq "WIZARDL63", wizardFadeL63Seq
+                lightCtrl.AddTableLightSeq "WIZARDGI", lSeqGIWiz
+                wiz3Spinner1Hit = False
+                wiz3Spinner2Hit = False
+                wiz3LeftOrbitHit = False
+                wiz3LeftRampHit = False
+                wiz3RightRampHit = False
+                wiz3RightOrbitHit = False
+                EnableBallSaver 15
+            Else
+                DOF 255, DOFPulse
+                calloutsQ.Add "balllocked", "PlayCallout(""ball3locked"")", 1, 0, 0, 3500, 0, False
+                calloutsQ.Add "prepareformb", "PlayCallout(""prepareformb"")", 1, 0, 0, 3500, 0, False
+                SetPlayerState LOCK_LIT, False
+                lSeqMBStart.Repeat = True
+                lightCtrl.AddTableLightSeq "Multiball", lSeqMBStart
+                LockPin1.TimerEnabled = True
+                LockPin1.TimerInterval = 5000
+                SetTimer "bridgeReleaseCheck", "TimerBridgeReleaseCheck", 8000
+                bStartMB = True
+            End If
     End Select
 
     If bStartMB = False Then
@@ -64,12 +105,18 @@ Sub SwitchHitRampLockGate()
             'Release Ball From Bridge.
             LockPin1.IsDropped = 1
             BridgeRelease.Enabled = True
-            
         End If
+        EnableBallSaver 15
     End If
             
 
 
+End Sub
+
+Sub TimerBridgeReleaseCheck
+    LockPin1.isDropped = 1
+    LockPin2.isDropped = 1
+    LockPin3.isDropped = 1
 End Sub
 
 Sub BridgeRelease_Timer()
@@ -91,6 +138,8 @@ Sub LockPin1_Timer()
     LockPin2.TimerEnabled = True
     LockPin2.TimerInterval = 1000
     SetPlayerState MODE_MULTIBALL, True
+    totalMbScore = GetPlayerState(SCORE)
+    MBIdleTimer()
     lightCtrl.LightState l97, 1
     lightCtrl.RemoveAllTableLightSeqs()
     SetPlayerState BALLS_LOCKED, 0
@@ -218,6 +267,7 @@ Sub MBLeftRampShot
         Else
             If lightCtrl.IsShotLit("MBSuperLeftRamp", l47) = True Then
                 AwardSuperJackpot()
+                lightCtrl.RemoveShot "MBSuperLeftRamp", l47
                 lightCtrl.AddShot "MBSpinner", l48, RGB(0,255,0)
                 lightCtrl.AddShot "MBLeftOrbit", l46, RGB(0,255,0)
                 lightCtrl.AddShot "MBLeftRamp", l47, RGB(0,255,0)
@@ -269,6 +319,17 @@ RegisterPinEvent BALL_DRAIN, "MBEnd"
 Sub MBEnd
     If GetPlayerState(MODE_MULTIBALL) = True AND RealBallsInPlay = 1 AND ballSaver = False Then
         SetPlayerState MODE_MULTIBALL, False
+        Dim qItem : Set qItem = New QueueItem
+        With qItem
+            .Name = "mbtotal"
+            .Duration = 2
+            .BGImage = "BG005"
+            .BGVideo = "novideo"
+            .Action = "slideup"
+            .Replacements = Array("GetDMDLabelMultiballTotal")
+        End With
+        qItem.AddLabel "MB Total: $1", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, "blink"
+        DmdQ.Enqueue qItem
         SetPlayerState LOCK_HITS, 1
         lightCtrl.RemoveShot "MBSpinner", l48
         lightCtrl.RemoveShot "MBLeftOrbit", l46
@@ -276,7 +337,10 @@ Sub MBEnd
         lightCtrl.RemoveShot "MBRightRamp", l64
         lightCtrl.RemoveShot "MBRightOrbit", l63
         lightCtrl.RemoveShot "MBSuperLeftRamp", l47
-        
     End If
 End Sub
+
+Function GetDMDLabelMultiballTotal()
+    GetDMDLabelMultiballTotal = FormatScore(GetPlayerState(SCORE)-totalMbScore)
+End Function
 

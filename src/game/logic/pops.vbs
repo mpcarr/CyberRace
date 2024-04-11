@@ -57,12 +57,17 @@ Sub EmpIdleTimer
             .BGImage = "BG006"
             .BGVideo = "novideo"
             .Action = "slideup"
+            .Replacements = Array("GetDMDLabelEmpHurryUp")
         End With
-        qItem.AddLabel """EMP VALUE: "" & GetPlayerState(EMPTY_STR) & FormatScore(Round(GameTimers(GAME_EMP_TIMER_IDX)*50000))", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, ""
+        qItem.AddLabel "EMP VALUE: $1", FlexDMD.NewFont(DMDFontSmall, RGB(0,0,0), RGB(0, 0, 0), 0), DMDWidth/2, DMDHeight*.9, DMDWidth/2, DMDHeight*.9, ""
         DmdQ.Enqueue qItem
         SetTimer "EmpIdleTimer", "EmpIdleTimer", 5000
     End If
 End Sub
+
+Function GetDMDLabelEmpHurryUp()
+    GetDMDLabelEmpHurryUp = FormatScore(Round(GameTimers(GAME_EMP_TIMER_IDX)*50000))
+End Function
 
 '****************************
 ' GameEmpTimerEnded

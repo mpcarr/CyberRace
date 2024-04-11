@@ -419,5 +419,7 @@ Const MODE_BOOST = "Game Mode Boost"
 Const MODE_CYBER = "Game Mode Cyber"
 Const MODE_BET = "Game Mode Bet"
 Const MODE_WIZARD = "Game Mode Wizard"
+Const MODE_WIZARD_STAGE = "Game Mode Wizard Stage"
+Const MODE_WIZARD_HITS = "Game Mode Wizard Hits"
 
 '***********************************************************************************************************************

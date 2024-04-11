@@ -102,8 +102,8 @@ Sub PS_TTCollected()
         SetPlayerState TT_CAPTIVE, 0
         SetPlayerState TT_SHORTCUT, 0
         SetPlayerState MODE_TT_MULTIBALL, True
-        Debounce "TTAddBall1",  "DispatchPinEvent ADD_BALL", 100
-        Debounce "TTAddBall2",  "DispatchPinEvent ADD_BALL", 200
+        Debounce "TTAddBall1",  "TimerAddaBall", 100
+        Debounce "TTAddBall2",  "TimerAddaBall", 200
         EnableBallSaver 15
         GameTimers(GAME_TT_TIMER_IDX) = 90
         lightCtrl.AddShot "MBTTSpinner", l48, RGB(127,0,127)
@@ -299,7 +299,9 @@ Sub MBTTTimerEnd
         lightCtrl.RemoveShot "MBTTLeftRamp", l47
         lightCtrl.RemoveShot "MBTTRightRamp", l64
         lightCtrl.RemoveShot "MBTTRightOrbit", l63
-        GAME_DRAIN_BALLS_AND_RESET = True
-        lightCtrl.PauseMainLights()
+        If GetPlayerState(MODE_MULTIBALL) = False Then
+            GAME_DRAIN_BALLS_AND_RESET = True
+            lightCtrl.PauseMainLights()
+        End If
     End If
 End Sub

@@ -17,16 +17,12 @@ Sub DispatchPinEvent(e)
     e=SWITCH_BOTH_FLIPPERS_PRESSED Then
     Else
         SetTimer "BallSearch", "BallSearch", 6000
+        
     End If
     If BlockAllPinEvents = False Or (BlockAllPinEvents=True And AllowPinEventsList.Exists(e)) Then
         lastPinEvent = e
-        For Each x in pinEvents(e).Keys()
-            If pinEvents(e)(x) = True Then
-                WriteToLog "Dispatching Pin Event", e &": "&x
-                ExecuteGlobal x
-                'AdvDebug.SendPinEvent e &": "&x
-            End If
-        Next
+        gameDebugger.SendPinEvent e
+        FirePinEventCallback e
     End If
 End Sub
 
@@ -35,4 +31,37 @@ Sub RegisterPinEvent(e, v)
         pinEvents.Add e, CreateObject("Scripting.Dictionary")
     End If
     pinEvents(e).Add v, True
+End Sub
+
+Sub BuildPinEventSelectCase()
+    Dim eventName, functionName, caseString, innerDict,BuildSelectCase
+    ' Initialize the Select Case string
+    BuildSelectCase = "Sub FirePinEventCallback(eventName)" & vbCrLf
+    BuildSelectCase = BuildSelectCase & "    Select Case eventName" & vbCrLf
+    
+    ' Iterate over the outer dictionary (playerEvents)
+    For Each eventName In pinEvents.Keys
+        ' Start the Case clause for this event
+        caseString = "        Case """ & eventName & """:" & vbCrLf
+        
+        ' Get the sub-dictionary for this event
+        Set innerDict = pinEvents(eventName)
+        
+        ' Iterate over the sub-dictionary to append function names
+        For Each functionName In innerDict.Keys
+            ' Only append if the value is True (as per your description)
+            If innerDict(functionName) = True Then
+                caseString = caseString & "            " & functionName & vbCrLf
+            End If
+        Next
+        
+        ' Append this case to the overall Select Case string
+        BuildSelectCase = BuildSelectCase & caseString
+    Next
+    
+    ' Close the Select Case statement
+    BuildSelectCase = BuildSelectCase & "    End Select" & vbCrLf
+    BuildSelectCase = BuildSelectCase & "End Sub"
+    'debug.print(BuildSelectCase)
+    ExecuteGlobal BuildSelectCase
 End Sub

@@ -14,7 +14,8 @@ Sub FlexDMDRaceSelectScene()
         .Duration = 15
         .BGImage = "BG001"    
         .BGVideo = "novideo"
-        .Callback = "GameTimers(GAME_SELECTION_TIMER_IDX) = 15"
+        .Callback = "CallbackGameTimersSelection15Secs"
+        .Replacements = Array("GetRaceLabelForFlexScene", "GetGameSelectionTimerValue")
     End With
     Dim gameModeTitle
     Dim selection : selection = GetPlayerState(RACE_MODE_SELECTION)
@@ -28,18 +29,26 @@ Sub FlexDMDRaceSelectScene()
     If gameModeTitle = "LOCKED" Then
         qItem.AddLabel "LOCKED", 		                        Font7, DMDWidth/2, DMDHeight*.75, DMDWidth/2, DMDHeight*.75, ""
     Else
-        qItem.AddLabel "GetPlayerState(EMPTY_STR) & GetRaceLabelForFlexScene", 		                        Font7, DMDWidth/2, DMDHeight*.75, DMDWidth/2, DMDHeight*.75, ""
+        qItem.AddLabel "$1", 		                        Font7, DMDWidth/2, DMDHeight*.75, DMDWidth/2, DMDHeight*.75, ""
     End If
-    qItem.AddLabel "GetPlayerState(EMPTY_STR) & Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10) & """" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)-Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10)*10)", 		Font7, DMDWidth*.9, DMDHeight*.8, DMDWidth*.9, DMDHeight*.8, ""
+    qItem.AddLabel "$2", 		Font7, DMDWidth*.9, DMDHeight*.8, DMDWidth*.9, DMDHeight*.8, ""
     DmdQ.Enqueue qItem
     
+End Sub
+
+Function GetGameSelectionTimerValue()
+    GetGameSelectionTimerValue = Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10) & "" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)-Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10)*10)
+End Function
+
+Sub CallbackGameTimersSelection15Secs
+    GameTimers(GAME_SELECTION_TIMER_IDX) = 15
 End Sub
 
 Function GetRaceLabelForFlexScene()
     If gameTime MOD 2000 < 1000 Then 
         Select Case GetPlayerState(RACE_MODE_SELECTION):
             Case 1: 
-                If GetPlayerState(RACE_MODE_1_HITS) = 6 Then
+                If GetPlayerState(RACE_MODE_1_HITS) >= 6 Then
                     progressComplete = "FINAL SHOT"
                 Else
                     progressComplete = GetPlayerState(RACE_MODE_1_HITS) & "/6 COMPLETE"
@@ -58,28 +67,28 @@ Function GetRaceLabelForFlexScene()
                     progressComplete = CStr(spinComplete) & "/2 COMPLETE"
                 End If
             Case 3: 
-                If GetPlayerState(RACE_MODE_3_HITS) = 6 Then
+                If GetPlayerState(RACE_MODE_3_HITS) >= 6 Then
                     progressComplete = "FINAL SHOT"
                 Else
                     progressComplete = GetPlayerState(RACE_MODE_3_HITS) & "/6 COMPLETE"
                 End If
             Case 4: 
-                If GetPlayerState(RACE_MODE_4_HITS) = 6 Then
+                If GetPlayerState(RACE_MODE_4_HITS) >= 6 Then
                     progressComplete = "FINAL SHOT"
                 Else
                     progressComplete = GetPlayerState(RACE_MODE_4_HITS) & "/6 COMPLETE"
                 End If
             Case 5: 
-                If GetPlayerState(RACE_MODE_5_HITS) = 6 Then
+                If GetPlayerState(RACE_MODE_5_HITS) >= 6 Then
                     progressComplete = "FINAL SHOT"
                 Else
                     progressComplete = GetPlayerState(RACE_MODE_5_HITS) & "/6 COMPLETE"
                 End If
             Case 6: 
-                If GetPlayerState(RACE_MODE_6_HITS) = 5 Then
+                If GetPlayerState(RACE_MODE_6_HITS) >= 6 Then
                     progressComplete = "FINAL SHOT"
                 Else
-                    progressComplete = GetPlayerState(RACE_MODE_6_HITS) & "/5 COMPLETE"
+                    progressComplete = GetPlayerState(RACE_MODE_6_HITS) & "/6 COMPLETE"
                 End If
         End Select 
         GetRaceLabelForFlexScene = progressComplete

@@ -156,6 +156,23 @@ Const myVersion = "1.3.0"
 '- Added: Ball Save for Extra Ball
 '- Added: Display Bonus Score on DMD
 '- Balance: Reworked Node Grid so if row hit is complete it will count for the next row
+'- Added: Minimal VR Room
+'- Added: Option to play wizard mode
+'v1.3.3: flux
+'- Fixed: Bug with Race 6 where finish would not light until next race activation
+'- Balance: Wizard mode scoring now based on total score when mode starts
+'- Balance: Wizard mode now moves to stage 3 when at least one ball has been locked on the bridge.
+'- Added: Show Multiball Total scored after Multiball ended.
+'-v1.3.4: flux
+'- Fixed: Race label but which shows 7/6 shots remaining
+'- Added: extra check onto ball search for instance when ball drains and doesn't register
+'v1.3.5: flux
+'- Fixed: Race Ready light disabled when more than 1 ball on the table
+'v1.3.6: flux
+'- Updaed: All references to ExecuteCallback re worked (known stutter issues)
+'v1.3.7: flux
+'- Updaed: All references to ExecuteCallback re worked (known stutter issues)
+
 
 Const MusicVol = 0.25			'Separate setting that only affects music volume. Range from 0 to 1. 
 Const SoundFxLevel = 1
@@ -202,7 +219,7 @@ Dim playerState : Set playerState = CreateObject("Scripting.Dictionary")
 Dim DMDDisplay(20,20)
 Dim NumberOfPlayers : NumberOfPlayers=0
 Dim lightCtrl : Set lightCtrl = new LStateController
-
+Dim gameDebugger : Set gameDebugger = new AdvGameDebugger
 Dim debugLog : Set debugLog = new DebugLogFile
 Dim debugLogOn : debugLogOn = False
 
@@ -220,12 +237,22 @@ bMechTiltJustHit = False
 Dim DmdQ
 
 Dim VRRoom, VRElement
-If RenderingMode = 2 Then VRRoom = VRRoomChoice Else VRRoom = 0
+VRRoom = 0 '0 = Standard Room, 1= Minimal Room
  
 If RenderingMode = 2 then 
 	For Each VRElement in VRStuff
 		VRElement.Visible = True
 	Next
+	If VRRoom = 0 Then
+		For Each VRElement in VRRoomStandard
+			VRElement.Visible = True
+		Next
+	End If
+	If VRRoom = 1 Then
+		For Each VRElement in VRMinimalRoom
+			VRElement.Visible = True
+		Next
+	End If
 	DMD.TimerEnabled = True
 End If
 
@@ -271,6 +298,16 @@ Sub Table1_Init()
 	lightCtrl.CreateSeqRunner("RGB")
 
 	lightCtrl.CreateSeqRunner("Attract")
+
+	lightCtrl.CreateSeqRunner("WIZARDL48")
+	lightCtrl.CreateSeqRunner("WIZARDL46")
+	lightCtrl.CreateSeqRunner("WIZARDL47")
+	lightCtrl.CreateSeqRunner("WIZARDL23")
+	lightCtrl.CreateSeqRunner("WIZARDL64")
+	lightCtrl.CreateSeqRunner("WIZARDL63")
+
+	BuildPinEventSelectCase
+	BuildPlayerEventSelectCase
 
 	'lightCtrl.LoadLightShows
 	

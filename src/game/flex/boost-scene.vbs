@@ -6,9 +6,10 @@ Sub FlexDMDBoostModeScene()
         .Duration = 2
         .BGImage = "noimage"
         .BGVideo = "BGBoost"
+        .Replacements = Array("DMDLabelJackpotValue")
     End With
     qItem.AddLabel "JACKPOTS GROW", 		Font12, DMDWidth/2, DMDHeight*.4, DMDWidth/2, DMDHeight*.4, ""
-    qItem.AddLabel "FormatScore(GetPlayerState(JACKPOT_VALUE))", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
+    qItem.AddLabel "$1", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
     DmdQ.Enqueue qItem
     LightSeqRGB.Play SeqUpOn,50,2
     lightCtrl.SyncWithVpxLights lightSeqRGB
@@ -27,9 +28,10 @@ Sub FlexDMDBoostScene()
         .Duration = 2
         .BGImage = "noimage"
         .BGVideo = "BGBoost"
+        .Replacements = Array("DMDLabelPointsBoost")
     End With
     qItem.AddLabel "POINTS BOOST", 		Font12, DMDWidth/2, DMDHeight*.4, DMDWidth/2, DMDHeight*.4, ""
-    qItem.AddLabel "(3 * GetPlayerState(BOOST_ACTIVATIONS)) - GetPlayerState(BOOST_HITS) & "" FOR BOOST MODE""", 		Font7, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
+    qItem.AddLabel "$1 FOR BOOST MODE", 		Font7, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue qItem
    
     LightSeqRGB.Play SeqUpOn,50,2
@@ -42,3 +44,11 @@ Sub FlexDMDBoostScene()
     lightCtrl.pulse l143, 0
 
 End Sub
+
+Function DMDLabelJackpotValue
+    DMDLabelJackpotValue = FormatScore(GetPlayerState(JACKPOT_VALUE))
+End Function
+
+Function DMDLabelPointsBoost
+    DMDLabelPointsBoost = (3 * GetPlayerState(BOOST_ACTIVATIONS)) - GetPlayerState(BOOST_HITS)
+End Function

@@ -45,8 +45,6 @@ Function GetCurrentPlayerNumber()
     End Select
 End Function
 
-
-
 Function SetPlayerState(key, value)
     If IsNull(currentPlayer) Then
         Exit Function
@@ -70,18 +68,12 @@ Function SetPlayerState(key, value)
     playerState(currentPlayer).Add key, value
 
     If IsArray(value) Then
-        'AdvDebug.SendPlayerState key, Join(value)
+        gameDebugger.SendPlayerState key, Join(value)
     Else
-        'AdvDebug.SendPlayerState key, value
+        gameDebugger.SendPlayerState key, value
     End If
     If playerEvents.Exists(key) Then
-        Dim x
-        For Each x in playerEvents(key).Keys()
-            If playerEvents(key)(x) = True Then
-                WriteToLog "Firing Player Event", key &": "&x
-                ExecuteGlobal x
-            End If
-        Next
+        FirePlayerEventCallback key
     End If
     
     SetPlayerState = Null
@@ -97,13 +89,39 @@ End Sub
 Sub EmitAllPlayerEvents()
     Dim key
     For Each key in playerState(currentPlayer).Keys()
-        If playerEvents.Exists(key) Then
-            Dim x
-            For Each x in playerEvents(key).Keys()
-                If playerEvents(key)(x) = True Then
-                    ExecuteGlobal x
-                End If
-            Next
-        End If
+        FirePlayerEventCallback key
     Next
+End Sub
+
+Sub BuildPlayerEventSelectCase()
+    Dim eventName, functionName, caseString, innerDict,BuildSelectCase
+    ' Initialize the Select Case string
+    BuildSelectCase = "Sub FirePlayerEventCallback(eventName)" & vbCrLf
+    BuildSelectCase = BuildSelectCase & "    Select Case eventName" & vbCrLf
+    
+    ' Iterate over the outer dictionary (playerEvents)
+    For Each eventName In playerEvents.Keys
+        ' Start the Case clause for this event
+        caseString = "        Case """ & eventName & """:" & vbCrLf
+        
+        ' Get the sub-dictionary for this event
+        Set innerDict = playerEvents(eventName)
+        
+        ' Iterate over the sub-dictionary to append function names
+        For Each functionName In innerDict.Keys
+            ' Only append if the value is True (as per your description)
+            If innerDict(functionName) = True Then
+                caseString = caseString & "            " & functionName & vbCrLf
+            End If
+        Next
+        
+        ' Append this case to the overall Select Case string
+        BuildSelectCase = BuildSelectCase & caseString
+    Next
+    
+    ' Close the Select Case statement
+    BuildSelectCase = BuildSelectCase & "    End Select" & vbCrLf
+    BuildSelectCase = BuildSelectCase & "End Sub"
+    'debug.print(BuildSelectCase)
+    ExecuteGlobal BuildSelectCase
 End Sub

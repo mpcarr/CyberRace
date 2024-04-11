@@ -831,7 +831,13 @@ Class LStateController
             Exit Sub
         End If
         m_seqOverrideRunners(name).RemoveItem lcSeq
-        Dim seqOverride, hasOverride
+
+        Dim seqOverride, hasOverride, light
+        For Each light in lcSeq.LightsInSeq()
+            If(m_lights.Exists(light)) Then
+                AssignStateForFrame light, (new FrameState)(0, Null, m_lights(light).Idx)
+            End If
+        Next
         hasOverride = False
         For Each seqOverride In m_seqOverrideRunners.Keys()
             If Not IsNull(m_seqOverrideRunners(seqOverride).CurrentItem) Then
@@ -839,7 +845,6 @@ Class LStateController
             End If
         Next
         If hasOverride = False Then
-            Dim light
             For Each light in m_lights.Keys()
                 AssignStateForFrame light, (new FrameState)(0, Null, m_lights(light).Idx)
             Next

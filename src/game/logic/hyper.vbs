@@ -6,7 +6,7 @@ RegisterPinEvent SWITCH_HIT_HYPER, "SwitchHyper"
 '
 '*****************************
 Sub SwitchHyper()
-    If GetPlayerState(HYPER_PLAYED) = False And BlockAllPinEvents = False Then
+    If GetPlayerState(HYPER_PLAYED) = False And GetPlayerState(MODE_WIZARD) = False And BlockAllPinEvents = False Then
         AddScore POINTS_BASE
         SetPlayerState HYPER, GetPlayerState(HYPER) + 1
         FlexDMDHyperScene

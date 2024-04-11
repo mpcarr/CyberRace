@@ -37,11 +37,15 @@ Function BallsOnBridge()
     If LockPin2.IsDropped = 0 Then
         lockPinsUp=lockPinsUp+1
     End If
+    If LockPin3.IsDropped = 0 Then
+        lockPinsUp=lockPinsUp+1
+    End If
 	BallsOnBridge = lockPinsUp
 End Function
 
 Function RealBallsInPlay()
 	RealBallsInPlay = (5-BallsInTrough) - BallsOnBridge()
+    'Debug.print((5-BallsInTrough) - BallsOnBridge())
 End Function
 
 Function FlattenArrays(arrays)

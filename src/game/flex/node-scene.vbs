@@ -45,7 +45,8 @@ Sub FlexDMDNodePerkCollectScene()
         .Duration = 15
         .BGImage = "BGBlack"
         .BGVideo = "BGNode"
-        .Callback = "GameTimers(GAME_SELECTION_TIMER_IDX) = 15"
+        .Callback = "CallbackGameTimersSelection15Secs"
+        .Replacements = Array("GetGameSelectionTimerValue")
     End With
     qItem.AddLabel perkLeftTitle, 		    font7, DMDWidth*.2, DMDHeight*.35, DMDWidth*.2, DMDHeight*.35, ""
     qItem.AddLabel perkLeftDesc, 		    font7, DMDWidth*.2, DMDHeight*.65, DMDWidth*.2, DMDHeight*.65, ""
@@ -55,7 +56,7 @@ Sub FlexDMDNodePerkCollectScene()
 
     qItem.AddLabel "<", font7, DMDWidth*.4, DMDHeight*.9, DMDWidth*.4, DMDHeight*.9, "blink"
     qItem.AddLabel ">", font7, DMDWidth*.6, DMDHeight*.9, DMDWidth*.6, DMDHeight*.9, "blink"
-    qItem.AddLabel "GetPlayerState(EMPTY_STR) & Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10) & """" & Int(GameTimers(GAME_SELECTION_TIMER_IDX)-Int(GameTimers(GAME_SELECTION_TIMER_IDX)/10)*10)", 		Font7, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
+    qItem.AddLabel "$1", 		Font7, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, ""
     DmdQ.Enqueue qItem
    
 End Sub

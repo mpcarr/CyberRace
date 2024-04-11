@@ -39,7 +39,7 @@ Sub AwardSkillshot()
     SetPlayerState LANE_C, 1
     SetPlayerState LANE_E, 1
     DOF 251, DOFPulse
-    Debounce "dofSkillshot", "DOF 252, DOFPulse", 1000
+    Debounce "dofSkillshot", "TimerDOFSkillshot", 1000
     LightSeqRGB.Play SeqUpOn,50,2
     lightCtrl.SyncWithVpxLights lightSeqRGB
     lightCtrl.SetVpxSyncLightColor RGB(255,255,0)
@@ -53,4 +53,8 @@ Sub AwardSkillshot()
     End With
     qItem.AddLabel "SKILLSHOT", 	Font12, DMDWidth/2, DMDHeight/2, DMDWidth/2, DMDHeight/2, "blink"
     DmdQ.Enqueue qItem
+End Sub
+
+Sub TimerDOFSkillshot
+    DOF 252, DOFPulse
 End Sub

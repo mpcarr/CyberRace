@@ -3,16 +3,46 @@
 '*******************************************
 
 'TROUGH 
-Sub swTrough1_Hit   : UpdateTrough : End Sub
-Sub swTrough1_UnHit : UpdateTrough : End Sub
-Sub swTrough2_Hit   : UpdateTrough : End Sub
-Sub swTrough2_UnHit : UpdateTrough : End Sub
-Sub swTrough3_Hit   : UpdateTrough : End Sub
-Sub swTrough3_UnHit : UpdateTrough : End Sub
-Sub swTrough4_Hit   : UpdateTrough : End Sub
-Sub swTrough4_UnHit : UpdateTrough : End Sub
-Sub swTrough5_Hit   : UpdateTrough : End Sub
-Sub swTrough5_UnHit : UpdateTrough : End Sub
+Sub swTrough1_Hit
+	MPFController.Switch("0-0-3")=1
+	UpdateTrough
+End Sub
+Sub swTrough1_UnHit
+	MPFController.Switch("0-0-3")=0
+	UpdateTrough
+End Sub
+Sub swTrough2_Hit
+	MPFController.Switch("0-0-8")=1
+	UpdateTrough
+End Sub
+Sub swTrough2_UnHit
+	MPFController.Switch("0-0-8")=0
+	UpdateTrough
+End Sub
+Sub swTrough3_Hit
+	MPFController.Switch("0-0-9")=1
+	UpdateTrough
+End Sub
+Sub swTrough3_UnHit
+	MPFController.Switch("0-0-9")=0
+	UpdateTrough
+End Sub
+Sub swTrough4_Hit
+	MPFController.Switch("0-0-10")=1
+	UpdateTrough
+End Sub
+Sub swTrough4_UnHit
+	MPFController.Switch("0-0-10")=0
+	UpdateTrough
+End Sub
+Sub swTrough5_Hit
+	MPFController.Switch("0-0-11")=1
+	UpdateTrough
+End Sub
+Sub swTrough5_UnHit
+	MPFController.Switch("0-0-11")=0
+	UpdateTrough
+End Sub
 
 
 Sub UpdateTrough

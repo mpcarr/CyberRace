@@ -38,40 +38,24 @@ Sub Table1_KeyDown(ByVal Keycode)
     'if keycode = 205 then bcright = 1 ' Right Arrow
    
 
-    If gameStarted = False Then
-        If keycode = StartGameKey And gameBooted = True Then
-            playerState.RemoveAll()
-            AddPlayer()
-            StartGame()
-        End If
-    Else
-        If GAME_DRAIN_BALLS_AND_RESET = True Or GameTilted = True Then
-            Exit Sub
-        End If
 
-        If GameTimers(GAME_BONUS_TIMER_IDX) > 0 Then 
-            
-            If keycode = LeftFlipperKey Then
-                LFlipperDown = True   
-                If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
-            End If
-            
-            If keycode = RightFlipperKey Then 
-                RFlipperDown = True
-                If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
-            End If    
-            
-            Exit Sub 
-        End If
-        
-        
+    If gameStarted = False Then
         If keycode = StartGameKey Then
-            AddPlayer()
+            debug.print("pulsing start")
+            MPFController.PulseSW("0-0-29")
+            gameStarted = true
+            'playerState.RemoveAll()
+            'AddPlayer()
+            'StartGame()
         End If
+    Else        
         If keycode = StartGameKey Then
-            DispatchPinEvent SWITCH_START_GAME_KEY
+            debug.print("pulsing start")
+            MPFController.PulseSW("0-0-29")
+            'DispatchPinEvent SWITCH_START_GAME_KEY
         End If
         If keycode = PlungerKey Then
+            debug.print("pulsing PLUNGER")
             PlaySoundAt "Plunger_Pull_1", Plunger
             Plunger.Pullback
         End If
@@ -101,7 +85,7 @@ Sub Table1_KeyDown(ByVal Keycode)
                 SoundFlipperUpAttackLeft LeftFlipper
                 RandomSoundFlipperUpLeft LeftFlipper
             End If
-            DispatchPinEvent(SWITCH_LEFT_FLIPPER_DOWN)
+            'DispatchPinEvent(SWITCH_LEFT_FLIPPER_DOWN)
         End If
         
         If keycode = RightFlipperKey Then 
@@ -120,7 +104,7 @@ Sub Table1_KeyDown(ByVal Keycode)
                 SoundFlipperUpAttackRight RightFlipper
                 RandomSoundFlipperUpRight RightFlipper
             End If
-            DispatchPinEvent(SWITCH_RIGHT_FLIPPER_DOWN)
+            'DispatchPinEvent(SWITCH_RIGHT_FLIPPER_DOWN)
         End If
 
 	    If StagedFlipperMod = 1 Then
@@ -171,7 +155,7 @@ Sub Table1_KeyUp(ByVal keycode)
                 RandomSoundFlipperDownLeft LeftFlipper
             End If
             FlipperLeftHitParm = FlipperUpSoundLevel
-            DispatchPinEvent(SWITCH_LEFT_FLIPPER_UP)
+            'DispatchPinEvent(SWITCH_LEFT_FLIPPER_UP)
         End If
         If keycode = RightFlipperKey Then
             DOF 102,DOFOff
@@ -185,7 +169,7 @@ Sub Table1_KeyUp(ByVal keycode)
             If RightFlipper.currentangle > RightFlipper.startAngle + 5 Then
                 RandomSoundFlipperDownRight RightFlipper
             FlipperRightHitParm = FlipperUpSoundLevel
-            DispatchPinEvent(SWITCH_RIGHT_FLIPPER_UP)
+            'DispatchPinEvent(SWITCH_RIGHT_FLIPPER_UP)
         End If
 	If StagedFlipperMod = 1 Then
         If keycode = 40 Then

@@ -6,7 +6,8 @@
 '
 '*****************************
 Sub StartAttract()
-    lightCtrl.ResetLights()
+    Exit Sub
+	lightCtrl.ResetLights()
 	lightCtrl.AddTableLightSeq "AttractGI", lSeqGIOn
 	lightCtrl.AddTableLightSeq "AttractLanes", lSeqAttLanes
 	lightCtrl.AddTableLightSeq "AttractRace", lSeqAttRace

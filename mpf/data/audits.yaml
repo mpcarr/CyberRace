@@ -1,0 +1,31 @@
+events:
+  game_ended: 6
+  game_started: 115
+player:
+  score:
+    average: 0.0
+    top:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    total: 6
+switches:
+  s_center_vuk: 21
+  s_hyper_vuk: 4
+  s_launch_button: 0
+  s_left_flipper: 0
+  s_plunger: 198
+  s_race_scoop: 123
+  s_right_flipper: 0
+  s_right_inlane: 0
+  s_start: 33
+  s_trough1: 167
+  s_trough2: 164
+  s_trough3: 160
+  s_trough4: 157
+  s_trough5: 82
+  s_trough6: 0
+  s_trough_jam: 0

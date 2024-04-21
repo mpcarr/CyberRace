@@ -2,7 +2,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
       concat: {
         dist: {
-          src: ['src/**/*.vbs', '!src/unittests/**/*.vbs', '!src/**/*.test.vbs'],
+          src: ['src/**/*.vbs', '!src/unittests/**/*.vbs', '!src/**/*.test.vbs', '!src/**/*-ignore.vbs'],
           dest: 'dest/tablescript.vbs',
         },
         state: {

@@ -1,4 +1,9 @@
 Sub BIPL_Hit()
+    
+    MPFController.Switch("0-0-28") = 1
+    Exit Sub
+
+
     ballInPlungerLane = True
     If autoPlunge = True Then
         AutoPlungerDelay.Interval = 300
@@ -6,7 +11,14 @@ Sub BIPL_Hit()
     End If
 End Sub
 
+Sub BIPL_UnHit()
+    MPFController.Switch("0-0-28") = 0
+End Sub
+
 Sub BIPL_Top_Hit()
+    Exit Sub
+
+    
     ballInPlungerLane = False
     autoPlunge = False
     If GameTilted = True Then

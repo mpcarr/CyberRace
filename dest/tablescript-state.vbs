@@ -1334,7 +1334,8 @@ End Function
 '
 '*****************************
 Sub StartAttract()
-    lightCtrl.ResetLights()
+    Exit Sub
+	lightCtrl.ResetLights()
 	lightCtrl.AddTableLightSeq "AttractGI", lSeqGIOn
 	lightCtrl.AddTableLightSeq "AttractLanes", lSeqAttLanes
 	lightCtrl.AddTableLightSeq "AttractRace", lSeqAttRace
@@ -13346,6 +13347,11 @@ Sub SwitchRightFlipperDown()
     SetGameState SWITCHES_LAST_FLIPPER_DOWN_TIME, GameTime
 End Sub
 Sub BIPL_Hit()
+    
+    MPFController.Switch("0-0-28") = 1
+    Exit Sub
+
+
     ballInPlungerLane = True
     If autoPlunge = True Then
         AutoPlungerDelay.Interval = 300
@@ -13353,7 +13359,14 @@ Sub BIPL_Hit()
     End If
 End Sub
 
+Sub BIPL_UnHit()
+    MPFController.Switch("0-0-28") = 0
+End Sub
+
 Sub BIPL_Top_Hit()
+    Exit Sub
+
+    
     ballInPlungerLane = False
     autoPlunge = False
     If GameTilted = True Then
@@ -13466,21 +13479,25 @@ End Sub
 
 '******************************************
 Sub Drain_Hit 
-    'debug.print("drain hit")
     RandomSoundDrain Drain
     UpdateTrough()
-    DispatchPinEvent BALL_DRAIN
+    'DispatchPinEvent BALL_DRAIN
 End Sub
 
 Sub Drain_UnHit : UpdateTrough : End Sub
 
 Sub raceVuk_Hit()
+    Exit Sub
+    
+
     GameTimersUpdate.Enabled = False
     DispatchPinEvent SWITCH_HIT_RACE_KICKER
     SoundSaucerLock()
 End Sub
 
 Sub raceVuk_Timer()
+
+    Exit Sub
     raceVuk.TimerEnabled = False
     GameTimersUpdate.Enabled = True
     SoundSaucerKick 1,raceVuk
@@ -13489,11 +13506,13 @@ Sub raceVuk_Timer()
 End Sub
 
 Sub garageKicker_Hit()
+    Exit Sub
     AddScore POINTS_BASE
     DispatchPinEvent SWITCH_HIT_RAMP_PIN
 End Sub
 '******************************************
 Sub sw01_Hit()
+    Exit Sub
     If ballSaver = True Or GetPlayerState(OUTLANE_SAVE) = True Then
         DispatchPinEvent BALL_SAVE
         If ballSaver = False Then
@@ -13518,6 +13537,7 @@ Sub sw01_Hit()
 End Sub
 '******************************************
 Sub sw02_Hit()
+    Exit Sub
     leftInlaneSpeedLimit()    
     If GetPlayerState(LANE_A) > 0 Then
         lightCtrl.Pulse l43, 0
@@ -13528,6 +13548,7 @@ Sub sw02_Hit()
 End Sub
 '******************************************
 Sub sw03_Hit()
+    Exit Sub
     rightInlaneSpeedLimit()    
     If GetPlayerState(LANE_C) > 0 Then
         lightCtrl.Pulse l44, 0
@@ -13772,6 +13793,38 @@ Sub ScoopBackWall_Hit()
 End Sub
 
 
+
+'******************************************
+Sub Drain_Hit 
+    RandomSoundDrain Drain
+    UpdateTrough()
+    'DispatchPinEvent BALL_DRAIN
+End Sub
+
+Sub Drain_UnHit : UpdateTrough : End Sub
+
+Sub raceVuk_Hit()
+    MPFController.Switch("0-0-32")=1
+End Sub
+Sub raceVuk_UnHit()
+    MPFController.Switch("0-0-32")=0
+End Sub
+
+Sub sw_38_Hit()
+    MPFController.Switch("0-0-33")=1
+End Sub
+Sub sw_38_UnHit()
+    MPFController.Switch("0-0-33")=0
+End Sub
+
+Sub sw39_Hit()
+    MPFController.Switch("0-0-34")=1
+    Set KickerBall39 = ActiveBall
+End Sub
+Sub sw39_UnHit()
+    MPFController.Switch("0-0-34")=0
+    KickerBall39 = Null
+End Sub
 Sub TurnTable_Hit
     ttSpinner.AddBall ActiveBall
     if ttSpinner.MotorOn=true then ttSpinner.AffectBall ActiveBall

@@ -234,7 +234,8 @@ Class LStateController
                 End If
                 If Not IsNull(vpxLight) Then
                    ' Debug.print("Registering Light: "& vpxLight.name)
-
+                    vpxLight.State = 1
+                    vpxLight.Color = rgb(0,0,0)
 
                     Dim r : r = Round(vpxLight.y/40)
                     Dim c : c = Round(vpxLight.x/40)
@@ -508,6 +509,15 @@ Class LStateController
 
         End If
     End Sub
+
+    Public Function GetLightColor(light)
+        If m_lights.Exists(light.name) Then
+            Dim colors : colors = m_lights(light.name).Color
+            GetLightColor = colors(0)
+        Else
+            GetLightColor = RGB(0,0,0)
+        End If
+    End Function
 
     Private Sub m_LightOn(name)
         

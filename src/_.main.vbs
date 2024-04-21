@@ -225,6 +225,11 @@ Dim debugLogOn : debugLogOn = False
 
 Dim calloutsQ : Set calloutsQ = New vpwQueueManager
 
+On Error Resume Next
+Dim MPFController : Set MPFController = CreateObject("MPF.Controller")
+If Err Then MsgBox "MPF Not Setup"
+On Error GoTo 0
+
 Dim Tilt
 Dim MechTilt
 Dim TiltSensitivity
@@ -287,7 +292,7 @@ End Sub
 
 Sub Table1_Init()
 	
-	vpmMapLights aLights2
+	'vpmMapLights aLights2
 	lightCtrl.RegisterLights "VPX"
 	lightCtrl.CreateSeqRunner("BoostUp")
 	lightCtrl.CreateSeqRunner("RaceMode")
@@ -364,9 +369,9 @@ Sub Table1_Init()
 	RightSlingShot_Timer
 	
 	'lightCtrl.AddTableLightSeq "Attract", lSeqAttract3
-	lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm1
-	lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm2
-	lightCtrl.AddTableLightSeq "Attract", lSeqAttFlashers
+	'lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm1
+	'lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm2
+	'lightCtrl.AddTableLightSeq "Attract", lSeqAttFlashers
 	Dim qItem : Set qItem = New QueueItem
 	With qItem
 		.Name = "boot"
@@ -378,6 +383,13 @@ Sub Table1_Init()
 	qItem.AddLabel "BOOTING", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
 	DmdQ.Enqueue qItem
 	SetRoomBrightness RoomBrightness/100
+
+	MPFController.Run
+	MPFController.Switch("0-0-3")=1
+	MPFController.Switch("0-0-8")=1
+	MPFController.Switch("0-0-9")=1
+	MPFController.Switch("0-0-10")=1
+	MPFController.Switch("0-0-11")=1
 End Sub
 
 Sub AttractTimer_Timer

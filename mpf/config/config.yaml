@@ -1,0 +1,733 @@
+#config_version=5
+
+hardware:
+  platform: opp
+  driverboards: gen2
+  segment_displays: light_segment_displays
+
+modes:
+  - base
+  - race
+
+opp:
+   ports: /dev/ttyACM0, /dev/ttyACM1
+
+switches:
+  s_left_flipper:
+    number: 0-0-1
+    tags: left_flipper
+  s_right_flipper:
+    number: 0-0-2
+    tags: right_flipper
+  s_trough1:
+    number: 0-0-3
+  s_trough2:
+    number: 0-0-8
+  s_trough3:
+    number: 0-0-9
+  s_trough4:
+    number: 0-0-10
+  s_trough5:
+    number: 0-0-11
+  s_trough6:
+    number: 0-0-27
+  s_trough_jam:
+    number: 0-0-26
+  s_plunger:
+    number: 0-0-28
+  s_start:
+    number: 0-0-29
+    tags: start
+  s_right_inlane:
+    number: 0-0-30
+    tags: playfield_active
+  s_launch_button:
+    number: 0-0-31
+  s_race_scoop:
+    number: 0-0-32
+  s_hyper_vuk:
+    number: 0-0-33
+  s_center_vuk:
+    number: 0-0-34
+
+coils:
+  c_flipper_left_main:
+    number: 0-0-1
+    default_pulse_ms: 20
+  c_flipper_left_hold:
+    number: 0-0-2
+    allow_enable: true
+  c_flipper_right_main:
+    number: 0-0-3
+    default_pulse_ms: 20
+  c_flipper_right_hold:
+    number: 0-0-4
+    allow_enable: true
+  c_trough_eject:
+    number: 0-0-5
+    default_pulse_ms: 20
+  c_plunger:
+    number: 0-0-6
+    default_pulse_ms: 20
+  c_race_scoop:
+    number: 0-0-7
+    default_pulse_ms: 20
+  c_hyper_vuk:
+      number: 0-0-8
+      default_pulse_ms: 20
+  c_center_vuk:
+      number: 0-0-9
+      default_pulse_ms: 20        
+
+neoseg_displays:
+  neoSeg_0:
+    start_channel: 0-0-91
+    size: 2digit
+    light_template:
+      type: w
+      subtype: led
+      color_correction_profile: NeoSeg_orange
+
+segment_displays:
+  neoSegClock:
+    number: 1
+    size: 2
+    integrated_dots: true
+    use_dots_for_commas: true
+    default_transition_update_hz: 30
+    platform_settings:
+      light_groups:
+        - neoSeg_0
+      type: 14segment
+
+
+lights:
+  l73:
+    number: 0-0-0
+    subtype: led
+    tags: raceNeon
+  l74:
+    number: 0-0-1
+    subtype: led
+    tags: raceNeon
+  l75:
+    number: 0-0-2
+    subtype: led
+    tags: raceNeon
+  l76:
+    number: 0-0-3
+    subtype: led
+    tags: raceNeon
+  l66:
+    number: 0-0-4
+    subtype: led
+    tags: bonusLanes
+  l67:
+    number: 0-0-5
+    subtype: led
+    tags: bonusLanes
+  l68:
+    number: 0-0-6
+    subtype: led
+    tags: bonusLanes    
+  l97:
+    number: 0-0-7
+    subtype: led
+    tags: lockNeonSign
+  l79:
+    number: 0-0-8
+    subtype: led
+    tags: pops
+  l78:
+    number: 0-0-9
+    subtype: led
+    tags: pops
+  l77:
+    number: 0-0-10
+    subtype: led
+    tags: pops
+  l23:
+    number: 0-0-11
+    subtype: led
+    tags: spinner2
+  l61:
+    number: 0-0-12
+    subtype: led
+    tags: boost3
+  l91:
+    number: 0-0-13
+    subtype: led
+    tags: tt2
+  l17:
+    number: 0-0-14
+    subtype: led
+    tags: bet1
+  l18:
+    number: 0-0-15
+    subtype: led
+    tags: bet2
+  l19:
+    number: 0-0-16
+    subtype: led
+    tags: bet3
+  l72:
+    number: 0-0-17
+    subtype: led
+    tags: lockNeonL
+  l71:
+    number: 0-0-18
+    subtype: led
+    tags: lockNeonO
+  l70:
+    number: 0-0-19
+    subtype: led
+    tags: lockNeonC
+  l69:
+    number: 0-0-20
+    subtype: led
+    tags: lockNeonK
+  l63:
+    number: 0-0-21
+    subtype: led
+    tags: rightOrbit
+  l28:
+    number: 0-0-22
+    subtype: led
+    tags: comboRightOrbit
+  l33:
+    number: 0-0-23
+    subtype: led
+    tags: cyberR
+  l92:
+    number: 0-0-24
+    subtype: led
+    tags: tt4
+  l32:
+    number: 0-0-25
+    subtype: led
+    tags: cyberE  
+  l27:
+    number: 0-0-26
+    subtype: led
+    tags: comboRightRamp
+  l64:
+    number: 0-0-27
+    subtype: led
+    tags: rightRamp
+  l35:
+    number: 0-0-28
+    subtype: led
+    tags: raceFinish
+  l62:
+    number: 0-0-29
+    subtype: led
+    tags: nodesComplete
+  l34:
+    number: 0-0-30
+    subtype: led
+    tags: extraBall
+  l90:
+    number: 0-0-31
+    subtype: led
+    tags: tt3
+  l31:
+    number: 0-0-32
+    subtype: led
+    tags: cyberB
+  l26:
+    number: 0-0-33
+    subtype: led
+    tags: comboLeftRamp
+  l47:
+    number: 0-0-34
+    subtype: led
+    tags: leftRamp
+  l46:
+    number: 0-0-35
+    subtype: led
+    tags: leftOrbit
+  l25:
+    number: 0-0-36
+    subtype: led
+    tags: comboLeftOrbit
+  l30:
+    number: 0-0-37
+    subtype: led
+    tags: cyberY
+  l95:
+    number: 0-0-38
+    subtype: led
+    tags: tt1
+  l60:
+    number: 0-0-39
+    subtype: led
+    tags: boost2
+  l37:
+    number: 0-0-40
+    subtype: led
+    tags: hyperH
+  l38:
+    number: 0-0-41
+    subtype: led
+    tags: hyperY
+  l39:
+    number: 0-0-42
+    subtype: led
+    tags: hyperP    
+  l40:
+    number: 0-0-43
+    subtype: led
+    tags: hyperE
+  l41:
+    number: 0-0-44
+    subtype: led
+    tags: hyperR    
+  l98:
+    number: 0-0-45
+    subtype: led
+    tags: addTime
+  l49:
+    number: 0-0-47
+    subtype: led
+    tags: mystery
+  l59:
+    number: 0-0-48
+    subtype: led
+    tags: boost1
+  l48:
+    number: 0-0-49
+    subtype: led
+    tags: spinner1
+  l24:
+    number: 0-0-50
+    subtype: led
+    tags: comboSpinner
+  l29:
+    number: 0-0-51
+    subtype: led
+    tags: cyberC
+  l42:
+    number: 0-0-52
+    subtype: led
+    tags: inlaneR
+  l43:
+    number: 0-0-53
+    subtype: led
+    tags: inlaneA
+  l80:
+    number: 0-0-54
+    subtype: led
+    tags: grandSlam1
+  l81:
+    number: 0-0-55
+    subtype: led
+    tags: grandSlam2
+  l51:
+    number: 0-0-56
+    subtype: led
+    tags: PFX2
+  l50:
+    number: 0-0-57
+    subtype: led
+    tags: PFX1
+  l52:
+    number: 0-0-58
+    subtype: led
+    tags: PFX3
+  l56:
+    number: 0-0-59
+    subtype: led
+    tags: race4
+  l16:
+    number: 0-0-60
+    subtype: led
+    tags: ballSave
+  l57:
+    number: 0-0-61
+    subtype: led
+    tags: race5
+  l58:
+    number: 0-0-62
+    subtype: led
+    tags: race6
+  l55:
+    number: 0-0-63
+    subtype: led
+    tags: race3
+  l54:
+    number: 0-0-64
+    subtype: led
+    tags: race2
+  l53:
+    number: 0-0-65
+    subtype: led
+    tags: race1
+  l22:
+    number: 0-0-66
+    subtype: led
+    tags: bonus3
+  l21:
+    number: 0-0-67
+    subtype: led
+    tags: bonus2
+  l20:
+    number: 0-0-68
+    subtype: led
+    tags: bonus1
+  l82:
+    number: 0-0-69
+    subtype: led
+    tags: grandSlam3
+  l83:
+    number: 0-0-70
+    subtype: led
+    tags: grandSlam4
+  l84:
+    number: 0-0-71
+    subtype: led
+    tags: grandSlam5
+  l44:
+    number: 0-0-72
+    subtype: led
+    tags: inlaneC
+  l45:
+    number: 0-0-73
+    subtype: led
+    tags: inlaneE
+  l11:
+    number: 0-0-74
+    subtype: led
+    tags: nodes11
+  l12:
+    number: 0-0-75
+    subtype: led
+    tags: nodes12
+  l13:
+    number: 0-0-76
+    subtype: led
+    tags: nodes13
+  l14:
+    number: 0-0-77
+    subtype: led
+    tags: nodes14
+  l15:
+    number: 0-0-78
+    subtype: led
+    tags: nodes15
+  l10:
+    number: 0-0-79
+    subtype: led
+    tags: nodes10
+  l9:
+    number: 0-0-80
+    subtype: led
+    tags: nodes9
+  l8:
+    number: 0-0-81
+    subtype: led
+    tags: nodes8
+  l7:
+    number: 0-0-82
+    subtype: led
+    tags: nodes7
+  l5:
+    number: 0-0-83
+    subtype: led
+    tags: nodes6
+  l6:
+    number: 0-0-84
+    subtype: led
+    tags: nodes5
+  l4:
+    number: 0-0-85
+    subtype: led
+    tags: nodes4
+  l3:
+    number: 0-0-86
+    subtype: led
+    tags: nodes3
+  l2:
+    number: 0-0-87
+    subtype: led
+    tags: nodes2
+  l1:
+    number: 0-0-88
+    subtype: led
+    tags: nodes1                
+  l93:
+    number: 0-0-89
+    subtype: led
+    tags: tt5
+  l65:
+    number: 0-0-90
+    subtype: led
+    tags: shortcut
+  l115:
+    number: 1-0-0
+    subtype: led
+    tags: gi
+  l113:
+    number: 1-0-1
+    subtype: led
+    tags: gi
+  l114:
+    number: 1-0-2
+    subtype: led
+    tags: gi
+  l121:
+    number: 1-0-3
+    subtype: led
+    tags: gi
+  l139:
+    number: 1-0-4
+    subtype: led
+    tags: gi
+  l129:
+    number: 1-0-5
+    subtype: led
+    tags: gi
+  l127:
+    number: 1-0-6
+    subtype: led
+    tags: gi
+  l131:
+    number: 1-0-7
+    subtype: led
+    tags: gi
+  l130:
+    number: 1-0-8
+    subtype: led
+    tags: gi
+  l122:
+    number: 1-0-9
+    subtype: led
+    tags: gi
+  l123:
+    number: 1-0-10
+    subtype: led
+    tags: gi
+  l116:
+    number: 1-0-11
+    subtype: led
+    tags: gi
+  l135:
+    number: 1-0-12
+    subtype: led
+    tags: gi
+  l132:
+    number: 1-0-13
+    subtype: led
+    tags: gi
+  l111:
+    number: 1-0-14
+    subtype: led
+    tags: gi
+  l112:
+    number: 1-0-15
+    subtype: led
+    tags: gi
+  l124:
+    number: 1-0-16
+    subtype: led
+    tags: gi
+  l125:
+    number: 1-0-17
+    subtype: led
+    tags: gi
+  l137:
+    number: 1-0-18
+    subtype: led
+    tags: gi
+  l128:
+    number: 1-0-19
+    subtype: led
+    tags: gi
+  l126:
+    number: 1-0-20
+    subtype: led
+    tags: gi
+  l110:
+    number: 1-0-21
+    subtype: led
+    tags: gi
+  l109:
+    number: 1-0-22
+    subtype: led
+    tags: gi
+  l108:
+    number: 1-0-23
+    subtype: led
+    tags: gi
+  l136:
+    number: 1-0-24
+    subtype: led
+    tags: gi
+  l107:
+    number: 1-0-25
+    subtype: led
+    tags: gi
+  l106:
+    number: 1-0-26
+    subtype: led
+    tags: gi
+  l103:
+    number: 1-0-27
+    subtype: led
+    tags: gi
+  l100:
+    number: 1-0-28
+    subtype: led
+    tags: gi      
+  l101:
+    number: 1-0-29
+    subtype: led
+    tags: gi
+  l102:
+    number: 1-0-30
+    subtype: led
+    tags: gi
+  l134:
+    number: 1-0-31
+    subtype: led
+    tags: gi
+  l133:
+    number: 1-0-32
+    subtype: led
+    tags: gi
+  l104:
+    number: 1-0-33
+    subtype: led
+    tags: gi
+  l105:
+    number: 1-0-34
+    subtype: led
+    tags: gi
+  l145:
+    number: 1-0-35
+    subtype: led
+    tags: gi
+  l118:
+    number: 1-0-36
+    subtype: led
+    tags: gi
+  l117:
+    number: 1-0-37
+    subtype: led
+    tags: gi
+  l119:
+    number: 1-0-38
+    subtype: led
+    tags: gi
+  l120:
+    number: 1-0-39
+    subtype: led
+    tags: gi
+
+
+playfields:
+  playfield:
+    tags: default
+    default_source_device: bd_owl
+
+flippers:
+  left_flipper:
+    main_coil: c_flipper_left_main
+    hold_coil: c_flipper_left_hold
+    activation_switch: s_left_flipper
+  right_flipper:
+    main_coil: c_flipper_right_main
+    hold_coil: c_flipper_right_hold
+    activation_switch: s_right_flipper
+
+displays:
+  window:
+    width: 800
+    height: 600
+
+slide_player:
+  init_done: welcome_slide
+  mode_attract_started: 
+    attract_started:
+      transition:
+            type: fade
+            duration: 3s
+
+keyboard:
+  debug: yes
+  shift+shift:
+    switch: s_left_flipper
+  shift+rshift:
+    switch: s_right_flipper
+  1:
+    switch: s_trough1
+    toggle: true
+  2:
+    switch: s_trough2
+    toggle: true
+  3:
+    switch: s_trough3
+    toggle: true
+  4:
+    switch: s_trough4
+    toggle: true
+  5:
+    switch: s_trough5
+    toggle: true
+  p:
+    switch: s_plunger
+    toggle: true
+  s: 
+    switch: s_start
+  j: 
+    switch: s_right_inlane
+
+virtual_platform_start_active_switches:
+  - s_trough1
+  - s_trough2
+  - s_trough3
+
+ball_devices:
+  bd_trough:
+    ball_switches: s_trough1, s_trough2, s_trough3, s_trough4, s_trough5, s_trough6, s_trough_jam
+    eject_coil: c_trough_eject
+    tags: trough, home, drain
+    jam_switch: s_trough_jam
+    eject_coil_jam_pulse: 15ms
+    eject_targets: bd_owl
+    debug: true
+  bd_owl:
+    ball_switches: s_plunger
+    eject_coil: c_plunger
+    mechanical_eject: true
+    eject_targets: playfield, bd_race_scoop
+    eject_timeouts: 3s
+  bd_race_scoop:
+    ball_switches: s_race_scoop
+    eject_coil: c_race_scoop
+    mechanical_eject: false
+    eject_timeouts: 2s
+  bd_hyper_vuk:
+    ball_switches: s_hyper_vuk
+    eject_coil: c_hyper_vuk
+    mechanical_eject: false
+    eject_timeouts: 2s
+  bd_center_vuk:
+    ball_switches: s_center_vuk
+    eject_coil: c_center_vuk
+    mechanical_eject: false
+    eject_timeouts: 2s
+
+light_settings:
+  color_correction_profiles:
+    NeoSeg_red:
+      whitepoint: [.8, .8, .8]
+    NeoSeg_white:
+      whitepoint: [.55, .55, .55]
+    NeoSeg_blue:
+      whitepoint: [.5, .5, .5]
+    NeoSeg_orange:
+      whitepoint: [.9, .9, .9]
+    NeoSeg_yellow:
+      whitepoint: [1, 1, 1]
+    NeoSeg_green:
+      whitepoint: [.5, .5, .5]

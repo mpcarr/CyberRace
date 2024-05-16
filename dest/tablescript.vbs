@@ -212,9 +212,9 @@ Dim ballSaver : ballSaver = False
 Dim ballSaverIgnoreCount : ballSaverIgnoreCount = 0
 Dim ttSpinner
 Dim pinEvents : Set pinEvents = CreateObject("Scripting.Dictionary")
-Dim gameEvents : Set gameEvents = CreateObject("Scripting.Dictionary")
+Dim pinEventsOrder : Set pinEventsOrder = CreateObject("Scripting.Dictionary")
 Dim playerEvents : Set playerEvents = CreateObject("Scripting.Dictionary")
-Dim gameState : Set gameState = CreateObject("Scripting.Dictionary")
+Dim playerEventsOrder : Set playerEventsOrder = CreateObject("Scripting.Dictionary")
 Dim playerState : Set playerState = CreateObject("Scripting.Dictionary")
 Dim DMDDisplay(20,20)
 Dim NumberOfPlayers : NumberOfPlayers=0
@@ -224,11 +224,6 @@ Dim debugLog : Set debugLog = new DebugLogFile
 Dim debugLogOn : debugLogOn = False
 
 Dim calloutsQ : Set calloutsQ = New vpwQueueManager
-
-On Error Resume Next
-Dim MPFController : Set MPFController = CreateObject("MPF.Controller")
-If Err Then MsgBox "MPF Not Setup"
-On Error GoTo 0
 
 Dim Tilt
 Dim MechTilt
@@ -292,7 +287,7 @@ End Sub
 
 Sub Table1_Init()
 	
-	'vpmMapLights aLights2
+	vpmMapLights aLights2
 	lightCtrl.RegisterLights "VPX"
 	lightCtrl.CreateSeqRunner("BoostUp")
 	lightCtrl.CreateSeqRunner("RaceMode")
@@ -368,10 +363,10 @@ Sub Table1_Init()
 	LeftSlingShot_Timer
 	RightSlingShot_Timer
 	
-	'lightCtrl.AddTableLightSeq "Attract", lSeqAttract3
-	'lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm1
-	'lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm2
-	'lightCtrl.AddTableLightSeq "Attract", lSeqAttFlashers
+	lightCtrl.AddTableLightSeq "Attract", lSeqAttract3
+	lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm1
+	lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm2
+	lightCtrl.AddTableLightSeq "Attract", lSeqAttFlashers
 	Dim qItem : Set qItem = New QueueItem
 	With qItem
 		.Name = "boot"
@@ -384,12 +379,9 @@ Sub Table1_Init()
 	DmdQ.Enqueue qItem
 	SetRoomBrightness RoomBrightness/100
 
-	MPFController.Run
-	MPFController.Switch("0-0-3")=1
-	MPFController.Switch("0-0-8")=1
-	MPFController.Switch("0-0-9")=1
-	MPFController.Switch("0-0-10")=1
-	MPFController.Switch("0-0-11")=1
+	If useBCP = True Then
+		ConnectToBCPMediaController
+	End If
 End Sub
 
 Sub AttractTimer_Timer
@@ -836,6 +828,13 @@ Const MODE_WIZARD_HITS = "Game Mode Wizard Hits"
 
 '***********************************************************************************************************************
 
+
+
+Dim bcpController
+Dim useBCP : useBCP = True
+Public Sub ConnectToBCPMediaController
+    Set bcpController = new VpxBcpController
+End Sub
 Sub Spinner1_Animate()
     Dim el
 	For Each el in BP_Spinner1
@@ -2172,8 +2171,7 @@ End Function
 '
 '*****************************
 Sub StartAttract()
-    Exit Sub
-	lightCtrl.ResetLights()
+    lightCtrl.ResetLights()
 	lightCtrl.AddTableLightSeq "AttractGI", lSeqGIOn
 	lightCtrl.AddTableLightSeq "AttractLanes", lSeqAttLanes
 	lightCtrl.AddTableLightSeq "AttractRace", lSeqAttRace
@@ -14164,27 +14162,16 @@ End Function
 Sub SetupPlayer()
     EmitAllPlayerEvents()
 End Sub
+
 Sub BIPL_Hit()
-    
-    MPFController.Switch("0-0-28") = 1
-    Exit Sub
-
-
-    'ballInPlungerLane = True
-    'If autoPlunge = True Then
-    '    AutoPlungerDelay.Interval = 300
-	'    AutoPlungerDelay.Enabled = True
-    'End If
-End Sub
-
-Sub BIPL_UnHit()
-    MPFController.Switch("0-0-28") = 0
+    ballInPlungerLane = True
+    If autoPlunge = True Then
+        AutoPlungerDelay.Interval = 300
+	    AutoPlungerDelay.Enabled = True
+    End If
 End Sub
 
 Sub BIPL_Top_Hit()
-    Exit Sub
-
-    
     ballInPlungerLane = False
     autoPlunge = False
     If GameTilted = True Then
@@ -14202,8 +14189,8 @@ End Sub
 '****************************
 ' Release Ball
 ' Event Listeners:  
-    'RegisterPinEvent BALL_SAVE,     "AutoPlungeBall"
-    'RegisterPinEvent ADD_BALL,      "AutoPlungeBall"
+    RegisterPinEvent BALL_SAVE,     "AutoPlungeBall"
+    RegisterPinEvent ADD_BALL,      "AutoPlungeBall"
 '
 '*****************************
 Sub AutoPlungeBall()
@@ -14220,7 +14207,6 @@ End Sub
 
 Dim ballsInQ : ballsInQ = 0
 Sub BallReleaseTimer_Timer()
-    Exit Sub
     If ballInPlungerLane = False And ballsInQ > 0 AND swTrough1.BallCntOver = 1 Then
         ReleaseBall()
         autoPlunge = True
@@ -14230,38 +14216,380 @@ Sub BallReleaseTimer_Timer()
         End If
     End If
 End Sub
+'****************************
+' Bumper 1 Hit
+'*****************************
+Sub Bumper1_Hit()
+    If GameTilted = False Then
+        RandomSoundBumperTop(Bumper1)
+        DOF 107, DOFPulse
+        HitPopBumpers(l77)
+    End If
+End Sub
+Sub Bumper2_Hit()
+    If GameTilted = False Then
+        RandomSoundBumperMiddle(Bumper2)
+        DOF 108, DOFPulse
+        HitPopBumpers(l78)
+    End If
+End Sub
+Sub Bumper3_Hit()
+    If GameTilted = False Then
+        RandomSoundBumperBottom(Bumper3) 
+        DOF 109, DOFPulse
+        HitPopBumpers(l79)
+    End If
+End Sub
+'***********************************************************************************************************************
+'*****    Ramp Switches                                        	                                                    ****
+'*****                                                                                                              ****
+'***********************************************************************************************************************
+
+Sub swEnterRightRamp_Hit()
+	WireRampOn(True)
+	DispatchPinEvent SWITCH_HIT_RIGHT_RAMP_ENTER
+End Sub
+
+Sub swEnterLeftRamp_Hit()
+	WireRampOn(True)
+End Sub
+
+Sub swEnterLeftRampVuk_Hit()
+	WireRampOn(False)
+End Sub
+
+Sub swEnterVukRamp_Hit()
+	WireRampOn(False)
+End Sub
+
+Sub swExitRightRamp_Hit()
+	WireRampOff()	 
+	WireRampOn(False)
+End Sub
+
+Sub swExitLeftRamp_Hit()
+	WireRampOff()	
+	WireRampOn(False)
+End Sub
+
+Sub swWireRampEndLeft_UnHit()
+    RandomSoundRampStop swWireRampEndLeft
+    RandomSoundDelayedBallDropOnPlayfield ActiveBall
+End Sub
+
+Sub swWireRampEndRight_UnHit()
+    RandomSoundRampStop swWireRampEndRight
+    RandomSoundDelayedBallDropOnPlayfield ActiveBall
+End Sub
 
 '******************************************
 Sub Drain_Hit 
+    'debug.print("drain hit")
     RandomSoundDrain Drain
     UpdateTrough()
-    'DispatchPinEvent BALL_DRAIN
+    DispatchPinEvent BALL_DRAIN
 End Sub
 
 Sub Drain_UnHit : UpdateTrough : End Sub
 
 Sub raceVuk_Hit()
-    MPFController.Switch("0-0-32")=1
-End Sub
-Sub raceVuk_UnHit()
-    MPFController.Switch("0-0-32")=0
+    GameTimersUpdate.Enabled = False
+    DispatchPinEvent SWITCH_HIT_RACE_KICKER
+    SoundSaucerLock()
 End Sub
 
+Sub raceVuk_Timer()
+    raceVuk.TimerEnabled = False
+    GameTimersUpdate.Enabled = True
+    SoundSaucerKick 1,raceVuk
+    raceVuk.Kick 65, RndInt(7,15)
+    lightCtrl.pulse l141, 0
+End Sub
+
+Sub garageKicker_Hit()
+    AddScore POINTS_BASE
+    DispatchPinEvent SWITCH_HIT_RAMP_PIN
+End Sub
+'******************************************
+Sub sw01_Hit()
+    If ballSaver = True Or GetPlayerState(OUTLANE_SAVE) = True Then
+        DispatchPinEvent BALL_SAVE
+        If ballSaver = False Then
+            SetPlayerState OUTLANE_SAVE, False
+        End If
+        ballSaverIgnoreCount = ballSaverIgnoreCount+1
+    Else
+        If lastPinEvent = SWITCH_HIT_SPINNER1 Then
+            If Round(RndNum(0,1)) = 1 Then
+                DispatchPinEvent BALL_SAVE
+            End If
+        Else
+            PlaySoundAtLevelStatic "drain", SoundFxLevel, sw01
+            DOF 220, DOFPulse
+        End If
+    End If
+    If GetPlayerState(LANE_R) > 0 Then
+        lightCtrl.Pulse l42, 0
+    End If
+    
+    HitInLanes(LANE_R)
+End Sub
+'******************************************
+Sub sw02_Hit()
+    leftInlaneSpeedLimit()    
+    If GetPlayerState(LANE_A) > 0 Then
+        lightCtrl.Pulse l43, 0
+    End If
+    HitInLanes(LANE_A)
+    DispatchPinEvent SWITCH_HIT_LANE_A
+    
+End Sub
+'******************************************
+Sub sw03_Hit()
+    rightInlaneSpeedLimit()    
+    If GetPlayerState(LANE_C) > 0 Then
+        lightCtrl.Pulse l44, 0
+    End If
+    HitInLanes(LANE_C)
+End Sub
+
+Sub Wall018_UnHit()
+    activeball.AngMomZ = -40
+End Sub
+
+'******************************************
+Sub sw04_Hit()
+    If ballSaver = True Or GetPlayerState(OUTLANE_SAVE) = True Then
+        DispatchPinEvent BALL_SAVE
+        If ballSaver = False Then
+            SetPlayerState OUTLANE_SAVE, False
+        End If
+        ballSaverIgnoreCount = ballSaverIgnoreCount+1
+    Else
+        PlaySoundAtLevelStatic "drain", SoundFxLevel, sw04
+        DOF 221, DOFPulse
+    End If
+    If GetPlayerState(LANE_E) > 0 Then
+        lightCtrl.Pulse l45, 0
+    End If
+    
+    HitInLanes(LANE_E)
+End Sub
+'******************************************
+Sub sw05_Hit()
+    HitBonusLanes LANE_BO
+End Sub
+'******************************************
+Sub sw06_Hit()
+    HitBonusLanes LANE_N
+End Sub
+'******************************************
+Sub sw07_Hit()
+    HitBonusLanes LANE_US
+End Sub
+'******************************************
 Sub sw_38_Hit()
-    MPFController.Switch("0-0-33")=1
+    sw_38.TimerEnabled = True
+    SoundSaucerLock()
+    
 End Sub
-Sub sw_38_UnHit()
-    MPFController.Switch("0-0-33")=0
+Sub sw_38_Timer() 
+    DispatchPinEvent SWITCH_HIT_HYPER
+    'lightCtrl.pulse l143, 0
+    'sw_38.Kick 0, 60, 1.36
+    sw_38.TimerEnabled = False
+    'SoundSaucerKick 1, sw_38
+End Sub
+'******************************************
+Sub sw39_Hit()
+    set KickerBall39 = activeball
+    DispatchPinEvent SWITCH_HIT_SCOOP
+    GameTimersUpdate.Enabled = False
+    SoundSaucerLock()
+    If GetPlayerState(MODE_PERK_SELECT) = False Or (GetPlayerState(MODE_PERK_SELECT) = False And GetPlayerState(NODE_LEVEL) < 6) Then
+        sw39.TimerEnabled = True
+    End If
+    WallScoopProtect.IsDropped = 0
+End Sub
+Sub sw39_Timer()
+	sw39.TimerEnabled = False
+    WallScoopProtect.IsDropped = 1
+    GameTimersUpdate.Enabled = True
+    SoundSaucerKick 1, sw39
+    DOF 235, DOFPulse
+    KickBall KickerBall39, 0, 0, 55, 10
+End Sub
+'******************************************
+Sub sw37_Hit()
+    set KickerBall37 = activeball
+    SoundSaucerLock()
+	sw37.TimerEnabled = True
+End Sub
+Sub sw37_Timer()
+	sw37.TimerEnabled = False
+    SoundSaucerKick 1, sw37
+    KickBall KickerBall37, 0, 0, 40, 10
+End Sub
+'******************************************
+Sub Spinner1_Spin()
+    SoundSpinner(Spinner1)
+    lightCtrl.pulse l143, 0
+    AddScore (POINTS_SPINNER * GetPlayerState(SHOT_SPINNER1_MULTIPLIER)) 
+    DispatchPinEvent SWITCH_HIT_SPINNER1
+    Debounce "wizjackspin", "TimerWizJackSpin1", 500
 End Sub
 
-Sub sw39_Hit()
-    MPFController.Switch("0-0-34")=1
-    Set KickerBall39 = ActiveBall
+Sub TimerWizJackSpin1
+    DispatchPinEvent SWITCH_HIT_SPINNER1_WIZARD
 End Sub
-Sub sw39_UnHit()
-    MPFController.Switch("0-0-34")=0
-    KickerBall39 = Null
+'******************************************
+Sub Spinner2_Spin()
+    SoundSpinner(Spinner2)
+    lightCtrl.pulse l141, 0
+    AddScore (POINTS_SPINNER * GetPlayerState(SHOT_SPINNER1_MULTIPLIER)) 
+    DispatchPinEvent SWITCH_HIT_SPINNER2
+    Debounce "wizjackspin2", "TimerWizJackSpin2", 500
 End Sub
+
+Sub TimerWizJackSpin2
+    DispatchPinEvent SWITCH_HIT_SPINNER2_WIZARD
+End Sub
+'******************************************
+Sub sw08_Hit()
+    If Not IsNull(lOrbitBall) AND lOrbitBall = ActiveBall.ID Then
+        AddScore (POINTS_BASE * GetPlayerState(SHOT_LEFT_ORBIT_MULTIPLIER))
+        DispatchPinEvent SWITCH_HIT_LEFT_ORBIT
+        DispatchPinEvent SWITCH_HIT_LEFT_ORBIT_WIZARD
+    End If
+End Sub
+'******************************************
+Sub sw09_Hit()
+    AddScore (POINTS_BASE * GetPlayerState(SHOT_RIGHT_RAMP_MULTIPLIER)) 
+    DispatchPinEvent SWITCH_HIT_RIGHT_RAMP
+    DispatchPinEvent SWITCH_HIT_RIGHT_RAMP_WIZARD
+    For Each light in GIControlLights
+        lightCtrl.PulseWithProfile light,Array(80,60,40,0,40,60,80,100),2
+    Next
+End Sub
+'******************************************
+Sub sw10_Hit()
+    STHit 10
+    DispatchPinEvent SWITCH_HIT_NODE_A
+End Sub
+'******************************************
+Sub sw11_Hit()
+    STHit 11
+    DispatchPinEvent SWITCH_HIT_NODE_B
+End Sub
+'******************************************
+Sub sw12_Hit()
+    STHit 12
+    DispatchPinEvent SWITCH_HIT_NODE_C
+End Sub
+'******************************************
+Sub sw13_Hit()
+    AddScore (POINTS_BASE * GetPlayerState(SHOT_LEFT_RAMP_MULTIPLIER))
+    DispatchPinEvent SWITCH_HIT_LEFT_RAMP
+    DispatchPinEvent SWITCH_HIT_LEFT_RAMP_WIZARD
+    lightCtrl.PulseWithProfile l94,Array(80,60,40,0,40,60,80,100,0),2 'speeder
+    For Each light in GIControlLights
+        lightCtrl.PulseWithProfile light,Array(80,60,40,0,40,60,80,100),2
+    Next
+End Sub
+'******************************************
+Sub sw14_Hit()
+    If Not IsNull(rOrbitBall) AND rOrbitBall = ActiveBall.ID Then
+        AddScore (POINTS_BASE * GetPlayerState(SHOT_RIGHT_ORBIT_MULTIPLIER)) 
+        DispatchPinEvent SWITCH_HIT_RIGHT_ORBIT
+        DispatchPinEvent SWITCH_HIT_RIGHT_ORBIT_WIZARD
+    End If
+End Sub
+'******************************************
+Sub sw18_Hit()
+    STHit 18
+    AddScore POINTS_BASE
+    DispatchPinEvent SWITCH_HIT_BOOST1
+End Sub
+'******************************************
+Sub sw19_Hit()
+    STHit 19
+    AddScore POINTS_BASE
+    DispatchPinEvent SWITCH_HIT_BOOST2
+End Sub
+'******************************************
+Sub sw20_Hit()
+    STHit 20
+    AddScore POINTS_BASE
+    DispatchPinEvent SWITCH_HIT_BOOST3
+End Sub
+'******************************************
+Dim lOrbitBall : lOrbitBall = Null
+Sub sw15_Hit() 'Left Orbit Opto
+    lOrbitBall = ActiveBall.ID
+    rOrbitBall = Null
+End Sub
+'******************************************
+Dim rOrbitBall : rOrbitBall = Null
+Sub sw16_Hit() 'Right Orbit Opto
+    rOrbitBall = ActiveBall.ID
+    lOrbitBall = Null
+End Sub
+'******************************************
+Sub sw21_Hit()
+    STHit 21
+    AddScore POINTS_BASE
+    DispatchPinEvent SWITCH_HIT_BET1
+End Sub
+'******************************************
+Sub sw22_Hit()
+    STHit 22
+    AddScore POINTS_BASE
+    DispatchPinEvent SWITCH_HIT_BET2
+End Sub
+'******************************************
+Sub sw23_Hit()
+    STHit 23
+    AddScore POINTS_BASE
+    DispatchPinEvent SWITCH_HIT_BET3
+End Sub
+'******************************************
+Sub sw24_Hit()
+    AddScore POINTS_BASE
+    DispatchPinEvent SWITCH_HIT_CAPTIVE
+End Sub
+'******************************************
+Sub sw25_Hit()
+    STHit 25
+    AddScore POINTS_BASE
+    DispatchPinEvent SWITCH_HIT_MYSTERY
+    DispatchPinEvent SWITCH_HIT_ADDTIME
+End Sub
+'******************************************
+Sub sw26_Hit()
+    DispatchPinEvent SWITCH_HIT_RAMP_LOCK
+    DispatchPinEvent SWITCH_HIT_RIGHT_RAMP
+    AddScore (POINTS_BASE * GetPlayerState(SHOT_RIGHT_RAMP_MULTIPLIER)) 
+End Sub
+'******************************************
+Sub sw31_Hit()
+    AddScore POINTS_BASE
+    DispatchPinEvent SWITCH_HIT_SHORTCUT
+    DispatchPinEvent SWITCH_HIT_SHORTCUT_WIZARD
+End Sub
+'******************************************
+Sub RPin_Hit()
+	'DispatchPinEvent SWITCH_HIT_RAMP_PIN
+End Sub
+'******************************************
+Sub ScoopBackWall_Hit()
+	'debug.print "velz: " & activeball.velz
+    'debug.print "velx: " & activeball.velx
+    'debug.print "vely: " & activeball.vely
+    activeball.vely = 1
+    activeball.velx = 1
+End Sub
+
+
 Sub TurnTable_Hit
     ttSpinner.AddBall ActiveBall
     if ttSpinner.MotorOn=true then ttSpinner.AffectBall ActiveBall
@@ -14274,9 +14602,9 @@ End Sub
 '****************************
 ' Release Ball
 ' Event Listeners:  
-    'RegisterPinEvent START_GAME,    "ReleaseBall"
-    'RegisterPinEvent NEXT_PLAYER,   "ReleaseBall"
-    'RegisterPinEvent RELEASE_BALL,   "ReleaseBall"
+    RegisterPinEvent START_GAME,    "ReleaseBall"
+    RegisterPinEvent NEXT_PLAYER,   "ReleaseBall"
+    RegisterPinEvent RELEASE_BALL,   "ReleaseBall"
 '
 '*****************************
 Sub ReleaseBall()
@@ -14284,151 +14612,6 @@ Sub ReleaseBall()
     UpdateTrough()
     RandomSoundBallRelease swTrough1
 End Sub
-'*****************************************************************************************************************************************
-'  ERROR LOGS by baldgeek
-'*****************************************************************************************************************************************
-
-' Log File Usage:
-'   WriteToLog "Label 1", "Message 1 "
-'   WriteToLog "Label 2", "Message 2 "
-
-Class DebugLogFile
-	Private Filename
-	Private TxtFileStream
-	
-	Private Function LZ(ByVal Number, ByVal Places)
-		Dim Zeros
-		Zeros = String(CInt(Places), "0")
-		LZ = Right(Zeros & CStr(Number), Places)
-	End Function
-	
-	Private Function GetTimeStamp
-		Dim CurrTime, Elapsed, MilliSecs
-		CurrTime = Now()
-		Elapsed = Timer()
-		MilliSecs = Int((Elapsed - Int(Elapsed)) * 1000)
-		GetTimeStamp = _
-		LZ(Year(CurrTime),   4) & "-" _
-		 & LZ(Month(CurrTime),  2) & "-" _
-		 & LZ(Day(CurrTime),	2) & " " _
-		 & LZ(Hour(CurrTime),   2) & ":" _
-		 & LZ(Minute(CurrTime), 2) & ":" _
-		 & LZ(Second(CurrTime), 2) & ":" _
-		 & LZ(MilliSecs, 4)
-	End Function
-	
-	' *** Debug.Print the time with milliseconds, and a message of your choice
-	Public Sub WriteToLog(label, message, code)
-		Dim FormattedMsg, Timestamp
-		'   Filename = UserDirectory + "\" + cGameName + "_debug_log.txt"
-		Filename = cGameName + "_debug_log.txt"
-		
-		Set TxtFileStream = CreateObject("Scripting.FileSystemObject").OpenTextFile(Filename, code, True)
-		Timestamp = GetTimeStamp
-		FormattedMsg = GetTimeStamp + " : " + label + " : " + message
-		TxtFileStream.WriteLine FormattedMsg
-		TxtFileStream.Close
-		Debug.print label & " : " & message
-	End Sub
-End Class
-
-Sub WriteToLog(label, message)
-'	If KeepLogs Then
-'		Dim LogFileObj
-'		Set LogFileObj = New DebugLogFile
-    If debugLogOn = True Then
-        debugLog.WriteToLog label, message, 8
-    End If
-'	End If
-End Sub
-
-'Sub NewLog()
-'	If KeepLogs Then
-'		Dim LogFileObj
-'		Set LogFileObj = New DebugLogFile
-'		LogFileObj.WriteToLog "NEW LOG", " ", 2
-'	End If
-'End Sub
-
-'*****************************************************************************************************************************************
-'  END ERROR LOGS by baldgeek
-'*****************************************************************************************************************************************
-'***********************************************************************************************************************
-'*****   Utility Functions                                    	                                                    ****
-'*****                                                                                                              ****
-'***********************************************************************************************************************
-
-Function Min(value, minVal)
-	if value < minVal then
-		Min=Value
-	Else 
-		Min=minVal
-	End If 
-End Function
-
-Function FormatScore2(ByVal Num) 'it returns a string with commas
-    dim i
-    dim NumString
-
-    NumString = CStr(abs(Num))
-
-	If NumString = "0" Then
-		NumString = "00"
-	Else
-		For i = Len(NumString)-3 to 1 step -3
-			if IsNumeric(mid(NumString, i, 1))then
-				NumString = left(NumString, i) & "," & right(NumString, Len(NumString)-i)
-			end if
-		Next
-	End If
-    FormatScore2 = NumString
-End function
-
-Function BallsOnBridge()
-	Dim lockPinsUp : lockPinsUp = 0
-    If LockPin1.IsDropped = 0 Then
-        lockPinsUp=lockPinsUp+1
-    End If
-    If LockPin2.IsDropped = 0 Then
-        lockPinsUp=lockPinsUp+1
-    End If
-    If LockPin3.IsDropped = 0 Then
-        lockPinsUp=lockPinsUp+1
-    End If
-	BallsOnBridge = lockPinsUp
-End Function
-
-Function RealBallsInPlay()
-	RealBallsInPlay = (5-BallsInTrough) - BallsOnBridge()
-    'Debug.print((5-BallsInTrough) - BallsOnBridge())
-End Function
-
-Function FlattenArrays(arrays)
-    Dim resultArray()
-    Dim i, j, totalSize
-    totalSize = 0
-
-    ' Calculate total size for the resultant array
-    For i = 0 To UBound(arrays)
-        totalSize = totalSize + UBound(arrays(i)) - LBound(arrays(i)) + 1
-    Next
-
-    ' Resize the resultant array
-    ReDim resultArray(totalSize - 1)
-
-    Dim currentIndex
-    currentIndex = 0
-
-    ' Iterate over each array and copy its elements to the resultArray
-    For i = 0 To UBound(arrays)
-        For j = LBound(arrays(i)) To UBound(arrays(i))
-            resultArray(currentIndex) = arrays(i)(j)
-            currentIndex = currentIndex + 1
-        Next
-    Next
-
-    FlattenArrays = resultArray
-End Function
 
 
 '***************************************************************
@@ -14483,50 +14666,20 @@ End Sub
 '*******************************************
 
 'TROUGH 
-Sub swTrough1_Hit
-	MPFController.Switch("0-0-3")=1
-	UpdateTrough
-End Sub
-Sub swTrough1_UnHit
-	MPFController.Switch("0-0-3")=0
-	UpdateTrough
-End Sub
-Sub swTrough2_Hit
-	MPFController.Switch("0-0-8")=1
-	UpdateTrough
-End Sub
-Sub swTrough2_UnHit
-	MPFController.Switch("0-0-8")=0
-	UpdateTrough
-End Sub
-Sub swTrough3_Hit
-	MPFController.Switch("0-0-9")=1
-	UpdateTrough
-End Sub
-Sub swTrough3_UnHit
-	MPFController.Switch("0-0-9")=0
-	UpdateTrough
-End Sub
-Sub swTrough4_Hit
-	MPFController.Switch("0-0-10")=1
-	UpdateTrough
-End Sub
-Sub swTrough4_UnHit
-	MPFController.Switch("0-0-10")=0
-	UpdateTrough
-End Sub
-Sub swTrough5_Hit
-	MPFController.Switch("0-0-11")=1
-	UpdateTrough
-End Sub
-Sub swTrough5_UnHit
-	MPFController.Switch("0-0-11")=0
-	UpdateTrough
-End Sub
+Sub swTrough1_Hit   : UpdateTrough : End Sub
+Sub swTrough1_UnHit : UpdateTrough : End Sub
+Sub swTrough2_Hit   : UpdateTrough : End Sub
+Sub swTrough2_UnHit : UpdateTrough : End Sub
+Sub swTrough3_Hit   : UpdateTrough : End Sub
+Sub swTrough3_UnHit : UpdateTrough : End Sub
+Sub swTrough4_Hit   : UpdateTrough : End Sub
+Sub swTrough4_UnHit : UpdateTrough : End Sub
+Sub swTrough5_Hit   : UpdateTrough : End Sub
+Sub swTrough5_UnHit : UpdateTrough : End Sub
 
 
 Sub UpdateTrough
-	UpdateTroughTimer.Interval = 100
+	UpdateTroughTimer.Interval = 300
 	UpdateTroughTimer.Enabled = 1
 End Sub
 
@@ -14551,6 +14704,132 @@ Function BallsInTrough()
 	If swTrough5.BallCntOver = 1 Then bInTrough = bInTrough + 1
 	BallsInTrough = bInTrough
 End Function
+
+
+'*****************************************************************************************************************************************
+'  Vpx Bcp Controller
+'*****************************************************************************************************************************************
+
+Class VpxBcpController
+
+    Private m_bcpController, m_connected
+
+    Private Sub Class_Initialize()
+        On Error Resume Next
+        Set m_bcpController = CreateObject("vpx_bcp_server.VpxBcpController")
+        m_bcpController.Connect 5050, Null '""
+        m_connected = True
+        bcpUpdate.Enabled = True
+        If Err Then Debug.print("Can't start Vpx Bcp Controller") : m_connected = False
+    End Sub
+
+	Public Sub Send(commandMessage)
+		If m_connected Then
+            m_bcpController.Send commandMessage
+        End If
+	End Sub
+
+    Public Function GetMessages
+		If m_connected Then
+            GetMessages = m_bcpController.GetMessages
+        End If
+	End Function
+
+    Public Sub Reset()
+		If m_connected Then
+            m_bcpController.Send "reset"
+        End If
+	End Sub
+    
+    Public Sub PlaySlide(slide, context, priorty)
+		If m_connected Then
+            m_bcpController.Send "trigger?json={""name"": ""slides_play"", ""settings"": {""" & slide & """: {""action"": ""play"", ""expire"": 0}}, ""context"": """ & context & """, ""priority"": " & priorty & "}"
+        End If
+	End Sub
+
+    Public Sub SendPlayerVariable(name, value, prevValue)
+		If m_connected Then
+            m_bcpController.Send "player_variable?name=" & name & "&value=" & EncodeVariable(value) & "&prev_value=" & EncodeVariable(prevValue) & "&change=" & EncodeVariable(VariableVariance(value, prevValue)) & "&player_num=int:" & GetCurrentPlayerNumber
+            '06:34:34.644 : VERBOSE : BCP : Received BCP command: ball_start?player_num=int:1&ball=int:1
+        End If
+	End Sub
+
+    Private Function EncodeVariable(value)
+        Dim retValue
+        Select Case VarType(value)
+            Case vbInteger, vbLong
+                retValue = "int:" & value
+            Case vbSingle, vbDouble
+                retValue = "float:" & value
+            Case vbString
+                retValue = "string:" & value
+            Case vbBoolean
+                retValue = "bool:" & CStr(value)
+            Case Else
+                retValue = "NoneType:"
+        End Select
+        EncodeVariable = retValue
+    End Function
+    
+    Private Function VariableVariance(v1, v2)
+        Dim retValue
+        Select Case VarType(v1)
+            Case vbInteger, vbLong, vbSingle, vbDouble
+                retValue = Abs(v1 - v2)
+            Case Else
+                retValue = True 
+        End Select
+        VariableVariance = retValue
+    End Function
+
+    Public Sub Disconnect()
+        If m_connected Then
+            m_bcpController.Disconnect()
+            m_connected = False
+            bcpUpdate.Enabled = False
+        End If
+    End Sub
+End Class
+
+Sub BcpSendPlayerVar(args)
+    Dim ownProps, kwargs : ownProps = args(0) : kwargs = args(1) 
+    Dim player_var : player_var = kwargs(0)
+    Dim value : value = kwargs(1)
+    Dim prevValue : prevValue = kwargs(2)
+    bcpController.SendPlayerVariable player_var, value, prevValue
+End Sub
+
+Sub BcpAddPlayer(playerNum)
+    If useBcp Then
+        bcpController.Send("player_added?player_num=int:"&playerNum)
+    End If
+End Sub
+
+Sub bcpUpdate_Timer()
+    Dim messages : messages = bcpController.GetMessages()
+    If IsArray(messages) and UBound(messages)>-1 Then
+        Dim message, parameters, parameter
+        For Each message in messages
+            Select Case message.Command
+                case "hello"
+                    bcpController.Reset
+                case "monitor_start"
+                    Dim category : category = message.GetValue("category")
+                    If category = "player_vars" Then
+                        RegisterPlayerStateEvent SCORE, "BcpSendPlayerVar"
+                        RegisterPlayerStateEvent CURRENT_BALL, "BcpSendPlayerVar"
+                    End If
+                case "register_trigger"
+                    Dim eventName : eventName = message.GetValue("event")
+            End Select
+        Next
+    End If
+End Sub
+
+'*****************************************************************************************************************************************
+'  END Vpx Bcp Controller
+'*****************************************************************************************************************************************
+
 Dim debugWorld : debugWorld = False
 
 Sub ShowDebugRoom()
@@ -14981,9 +15260,6 @@ Class LStateController
                 End If
                 If Not IsNull(vpxLight) Then
                    ' Debug.print("Registering Light: "& vpxLight.name)
-                    vpxLight.State = 1
-                    vpxLight.Color = rgb(0,0,0)
-
                     Dim r : r = Round(vpxLight.y/40)
                     Dim c : c = Round(vpxLight.x/40)
                     If r < rowCount And c < colCount And r >= 0 And c >= 0 Then
@@ -16663,133 +16939,6 @@ Class LCSeqRunner
 
 End Class
 
-
-Class MpfLight
-    Public Name
-    Public Number
-    Public SubType
-End Class
-
-
-Sub ExtractLightsSection(filePath)
-    Dim fso, file, line, inLightsSection, currentIndent
-    Dim lights(), lightCount
-    Dim currentLight : Set currentLight = Nothing
-    lightCount = 0
-    inLightsSection = False
-    currentIndent = 0
-
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    If fso.FileExists(filePath) Then
-        Set file = fso.OpenTextFile(filePath, 1) ' 1 = ForReading
-
-        Do Until file.AtEndOfStream
-            line = file.ReadLine
-
-            ' Check for entering the lights section
-            If Trim(line) = "lights:" Then
-                inLightsSection = True
-                ReDim lights(0)
-            ElseIf inLightsSection And Trim(line) = "" Then
-                ' Exiting the lights section when encountering an empty line
-                inLightsSection = False
-            ElseIf inLightsSection Then
-                Dim currentLineIndent
-                currentLineIndent = Len(line) - Len(LTrim(line))
-
-                ' Start of a new light entry
-                If currentLineIndent = 2 Then
-                    If Not currentLight Is Nothing Then
-                        ' Save the previous light if exists
-                        If lightCount > 0 Then ReDim Preserve lights(lightCount)
-                        Set lights(lightCount) = currentLight
-                        lightCount = lightCount + 1
-                    End If
-                    Set currentLight = New MpfLight
-                    currentLight.Name = Trim(Split(line, ":")(0))
-                ElseIf Not currentLight Is Nothing And currentLineIndent = 4 Then
-                    ' Properties of the light
-                    Dim propertyName, propertyValue
-                    propertyName = LTrim(Split(line, ":")(0))
-                    propertyValue = Trim(Split(line, ":")(1))
-                    
-                    Select Case LCase(propertyName)
-                        Case "number"
-                            currentLight.Number = propertyValue
-                        Case "subtype"
-                            currentLight.SubType = propertyValue
-                    End Select
-                End If
-            End If
-        Loop
-
-        ' Add the last light if not added
-        If Not currentLight Is Nothing Then
-            If lightCount > 0 Then ReDim Preserve lights(lightCount)
-            Set lights(lightCount) = currentLight
-            lightCount = lightCount + 1
-        End If
-
-        file.Close
-    Else
-        msgbox "File not found: " & filePath
-        Exit Sub
-    End If
-
-    ' Output the results
-    Dim i
-    Dim mpfUpdateLamps
-    mpfUpdateLamps = "Sub MPFUpdateLamps(changedLamp, brightness)" & vbCrLf
-    mpfUpdateLamps = mpfUpdateLamps & "  Select Case changedLamp" & vbCrLf
-    For i = 0 To UBound(lights)
-        If lights(i).SubType = "led" Then
-            mpfUpdateLamps = mpfUpdateLamps & "    Case """&lights(i).Number&"-r""" & vbCrLf
-            mpfUpdateLamps = mpfUpdateLamps & "      lightCtrl.LightColor "&lights(i).Name&", ChangeColorChannel(lightCtrl.GetLightColor("&lights(i).Name&"), ""red"", (brightness*255))" & vbCrLf
-            mpfUpdateLamps = mpfUpdateLamps & "    Case """&lights(i).Number&"-g""" & vbCrLf
-            mpfUpdateLamps = mpfUpdateLamps & "      lightCtrl.LightColor "&lights(i).Name&", ChangeColorChannel(lightCtrl.GetLightColor("&lights(i).Name&"), ""green"", (brightness*255))" & vbCrLf
-            mpfUpdateLamps = mpfUpdateLamps & "    Case """&lights(i).Number&"-b""" & vbCrLf
-            mpfUpdateLamps = mpfUpdateLamps & "      lightCtrl.LightColor "&lights(i).Name&", ChangeColorChannel(lightCtrl.GetLightColor("&lights(i).Name&"), ""blue"", (brightness*255))" & vbCrLf
-        End If
-        'mpfUpdateLamps = mpfUpdateLamps & "    Case """&lights(i).Number&"""" & vbCrLf
-        'mpfUpdateLamps = mpfUpdateLamps & "      "&lights(i).Name&".State=brightness" & vbCrLf
-        'msgbox "Name: " & lights(i).Name & ", Number: " & lights(i).Number & ", SubType: " & lights(i).SubType
-    Next
-    mpfUpdateLamps = mpfUpdateLamps & "  End Select" & vbCrLf
-    mpfUpdateLamps = mpfUpdateLamps & "End Sub"
-    ExecuteGlobal mpfUpdateLamps
-    'MsgBox mpfUpdateLamps
-End Sub
-
-
-' Call the subroutine
-ExtractLightsSection("scripts-new/mpf/config/config.yaml")
-
-
-
-Function ChangeColorChannel(currentColor, channel, newValue)
-    Dim red, green, blue
-
-    ' Extract RGB components
-    'debug.print(currentColor)
-    currentColor = clng(currentColor)
-    red = currentColor Mod 256
-    green = (currentColor \ 256) Mod 256
-    blue = (currentColor \ (256 * 256)) Mod 256
-
-    ' Update the specified channel
-    Select Case LCase(channel)
-        Case "red"
-            red = newValue
-        Case "green"
-            green = newValue
-        Case "blue"
-            blue = newValue
-    End Select
-
-    ' Reconstruct the RGB value
-    'debug.print("red:" &red & ", green: "& green & ", blue:" & blue)
-    ChangeColorChannel = RGB(red,green,blue)
-End Function
 
 '******************************************************
 '  TRACK ALL BALL VELOCITIES
@@ -19281,9 +19430,7 @@ Function GetPlayerScore(player)
     End If
 End Function
 
-
 Function GetCurrentPlayerNumber()
-    
     Select Case currentPlayer
         Case "PLAYER 1":
             GetCurrentPlayerNumber = 1
@@ -19305,15 +19452,14 @@ Function SetPlayerState(key, value)
         If Join(GetPlayerState(key)) = Join(value) Then
             Exit Function
         End If
-        WriteToLog "Player State", key&": "&Join(value)
     Else
         If GetPlayerState(key) = value Then
             Exit Function
         End If
-        WriteToLog "Player State", key&": "&value
     End If   
-    
+    Dim prevValue
     If playerState(currentPlayer).Exists(key) Then
+        prevValue = playerState(currentPlayer)(key)
        playerState(currentPlayer).Remove key
     End If
     playerState(currentPlayer).Add key, value
@@ -19324,57 +19470,109 @@ Function SetPlayerState(key, value)
         gameDebugger.SendPlayerState key, value
     End If
     If playerEvents.Exists(key) Then
-        FirePlayerEventCallback key
+        FirePlayerEventHandlers key, value, prevValue
     End If
     
     SetPlayerState = Null
 End Function
 
-Sub RegisterPlayerStateEvent(e, v)
-    If Not playerEvents.Exists(e) Then
-        playerEvents.Add e, CreateObject("Scripting.Dictionary")
+Sub FirePlayerEventHandlers(evt, value, prevValue)
+    If Not playerEvents.Exists(evt) Then
+        Exit Sub
+    End If    
+    Dim k
+    Dim handlers : Set handlers = playerEvents(evt)
+    For Each k In playerEventsOrder(evt)
+        GetRef(handlers(k(1))(0))(Array(handlers(k(1))(2), Array(evt,value,prevValue)))
+    Next
+End Sub
+
+Sub AddPlayerStateEventListener(evt, key, callbackName, priority, args)
+    If Not playerEvents.Exists(evt) Then
+        playerEvents.Add evt, CreateObject("Scripting.Dictionary")
     End If
-    playerEvents(e).Add v, True
+    If Not playerEvents(evt).Exists(key) Then
+        playerEvents(evt).Add key, Array(callbackName, priority, args)
+        SortPlayerEventsByPriority evt, priority, key, True
+    End If
+End Sub
+
+Sub RemovePlayerStateEventListener(evt, key)
+    If playerEvents.Exists(evt) Then
+        If playerEvents(evt).Exists(key) Then
+            playerEvents(evt).Remove key
+            SortPlayerEventsByPriority evt, Null, key, False
+        End If
+    End If
+End Sub
+
+Sub SortPlayerEventsByPriority(evt, priority, key, isAdding)
+    Dim tempArray, i, inserted, foundIndex
+    
+    ' Initialize or update the playerEventsOrder to maintain order based on priority
+    If Not playerEventsOrder.Exists(evt) Then
+        ' If the event does not exist in playerEventsOrder, just add it directly if we're adding
+        If isAdding Then
+            playerEventsOrder.Add evt, Array(Array(priority, key))
+        End If
+    Else
+        tempArray = playerEventsOrder(evt)
+        If isAdding Then
+            ' Prepare to add one more element if adding
+            ReDim Preserve tempArray(UBound(tempArray) + 1)
+            inserted = False
+            
+            For i = 0 To UBound(tempArray) - 1
+                If priority > tempArray(i)(0) Then ' Compare priorities
+                    ' Move existing elements to insert the new callback at the correct position
+                    Dim j
+                    For j = UBound(tempArray) To i + 1 Step -1
+                        tempArray(j) = tempArray(j - 1)
+                    Next
+                    ' Insert the new callback
+                    tempArray(i) = Array(priority, key)
+                    inserted = True
+                    Exit For
+                End If
+            Next
+            
+            ' If the new callback has the lowest priority, add it at the end
+            If Not inserted Then
+                tempArray(UBound(tempArray)) = Array(priority, key)
+            End If
+        Else
+            ' Code to remove an element by key
+            foundIndex = -1 ' Initialize to an invalid index
+            
+            ' First, find the element's index
+            For i = 0 To UBound(tempArray)
+                If tempArray(i)(1) = key Then
+                    foundIndex = i
+                    Exit For
+                End If
+            Next
+            
+            ' If found, remove the element by shifting others
+            If foundIndex <> -1 Then
+                For i = foundIndex To UBound(tempArray) - 1
+                    tempArray(i) = tempArray(i + 1)
+                Next
+                
+                ' Resize the array to reflect the removal
+                ReDim Preserve tempArray(UBound(tempArray) - 1)
+            End If
+        End If
+        
+        ' Update the playerEventsOrder with the newly ordered or modified list
+        playerEventsOrder(evt) = tempArray
+    End If
 End Sub
 
 Sub EmitAllPlayerEvents()
     Dim key
     For Each key in playerState(currentPlayer).Keys()
-        FirePlayerEventCallback key
+        FirePlayerEventHandlers key, GetPlayerState(key), GetPlayerState(key)
     Next
-End Sub
-
-Sub BuildPlayerEventSelectCase()
-    Dim eventName, functionName, caseString, innerDict,BuildSelectCase
-    ' Initialize the Select Case string
-    BuildSelectCase = "Sub FirePlayerEventCallback(eventName)" & vbCrLf
-    BuildSelectCase = BuildSelectCase & "    Select Case eventName" & vbCrLf
-    
-    ' Iterate over the outer dictionary (playerEvents)
-    For Each eventName In playerEvents.Keys
-        ' Start the Case clause for this event
-        caseString = "        Case """ & eventName & """:" & vbCrLf
-        
-        ' Get the sub-dictionary for this event
-        Set innerDict = playerEvents(eventName)
-        
-        ' Iterate over the sub-dictionary to append function names
-        For Each functionName In innerDict.Keys
-            ' Only append if the value is True (as per your description)
-            If innerDict(functionName) = True Then
-                caseString = caseString & "            " & functionName & vbCrLf
-            End If
-        Next
-        
-        ' Append this case to the overall Select Case string
-        BuildSelectCase = BuildSelectCase & caseString
-    Next
-    
-    ' Close the Select Case statement
-    BuildSelectCase = BuildSelectCase & "    End Select" & vbCrLf
-    BuildSelectCase = BuildSelectCase & "End Sub"
-    'debug.print(BuildSelectCase)
-    ExecuteGlobal BuildSelectCase
 End Sub
 
 dim lastimeupdate, period
@@ -19393,126 +19591,11 @@ Sub GameTimer_timer()
 	For Each el in BP_Disc
 		el.Rotz = BM_Disc.RotZ	
 	Next
-
-
-	Dim ii
-	Dim ChgLED : ChgLED = MPFController.ChangedBrightnessLEDs
-	if not isempty(ChgLED) Then	
-		for ii=0 to UBound(ChgLED)
-			'if ChgLED(ii,0) = "0-0-91" Then
-				'debug.print ChgLED(ii,0) &":"& ChgLED(ii,1) 
-			'end if
-			MPFUpdateLamps ChgLED(ii,0), ChgLED(ii,1) 
-		Next
-	end If
-	lightCtrl.SyncLightMapColors
-	
-	Dim ChgSeg : ChgSeg = MPFController.ChangedSegmentDisplayText
-	if not isempty(ChgSeg) Then	
-		for ii=0 to UBound(ChgSeg)
-			If ChgSeg(ii,0) = "1" Then
-				Dim firstChar : firstChar = Mid(ChgSeg(ii,1), 1, 1)
-				Dim secondChar : secondChar = Mid(ChgSeg(ii,1), 2, 1)
-				lightCtrl.LightColor l150, RGB(0,0,0)
-				lightCtrl.LightColor l151, RGB(0,0,0)
-				lightCtrl.LightColor l152, RGB(0,0,0)
-				lightCtrl.LightColor l153, RGB(0,0,0)
-				lightCtrl.LightColor l154, RGB(0,0,0)
-				lightCtrl.LightColor l155, RGB(0,0,0)
-				lightCtrl.LightColor l156, RGB(0,0,0)
-				lightCtrl.LightColor l157, RGB(0,0,0)
-				lightCtrl.LightColor l158, RGB(0,0,0)
-				lightCtrl.LightColor l159, RGB(0,0,0)
-				Select Case firstChar
-					Case "0"
-						lightCtrl.LightColor l150, RGB(255,255,255)
-					Case "1"
-						lightCtrl.LightColor l151, RGB(255,255,255)
-					Case "2"
-						lightCtrl.LightColor l152, RGB(255,255,255)
-					Case "3"
-						lightCtrl.LightColor l153, RGB(255,255,255)
-					Case "4"
-						lightCtrl.LightColor l154, RGB(255,255,255)
-					Case "5"
-						lightCtrl.LightColor l155, RGB(255,255,255)
-					Case "6"
-						lightCtrl.LightColor l156, RGB(255,255,255)
-					Case "7"
-						lightCtrl.LightColor l157, RGB(255,255,255)
-					Case "8"
-						lightCtrl.LightColor l158, RGB(255,255,255)
-					Case "9"
-						lightCtrl.LightColor l159, RGB(255,255,255)
-				End Select
-				lightCtrl.LightColor l160, RGB(0,0,0)
-				lightCtrl.LightColor l161, RGB(0,0,0)
-				lightCtrl.LightColor l162, RGB(0,0,0)
-				lightCtrl.LightColor l163, RGB(0,0,0)
-				lightCtrl.LightColor l164, RGB(0,0,0)
-				lightCtrl.LightColor l165, RGB(0,0,0)
-				lightCtrl.LightColor l166, RGB(0,0,0)
-				lightCtrl.LightColor l167, RGB(0,0,0)
-				lightCtrl.LightColor l168, RGB(0,0,0)
-				lightCtrl.LightColor l169, RGB(0,0,0)
-				Select Case secondChar
-					Case "0"
-						lightCtrl.LightColor l160, RGB(255,255,255)
-					Case "1"
-						lightCtrl.LightColor l161, RGB(255,255,255)
-					Case "2"
-						lightCtrl.LightColor l162, RGB(255,255,255)
-					Case "3"
-						lightCtrl.LightColor l163, RGB(255,255,255)
-					Case "4"
-						lightCtrl.LightColor l164, RGB(255,255,255)
-					Case "5"
-						lightCtrl.LightColor l165, RGB(255,255,255)
-					Case "6"
-						lightCtrl.LightColor l166, RGB(255,255,255)
-					Case "7"
-						lightCtrl.LightColor l167, RGB(255,255,255)
-					Case "8"
-						lightCtrl.LightColor l168, RGB(255,255,255)
-					Case "9"
-						lightCtrl.LightColor l169, RGB(255,255,255)
-				End Select
-			End If
-			'MPFUpdateLamps ChgLED(ii,0), ChgLED(ii,1) 
-		Next
-	end If
-
-
-	Dim ChgSol : ChgSol = MPFController.ChangedSolenoids
-	if not isempty(ChgSol) Then	
-		for ii=0 to UBound(ChgSol)
-			debug.print "coil: " &  ChgSol(ii,0) & ". State: " & ChgSol(ii,1)
-			If ChgSol(ii,0) = "0-0-6" and ChgSol(ii,1) Then
-				AutoPlungerDelay.Interval = 300
-	    		AutoPlungerDelay.Enabled = True
-			End If
-			If ChgSol(ii,0) = "0-0-5" and ChgSol(ii,1) Then
-				ReleaseBall
-			End If
-			If ChgSol(ii,0) = "0-0-7" and ChgSol(ii,1) Then
-				raceVuk.Kick 65, RndInt(7,15)
-				SoundSaucerKick 1, raceVuk
-			End If
-			If ChgSol(ii,0) = "0-0-8" and ChgSol(ii,1) Then
-				sw_38.Kick 0, 60, 1.36
-    			SoundSaucerKick 1, sw_38
-			End If
-			If ChgSol(ii,0) = "0-0-9" and ChgSol(ii,1) Then
-				SoundSaucerKick 1, sw39
-    			KickBall KickerBall39, 0, 0, 55, 10
-			End If
-		Next
-	end If
 End Sub
 
 
 Sub LightTimer_timer()
-	'lightCtrl.Update
+	lightCtrl.Update
 End Sub
 
 Sub FrameTimer_Timer()
@@ -19586,24 +19669,40 @@ Sub Table1_KeyDown(ByVal Keycode)
     'if keycode = 205 then bcright = 1 ' Right Arrow
    
 
-
     If gameStarted = False Then
-        If keycode = StartGameKey Then
-            debug.print("pulsing start")
-            MPFController.PulseSW("0-0-29")
-            gameStarted = true
-            'playerState.RemoveAll()
-            'AddPlayer()
-            'StartGame()
+        If keycode = StartGameKey And gameBooted = True Then
+            playerState.RemoveAll()
+            AddPlayer()
+            StartGame()
         End If
-    Else        
+    Else
+        If GAME_DRAIN_BALLS_AND_RESET = True Or GameTilted = True Then
+            Exit Sub
+        End If
+
+        If GameTimers(GAME_BONUS_TIMER_IDX) > 0 Then 
+            
+            If keycode = LeftFlipperKey Then
+                LFlipperDown = True   
+                If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
+            End If
+            
+            If keycode = RightFlipperKey Then 
+                RFlipperDown = True
+                If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
+            End If    
+            
+            Exit Sub 
+        End If
+        
+        
         If keycode = StartGameKey Then
-            debug.print("pulsing start")
-            MPFController.PulseSW("0-0-29")
-            'DispatchPinEvent SWITCH_START_GAME_KEY
+            AddPlayer()
+        End If
+        If keycode = StartGameKey Then
+            DispatchPinEvent SWITCH_START_GAME_KEY
         End If
         If keycode = PlungerKey Then
-            debug.print("pulsing PLUNGER")
             PlaySoundAt "Plunger_Pull_1", Plunger
             Plunger.Pullback
         End If
@@ -19633,7 +19732,7 @@ Sub Table1_KeyDown(ByVal Keycode)
                 SoundFlipperUpAttackLeft LeftFlipper
                 RandomSoundFlipperUpLeft LeftFlipper
             End If
-            'DispatchPinEvent(SWITCH_LEFT_FLIPPER_DOWN)
+            DispatchPinEvent(SWITCH_LEFT_FLIPPER_DOWN)
         End If
         
         If keycode = RightFlipperKey Then 
@@ -19652,7 +19751,7 @@ Sub Table1_KeyDown(ByVal Keycode)
                 SoundFlipperUpAttackRight RightFlipper
                 RandomSoundFlipperUpRight RightFlipper
             End If
-            'DispatchPinEvent(SWITCH_RIGHT_FLIPPER_DOWN)
+            DispatchPinEvent(SWITCH_RIGHT_FLIPPER_DOWN)
         End If
 
 	    If StagedFlipperMod = 1 Then
@@ -19703,7 +19802,7 @@ Sub Table1_KeyUp(ByVal keycode)
                 RandomSoundFlipperDownLeft LeftFlipper
             End If
             FlipperLeftHitParm = FlipperUpSoundLevel
-            'DispatchPinEvent(SWITCH_LEFT_FLIPPER_UP)
+            DispatchPinEvent(SWITCH_LEFT_FLIPPER_UP)
         End If
         If keycode = RightFlipperKey Then
             DOF 102,DOFOff
@@ -19717,7 +19816,7 @@ Sub Table1_KeyUp(ByVal keycode)
             If RightFlipper.currentangle > RightFlipper.startAngle + 5 Then
                 RandomSoundFlipperDownRight RightFlipper
             FlipperRightHitParm = FlipperUpSoundLevel
-            'DispatchPinEvent(SWITCH_RIGHT_FLIPPER_UP)
+            DispatchPinEvent(SWITCH_RIGHT_FLIPPER_UP)
         End If
 	If StagedFlipperMod = 1 Then
         If keycode = 40 Then
@@ -20552,6 +20651,151 @@ Sub TiltDecreaseTimer_Timer
 	End If
 End Sub
 
+'*****************************************************************************************************************************************
+'  ERROR LOGS by baldgeek
+'*****************************************************************************************************************************************
+
+' Log File Usage:
+'   WriteToLog "Label 1", "Message 1 "
+'   WriteToLog "Label 2", "Message 2 "
+
+Class DebugLogFile
+	Private Filename
+	Private TxtFileStream
+	
+	Private Function LZ(ByVal Number, ByVal Places)
+		Dim Zeros
+		Zeros = String(CInt(Places), "0")
+		LZ = Right(Zeros & CStr(Number), Places)
+	End Function
+	
+	Private Function GetTimeStamp
+		Dim CurrTime, Elapsed, MilliSecs
+		CurrTime = Now()
+		Elapsed = Timer()
+		MilliSecs = Int((Elapsed - Int(Elapsed)) * 1000)
+		GetTimeStamp = _
+		LZ(Year(CurrTime),   4) & "-" _
+		 & LZ(Month(CurrTime),  2) & "-" _
+		 & LZ(Day(CurrTime),	2) & " " _
+		 & LZ(Hour(CurrTime),   2) & ":" _
+		 & LZ(Minute(CurrTime), 2) & ":" _
+		 & LZ(Second(CurrTime), 2) & ":" _
+		 & LZ(MilliSecs, 4)
+	End Function
+	
+	' *** Debug.Print the time with milliseconds, and a message of your choice
+	Public Sub WriteToLog(label, message, code)
+		Dim FormattedMsg, Timestamp
+		'   Filename = UserDirectory + "\" + cGameName + "_debug_log.txt"
+		Filename = cGameName + "_debug_log.txt"
+		
+		Set TxtFileStream = CreateObject("Scripting.FileSystemObject").OpenTextFile(Filename, code, True)
+		Timestamp = GetTimeStamp
+		FormattedMsg = GetTimeStamp + " : " + label + " : " + message
+		TxtFileStream.WriteLine FormattedMsg
+		TxtFileStream.Close
+		Debug.print label & " : " & message
+	End Sub
+End Class
+
+Sub WriteToLog(label, message)
+'	If KeepLogs Then
+'		Dim LogFileObj
+'		Set LogFileObj = New DebugLogFile
+    If debugLogOn = True Then
+        debugLog.WriteToLog label, message, 8
+    End If
+'	End If
+End Sub
+
+'Sub NewLog()
+'	If KeepLogs Then
+'		Dim LogFileObj
+'		Set LogFileObj = New DebugLogFile
+'		LogFileObj.WriteToLog "NEW LOG", " ", 2
+'	End If
+'End Sub
+
+'*****************************************************************************************************************************************
+'  END ERROR LOGS by baldgeek
+'*****************************************************************************************************************************************
+'***********************************************************************************************************************
+'*****   Utility Functions                                    	                                                    ****
+'*****                                                                                                              ****
+'***********************************************************************************************************************
+
+Function Min(value, minVal)
+	if value < minVal then
+		Min=Value
+	Else 
+		Min=minVal
+	End If 
+End Function
+
+Function FormatScore2(ByVal Num) 'it returns a string with commas
+    dim i
+    dim NumString
+
+    NumString = CStr(abs(Num))
+
+	If NumString = "0" Then
+		NumString = "00"
+	Else
+		For i = Len(NumString)-3 to 1 step -3
+			if IsNumeric(mid(NumString, i, 1))then
+				NumString = left(NumString, i) & "," & right(NumString, Len(NumString)-i)
+			end if
+		Next
+	End If
+    FormatScore2 = NumString
+End function
+
+Function BallsOnBridge()
+	Dim lockPinsUp : lockPinsUp = 0
+    If LockPin1.IsDropped = 0 Then
+        lockPinsUp=lockPinsUp+1
+    End If
+    If LockPin2.IsDropped = 0 Then
+        lockPinsUp=lockPinsUp+1
+    End If
+    If LockPin3.IsDropped = 0 Then
+        lockPinsUp=lockPinsUp+1
+    End If
+	BallsOnBridge = lockPinsUp
+End Function
+
+Function RealBallsInPlay()
+	RealBallsInPlay = (5-BallsInTrough) - BallsOnBridge()
+    'Debug.print((5-BallsInTrough) - BallsOnBridge())
+End Function
+
+Function FlattenArrays(arrays)
+    Dim resultArray()
+    Dim i, j, totalSize
+    totalSize = 0
+
+    ' Calculate total size for the resultant array
+    For i = 0 To UBound(arrays)
+        totalSize = totalSize + UBound(arrays(i)) - LBound(arrays(i)) + 1
+    Next
+
+    ' Resize the resultant array
+    ReDim resultArray(totalSize - 1)
+
+    Dim currentIndex
+    currentIndex = 0
+
+    ' Iterate over each array and copy its elements to the resultArray
+    For i = 0 To UBound(arrays)
+        For j = LBound(arrays(i)) To UBound(arrays(i))
+            resultArray(currentIndex) = arrays(i)(j)
+            currentIndex = currentIndex + 1
+        Next
+    Next
+
+    FlattenArrays = resultArray
+End Function
 Class QueueItem
     Public Name
     Public Duration

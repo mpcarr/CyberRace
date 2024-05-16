@@ -212,9 +212,9 @@ Dim ballSaver : ballSaver = False
 Dim ballSaverIgnoreCount : ballSaverIgnoreCount = 0
 Dim ttSpinner
 Dim pinEvents : Set pinEvents = CreateObject("Scripting.Dictionary")
-Dim gameEvents : Set gameEvents = CreateObject("Scripting.Dictionary")
+Dim pinEventsOrder : Set pinEventsOrder = CreateObject("Scripting.Dictionary")
 Dim playerEvents : Set playerEvents = CreateObject("Scripting.Dictionary")
-Dim gameState : Set gameState = CreateObject("Scripting.Dictionary")
+Dim playerEventsOrder : Set playerEventsOrder = CreateObject("Scripting.Dictionary")
 Dim playerState : Set playerState = CreateObject("Scripting.Dictionary")
 Dim DMDDisplay(20,20)
 Dim NumberOfPlayers : NumberOfPlayers=0

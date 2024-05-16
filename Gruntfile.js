@@ -1,30 +1,34 @@
 module.exports = function(grunt) {
   grunt.initConfig({
       concat: {
-        dist: {
-          src: ['src/**/*.vbs', '!src/unittests/**/*.vbs', '!src/**/*.test.vbs', '!src/**/*-ignore.vbs'],
+        vpx: {
+          src: ['src/**/*.vbs', '!src/**/*.test.vbs', '!src/**/*-mpf.vbs'],
           dest: 'dest/tablescript.vbs',
         },
-        state: {
-          src: ['src/game/**/*.vbs'],
-          dest: 'dest/tablescript-state.vbs',
+        mpf: {
+          src: ['src/**/*.vbs', '!src/**/*.test.vbs', '!src/**/*-vpx.vbs'],
+          dest: 'dest/tablescript.vbs',
         },
-        tests:{
-          src: ['src/unittests/vbsUnit.vbs', 'src/unittests/mocks/**/*.vbs', 'dest/tablescript-state.vbs', 'src/unittests/tests-init.vbs','src/**/*.test.vbs', 'src/unittests/tests-report.vbs'],
-          dest: 'dest/tests.vbs',
-        }
       },
       exec: {
           tests: 'cscript dest/tests.vbs'
       },
       watch: {
-        scripts: {
-            files: 'src/**/*.vbs',
-            tasks: ['concat'],
-            //tasks: ['concat', 'exec:tests'],
-            options: {  
-                atBegin: true
-            }
+        vpx: {
+          files: 'src/**/*.vbs',
+          tasks: ['concat:vpx'],
+          //tasks: ['concat', 'exec:tests'],
+          options: {
+            atBegin: true
+          }
+        },
+        mpf: {
+          files: 'src/**/*.vbs',
+          tasks: ['concat:mpf'],
+          //tasks: ['concat', 'exec:tests'],
+          options: {
+            atBegin: true
+          }
         }
       }
   

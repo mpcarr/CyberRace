@@ -30,7 +30,7 @@ window/size/always_on_top=true
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/mpf-gmc/plugin.cfg")
+enabled=PackedStringArray()
 
 [rendering]
 

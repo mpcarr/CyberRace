@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "grunt": "grunt watch"
+    "grunt-vpx": "grunt watch:vpx",
+    "grunt-mpf": "grunt watch:mpf"
   },
   "author": "",
   "license": "ISC",

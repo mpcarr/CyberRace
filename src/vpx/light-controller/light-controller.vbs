@@ -234,9 +234,6 @@ Class LStateController
                 End If
                 If Not IsNull(vpxLight) Then
                    ' Debug.print("Registering Light: "& vpxLight.name)
-                    vpxLight.State = 1
-                    vpxLight.Color = rgb(0,0,0)
-
                     Dim r : r = Round(vpxLight.y/40)
                     Dim c : c = Round(vpxLight.x/40)
                     If r < rowCount And c < colCount And r >= 0 And c >= 0 Then

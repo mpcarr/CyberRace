@@ -1,4 +1,4 @@
-#config_version=5
+#config_version=6
 mode:
   start_events: ball_started
   priority: 2000
@@ -7,6 +7,9 @@ light_player:
   mode_base_started:
     gi:
       color: white
+
+slide_player:
+  mode_base_started: attract
 
 show_player:
   ball_save_main_timer_start:

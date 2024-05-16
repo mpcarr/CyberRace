@@ -14170,11 +14170,11 @@ Sub BIPL_Hit()
     Exit Sub
 
 
-    ballInPlungerLane = True
-    If autoPlunge = True Then
-        AutoPlungerDelay.Interval = 300
-	    AutoPlungerDelay.Enabled = True
-    End If
+    'ballInPlungerLane = True
+    'If autoPlunge = True Then
+    '    AutoPlungerDelay.Interval = 300
+	'    AutoPlungerDelay.Enabled = True
+    'End If
 End Sub
 
 Sub BIPL_UnHit()
@@ -14202,8 +14202,8 @@ End Sub
 '****************************
 ' Release Ball
 ' Event Listeners:  
-    RegisterPinEvent BALL_SAVE,     "AutoPlungeBall"
-    RegisterPinEvent ADD_BALL,      "AutoPlungeBall"
+    'RegisterPinEvent BALL_SAVE,     "AutoPlungeBall"
+    'RegisterPinEvent ADD_BALL,      "AutoPlungeBall"
 '
 '*****************************
 Sub AutoPlungeBall()
@@ -14220,6 +14220,7 @@ End Sub
 
 Dim ballsInQ : ballsInQ = 0
 Sub BallReleaseTimer_Timer()
+    Exit Sub
     If ballInPlungerLane = False And ballsInQ > 0 AND swTrough1.BallCntOver = 1 Then
         ReleaseBall()
         autoPlunge = True
@@ -14273,13 +14274,14 @@ End Sub
 '****************************
 ' Release Ball
 ' Event Listeners:  
-    RegisterPinEvent START_GAME,    "ReleaseBall"
-    RegisterPinEvent NEXT_PLAYER,   "ReleaseBall"
-    RegisterPinEvent RELEASE_BALL,   "ReleaseBall"
+    'RegisterPinEvent START_GAME,    "ReleaseBall"
+    'RegisterPinEvent NEXT_PLAYER,   "ReleaseBall"
+    'RegisterPinEvent RELEASE_BALL,   "ReleaseBall"
 '
 '*****************************
 Sub ReleaseBall()
     swTrough1.kick 90, 10
+    UpdateTrough()
     RandomSoundBallRelease swTrough1
 End Sub
 '*****************************************************************************************************************************************
@@ -14524,7 +14526,7 @@ End Sub
 
 
 Sub UpdateTrough
-	UpdateTroughTimer.Interval = 300
+	UpdateTroughTimer.Interval = 100
 	UpdateTroughTimer.Enabled = 1
 End Sub
 

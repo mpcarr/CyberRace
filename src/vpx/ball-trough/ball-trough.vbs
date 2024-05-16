@@ -46,7 +46,7 @@ End Sub
 
 
 Sub UpdateTrough
-	UpdateTroughTimer.Interval = 300
+	UpdateTroughTimer.Interval = 100
 	UpdateTroughTimer.Enabled = 1
 End Sub
 

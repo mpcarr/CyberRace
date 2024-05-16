@@ -1,9 +1,15 @@
-#config_version=5
+#config_version=6
 
 hardware:
   platform: opp
   driverboards: gen2
   segment_displays: light_segment_displays
+
+bcp:
+  connections:
+    local_display:
+      port: 5050
+  debug: true
 
 modes:
   - base
@@ -11,6 +17,11 @@ modes:
 
 opp:
    ports: /dev/ttyACM0, /dev/ttyACM1
+
+displays:
+  window:
+    width: 640
+    height: 160
 
 switches:
   s_left_flipper:
@@ -638,19 +649,6 @@ flippers:
     main_coil: c_flipper_right_main
     hold_coil: c_flipper_right_hold
     activation_switch: s_right_flipper
-
-displays:
-  window:
-    width: 800
-    height: 600
-
-slide_player:
-  init_done: welcome_slide
-  mode_attract_started: 
-    attract_started:
-      transition:
-            type: fade
-            duration: 3s
 
 keyboard:
   debug: yes

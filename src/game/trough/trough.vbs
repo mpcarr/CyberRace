@@ -2,9 +2,9 @@
 '****************************
 ' Release Ball
 ' Event Listeners:  
-    RegisterPinEvent START_GAME,    "ReleaseBall"
-    RegisterPinEvent NEXT_PLAYER,   "ReleaseBall"
-    RegisterPinEvent RELEASE_BALL,   "ReleaseBall"
+    AddPinEventListener START_GAME, START_GAME &      "ReleaseBall",      "ReleaseBall",  1000, Null
+    AddPinEventListener NEXT_PLAYER, NEXT_PLAYER &     "ReleaseBall",     "ReleaseBall",  1000, Null
+    AddPinEventListener RELEASE_BALL, RELEASE_BALL &     "ReleaseBall",     "ReleaseBall",  1000, Null
 '
 '*****************************
 Sub ReleaseBall()

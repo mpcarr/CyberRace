@@ -2,8 +2,7 @@
 '****************************
 ' Nodes Row A
 ' Event Listeners:      
-    RegisterPlayerStateEvent NODE_ROW_A, "NodesRowA"
-'
+    AddPlayerStateEventListener NODE_ROW_A, NODE_ROW_A &   "NodesRowA",   "NodesRowA",  1000, Null
 '*****************************
 Sub NodesRowA()
     Dim row : row = GetPlayerState(NODE_ROW_A)
@@ -42,8 +41,7 @@ End Sub
 '****************************
 ' Nodes Row B
 ' Event Listeners:      
-    RegisterPlayerStateEvent NODE_ROW_B, "NodesRowB"
-'
+    AddPlayerStateEventListener NODE_ROW_B, NODE_ROW_B &   "NodesRowB",   "NodesRowB",  1000, Null
 '*****************************
 Sub NodesRowB()
     Dim row : row = GetPlayerState(NODE_ROW_B)
@@ -81,8 +79,7 @@ End Sub
 '****************************
 ' Nodes Row C
 ' Event Listeners:      
-    RegisterPlayerStateEvent NODE_ROW_C, "NodesRowC"
-'
+    AddPlayerStateEventListener NODE_ROW_C, NODE_ROW_C &   "NodesRowC",   "NodesRowC",  1000, Null
 '*****************************
 Sub NodesRowC()
     Dim row : row = GetPlayerState(NODE_ROW_C)
@@ -120,8 +117,7 @@ End Sub
 '****************************
 ' Nodes Level Up Ready
 ' Event Listeners:      
-    RegisterPlayerStateEvent NODE_LEVEL_UP_READY, "NodeLevelUpReady"
-'
+    AddPlayerStateEventListener NODE_LEVEL_UP_READY, NODE_LEVEL_UP_READY &   "NodeLevelUpReady",   "NodeLevelUpReady",  1000, Null
 '*****************************
 Sub NodeLevelUpReady()
     If GetPlayerState(NODE_LEVEL_UP_READY) = True Then

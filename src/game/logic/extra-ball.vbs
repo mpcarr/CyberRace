@@ -2,13 +2,12 @@
 '****************************
 ' PS_RaceExtraBall
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_1, "PS_RaceExtraBall"
-RegisterPlayerStateEvent RACE_2, "PS_RaceExtraBall"
-RegisterPlayerStateEvent RACE_3, "PS_RaceExtraBall"
-RegisterPlayerStateEvent RACE_4, "PS_RaceExtraBall"
-RegisterPlayerStateEvent RACE_5, "PS_RaceExtraBall"
-RegisterPlayerStateEvent RACE_6, "PS_RaceExtraBall"
-'
+    AddPlayerStateEventListener RACE_1, RACE_1 &   "PS_RaceExtraBall",   "PS_RaceExtraBall",  1000, Null
+    AddPlayerStateEventListener RACE_2, RACE_2 &   "PS_RaceExtraBall",   "PS_RaceExtraBall",  1000, Null
+    AddPlayerStateEventListener RACE_3, RACE_3 &   "PS_RaceExtraBall",   "PS_RaceExtraBall",  1000, Null
+    AddPlayerStateEventListener RACE_4, RACE_4 &   "PS_RaceExtraBall",   "PS_RaceExtraBall",  1000, Null
+    AddPlayerStateEventListener RACE_5, RACE_5 &   "PS_RaceExtraBall",   "PS_RaceExtraBall",  1000, Null
+    AddPlayerStateEventListener RACE_6, RACE_6 &   "PS_RaceExtraBall",   "PS_RaceExtraBall",  1000, Null
 '*****************************
 Sub PS_RaceExtraBall()
     If GetPlayerState(RACE_EXTRABALL) = 0 Then
@@ -27,7 +26,7 @@ End Sub
 '****************************
 ' Claim Extra Ball
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_SCOOP, "ClaimExtraBall"
+AddPinEventListener SWITCH_HIT_SCOOP, SWITCH_HIT_SCOOP &   "ClaimExtraBall",   "ClaimExtraBall",  1000, Null
 '
 '*****************************
 Sub ClaimExtraBall()

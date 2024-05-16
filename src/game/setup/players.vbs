@@ -9,12 +9,14 @@ Sub AddPlayer()
             playerState.Add "PLAYER 1", InitNewPlayer()
             currentPlayer = "PLAYER 1"
             NumberOfPlayers=1
+            BcpAddPlayer 1
      '       FlexDMD.Stage.GetImage("BGP1").Visible = True
       '      FlexDMD.Stage.GetLabel("Player1").Visible = True
         Case 0:     
             If GetPlayerState(CURRENT_BALL) = 1 Then
                 playerState.Add "PLAYER 2", InitNewPlayer()
                 NumberOfPlayers=2
+                BcpAddPlayer 2
        '         FlexDMD.Stage.GetImage("BGP2").Visible = True
         '        FlexDMD.Stage.GetLabel("Player2").Visible = True
             End If
@@ -22,6 +24,7 @@ Sub AddPlayer()
             If GetPlayerState(CURRENT_BALL) = 1 Then
                 playerState.Add "PLAYER 3", InitNewPlayer()
                 NumberOfPlayers=3
+                BcpAddPlayer 3
          '       FlexDMD.Stage.GetImage("BGP3").Visible = True
           '      FlexDMD.Stage.GetLabel("Player3").Visible = True
             End If     
@@ -29,6 +32,7 @@ Sub AddPlayer()
             If GetPlayerState(CURRENT_BALL) = 1 Then
                 playerState.Add "PLAYER 4", InitNewPlayer()
                 NumberOfPlayers=4
+                BcpAddPlayer 4
            '     FlexDMD.Stage.GetImage("BGP4").Visible = True
             '    FlexDMD.Stage.GetLabel("Player4").Visible = True
             End If  
@@ -388,8 +392,8 @@ End Function
 '****************************
 ' Setup Player
 ' Event Listeners:  
-    RegisterPinEvent START_GAME,    "SetupPlayer"
-    RegisterPinEvent NEXT_PLAYER,   "SetupPlayer"
+    AddPinEventListener START_GAME, START_GAME &      "SetupPlayer",      "SetupPlayer",  1000, Null
+    AddPinEventListener NEXT_PLAYER, NEXT_PLAYER &     "SetupPlayer",     "SetupPlayer",  1000, Null
 '
 '*****************************
 Sub SetupPlayer()

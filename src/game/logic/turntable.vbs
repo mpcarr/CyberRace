@@ -2,8 +2,7 @@
 '****************************
 ' Turn Table Off
 ' Event Listeners:          
-    RegisterPlayerStateEvent MODE_MULTIBALL, "TurnTableState"
-'
+    AddPlayerStateEventListener MODE_MULTIBALL, MODE_MULTIBALL &   "TurnTableState",   "TurnTableState",  1000, Null
 '*****************************
 
 Sub TurnTableState()

@@ -2,7 +2,7 @@
 '****************************
 ' HitMystery
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_MYSTERY, "HitMystery"
+AddPinEventListener SWITCH_HIT_MYSTERY, SWITCH_HIT_MYSTERY &   "HitMystery",   "HitMystery",  1000, Null
 '
 '*****************************
 Sub HitMystery()

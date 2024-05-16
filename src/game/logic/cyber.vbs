@@ -2,7 +2,7 @@
 '****************************
 ' Cyber C 
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_SPINNER1, "SwitchCyberCHit"
+AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "SwitchCyberCHit",   "SwitchCyberCHit",  1000, Null
 '
 '*****************************
 Sub SwitchCyberCHit()
@@ -40,7 +40,7 @@ End Function
 '****************************
 ' Cyber Y 
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "SwitchCyberYHit"
+AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "SwitchCyberYHit",   "SwitchCyberYHit",  1000, Null
 '
 '*****************************
 Sub SwitchCyberYHit()
@@ -79,7 +79,7 @@ End Function
 '****************************
 ' Cyber B
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchCyberBHit"
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "SwitchCyberBHit",   "SwitchCyberBHit",  1000, Null
 '
 '*****************************
 Sub SwitchCyberBHit()
@@ -117,7 +117,7 @@ End Function
 '****************************
 ' Cyber E
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "SwitchCyberEHit"
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "SwitchCyberEHit",   "SwitchCyberEHit",  1000, Null
 '
 '*****************************
 Sub SwitchCyberEHit()
@@ -155,7 +155,7 @@ End Function
 '****************************
 ' Cyber E
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "SwitchCyberRHit"
+AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "SwitchCyberRHit",   "SwitchCyberRHit",  1000, Null
 '
 '*****************************
 Sub SwitchCyberRHit()
@@ -199,8 +199,7 @@ End Sub
 '****************************
 ' Cyber Mode Change
 ' Event Listeners:              
-    RegisterPlayerStateEvent MODE_CYBER, "CyberModeChange"
-'
+    AddPlayerStateEventListener MODE_CYBER, MODE_CYBER &   "CyberModeChange",   "CyberModeChange",  1000, Null
 '*****************************
 Sub CyberModeChange()
     If GetPlayerState(MODE_CYBER) = True Then

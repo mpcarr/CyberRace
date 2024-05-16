@@ -72,7 +72,7 @@ End Function
 '****************************
 ' GameEmpTimerEnded
 ' Event Listeners:      
-    RegisterPinEvent GAME_EMP_TIMER_ENDED, "GameEmpTimerEnded"
+    AddPinEventListener GAME_EMP_TIMER_ENDED, GAME_EMP_TIMER_ENDED &   "GameEmpTimerEnded",   "GameEmpTimerEnded",  1000, Null
 '
 '*****************************
 
@@ -90,7 +90,7 @@ End Sub
 '****************************
 ' EMP MODE Shot 1
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_SPINNER2,       "EMPModeShot1"
+    AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &         "EMPModeShot1",         "EMPModeShot1",  1000, Null
 '
 '*****************************
 Sub EMPModeShot1()

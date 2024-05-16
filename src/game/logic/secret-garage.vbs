@@ -2,7 +2,7 @@
 '****************************
 ' SecretGarageSkip
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_BOTH_FLIPPERS_PRESSED, "SecretGarageSkip"
+    AddPinEventListener SWITCH_BOTH_FLIPPERS_PRESSED, SWITCH_BOTH_FLIPPERS_PRESSED &   "SecretGarageSkip",   "SecretGarageSkip",  1000, Null
 '
 '*****************************
 Sub SecretGarageSkip()
@@ -14,7 +14,7 @@ End Sub
 '****************************
 ' SecretGarageEnter
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_RAMP_PIN, "SecretGarageEnter"
+    AddPinEventListener SWITCH_HIT_RAMP_PIN, SWITCH_HIT_RAMP_PIN &   "SecretGarageEnter",   "SecretGarageEnter",  1000, Null
 '
 '*****************************
 Sub SecretGarageEnter()

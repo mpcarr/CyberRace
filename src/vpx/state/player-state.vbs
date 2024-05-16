@@ -83,7 +83,11 @@ Sub FirePlayerEventHandlers(evt, value, prevValue)
     Dim k
     Dim handlers : Set handlers = playerEvents(evt)
     For Each k In playerEventsOrder(evt)
-        GetRef(handlers(k(1))(0))(Array(handlers(k(1))(2), Array(evt,value,prevValue)))
+        If IsNull(handlers(k(1))(2)) Then
+            GetRef(handlers(k(1))(0))()'(Array(handlers(k(1))(2), kwargs))
+        Else
+            GetRef(handlers(k(1))(0))(Array(handlers(k(1))(2), Array(evt,value,prevValue)))
+        End If
     Next
 End Sub
 

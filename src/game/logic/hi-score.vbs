@@ -2,7 +2,7 @@
 '****************************
 ' HiScore Selection Timer Ended
 ' Event Listeners:      
-RegisterPinEvent GAME_SELECTION_TIMER_ENDED, "HiScoreSelectionTimerEnded"
+AddPinEventListener GAME_SELECTION_TIMER_ENDED, GAME_SELECTION_TIMER_ENDED &   "HiScoreSelectionTimerEnded",   "HiScoreSelectionTimerEnded",  1000, Null
 '
 '*****************************
 Sub HiScoreSelectionTimerEnded()
@@ -15,7 +15,7 @@ End Sub
 '****************************
 ' HiScoreCycleLeft
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_LEFT_FLIPPER_DOWN, "HiScoreCycleLeft"
+    AddPinEventListener SWITCH_LEFT_FLIPPER_DOWN, SWITCH_LEFT_FLIPPER_DOWN &   "HiScoreCycleLeft",   "HiScoreCycleLeft",  1000, Null
 '
 '*****************************
 Sub HiScoreCycleLeft()
@@ -39,7 +39,7 @@ End Sub
 '****************************
 ' HiScoreCycleRight
 ' Event Listeners:  
-RegisterPinEvent SWITCH_RIGHT_FLIPPER_DOWN, "HiScoreCycleRight"
+AddPinEventListener SWITCH_RIGHT_FLIPPER_DOWN, SWITCH_RIGHT_FLIPPER_DOWN &   "HiScoreCycleRight",   "HiScoreCycleRight",  1000, Null
 '
 '*****************************
 Sub HiScoreCycleRight()
@@ -63,7 +63,7 @@ End Sub
 '****************************
 ' HiScoreConfirm
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_SELECT_EVENT_KEY, "HiScoreConfirm"
+    AddPinEventListener SWITCH_SELECT_EVENT_KEY, SWITCH_SELECT_EVENT_KEY &   "HiScoreConfirm",   "HiScoreConfirm",  1000, Null
 '
 '*****************************
 Sub HiScoreConfirm()

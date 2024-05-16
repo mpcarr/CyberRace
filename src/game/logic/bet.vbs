@@ -2,7 +2,7 @@
 '****************************
 ' Bet 1
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_BET1, "SwitchBet1Hit"
+    AddPinEventListener SWITCH_HIT_BET1, SWITCH_HIT_BET1 &   "SwitchBet1Hit",   "SwitchBet1Hit",  1000, Null
 '
 '*****************************
 Sub SwitchBet1Hit()
@@ -19,7 +19,7 @@ End Sub
 '****************************
 ' Bet 2
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_BET2, "SwitchBet2Hit"
+AddPinEventListener SWITCH_HIT_BET2, SWITCH_HIT_BET2 &   "SwitchBet2Hit",   "SwitchBet2Hit",  1000, Null
 '
 '*****************************
 Sub SwitchBet2Hit()
@@ -36,7 +36,7 @@ End Sub
 '****************************
 ' Bet 3
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_BET3, "SwitchBet3Hit"
+AddPinEventListener SWITCH_HIT_BET3, SWITCH_HIT_BET3 &   "SwitchBet3Hit",   "SwitchBet3Hit",  1000, Null
 '
 '*****************************
 Sub SwitchBet3Hit()
@@ -53,8 +53,7 @@ End Sub
 '****************************
 ' Check Bet Hits
 ' Event Listeners:          
-    RegisterPlayerStateEvent BET_HITS, "CheckBetHits"
-'
+    AddPlayerStateEventListener BET_HITS, BET_HITS &   "CheckBetHits",   "CheckBetHits",  1000, Null
 '*****************************
 
 Sub CheckBetHits()
@@ -102,8 +101,8 @@ End Function
 '****************************
 ' Bet Mode Spinner Hit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_SPINNER1, "BetModeSpinnerHit"
-    RegisterPinEvent SWITCH_HIT_SPINNER2, "BetModeSpinnerHit"
+    AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "BetModeSpinnerHit",   "BetModeSpinnerHit",  1000, Null
+    AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &   "BetModeSpinnerHit",   "BetModeSpinnerHit",  1000, Null
 '
 '*****************************
 Sub BetModeSpinnerHit()
@@ -132,7 +131,7 @@ End Function
 '****************************
 ' Bet Mode Collect Hit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "BetModeCollect"
+    AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "BetModeCollect",   "BetModeCollect",  1000, Null
 '
 '*****************************
 Sub BetModeCollect()
@@ -157,7 +156,7 @@ End Sub
 '****************************
 ' BetModeTimerHurry
 ' Event Listeners:          
-    RegisterPinEvent GAME_BET_TIMER_HURRY, "BetModeTimerHurry"
+    AddPinEventListener GAME_BET_TIMER_HURRY, GAME_BET_TIMER_HURRY &   "BetModeTimerHurry",   "BetModeTimerHurry",  1000, Null
 '
 '*****************************
 Sub BetModeTimerHurry()
@@ -176,7 +175,7 @@ End Sub
 '****************************
 ' BetModeTimerEnded
 ' Event Listeners:          
-    RegisterPinEvent GAME_BET_TIMER_ENDED, "BetModeTimerEnded"
+    AddPinEventListener GAME_BET_TIMER_ENDED, GAME_BET_TIMER_ENDED &   "BetModeTimerEnded",   "BetModeTimerEnded",  1000, Null
 '
 '*****************************
 Sub BetModeTimerEnded()

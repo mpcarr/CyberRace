@@ -226,10 +226,10 @@ Const GI_COLOR = "GI Color"
 Const FLEX_MODE = "Flex Mode"
 Const PLAYER_NAME = "Player Name"
 'Score 
-Const SCORE = "Player Score"
+Const SCORE = "score"
 
 'Ball
-Const CURRENT_BALL = "Current Ball"
+Const CURRENT_BALL = "ball"
 Const ENABLE_BALLSAVER = "Enable Ball Saver"
 Const EXTRA_BALLS = "Extra Balls"
 'Lanes

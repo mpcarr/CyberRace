@@ -24,8 +24,8 @@ End Sub
 '****************************
 ' Release Ball
 ' Event Listeners:  
-    RegisterPinEvent BALL_SAVE,     "AutoPlungeBall"
-    RegisterPinEvent ADD_BALL,      "AutoPlungeBall"
+    AddPinEventListener BALL_SAVE, BALL_SAVE &       "AutoPlungeBall",       "AutoPlungeBall",  1000, Null
+    AddPinEventListener ADD_BALL, ADD_BALL &        "AutoPlungeBall",        "AutoPlungeBall",  1000, Null
 '
 '*****************************
 Sub AutoPlungeBall()

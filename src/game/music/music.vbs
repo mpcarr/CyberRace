@@ -12,8 +12,8 @@ Const MUSIC_MULTIBALL =  "Karl Casey - White Bat I - 06 Last Man Standing"
 '****************************
 ' Music
 ' Event Listeners:  
-RegisterPinEvent START_GAME,    "MusicOn"
-RegisterPinEvent NEXT_PLAYER,   "MusicOn"
+AddPinEventListener START_GAME, START_GAME &      "MusicOn",      "MusicOn",  1000, Null
+AddPinEventListener NEXT_PLAYER, NEXT_PLAYER &     "MusicOn",     "MusicOn",  1000, Null
 '
 '*****************************
 Sub MusicOn

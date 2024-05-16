@@ -3,7 +3,7 @@
 '****************************
 ' TT ORBIT
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "SwitchTTOrbitHit"
+AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "SwitchTTOrbitHit",   "SwitchTTOrbitHit",  1000, Null
 '
 '*****************************
 Sub SwitchTTOrbitHit()
@@ -20,7 +20,7 @@ End Sub
 '****************************
 ' TT Ramp
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_SCOOP, "SwitchTTRampHit"
+AddPinEventListener SWITCH_HIT_SCOOP, SWITCH_HIT_SCOOP &   "SwitchTTRampHit",   "SwitchTTRampHit",  1000, Null
 '
 '*****************************
 Sub SwitchTTRampHit()
@@ -37,7 +37,7 @@ End Sub
 '****************************
 ' TT Target
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_BOOST3, "SwitchTTTargetHit"
+AddPinEventListener SWITCH_HIT_BOOST3, SWITCH_HIT_BOOST3 &   "SwitchTTTargetHit",   "SwitchTTTargetHit",  1000, Null
 '
 '*****************************
 Sub SwitchTTTargetHit()
@@ -54,7 +54,7 @@ End Sub
 '****************************
 ' TT Captive
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_CAPTIVE, "SwitchTTCaptiveHit"
+AddPinEventListener SWITCH_HIT_CAPTIVE, SWITCH_HIT_CAPTIVE &   "SwitchTTCaptiveHit",   "SwitchTTCaptiveHit",  1000, Null
 '
 '*****************************
 Sub SwitchTTCaptiveHit()
@@ -71,7 +71,7 @@ End Sub
 '****************************
 ' TT Shortcut
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_SHORTCUT, "SwitchTTShortcutHit"
+AddPinEventListener SWITCH_HIT_SHORTCUT, SWITCH_HIT_SHORTCUT &   "SwitchTTShortcutHit",   "SwitchTTShortcutHit",  1000, Null
 '
 '*****************************
 Sub SwitchTTShortcutHit()
@@ -88,8 +88,7 @@ End Sub
 '****************************
 ' PS_TTCollected
 ' Event Listeners:          
-    RegisterPlayerStateEvent TT_COLLECTED, "PS_TTCollected"
-'
+    AddPlayerStateEventListener TT_COLLECTED, TT_COLLECTED &   "PS_TTCollected",   "PS_TTCollected",  1000, Null
 '*****************************
 Sub PS_TTCollected()
     If GetPlayerState(TT_COLLECTED) = 10 * GetPlayerState(TT_ACTIVATIONS) Then
@@ -151,8 +150,7 @@ End Sub
 '****************************
 ' PS_TTJackpots
 ' Event Listeners:          
-RegisterPlayerStateEvent TT_JACKPOTS, "PS_TTJackpots"
-'
+    AddPlayerStateEventListener TT_JACKPOTS, TT_JACKPOTS &   "PS_TTJackpots",   "PS_TTJackpots",  1000, Null
 '*****************************
 Sub PS_TTJackpots()
     If GetPlayerState(MODE_TT_MULTIBALL) = True And GetPlayerState(TT_JACKPOTS) = 5 And GetPlayerState(GRANDSLAM_TT) = False Then
@@ -183,7 +181,7 @@ End Sub
 '****************************
 ' MBTT Spinner Shot
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_SPINNER1, "MBTTSpinnerShot"
+AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "MBTTSpinnerShot",   "MBTTSpinnerShot",  1000, Null
 '
 '*****************************
 Sub MBTTSpinnerShot
@@ -200,7 +198,7 @@ End Sub
 '****************************
 ' MBTt Left Orbit Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "MBTTLeftOrbitShot"
+    AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "MBTTLeftOrbitShot",   "MBTTLeftOrbitShot",  1000, Null
 '
 '*****************************
 Sub MBTTLeftOrbitShot
@@ -217,7 +215,7 @@ End Sub
 '****************************
 ' MBTT Left Ramp Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "MBTTLeftRampShot"
+    AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "MBTTLeftRampShot",   "MBTTLeftRampShot",  1000, Null
 '
 '*****************************
 Sub MBTTLeftRampShot
@@ -234,7 +232,7 @@ End Sub
 '****************************
 ' MBTT Right Ramp Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "MBTTRightRampShot"
+    AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "MBTTRightRampShot",   "MBTTRightRampShot",  1000, Null
 '
 '*****************************
 Sub MBTTRightRampShot
@@ -251,7 +249,7 @@ End Sub
 '****************************
 ' MBTT Right Orbit Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "MBTTRightOrbitShot"
+    AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "MBTTRightOrbitShot",   "MBTTRightOrbitShot",  1000, Null
 '
 '*****************************
 Sub MBTTRightOrbitShot
@@ -268,7 +266,7 @@ End Sub
 '****************************
 ' MBTT End
 ' Event Listeners:      
-RegisterPinEvent BALL_DRAIN, "MBTTEnd"
+AddPinEventListener BALL_DRAIN, BALL_DRAIN &   "MBTTEnd",   "MBTTEnd",  1000, Null
 '
 '*****************************
 Sub MBTTEnd
@@ -287,7 +285,7 @@ End Sub
 '****************************
 ' MBTT Timer End
 ' Event Listeners:      
-RegisterPinEvent GAME_TT_TIMER_ENDED, "MBTTTimerEnd"
+AddPinEventListener GAME_TT_TIMER_ENDED, GAME_TT_TIMER_ENDED &   "MBTTTimerEnd",   "MBTTTimerEnd",  1000, Null
 '
 '*****************************
 Sub MBTTTimerEnd

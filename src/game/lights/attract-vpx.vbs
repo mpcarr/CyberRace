@@ -2,7 +2,7 @@
 '****************************
 ' Attract
 ' Event Listeners:          
-    RegisterPinEvent GAME_OVER, "StartAttract"
+    AddPinEventListener GAME_OVER, GAME_OVER &   "StartAttract",   "StartAttract",  1000, Null
 '
 '*****************************
 Sub StartAttract()

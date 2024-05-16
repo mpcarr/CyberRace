@@ -2,7 +2,7 @@
 '****************************
 ' Skills Trial
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_SPINNER1, "SkillsTrial"
+    AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "SkillsTrial",   "SkillsTrial",  1000, Null
 '
 '*****************************
 Sub SkillsTrial()
@@ -21,7 +21,7 @@ End Sub
 '****************************
 ' Skills Trial Ready
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LANE_A, "CheckSkillsTrialReady"
+    AddPinEventListener SWITCH_HIT_LANE_A, SWITCH_HIT_LANE_A &   "CheckSkillsTrialReady",   "CheckSkillsTrialReady",  1000, Null
 '
 '*****************************
 Sub CheckSkillsTrialReady()
@@ -52,7 +52,7 @@ End Sub
 '****************************
 ' Skills Trial Shot 1
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "SkillsTrialShot1"
+    AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "SkillsTrialShot1",   "SkillsTrialShot1",  1000, Null
 '
 '*****************************
 Sub SkillsTrialShot1()
@@ -70,7 +70,7 @@ End Sub
 '****************************
 ' Skills Trial Shot 2
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "SkillsTrialShot2"
+    AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "SkillsTrialShot2",   "SkillsTrialShot2",  1000, Null
 '
 '*****************************
 Sub SkillsTrialShot2()
@@ -88,7 +88,7 @@ End Sub
 '****************************
 ' Skills Trial Shot 3
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SkillsTrialShot3"
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "SkillsTrialShot3",   "SkillsTrialShot3",  1000, Null
 '
 '*****************************
 Sub SkillsTrialShot3
@@ -109,8 +109,7 @@ End Sub
 '****************************
 ' Skills Trial Lock Pin
 ' Event Listeners:      
-    RegisterPlayerStateEvent MODE_SKILLS_TRIAL, "SkillsTrialLockPin"
-'
+    AddPlayerStateEventListener MODE_SKILLS_TRIAL, MODE_SKILLS_TRIAL &   "SkillsTrialLockPin",   "SkillsTrialLockPin",  1000, Null
 '*****************************
 Sub SkillsTrialLockPin
     If GetPlayerState(MODE_SKILLS_TRIAL) = True Then
@@ -131,7 +130,7 @@ End Sub
 '****************************
 ' GameSkillsTimerEnded
 ' Event Listeners:      
-    RegisterPinEvent GAME_SKILLS_TIMER_ENDED, "GameSkillsTimerEnded"
+    AddPinEventListener GAME_SKILLS_TIMER_ENDED, GAME_SKILLS_TIMER_ENDED &   "GameSkillsTimerEnded",   "GameSkillsTimerEnded",  1000, Null
 '
 '*****************************
 

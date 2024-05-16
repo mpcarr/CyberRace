@@ -2,7 +2,7 @@
 '****************************
 ' Boost 1
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_BOOST1, "SwitchBOOST1Hit"
+    AddPinEventListener SWITCH_HIT_BOOST1, SWITCH_HIT_BOOST1 &   "SwitchBOOST1Hit",   "SwitchBOOST1Hit",  1000, Null
 '
 '*****************************
 Sub SwitchBOOST1Hit()
@@ -27,7 +27,7 @@ End Sub
 '****************************
 ' Boost 2
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_BOOST2, "SwitchBOOST2Hit"
+    AddPinEventListener SWITCH_HIT_BOOST2, SWITCH_HIT_BOOST2 &   "SwitchBOOST2Hit",   "SwitchBOOST2Hit",  1000, Null
 '
 '*****************************
 Sub SwitchBOOST2Hit
@@ -51,7 +51,7 @@ End Sub
 '****************************
 ' Boost 3
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_BOOST3, "SwitchBOOST3Hit"
+AddPinEventListener SWITCH_HIT_BOOST3, SWITCH_HIT_BOOST3 &   "SwitchBOOST3Hit",   "SwitchBOOST3Hit",  1000, Null
 '
 '*****************************
 Sub SwitchBOOST3Hit
@@ -76,8 +76,7 @@ End Sub
 '****************************
 ' Check Boost Mode Complete 
 ' Event Listeners:              
-    RegisterPlayerStateEvent BOOST_HITS, "CheckBoostHits"
-'
+    AddPlayerStateEventListener BOOST_HITS, BOOST_HITS &   "CheckBoostHits",   "CheckBoostHits",  1000, Null
 '*****************************
 Sub CheckBoostHits
     If GetPlayerState(BOOST_1) = 1 AND GetPlayerState(BOOST_2) = 1 AND GetPlayerState(BOOST_3) = 1 Then
@@ -90,8 +89,7 @@ End Sub
 '****************************
 ' Check Boost Mode Complete 
 ' Event Listeners:              
-    RegisterPlayerStateEvent BOOST_SHOT, "CheckBoostModeComplete"
-'
+    AddPlayerStateEventListener BOOST_SHOT, BOOST_SHOT &   "CheckBoostModeComplete",   "CheckBoostModeComplete",  1000, Null
 '*****************************
 Sub CheckBoostModeComplete
         If GetPlayerState(MODE_BOOST) = True Then
@@ -117,8 +115,7 @@ End Sub
 '****************************
 ' Check Boost Mode Start 
 ' Event Listeners:              
-    RegisterPlayerStateEvent BOOST_HITS, "CheckBoostModeStart"
-'
+    AddPlayerStateEventListener BOOST_HITS, BOOST_HITS &   "CheckBoostModeStart",   "CheckBoostModeStart",  1000, Null
 '*****************************
 Sub CheckBoostModeStart
         If GetPlayerState(MODE_BOOST) = False AND GetPlayerState(BOOST_HITS) = (3 * GetPlayerState(BOOST_ACTIVATIONS)) Then

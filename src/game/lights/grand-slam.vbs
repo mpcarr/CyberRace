@@ -17,8 +17,7 @@ End Sub
 '****************************
 ' PS_GrandSlamTT
 ' Event Listeners:  
-RegisterPlayerStateEvent GRANDSLAM_TT, "PS_GrandSlamTT"
-'
+    AddPlayerStateEventListener GRANDSLAM_TT, GRANDSLAM_TT &   "PS_GrandSlamTT",   "PS_GrandSlamTT",  1000, Null
 '*****************************
 Sub PS_GrandSlamTT()
     If GetPlayerState(GRANDSLAM_TT) = True Then
@@ -31,8 +30,7 @@ End Sub
 '****************************
 ' PS_GrandSlamRaces
 ' Event Listeners:  
-RegisterPlayerStateEvent GRANDSLAM_RACES, "PS_GrandSlamRaces"
-'
+    AddPlayerStateEventListener GRANDSLAM_RACES, GRANDSLAM_RACES &   "PS_GrandSlamRaces",   "PS_GrandSlamRaces",  1000, Null
 '*****************************
 Sub PS_GrandSlamRaces()
     If GetPlayerState(GRANDSLAM_RACES) = True Then
@@ -45,8 +43,7 @@ End Sub
 '****************************
 ' PS_GrandSlamSkills
 ' Event Listeners:  
-RegisterPlayerStateEvent GRANDSLAM_SKILLS, "PS_GrandSlamSkills"
-'
+    AddPlayerStateEventListener GRANDSLAM_SKILLS, GRANDSLAM_SKILLS &   "PS_GrandSlamSkills",   "PS_GrandSlamSkills",  1000, Null
 '*****************************
 Sub PS_GrandSlamSkills()
     If GetPlayerState(GRANDSLAM_SKILLS) = True Then
@@ -59,8 +56,7 @@ End Sub
 '****************************
 ' PS_GrandSlamNodes
 ' Event Listeners:  
-RegisterPlayerStateEvent GRANDSLAM_NODES, "PS_GrandSlamNodes"
-'
+    AddPlayerStateEventListener GRANDSLAM_NODES, GRANDSLAM_NODES &   "PS_GrandSlamNodes",   "PS_GrandSlamNodes",  1000, Null
 '*****************************
 Sub PS_GrandSlamNodes()
     If GetPlayerState(GRANDSLAM_NODES) = True Then
@@ -73,8 +69,7 @@ End Sub
 '****************************
 ' PS_GrandSlamCombo
 ' Event Listeners:  
-RegisterPlayerStateEvent GRANDSLAM_COMBO, "PS_GrandSlamCombo"
-'
+    AddPlayerStateEventListener GRANDSLAM_COMBO, GRANDSLAM_COMBO &   "PS_GrandSlamCombo",   "PS_GrandSlamCombo",  1000, Null
 '*****************************
 Sub PS_GrandSlamCombo()
     If GetPlayerState(GRANDSLAM_COMBO) = True Then

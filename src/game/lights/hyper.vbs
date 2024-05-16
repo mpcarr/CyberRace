@@ -2,8 +2,7 @@
 '****************************
 ' HYPER
 ' Event Listeners:          
-    RegisterPlayerStateEvent HYPER, "PS_Hyper"
-'
+    AddPlayerStateEventListener HYPER, HYPER &   "PS_Hyper",   "PS_Hyper",  1000, Null
 '*****************************
 Sub PS_Hyper()
     lightCtrl.LightOff l37

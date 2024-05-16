@@ -4,7 +4,7 @@ Dim totalMbScore : totalMbScore = 0
 '****************************
 ' Captive Ball Hit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_CAPTIVE, "SwitchHitCaptive"
+    AddPinEventListener SWITCH_HIT_CAPTIVE, SWITCH_HIT_CAPTIVE &   "SwitchHitCaptive",   "SwitchHitCaptive",  1000, Null
 '
 '*****************************
 Sub SwitchHitCaptive()
@@ -26,7 +26,7 @@ End Sub
 '****************************
 ' Ramp Lock Gate Hit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RAMP_LOCK, "SwitchHitRampLockGate"
+AddPinEventListener SWITCH_HIT_RAMP_LOCK, SWITCH_HIT_RAMP_LOCK &   "SwitchHitRampLockGate",   "SwitchHitRampLockGate",  1000, Null
 '
 '*****************************
 Sub SwitchHitRampLockGate()
@@ -166,8 +166,7 @@ End Sub
 '****************************
 ' Check Lock Hits
 ' Event Listeners:          
-    RegisterPlayerStateEvent LOCK_HITS, "CheckLockHits"
-'
+    AddPlayerStateEventListener LOCK_HITS, LOCK_HITS &   "CheckLockHits",   "CheckLockHits",  1000, Null
 '*****************************
 
 Sub CheckLockHits()
@@ -181,9 +180,8 @@ End Sub
 '****************************
 ' Check Lock Lit
 ' Event Listeners:          
-    RegisterPlayerStateEvent LOCK_LIT, "CheckLockLit"
-    RegisterPlayerStateEvent MODE_MULTIBALL, "CheckLockLit"
-'
+    AddPlayerStateEventListener LOCK_LIT, LOCK_LIT &   "CheckLockLit",   "CheckLockLit",  1000, Null
+    AddPlayerStateEventListener MODE_MULTIBALL, MODE_MULTIBALL &   "CheckLockLit",   "CheckLockLit",  1000, Null
 '*****************************
 
 Sub CheckLockLit()
@@ -199,7 +197,7 @@ End Sub
 '****************************
 ' LockCheckDiverter
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP_ENTER, "LockCheckDiverter"
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP_ENTER, SWITCH_HIT_RIGHT_RAMP_ENTER &   "LockCheckDiverter",   "LockCheckDiverter",  1000, Null
 '
 '*****************************
 Sub LockCheckDiverter
@@ -223,7 +221,7 @@ End Sub
 '****************************
 ' MB Spinner Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_SPINNER1, "MBSpinnerShot"
+    AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "MBSpinnerShot",   "MBSpinnerShot",  1000, Null
 '
 '*****************************
 Sub MBSpinnerShot
@@ -239,7 +237,7 @@ End Sub
 '****************************
 ' MB Left Orbit Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "MBLeftOrbitShot"
+    AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "MBLeftOrbitShot",   "MBLeftOrbitShot",  1000, Null
 '
 '*****************************
 Sub MBLeftOrbitShot
@@ -255,7 +253,7 @@ End Sub
 '****************************
 ' MB Left Ramp Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "MBLeftRampShot"
+    AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "MBLeftRampShot",   "MBLeftRampShot",  1000, Null
 '
 '*****************************
 Sub MBLeftRampShot
@@ -281,7 +279,7 @@ End Sub
 '****************************
 ' MB Right Ramp Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "MBRightRampShot"
+    AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "MBRightRampShot",   "MBRightRampShot",  1000, Null
 '
 '*****************************
 Sub MBRightRampShot
@@ -297,7 +295,7 @@ End Sub
 '****************************
 ' MB Right Orbit Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "MBRightOrbitShot"
+    AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "MBRightOrbitShot",   "MBRightOrbitShot",  1000, Null
 '
 '*****************************
 Sub MBRightOrbitShot
@@ -313,7 +311,7 @@ End Sub
 '****************************
 ' MB End
 ' Event Listeners:      
-RegisterPinEvent BALL_DRAIN, "MBEnd"
+AddPinEventListener BALL_DRAIN, BALL_DRAIN &   "MBEnd",   "MBEnd",  1000, Null
 '
 '*****************************
 Sub MBEnd

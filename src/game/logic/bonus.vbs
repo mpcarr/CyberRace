@@ -3,7 +3,7 @@
 '****************************
 ' BonusSkip
 ' Event Listeners:          
-RegisterPinEvent SWITCH_BOTH_FLIPPERS_PRESSED, "BonusSkip"
+AddPinEventListener SWITCH_BOTH_FLIPPERS_PRESSED, SWITCH_BOTH_FLIPPERS_PRESSED &   "BonusSkip",   "BonusSkip",  1000, Null
 '
 '*****************************
 Sub BonusSkip()

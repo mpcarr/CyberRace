@@ -1,13 +1,12 @@
 '****************************
 ' GI State
 ' Event Listeners:  
-    RegisterPlayerStateEvent GI_STATE, "GIState"
-    RegisterPlayerStateEvent GI_COLOR, "GIState"
-    RegisterPlayerStateEvent MODE_RACE, "GIState"
-    RegisterPlayerStateEvent MODE_MULTIBALL, "GIState"
-    RegisterPlayerStateEvent MODE_TT_MULTIBALL, "GIState"
-    RegisterPlayerStateEvent MODE_BET, "GIState"
-'
+    AddPlayerStateEventListener GI_STATE, GI_STATE &   "GIState",   "GIState",  1000, Null
+    AddPlayerStateEventListener GI_COLOR, GI_COLOR &   "GIState",   "GIState",  1000, Null
+    AddPlayerStateEventListener MODE_RACE, MODE_RACE &   "GIState",   "GIState",  1000, Null
+    AddPlayerStateEventListener MODE_MULTIBALL, MODE_MULTIBALL &   "GIState",   "GIState",  1000, Null
+    AddPlayerStateEventListener MODE_TT_MULTIBALL, MODE_TT_MULTIBALL &   "GIState",   "GIState",  1000, Null
+    AddPlayerStateEventListener MODE_BET, MODE_BET &   "GIState",   "GIState",  1000, Null
 '*****************************
 Sub GIState()
     Dim light, state, color, colors, dofEvent

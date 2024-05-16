@@ -2,7 +2,7 @@
 '****************************
 ' Check Race Ready
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_HIT_RACE_KICKER, "CheckRaceReady"
+    AddPinEventListener SWITCH_HIT_RACE_KICKER, SWITCH_HIT_RACE_KICKER &   "CheckRaceReady",   "CheckRaceReady",  1000, Null
 '
 '*****************************
 Sub CheckRaceReady()
@@ -37,7 +37,7 @@ End Sub
 '****************************
 ' Race Mode Finish
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "CheckRaceModeFinish"
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "CheckRaceModeFinish",   "CheckRaceModeFinish",  1000, Null
 '
 '*****************************
 Sub CheckRaceModeFinish()
@@ -98,7 +98,7 @@ End Sub
 '****************************
 ' Race Selection Timer Ended
 ' Event Listeners:      
-    RegisterPinEvent GAME_SELECTION_TIMER_ENDED, "RaceSelectionTimerEnded"
+    AddPinEventListener GAME_SELECTION_TIMER_ENDED, GAME_SELECTION_TIMER_ENDED &   "RaceSelectionTimerEnded",   "RaceSelectionTimerEnded",  1000, Null
 '
 '*****************************
 Sub RaceSelectionTimerEnded()
@@ -111,7 +111,7 @@ End Sub
 '****************************
 ' RaceSelectCycleLeft
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_LEFT_FLIPPER_DOWN, "RaceSelectCycleLeft"
+    AddPinEventListener SWITCH_LEFT_FLIPPER_DOWN, SWITCH_LEFT_FLIPPER_DOWN &   "RaceSelectCycleLeft",   "RaceSelectCycleLeft",  1000, Null
 '
 '*****************************
 Sub RaceSelectCycleLeft()
@@ -137,7 +137,7 @@ End Sub
 '****************************
 ' RaceSelectCycleRight
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_RIGHT_FLIPPER_DOWN, "RaceSelectCycleRight"
+    AddPinEventListener SWITCH_RIGHT_FLIPPER_DOWN, SWITCH_RIGHT_FLIPPER_DOWN &   "RaceSelectCycleRight",   "RaceSelectCycleRight",  1000, Null
 '
 '*****************************
 Sub RaceSelectCycleRight()
@@ -164,7 +164,7 @@ End Sub
 '****************************
 ' RaceSelectConfirm
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_SELECT_EVENT_KEY, "RaceSelectConfirm"
+    AddPinEventListener SWITCH_SELECT_EVENT_KEY, SWITCH_SELECT_EVENT_KEY &   "RaceSelectConfirm",   "RaceSelectConfirm",  1000, Null
 '
 '*****************************
 Sub RaceSelectConfirm()
@@ -254,7 +254,7 @@ End Sub
 '****************************
 ' RaceModeShortcutHit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_SHORTCUT, "RaceModeShortcutHit"
+    AddPinEventListener SWITCH_HIT_SHORTCUT, SWITCH_HIT_SHORTCUT &   "RaceModeShortcutHit",   "RaceModeShortcutHit",  1000, Null
 '
 '*****************************
 Sub RaceModeShortcutHit()
@@ -281,8 +281,8 @@ End Sub
 '****************************
 ' RaceMode1RampHit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "RaceMode1RampHit"
-    RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "RaceMode1RampHit"
+    AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "RaceMode1RampHit",   "RaceMode1RampHit",  1000, Null
+    AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "RaceMode1RampHit",   "RaceMode1RampHit",  1000, Null
 '
 '*****************************
 Sub RaceMode1RampHit()
@@ -303,8 +303,7 @@ End Sub
 '****************************
 ' RaceMode1
 ' Event Listeners:          
-    RegisterPlayerStateEvent RACE_MODE_1_HITS, "RaceMode1"
-'
+    AddPlayerStateEventListener RACE_MODE_1_HITS, RACE_MODE_1_HITS &   "RaceMode1",   "RaceMode1",  1000, Null
 '*****************************
 Sub RaceMode1()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 1 And GetPlayerState(RACE_GRACE) = False Then
@@ -340,7 +339,7 @@ End Function
 '****************************
 ' RaceModeTimerHurry
 ' Event Listeners:          
-RegisterPinEvent GAME_RACE_TIMER_HURRY, "RaceModeTimerHurry"
+AddPinEventListener GAME_RACE_TIMER_HURRY, GAME_RACE_TIMER_HURRY &   "RaceModeTimerHurry",   "RaceModeTimerHurry",  1000, Null
 '
 '*****************************
 Sub RaceModeTimerHurry()
@@ -352,7 +351,7 @@ End Sub
 '****************************
 ' RaceModeAddTime
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_ADDTIME, "RaceModeAddTime"
+AddPinEventListener SWITCH_HIT_ADDTIME, SWITCH_HIT_ADDTIME &   "RaceModeAddTime",   "RaceModeAddTime",  1000, Null
 '
 '*****************************
 Sub RaceModeAddTime()
@@ -377,7 +376,7 @@ End Sub
 '****************************
 ' RaceModeTimerEnded
 ' Event Listeners:          
-    RegisterPinEvent GAME_RACE_TIMER_ENDED, "RaceModeTimerEnded"
+    AddPinEventListener GAME_RACE_TIMER_ENDED, GAME_RACE_TIMER_ENDED &   "RaceModeTimerEnded",   "RaceModeTimerEnded",  1000, Null
 '
 '*****************************
 Sub RaceModeTimerEnded()
@@ -441,7 +440,7 @@ End Sub
 '****************************
 ' RaceMode2Spinner1Hit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_SPINNER1, "RaceMode2Spinner1Hit"
+    AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "RaceMode2Spinner1Hit",   "RaceMode2Spinner1Hit",  1000, Null
 '
 '*****************************
 Sub RaceMode2Spinner1Hit()
@@ -487,7 +486,7 @@ End Sub
 '****************************
 ' RaceMode2Spinner2Hit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_SPINNER2, "RaceMode2Spinner2Hit"
+    AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &   "RaceMode2Spinner2Hit",   "RaceMode2Spinner2Hit",  1000, Null
 '
 '*****************************
 Sub RaceMode2Spinner2Hit()
@@ -530,9 +529,8 @@ End Function
 '****************************
 ' RaceMode2
 ' Event Listeners:          
-    RegisterPlayerStateEvent RACE_MODE_2_SPIN1, "RaceMode2"
-    RegisterPlayerStateEvent RACE_MODE_2_SPIN2, "RaceMode2"
-'
+    AddPlayerStateEventListener RACE_MODE_2_SPIN1, RACE_MODE_2_SPIN1 &   "RaceMode2",   "RaceMode2",  1000, Null
+    AddPlayerStateEventListener RACE_MODE_2_SPIN2, RACE_MODE_2_SPIN2 &   "RaceMode2",   "RaceMode2",  1000, Null
 '*****************************
 Sub RaceMode2()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 2 And GetPlayerState(RACE_GRACE) = False Then
@@ -560,8 +558,7 @@ End Sub
 '****************************
 ' Race Mode Finish
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_MODE_FINISH, "RaceModeFinish"
-'
+    AddPlayerStateEventListener RACE_MODE_FINISH, RACE_MODE_FINISH &   "RaceModeFinish",   "RaceModeFinish",  1000, Null
 '*****************************
 Sub RaceModeFinish()
     If GetPlayerState(RACE_MODE_FINISH) = True Then
@@ -634,7 +631,7 @@ End Function
 '****************************
 ' RaceMode3Spinner1Hit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_SPINNER1, "RaceMode3Spinner1Hit"
+AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "RaceMode3Spinner1Hit",   "RaceMode3Spinner1Hit",  1000, Null
 '
 '*****************************
 Sub RaceMode3Spinner1Hit()
@@ -656,7 +653,7 @@ End Sub
 '****************************
 ' RaceMode3LeftOrbitHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "RaceMode3LeftOrbitHit"
+AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "RaceMode3LeftOrbitHit",   "RaceMode3LeftOrbitHit",  1000, Null
 '
 '*****************************
 Sub RaceMode3LeftOrbitHit()
@@ -677,7 +674,7 @@ End Sub
 '****************************
 ' RaceMode3LeftRampHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "RaceMode3LeftRampHit"
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "RaceMode3LeftRampHit",   "RaceMode3LeftRampHit",  1000, Null
 '
 '*****************************
 Sub RaceMode3LeftRampHit()
@@ -698,7 +695,7 @@ End Sub
 '****************************
 ' RaceMode3Spinner2Hit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_SPINNER2, "RaceMode3Spinner2Hit"
+AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &   "RaceMode3Spinner2Hit",   "RaceMode3Spinner2Hit",  1000, Null
 '
 '*****************************
 Sub RaceMode3Spinner2Hit()
@@ -721,7 +718,7 @@ End Sub
 '****************************
 ' RaceMode3RightRampHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "RaceMode3RightRampHit"
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "RaceMode3RightRampHit",   "RaceMode3RightRampHit",  1000, Null
 '
 '*****************************
 Sub RaceMode3RightRampHit()
@@ -742,7 +739,7 @@ End Sub
 '****************************
 ' RaceMode3RightOrbitHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "RaceMode3RightOrbitHit"
+AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "RaceMode3RightOrbitHit",   "RaceMode3RightOrbitHit",  1000, Null
 '
 '*****************************
 Sub RaceMode3RightOrbitHit()
@@ -763,8 +760,7 @@ End Sub
 '****************************
 ' RaceMode3HitsCheck
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_MODE_3_HITS, "RaceMode3HitsCheck"
-'
+    AddPlayerStateEventListener RACE_MODE_3_HITS, RACE_MODE_3_HITS &   "RaceMode3HitsCheck",   "RaceMode3HitsCheck",  1000, Null
 '*****************************
 Sub RaceMode3HitsCheck()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 3 And GetPlayerState(RACE_GRACE) = False Then
@@ -825,7 +821,7 @@ End Sub
 '****************************
 ' RaceMode4LeftOrbitHit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "RaceMode4LeftOrbitHit"
+    AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "RaceMode4LeftOrbitHit",   "RaceMode4LeftOrbitHit",  1000, Null
 '
 '*****************************
 Sub RaceMode4LeftOrbitHit()
@@ -846,7 +842,7 @@ End Sub
 '****************************
 ' RaceMode4RightOrbitHit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "RaceMode4RightOrbitHit"
+    AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "RaceMode4RightOrbitHit",   "RaceMode4RightOrbitHit",  1000, Null
 '
 '*****************************
 Sub RaceMode4RightOrbitHit()
@@ -867,9 +863,9 @@ End Sub
 '****************************
 ' RaceMode4NodesHit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_NODE_A, "RaceMode4NodesHit"
-    RegisterPinEvent SWITCH_HIT_NODE_B, "RaceMode4NodesHit"
-    RegisterPinEvent SWITCH_HIT_NODE_C, "RaceMode4NodesHit"
+    AddPinEventListener SWITCH_HIT_NODE_A, SWITCH_HIT_NODE_A &   "RaceMode4NodesHit",   "RaceMode4NodesHit",  1000, Null
+    AddPinEventListener SWITCH_HIT_NODE_B, SWITCH_HIT_NODE_B &   "RaceMode4NodesHit",   "RaceMode4NodesHit",  1000, Null
+    AddPinEventListener SWITCH_HIT_NODE_C, SWITCH_HIT_NODE_C &   "RaceMode4NodesHit",   "RaceMode4NodesHit",  1000, Null
 '
 '*****************************
 Sub RaceMode4NodesHit()
@@ -890,8 +886,7 @@ End Sub
 '****************************
 ' RaceMode4HitsCheck
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_MODE_4_HITS, "RaceMode4HitsCheck"
-'
+    AddPlayerStateEventListener RACE_MODE_4_HITS, RACE_MODE_4_HITS &   "RaceMode4HitsCheck",   "RaceMode4HitsCheck",  1000, Null
 '*****************************
 Sub RaceMode4HitsCheck()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 4 And GetPlayerState(RACE_GRACE) = False Then
@@ -929,7 +924,7 @@ End Sub
 '****************************
 ' RaceMode6LeftOrbitHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "RaceMode6LeftOrbitHit"
+AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "RaceMode6LeftOrbitHit",   "RaceMode6LeftOrbitHit",  1000, Null
 '
 '*****************************
 Sub RaceMode6LeftOrbitHit()
@@ -953,7 +948,7 @@ End Sub
 '****************************
 ' RaceMode6RightOrbitHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "RaceMode6RightOrbitHit"
+AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "RaceMode6RightOrbitHit",   "RaceMode6RightOrbitHit",  1000, Null
 '
 '*****************************
 Sub RaceMode6RightOrbitHit()
@@ -976,7 +971,7 @@ End Sub
 '****************************
 ' RaceMode6SpinnerHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_SPINNER2, "RaceMode6SpinnerHit"
+AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &   "RaceMode6SpinnerHit",   "RaceMode6SpinnerHit",  1000, Null
 '
 '*****************************
 Sub RaceMode6SpinnerHit()
@@ -1023,8 +1018,7 @@ End Function
 '****************************
 ' RaceMode6HitsCheck
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_MODE_6_HITS, "RaceMode6HitsCheck"
-'
+    AddPlayerStateEventListener RACE_MODE_6_HITS, RACE_MODE_6_HITS &   "RaceMode6HitsCheck",   "RaceMode6HitsCheck",  1000, Null
 '*****************************
 Sub RaceMode6HitsCheck()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 6 And GetPlayerState(RACE_GRACE) = False Then
@@ -1045,8 +1039,8 @@ End Sub
 '****************************
 ' RaceMode5RampHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "RaceMode5RampHit"
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "RaceMode5RampHit"
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "RaceMode5RampHit",   "RaceMode5RampHit",  1000, Null
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "RaceMode5RampHit",   "RaceMode5RampHit",  1000, Null
 '
 '*****************************
 Sub RaceMode5RampHit()
@@ -1067,9 +1061,9 @@ End Sub
 '****************************
 ' RaceMode5NodesHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_NODE_A, "RaceMode5NodesHit"
-RegisterPinEvent SWITCH_HIT_NODE_B, "RaceMode5NodesHit"
-RegisterPinEvent SWITCH_HIT_NODE_C, "RaceMode5NodesHit"
+AddPinEventListener SWITCH_HIT_NODE_A, SWITCH_HIT_NODE_A &   "RaceMode5NodesHit",   "RaceMode5NodesHit",  1000, Null
+AddPinEventListener SWITCH_HIT_NODE_B, SWITCH_HIT_NODE_B &   "RaceMode5NodesHit",   "RaceMode5NodesHit",  1000, Null
+AddPinEventListener SWITCH_HIT_NODE_C, SWITCH_HIT_NODE_C &   "RaceMode5NodesHit",   "RaceMode5NodesHit",  1000, Null
 '
 '*****************************
 Sub RaceMode5NodesHit()
@@ -1090,8 +1084,7 @@ End Sub
 '****************************
 ' RaceMode5HitsCheck
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_MODE_5_HITS, "RaceMode5HitsCheck"
-'
+    AddPlayerStateEventListener RACE_MODE_5_HITS, RACE_MODE_5_HITS &   "RaceMode5HitsCheck",   "RaceMode5HitsCheck",  1000, Null
 '*****************************
 Sub RaceMode5HitsCheck()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 5 And GetPlayerState(RACE_GRACE) = False Then

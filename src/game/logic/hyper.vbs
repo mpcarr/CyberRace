@@ -2,7 +2,7 @@
 '****************************
 ' Hyper Hit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_HYPER, "SwitchHyper"
+AddPinEventListener SWITCH_HIT_HYPER, SWITCH_HIT_HYPER &   "SwitchHyper",   "SwitchHyper",  1000, Null
 '
 '*****************************
 Sub SwitchHyper()
@@ -57,7 +57,7 @@ End Sub
 '****************************
 ' HyperModeTimerHurry
 ' Event Listeners:          
-RegisterPinEvent GAME_MULTIPLIER_TIMER_HURRY, "HyperModeTimerHurry"
+AddPinEventListener GAME_MULTIPLIER_TIMER_HURRY, GAME_MULTIPLIER_TIMER_HURRY &   "HyperModeTimerHurry",   "HyperModeTimerHurry",  1000, Null
 '
 '*****************************
 Sub HyperModeTimerHurry()
@@ -76,7 +76,7 @@ End Sub
 '****************************
 ' HyperModeTimerEnded
 ' Event Listeners:          
-    RegisterPinEvent GAME_MULTIPLIER_TIMER_ENDED, "HyperModeTimerEnded"
+    AddPinEventListener GAME_MULTIPLIER_TIMER_ENDED, GAME_MULTIPLIER_TIMER_ENDED &   "HyperModeTimerEnded",   "HyperModeTimerEnded",  1000, Null
 '
 '*****************************
 Sub HyperModeTimerEnded()

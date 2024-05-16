@@ -2,8 +2,7 @@
 '****************************
 ' Boost 1
 ' Event Listeners:          
-    RegisterPlayerStateEvent BOOST_1, "PS_Boost1"
-'
+    AddPlayerStateEventListener BOOST_1, BOOST_1 &   "PS_Boost1",   "PS_Boost1",  1000, Null
 '*****************************
 Sub PS_Boost1
     lightCtrl.LightState l59, GetPlayerState(BOOST_1)
@@ -19,8 +18,7 @@ End Sub
 '****************************
 ' Boost 2
 ' Event Listeners:          
-RegisterPlayerStateEvent BOOST_2, "PS_Boost2"
-'
+    AddPlayerStateEventListener BOOST_2, BOOST_2 &   "PS_Boost2",   "PS_Boost2",  1000, Null
 '*****************************
 Sub PS_Boost2
     lightCtrl.LightState l60, GetPlayerState(BOOST_2)
@@ -36,8 +34,7 @@ End Sub
 '****************************
 ' Boost 3
 ' Event Listeners:          
-    RegisterPlayerStateEvent BOOST_3, "PS_Boost3"
-'
+    AddPlayerStateEventListener BOOST_3, BOOST_3 &   "PS_Boost3",   "PS_Boost3",  1000, Null
 '*****************************
 Sub PS_Boost3
     lightCtrl.LightState l61, GetPlayerState(BOOST_3)

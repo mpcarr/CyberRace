@@ -2,7 +2,7 @@
 '****************************
 ' FlexBallSaveScene
 ' Event Listeners:          
-RegisterPinEvent BALL_SAVE, "FlexBallSaveScene"
+AddPinEventListener BALL_SAVE, BALL_SAVE &   "FlexBallSaveScene",   "FlexBallSaveScene",  1000, Null
 '
 '*****************************
 Sub FlexBallSaveScene()

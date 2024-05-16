@@ -3,8 +3,8 @@
 '****************************
 ' Start Skillshot
 ' Event Listeners:  
-RegisterPinEvent START_GAME,    "StartSkillShot"
-RegisterPinEvent NEXT_PLAYER,   "StartSkillShot"
+AddPinEventListener START_GAME, START_GAME &      "StartSkillShot",      "StartSkillShot",  1000, Null
+AddPinEventListener NEXT_PLAYER, NEXT_PLAYER &     "StartSkillShot",     "StartSkillShot",  1000, Null
 '
 '*****************************
 Sub StartSkillShot()
@@ -22,7 +22,7 @@ End Sub
 '****************************
 ' SkillshotLeftRamp
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SkillshotLeftRamp"
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "SkillshotLeftRamp",   "SkillshotLeftRamp",  1000, Null
 '
 '*****************************
 Sub SkillshotLeftRamp()

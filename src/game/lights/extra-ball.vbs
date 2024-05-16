@@ -2,8 +2,7 @@
 '****************************
 ' Extra Balls
 ' Event Listeners:          
-    RegisterPlayerStateEvent EXTRA_BALLS, "PS_ExtraBalls"
-'
+    AddPlayerStateEventListener EXTRA_BALLS, EXTRA_BALLS &   "PS_ExtraBalls",   "PS_ExtraBalls",  1000, Null
 '*****************************
 Sub PS_ExtraBalls()
     If GetPlayerState(EXTRA_BALLS) > 0 Then
@@ -17,8 +16,7 @@ End Sub
 '****************************
 ' PS_ClaimExtraBalls
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_EXTRABALL, "PS_ClaimExtraBalls"
-'
+    AddPlayerStateEventListener RACE_EXTRABALL, RACE_EXTRABALL &   "PS_ClaimExtraBalls",   "PS_ClaimExtraBalls",  1000, Null
 '*****************************
 Sub PS_ClaimExtraBalls()
     If GetPlayerState(RACE_EXTRABALL) = 1 Then

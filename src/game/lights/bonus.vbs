@@ -1,8 +1,7 @@
 '****************************
 ' Bonus Lights
 ' Event Listeners:  
-    RegisterPlayerStateEvent BONUS_X, "BonusLights"
-'
+    AddPlayerStateEventListener BONUS_X, BONUS_X &   "BonusLights",   "BonusLights",  1000, Null
 '*****************************
 Sub BonusLights()
     Select Case GetPlayerState(BONUS_X):

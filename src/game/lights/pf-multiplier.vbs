@@ -1,8 +1,7 @@
 '****************************
 ' PF Multiplier Lights
 ' Event Listeners:  
-    RegisterPlayerStateEvent PF_MULTIPLIER, "PFMultiplierLights"
-'
+    AddPlayerStateEventListener PF_MULTIPLIER, PF_MULTIPLIER &   "PFMultiplierLights",   "PFMultiplierLights",  1000, Null
 '*****************************
 Sub PFMultiplierLights()
     Select Case GetPlayerState(PF_MULTIPLIER):

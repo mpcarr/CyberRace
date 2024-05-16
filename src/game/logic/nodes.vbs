@@ -1,7 +1,7 @@
 '****************************
 ' Node Row A Hit
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_NODE_A, "NodeARowHit"
+    AddPinEventListener SWITCH_HIT_NODE_A, SWITCH_HIT_NODE_A &   "NodeARowHit",   "NodeARowHit",  1000, Null
 '
 '*****************************
 Sub NodeARowHit()
@@ -52,7 +52,7 @@ End Sub
 '****************************
 ' Node Row B Hit
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_NODE_B, "NodeBRowHit"
+    AddPinEventListener SWITCH_HIT_NODE_B, SWITCH_HIT_NODE_B &   "NodeBRowHit",   "NodeBRowHit",  1000, Null
 '
 '*****************************
 Sub NodeBRowHit()
@@ -103,7 +103,7 @@ End Sub
 '****************************
 ' Node Row C Hit
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_NODE_C, "NodeCRowHit"
+    AddPinEventListener SWITCH_HIT_NODE_C, SWITCH_HIT_NODE_C &   "NodeCRowHit",   "NodeCRowHit",  1000, Null
 '
 '*****************************
 Sub NodeCRowHit()
@@ -180,7 +180,7 @@ End Sub
 '****************************
 ' Node Level Up Ready
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_SCOOP, "NodeCollectPerk"
+    AddPinEventListener SWITCH_HIT_SCOOP, SWITCH_HIT_SCOOP &   "NodeCollectPerk",   "NodeCollectPerk",  1000, Null
 '
 '*****************************
 Sub NodeCollectPerk()
@@ -220,7 +220,7 @@ End Sub
 '****************************
 ' Node Perk Selection Timer Ended
 ' Event Listeners:      
-    RegisterPinEvent GAME_SELECTION_TIMER_ENDED, "NodePerkSelectionTimerEnded"
+    AddPinEventListener GAME_SELECTION_TIMER_ENDED, GAME_SELECTION_TIMER_ENDED &   "NodePerkSelectionTimerEnded",   "NodePerkSelectionTimerEnded",  1000, Null
 '
 '*****************************
 Sub NodePerkSelectionTimerEnded()
@@ -232,7 +232,7 @@ End Sub
 '****************************
 ' NodePerkSelectLeftPerk
 ' Event Listeners:  
-RegisterPinEvent SWITCH_LEFT_FLIPPER_DOWN, "NodePerkSelectLeftPerk"
+AddPinEventListener SWITCH_LEFT_FLIPPER_DOWN, SWITCH_LEFT_FLIPPER_DOWN &   "NodePerkSelectLeftPerk",   "NodePerkSelectLeftPerk",  1000, Null
 '
 '*****************************
 Sub NodePerkSelectLeftPerk()
@@ -296,7 +296,7 @@ End Function
 '****************************
 ' NodePerkSelectRightPerk
 ' Event Listeners:  
-RegisterPinEvent SWITCH_RIGHT_FLIPPER_DOWN, "NodePerkSelectRightPerk"
+AddPinEventListener SWITCH_RIGHT_FLIPPER_DOWN, SWITCH_RIGHT_FLIPPER_DOWN &   "NodePerkSelectRightPerk",   "NodePerkSelectRightPerk",  1000, Null
 '
 '*****************************
 Sub NodePerkSelectRightPerk()

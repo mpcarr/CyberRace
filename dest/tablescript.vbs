@@ -306,9 +306,6 @@ Sub Table1_Init()
 	lightCtrl.CreateSeqRunner("WIZARDL64")
 	lightCtrl.CreateSeqRunner("WIZARDL63")
 
-	BuildPinEventSelectCase
-	BuildPlayerEventSelectCase
-
 	'lightCtrl.LoadLightShows
 	
 	'InitLampsNF 'Init Lampz
@@ -401,6 +398,10 @@ Sub Table1_Exit
 		FlexDMD.Run = False
 		FlexDMD = NULL
     End If
+	If useBcp = True Then
+		bcpController.Disconnect
+		Set bcpController = Nothing
+	End If
 End Sub
 
 
@@ -630,10 +631,10 @@ Const GI_COLOR = "GI Color"
 Const FLEX_MODE = "Flex Mode"
 Const PLAYER_NAME = "Player Name"
 'Score 
-Const SCORE = "Player Score"
+Const SCORE = "score"
 
 'Ball
-Const CURRENT_BALL = "Current Ball"
+Const CURRENT_BALL = "ball"
 Const ENABLE_BALLSAVER = "Enable Ball Saver"
 Const EXTRA_BALLS = "Extra Balls"
 'Lanes
@@ -1094,7 +1095,7 @@ InitFlexDMD()
 '****************************
 ' FlexBallSaveScene
 ' Event Listeners:          
-RegisterPinEvent BALL_SAVE, "FlexBallSaveScene"
+AddPinEventListener BALL_SAVE, BALL_SAVE &   "FlexBallSaveScene",   "FlexBallSaveScene",  1000, Null
 '
 '*****************************
 Sub FlexBallSaveScene()
@@ -2167,7 +2168,7 @@ End Function
 '****************************
 ' Attract
 ' Event Listeners:          
-    RegisterPinEvent GAME_OVER, "StartAttract"
+    AddPinEventListener GAME_OVER, GAME_OVER &   "StartAttract",   "StartAttract",  1000, Null
 '
 '*****************************
 Sub StartAttract()
@@ -2444,7 +2445,7 @@ lSeqAttBoost.Repeat = True
 '****************************
 ' BGStartGame
 ' Event Listeners:  
-RegisterPinEvent START_GAME,    "BGStartGame"
+AddPinEventListener START_GAME, START_GAME &      "BGStartGame",      "BGStartGame",  1000, Null
 '
 '*****************************
 Sub BGStartGame()
@@ -2466,7 +2467,7 @@ End Sub
 '****************************
 ' BGStartAttract
 ' Event Listeners:          
-RegisterPinEvent GAME_OVER, "BGStartAttract"
+AddPinEventListener GAME_OVER, GAME_OVER &   "BGStartAttract",   "BGStartAttract",  1000, Null
 '
 '*****************************
 Dim BGAttractIndex : BGAttractIndex = 1
@@ -2501,8 +2502,7 @@ End Sub
 '****************************
 ' Bet 1
 ' Event Listeners:          
-    RegisterPlayerStateEvent BET_1, "PS_Bet1"
-'
+    AddPlayerStateEventListener BET_1, BET_1 &   "PS_Bet1",   "PS_Bet1",  1000, Null
 '*****************************
 Sub PS_Bet1()
     lightCtrl.LightState l17, GetPlayerState(BET_1)
@@ -2511,8 +2511,7 @@ End Sub
 '****************************
 ' Bet 2
 ' Event Listeners:          
-    RegisterPlayerStateEvent BET_2, "PS_Bet2"
-'
+    AddPlayerStateEventListener BET_2, BET_2 &   "PS_Bet2",   "PS_Bet2",  1000, Null
 '*****************************
 Sub PS_Bet2()
     lightCtrl.LightState l18, GetPlayerState(BET_2)
@@ -2521,8 +2520,7 @@ End Sub
 '****************************
 ' Bet 3
 ' Event Listeners:          
-    RegisterPlayerStateEvent BET_3, "PS_Bet3"
-'
+    AddPlayerStateEventListener BET_3, BET_3 &   "PS_Bet3",   "PS_Bet3",  1000, Null
 '*****************************
 Sub PS_Bet3()
     lightCtrl.LightState l19, GetPlayerState(BET_3)
@@ -2530,8 +2528,7 @@ End Sub
 '****************************
 ' Bonus Lights
 ' Event Listeners:  
-    RegisterPlayerStateEvent BONUS_X, "BonusLights"
-'
+    AddPlayerStateEventListener BONUS_X, BONUS_X &   "BonusLights",   "BonusLights",  1000, Null
 '*****************************
 Sub BonusLights()
     Select Case GetPlayerState(BONUS_X):
@@ -2552,8 +2549,7 @@ End Sub
 '****************************
 ' Boost 1
 ' Event Listeners:          
-    RegisterPlayerStateEvent BOOST_1, "PS_Boost1"
-'
+    AddPlayerStateEventListener BOOST_1, BOOST_1 &   "PS_Boost1",   "PS_Boost1",  1000, Null
 '*****************************
 Sub PS_Boost1
     lightCtrl.LightState l59, GetPlayerState(BOOST_1)
@@ -2569,8 +2565,7 @@ End Sub
 '****************************
 ' Boost 2
 ' Event Listeners:          
-RegisterPlayerStateEvent BOOST_2, "PS_Boost2"
-'
+    AddPlayerStateEventListener BOOST_2, BOOST_2 &   "PS_Boost2",   "PS_Boost2",  1000, Null
 '*****************************
 Sub PS_Boost2
     lightCtrl.LightState l60, GetPlayerState(BOOST_2)
@@ -2586,8 +2581,7 @@ End Sub
 '****************************
 ' Boost 3
 ' Event Listeners:          
-    RegisterPlayerStateEvent BOOST_3, "PS_Boost3"
-'
+    AddPlayerStateEventListener BOOST_3, BOOST_3 &   "PS_Boost3",   "PS_Boost3",  1000, Null
 '*****************************
 Sub PS_Boost3
     lightCtrl.LightState l61, GetPlayerState(BOOST_3)
@@ -2603,8 +2597,7 @@ End Sub
 '****************************
 ' Combo Shot Spinner
 ' Event Listeners:      
-    RegisterPlayerStateEvent COMBO_SHOT_SPINNER, "PS_ComboShotSpinner"
-'
+    AddPlayerStateEventListener COMBO_SHOT_SPINNER, COMBO_SHOT_SPINNER &   "PS_ComboShotSpinner",   "PS_ComboShotSpinner",  1000, Null
 '*****************************
 Sub PS_ComboShotSpinner()
     If GetPlayerState(COMBO_SHOT_SPINNER) = 1 Then
@@ -2617,8 +2610,7 @@ End Sub
 '****************************
 ' Combo Shot Left Orbit
 ' Event Listeners:      
-    RegisterPlayerStateEvent COMBO_SHOT_LEFT_ORBIT, "PS_ComboShotLeftOrbit"
-'
+    AddPlayerStateEventListener COMBO_SHOT_LEFT_ORBIT, COMBO_SHOT_LEFT_ORBIT &   "PS_ComboShotLeftOrbit",   "PS_ComboShotLeftOrbit",  1000, Null
 '*****************************
 Sub PS_ComboShotLeftOrbit()
     If GetPlayerState(COMBO_SHOT_LEFT_ORBIT) = 1 Then
@@ -2632,8 +2624,7 @@ End Sub
 '****************************
 ' Combo Shot Left Ramp
 ' Event Listeners:      
-    RegisterPlayerStateEvent COMBO_SHOT_LEFT_RAMP, "PS_ComboShotLeftRamp"
-'
+    AddPlayerStateEventListener COMBO_SHOT_LEFT_RAMP, COMBO_SHOT_LEFT_RAMP &   "PS_ComboShotLeftRamp",   "PS_ComboShotLeftRamp",  1000, Null
 '*****************************
 Sub PS_ComboShotLeftRamp()
     If GetPlayerState(COMBO_SHOT_LEFT_RAMP) = 1 Then
@@ -2646,8 +2637,7 @@ End Sub
 '****************************
 ' Combo Shot Right Ramp
 ' Event Listeners:      
-    RegisterPlayerStateEvent COMBO_SHOT_RIGHT_RAMP, "PS_ComboShotRightRamp"
-'
+    AddPlayerStateEventListener COMBO_SHOT_RIGHT_RAMP, COMBO_SHOT_RIGHT_RAMP &   "PS_ComboShotRightRamp",   "PS_ComboShotRightRamp",  1000, Null
 '*****************************
 Sub PS_ComboShotRightRamp()
     If GetPlayerState(COMBO_SHOT_RIGHT_RAMP) = 1 Then
@@ -2660,8 +2650,7 @@ End Sub
 '****************************
 ' Combo Shot Right Orbit
 ' Event Listeners:      
-    RegisterPlayerStateEvent COMBO_SHOT_RIGHT_ORBIT, "PS_ComboShotRightOrbit"
-'
+    AddPlayerStateEventListener COMBO_SHOT_RIGHT_ORBIT, COMBO_SHOT_RIGHT_ORBIT &   "PS_ComboShotRightOrbit",   "PS_ComboShotRightOrbit",  1000, Null
 '*****************************
 Sub PS_ComboShotRightOrbit()
     If GetPlayerState(COMBO_SHOT_RIGHT_ORBIT) = 1 Then
@@ -2674,8 +2663,7 @@ End Sub
 '****************************
 ' CYBER_C
 ' Event Listeners:          
-    RegisterPlayerStateEvent CYBER_C, "PS_CyberC"
-'
+    AddPlayerStateEventListener CYBER_C, CYBER_C &   "PS_CyberC",   "PS_CyberC",  1000, Null
 '*****************************
 Sub PS_CyberC
     lightCtrl.LightState l29, GetPlayerState(CYBER_C)
@@ -2684,8 +2672,7 @@ End Sub
 '****************************
 ' CYBER_Y
 ' Event Listeners:          
-RegisterPlayerStateEvent CYBER_Y, "PS_CyberY"
-'
+    AddPlayerStateEventListener CYBER_Y, CYBER_Y &   "PS_CyberY",   "PS_CyberY",  1000, Null
 '*****************************
 Sub PS_CyberY
     lightCtrl.LightState l30, GetPlayerState(CYBER_Y)
@@ -2694,8 +2681,7 @@ End Sub
 '****************************
 ' CYBER_B
 ' Event Listeners:          
-RegisterPlayerStateEvent CYBER_B, "PS_CyberB"
-'
+    AddPlayerStateEventListener CYBER_B, CYBER_B &   "PS_CyberB",   "PS_CyberB",  1000, Null
 '*****************************
 Sub PS_CyberB
     lightCtrl.LightState l31, GetPlayerState(CYBER_B)
@@ -2704,8 +2690,7 @@ End Sub
 '****************************
 ' CYBER_E
 ' Event Listeners:          
-RegisterPlayerStateEvent CYBER_E, "PS_CyberE"
-'
+    AddPlayerStateEventListener CYBER_E, CYBER_E &   "PS_CyberE",   "PS_CyberE",  1000, Null
 '*****************************
 Sub PS_CyberE
     lightCtrl.LightState l32, GetPlayerState(CYBER_E)
@@ -2714,8 +2699,7 @@ End Sub
 '****************************
 ' CYBER_R
 ' Event Listeners:          
-RegisterPlayerStateEvent CYBER_R, "PS_CyberR"
-'
+    AddPlayerStateEventListener CYBER_R, CYBER_R &   "PS_CyberR",   "PS_CyberR",  1000, Null
 '*****************************
 Sub PS_CyberR
     lightCtrl.LightState l33, GetPlayerState(CYBER_R)
@@ -2724,8 +2708,7 @@ End Sub
 '****************************
 ' Extra Balls
 ' Event Listeners:          
-    RegisterPlayerStateEvent EXTRA_BALLS, "PS_ExtraBalls"
-'
+    AddPlayerStateEventListener EXTRA_BALLS, EXTRA_BALLS &   "PS_ExtraBalls",   "PS_ExtraBalls",  1000, Null
 '*****************************
 Sub PS_ExtraBalls()
     If GetPlayerState(EXTRA_BALLS) > 0 Then
@@ -2739,8 +2722,7 @@ End Sub
 '****************************
 ' PS_ClaimExtraBalls
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_EXTRABALL, "PS_ClaimExtraBalls"
-'
+    AddPlayerStateEventListener RACE_EXTRABALL, RACE_EXTRABALL &   "PS_ClaimExtraBalls",   "PS_ClaimExtraBalls",  1000, Null
 '*****************************
 Sub PS_ClaimExtraBalls()
     If GetPlayerState(RACE_EXTRABALL) = 1 Then
@@ -2769,13 +2751,12 @@ End Sub
 '****************************
 ' GI State
 ' Event Listeners:  
-    RegisterPlayerStateEvent GI_STATE, "GIState"
-    RegisterPlayerStateEvent GI_COLOR, "GIState"
-    RegisterPlayerStateEvent MODE_RACE, "GIState"
-    RegisterPlayerStateEvent MODE_MULTIBALL, "GIState"
-    RegisterPlayerStateEvent MODE_TT_MULTIBALL, "GIState"
-    RegisterPlayerStateEvent MODE_BET, "GIState"
-'
+    AddPlayerStateEventListener GI_STATE, GI_STATE &   "GIState",   "GIState",  1000, Null
+    AddPlayerStateEventListener GI_COLOR, GI_COLOR &   "GIState",   "GIState",  1000, Null
+    AddPlayerStateEventListener MODE_RACE, MODE_RACE &   "GIState",   "GIState",  1000, Null
+    AddPlayerStateEventListener MODE_MULTIBALL, MODE_MULTIBALL &   "GIState",   "GIState",  1000, Null
+    AddPlayerStateEventListener MODE_TT_MULTIBALL, MODE_TT_MULTIBALL &   "GIState",   "GIState",  1000, Null
+    AddPlayerStateEventListener MODE_BET, MODE_BET &   "GIState",   "GIState",  1000, Null
 '*****************************
 Sub GIState()
     Dim light, state, color, colors, dofEvent
@@ -2836,8 +2817,7 @@ End Sub
 '****************************
 ' PS_GrandSlamTT
 ' Event Listeners:  
-RegisterPlayerStateEvent GRANDSLAM_TT, "PS_GrandSlamTT"
-'
+    AddPlayerStateEventListener GRANDSLAM_TT, GRANDSLAM_TT &   "PS_GrandSlamTT",   "PS_GrandSlamTT",  1000, Null
 '*****************************
 Sub PS_GrandSlamTT()
     If GetPlayerState(GRANDSLAM_TT) = True Then
@@ -2850,8 +2830,7 @@ End Sub
 '****************************
 ' PS_GrandSlamRaces
 ' Event Listeners:  
-RegisterPlayerStateEvent GRANDSLAM_RACES, "PS_GrandSlamRaces"
-'
+    AddPlayerStateEventListener GRANDSLAM_RACES, GRANDSLAM_RACES &   "PS_GrandSlamRaces",   "PS_GrandSlamRaces",  1000, Null
 '*****************************
 Sub PS_GrandSlamRaces()
     If GetPlayerState(GRANDSLAM_RACES) = True Then
@@ -2864,8 +2843,7 @@ End Sub
 '****************************
 ' PS_GrandSlamSkills
 ' Event Listeners:  
-RegisterPlayerStateEvent GRANDSLAM_SKILLS, "PS_GrandSlamSkills"
-'
+    AddPlayerStateEventListener GRANDSLAM_SKILLS, GRANDSLAM_SKILLS &   "PS_GrandSlamSkills",   "PS_GrandSlamSkills",  1000, Null
 '*****************************
 Sub PS_GrandSlamSkills()
     If GetPlayerState(GRANDSLAM_SKILLS) = True Then
@@ -2878,8 +2856,7 @@ End Sub
 '****************************
 ' PS_GrandSlamNodes
 ' Event Listeners:  
-RegisterPlayerStateEvent GRANDSLAM_NODES, "PS_GrandSlamNodes"
-'
+    AddPlayerStateEventListener GRANDSLAM_NODES, GRANDSLAM_NODES &   "PS_GrandSlamNodes",   "PS_GrandSlamNodes",  1000, Null
 '*****************************
 Sub PS_GrandSlamNodes()
     If GetPlayerState(GRANDSLAM_NODES) = True Then
@@ -2892,8 +2869,7 @@ End Sub
 '****************************
 ' PS_GrandSlamCombo
 ' Event Listeners:  
-RegisterPlayerStateEvent GRANDSLAM_COMBO, "PS_GrandSlamCombo"
-'
+    AddPlayerStateEventListener GRANDSLAM_COMBO, GRANDSLAM_COMBO &   "PS_GrandSlamCombo",   "PS_GrandSlamCombo",  1000, Null
 '*****************************
 Sub PS_GrandSlamCombo()
     If GetPlayerState(GRANDSLAM_COMBO) = True Then
@@ -2906,8 +2882,7 @@ End Sub
 '****************************
 ' HYPER
 ' Event Listeners:          
-    RegisterPlayerStateEvent HYPER, "PS_Hyper"
-'
+    AddPlayerStateEventListener HYPER, HYPER &   "PS_Hyper",   "PS_Hyper",  1000, Null
 '*****************************
 Sub PS_Hyper()
     lightCtrl.LightOff l37
@@ -2948,8 +2923,7 @@ End Sub
 '****************************
 ' Lane Lights R
 ' Event Listeners:  
-    RegisterPlayerStateEvent LANE_R, "LaneLightsR"
-'
+    AddPlayerStateEventListener LANE_R, LANE_R &   "LaneLightsR",   "LaneLightsR",  1000, Null
 '*****************************
 Sub LaneLightsR()
     lightCtrl.LightState l42, GetPlayerState(LANE_R)
@@ -2957,8 +2931,7 @@ End Sub
 '****************************
 ' Lane Lights A
 ' Event Listeners:  
-    RegisterPlayerStateEvent LANE_A, "LaneLightsA"
-'
+    AddPlayerStateEventListener LANE_A, LANE_A &   "LaneLightsA",   "LaneLightsA",  1000, Null
 '*****************************
 Sub LaneLightsA()
     lightCtrl.LightState l43, GetPlayerState(LANE_A)
@@ -2966,8 +2939,7 @@ End Sub
 '****************************
 ' Lane Lights C
 ' Event Listeners:  
-    RegisterPlayerStateEvent LANE_C, "LaneLightsC"
-'
+    AddPlayerStateEventListener LANE_C, LANE_C &   "LaneLightsC",   "LaneLightsC",  1000, Null
 '*****************************
 Sub LaneLightsC()
     lightCtrl.LightState l44, GetPlayerState(LANE_C)
@@ -2975,8 +2947,7 @@ End Sub
 '****************************
 ' Lane Lights E
 ' Event Listeners:  
-    RegisterPlayerStateEvent LANE_E, "LaneLightsE"
-'
+    AddPlayerStateEventListener LANE_E, LANE_E &   "LaneLightsE",   "LaneLightsE",  1000, Null
 '*****************************
 Sub LaneLightsE()
     lightCtrl.LightState l45, GetPlayerState(LANE_E)
@@ -2984,8 +2955,7 @@ End Sub
 '****************************
 ' Lane Lights BO
 ' Event Listeners:  
-    RegisterPlayerStateEvent LANE_BO, "LaneLightsBO"
-'
+    AddPlayerStateEventListener LANE_BO, LANE_BO &   "LaneLightsBO",   "LaneLightsBO",  1000, Null
 '*****************************
 Sub LaneLightsBO()
     lightCtrl.LightState l66, GetPlayerState(LANE_BO)
@@ -2993,8 +2963,7 @@ End Sub
 '****************************
 ' Lane Lights N
 ' Event Listeners:  
-RegisterPlayerStateEvent LANE_N, "LaneLightsN"
-'
+    AddPlayerStateEventListener LANE_N, LANE_N &   "LaneLightsN",   "LaneLightsN",  1000, Null
 '*****************************
 Sub LaneLightsN()
     lightCtrl.LightState l67, GetPlayerState(LANE_N)
@@ -3002,8 +2971,7 @@ End Sub
 '****************************
 ' Lane Lights US
 ' Event Listeners:  
-RegisterPlayerStateEvent LANE_US, "LaneLightsUS"
-'
+    AddPlayerStateEventListener LANE_US, LANE_US &   "LaneLightsUS",   "LaneLightsUS",  1000, Null
 '*****************************
 Sub LaneLightsUS()
     lightCtrl.LightState l68, GetPlayerState(LANE_US)
@@ -3012,8 +2980,7 @@ End Sub
 '****************************
 ' NEON L
 ' Event Listeners:          
-    RegisterPlayerStateEvent LOCK_HITS, "PS_LockHits"
-'
+    AddPlayerStateEventListener LOCK_HITS, LOCK_HITS &   "PS_LockHits",   "PS_LockHits",  1000, Null
 '*****************************
 Sub PS_LockHits()
     dim lockHits : lockHits = GetPlayerState(LOCK_HITS)
@@ -3048,8 +3015,7 @@ End Sub
 '****************************
 ' Nodes Row A
 ' Event Listeners:      
-    RegisterPlayerStateEvent NODE_ROW_A, "NodesRowA"
-'
+    AddPlayerStateEventListener NODE_ROW_A, NODE_ROW_A &   "NodesRowA",   "NodesRowA",  1000, Null
 '*****************************
 Sub NodesRowA()
     Dim row : row = GetPlayerState(NODE_ROW_A)
@@ -3088,8 +3054,7 @@ End Sub
 '****************************
 ' Nodes Row B
 ' Event Listeners:      
-    RegisterPlayerStateEvent NODE_ROW_B, "NodesRowB"
-'
+    AddPlayerStateEventListener NODE_ROW_B, NODE_ROW_B &   "NodesRowB",   "NodesRowB",  1000, Null
 '*****************************
 Sub NodesRowB()
     Dim row : row = GetPlayerState(NODE_ROW_B)
@@ -3127,8 +3092,7 @@ End Sub
 '****************************
 ' Nodes Row C
 ' Event Listeners:      
-    RegisterPlayerStateEvent NODE_ROW_C, "NodesRowC"
-'
+    AddPlayerStateEventListener NODE_ROW_C, NODE_ROW_C &   "NodesRowC",   "NodesRowC",  1000, Null
 '*****************************
 Sub NodesRowC()
     Dim row : row = GetPlayerState(NODE_ROW_C)
@@ -3166,8 +3130,7 @@ End Sub
 '****************************
 ' Nodes Level Up Ready
 ' Event Listeners:      
-    RegisterPlayerStateEvent NODE_LEVEL_UP_READY, "NodeLevelUpReady"
-'
+    AddPlayerStateEventListener NODE_LEVEL_UP_READY, NODE_LEVEL_UP_READY &   "NodeLevelUpReady",   "NodeLevelUpReady",  1000, Null
 '*****************************
 Sub NodeLevelUpReady()
     If GetPlayerState(NODE_LEVEL_UP_READY) = True Then
@@ -3193,8 +3156,7 @@ End Function
 '****************************
 ' PF Multiplier Lights
 ' Event Listeners:  
-    RegisterPlayerStateEvent PF_MULTIPLIER, "PFMultiplierLights"
-'
+    AddPlayerStateEventListener PF_MULTIPLIER, PF_MULTIPLIER &   "PFMultiplierLights",   "PFMultiplierLights",  1000, Null
 '*****************************
 Sub PFMultiplierLights()
     Select Case GetPlayerState(PF_MULTIPLIER):
@@ -3214,9 +3176,8 @@ End Sub
 '****************************
 ' Race Ready
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_MODE_READY, "RaceModeReady"
-    RegisterPlayerStateEvent MODE_MULTIBALL, "RaceModeReady"
-'
+    AddPlayerStateEventListener RACE_MODE_READY, RACE_MODE_READY &   "RaceModeReady",   "RaceModeReady",  1000, Null
+    AddPlayerStateEventListener MODE_MULTIBALL, MODE_MULTIBALL &   "RaceModeReady",   "RaceModeReady",  1000, Null
 '*****************************
 Sub RaceModeReady()
     If GetPlayerState(RACE_MODE_READY) = True And GetPlayerState(MODE_MULTIBALL) = False Then
@@ -3238,9 +3199,8 @@ End Sub
 '****************************
 ' LightsRaceMode
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_MODE_SELECTION, "LightsRaceMode"
-    RegisterPlayerStateEvent MODE_RACE_SELECT, "LightsRaceMode"
-'
+    AddPlayerStateEventListener RACE_MODE_SELECTION, RACE_MODE_SELECTION &   "LightsRaceMode",   "LightsRaceMode",  1000, Null
+    AddPlayerStateEventListener MODE_RACE_SELECT, MODE_RACE_SELECT &   "LightsRaceMode",   "LightsRaceMode",  1000, Null
 '*****************************
 Sub LightsRaceMode()
     If GetPlayerState(MODE_RACE_SELECT) = True Then
@@ -3286,8 +3246,7 @@ End Sub
 '****************************
 ' Mode Race
 ' Event Listeners:      
-    RegisterPlayerStateEvent MODE_RACE, "ModeRace"
-'
+    AddPlayerStateEventListener MODE_RACE, MODE_RACE &   "ModeRace",   "ModeRace",  1000, Null
 '*****************************
 Sub ModeRace()
     If GetPlayerState(MODE_RACE) = True Then
@@ -3318,8 +3277,7 @@ End Sub
 '****************************
 ' Mode Race 1
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_1, "LightsModeRace1"
-'
+    AddPlayerStateEventListener RACE_1, RACE_1 &   "LightsModeRace1",   "LightsModeRace1",  1000, Null
 '*****************************
 Sub LightsModeRace1()
     lightCtrl.LightState l53, GetPlayerState(RACE_1)
@@ -3328,8 +3286,7 @@ End Sub
 '****************************
 ' Mode Race 2
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_2, "LightsModeRace2"
-'
+    AddPlayerStateEventListener RACE_2, RACE_2 &   "LightsModeRace2",   "LightsModeRace2",  1000, Null
 '*****************************
 Sub LightsModeRace2()
     lightCtrl.LightState l54, GetPlayerState(RACE_2)
@@ -3338,8 +3295,7 @@ End Sub
 '****************************
 ' Mode Race 3
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_3, "LightsModeRace3"
-'
+    AddPlayerStateEventListener RACE_3, RACE_3 &   "LightsModeRace3",   "LightsModeRace3",  1000, Null
 '*****************************
 Sub LightsModeRace3()
     lightCtrl.LightState l55, GetPlayerState(RACE_3)
@@ -3348,8 +3304,7 @@ End Sub
 '****************************
 ' Mode Race 4
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_4, "LightsModeRace4"
-'
+    AddPlayerStateEventListener RACE_4, RACE_4 &   "LightsModeRace4",   "LightsModeRace4",  1000, Null
 '*****************************
 Sub LightsModeRace4()
     lightCtrl.LightState l56, GetPlayerState(RACE_4)
@@ -3358,8 +3313,7 @@ End Sub
 '****************************
 ' Mode Race 5
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_5, "LightsModeRace5"
-'
+    AddPlayerStateEventListener RACE_5, RACE_5 &   "LightsModeRace5",   "LightsModeRace5",  1000, Null
 '*****************************
 Sub LightsModeRace5()
     lightCtrl.LightState l57, GetPlayerState(RACE_5)
@@ -3368,8 +3322,7 @@ End Sub
 '****************************
 ' Mode Race 6
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_6, "LightsModeRace6"
-'
+    AddPlayerStateEventListener RACE_6, RACE_6 &   "LightsModeRace6",   "LightsModeRace6",  1000, Null
 '*****************************
 Sub LightsModeRace6()
     lightCtrl.LightState l58, GetPlayerState(RACE_6)
@@ -8919,8 +8872,7 @@ lSeqWizCorners.Repeat = False
 '****************************
 ' PS_TTOrbit
 ' Event Listeners:  
-    RegisterPlayerStateEvent TT_ORBIT, "PS_TTOrbit"
-'
+    AddPlayerStateEventListener TT_ORBIT, TT_ORBIT &   "PS_TTOrbit",   "PS_TTOrbit",  1000, Null
 '*****************************
 Sub PS_TTOrbit()
     lightCtrl.LightState l95, GetPlayerState(TT_ORBIT)
@@ -8929,8 +8881,7 @@ End Sub
 '****************************
 ' PS_TTTarget
 ' Event Listeners:  
-RegisterPlayerStateEvent TT_TARGET, "PS_TTTarget"
-'
+    AddPlayerStateEventListener TT_TARGET, TT_TARGET &   "PS_TTTarget",   "PS_TTTarget",  1000, Null
 '*****************************
 Sub PS_TTTarget()
     lightCtrl.LightState l91, GetPlayerState(TT_TARGET)
@@ -8939,8 +8890,7 @@ End Sub
 '****************************
 ' PS_TTRamp
 ' Event Listeners:  
-RegisterPlayerStateEvent TT_RAMP, "PS_TTRamp"
-'
+    AddPlayerStateEventListener TT_RAMP, TT_RAMP &   "PS_TTRamp",   "PS_TTRamp",  1000, Null
 '*****************************
 Sub PS_TTRamp()
     lightCtrl.LightState l90, GetPlayerState(TT_RAMP)
@@ -8949,8 +8899,7 @@ End Sub
 '****************************
 ' PS_TTCaptive
 ' Event Listeners:  
-RegisterPlayerStateEvent TT_CAPTIVE, "PS_TTCaptive"
-'
+    AddPlayerStateEventListener TT_CAPTIVE, TT_CAPTIVE &   "PS_TTCaptive",   "PS_TTCaptive",  1000, Null
 '*****************************
 Sub PS_TTCaptive()
     lightCtrl.LightState l92, GetPlayerState(TT_CAPTIVE)
@@ -8959,8 +8908,7 @@ End Sub
 '****************************
 ' PS_TTShortcut
 ' Event Listeners:  
-RegisterPlayerStateEvent TT_SHORTCUT, "TTShortcut"
-'
+    AddPlayerStateEventListener TT_SHORTCUT, TT_SHORTCUT &   "TTShortcut",   "TTShortcut",  1000, Null
 '*****************************
 Sub TTShortcut()
     lightCtrl.LightState l93, GetPlayerState(TT_SHORTCUT)
@@ -9035,7 +8983,7 @@ End Sub
 '****************************
 ' Bet 1
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_BET1, "SwitchBet1Hit"
+    AddPinEventListener SWITCH_HIT_BET1, SWITCH_HIT_BET1 &   "SwitchBet1Hit",   "SwitchBet1Hit",  1000, Null
 '
 '*****************************
 Sub SwitchBet1Hit()
@@ -9052,7 +9000,7 @@ End Sub
 '****************************
 ' Bet 2
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_BET2, "SwitchBet2Hit"
+AddPinEventListener SWITCH_HIT_BET2, SWITCH_HIT_BET2 &   "SwitchBet2Hit",   "SwitchBet2Hit",  1000, Null
 '
 '*****************************
 Sub SwitchBet2Hit()
@@ -9069,7 +9017,7 @@ End Sub
 '****************************
 ' Bet 3
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_BET3, "SwitchBet3Hit"
+AddPinEventListener SWITCH_HIT_BET3, SWITCH_HIT_BET3 &   "SwitchBet3Hit",   "SwitchBet3Hit",  1000, Null
 '
 '*****************************
 Sub SwitchBet3Hit()
@@ -9086,8 +9034,7 @@ End Sub
 '****************************
 ' Check Bet Hits
 ' Event Listeners:          
-    RegisterPlayerStateEvent BET_HITS, "CheckBetHits"
-'
+    AddPlayerStateEventListener BET_HITS, BET_HITS &   "CheckBetHits",   "CheckBetHits",  1000, Null
 '*****************************
 
 Sub CheckBetHits()
@@ -9135,8 +9082,8 @@ End Function
 '****************************
 ' Bet Mode Spinner Hit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_SPINNER1, "BetModeSpinnerHit"
-    RegisterPinEvent SWITCH_HIT_SPINNER2, "BetModeSpinnerHit"
+    AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "BetModeSpinnerHit",   "BetModeSpinnerHit",  1000, Null
+    AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &   "BetModeSpinnerHit",   "BetModeSpinnerHit",  1000, Null
 '
 '*****************************
 Sub BetModeSpinnerHit()
@@ -9165,7 +9112,7 @@ End Function
 '****************************
 ' Bet Mode Collect Hit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "BetModeCollect"
+    AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "BetModeCollect",   "BetModeCollect",  1000, Null
 '
 '*****************************
 Sub BetModeCollect()
@@ -9190,7 +9137,7 @@ End Sub
 '****************************
 ' BetModeTimerHurry
 ' Event Listeners:          
-    RegisterPinEvent GAME_BET_TIMER_HURRY, "BetModeTimerHurry"
+    AddPinEventListener GAME_BET_TIMER_HURRY, GAME_BET_TIMER_HURRY &   "BetModeTimerHurry",   "BetModeTimerHurry",  1000, Null
 '
 '*****************************
 Sub BetModeTimerHurry()
@@ -9209,7 +9156,7 @@ End Sub
 '****************************
 ' BetModeTimerEnded
 ' Event Listeners:          
-    RegisterPinEvent GAME_BET_TIMER_ENDED, "BetModeTimerEnded"
+    AddPinEventListener GAME_BET_TIMER_ENDED, GAME_BET_TIMER_ENDED &   "BetModeTimerEnded",   "BetModeTimerEnded",  1000, Null
 '
 '*****************************
 Sub BetModeTimerEnded()
@@ -9228,7 +9175,7 @@ End Sub
 '****************************
 ' BonusSkip
 ' Event Listeners:          
-RegisterPinEvent SWITCH_BOTH_FLIPPERS_PRESSED, "BonusSkip"
+AddPinEventListener SWITCH_BOTH_FLIPPERS_PRESSED, SWITCH_BOTH_FLIPPERS_PRESSED &   "BonusSkip",   "BonusSkip",  1000, Null
 '
 '*****************************
 Sub BonusSkip()
@@ -9240,7 +9187,7 @@ End Sub
 '****************************
 ' Boost 1
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_BOOST1, "SwitchBOOST1Hit"
+    AddPinEventListener SWITCH_HIT_BOOST1, SWITCH_HIT_BOOST1 &   "SwitchBOOST1Hit",   "SwitchBOOST1Hit",  1000, Null
 '
 '*****************************
 Sub SwitchBOOST1Hit()
@@ -9265,7 +9212,7 @@ End Sub
 '****************************
 ' Boost 2
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_BOOST2, "SwitchBOOST2Hit"
+    AddPinEventListener SWITCH_HIT_BOOST2, SWITCH_HIT_BOOST2 &   "SwitchBOOST2Hit",   "SwitchBOOST2Hit",  1000, Null
 '
 '*****************************
 Sub SwitchBOOST2Hit
@@ -9289,7 +9236,7 @@ End Sub
 '****************************
 ' Boost 3
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_BOOST3, "SwitchBOOST3Hit"
+AddPinEventListener SWITCH_HIT_BOOST3, SWITCH_HIT_BOOST3 &   "SwitchBOOST3Hit",   "SwitchBOOST3Hit",  1000, Null
 '
 '*****************************
 Sub SwitchBOOST3Hit
@@ -9314,8 +9261,7 @@ End Sub
 '****************************
 ' Check Boost Mode Complete 
 ' Event Listeners:              
-    RegisterPlayerStateEvent BOOST_HITS, "CheckBoostHits"
-'
+    AddPlayerStateEventListener BOOST_HITS, BOOST_HITS &   "CheckBoostHits",   "CheckBoostHits",  1000, Null
 '*****************************
 Sub CheckBoostHits
     If GetPlayerState(BOOST_1) = 1 AND GetPlayerState(BOOST_2) = 1 AND GetPlayerState(BOOST_3) = 1 Then
@@ -9328,8 +9274,7 @@ End Sub
 '****************************
 ' Check Boost Mode Complete 
 ' Event Listeners:              
-    RegisterPlayerStateEvent BOOST_SHOT, "CheckBoostModeComplete"
-'
+    AddPlayerStateEventListener BOOST_SHOT, BOOST_SHOT &   "CheckBoostModeComplete",   "CheckBoostModeComplete",  1000, Null
 '*****************************
 Sub CheckBoostModeComplete
         If GetPlayerState(MODE_BOOST) = True Then
@@ -9355,8 +9300,7 @@ End Sub
 '****************************
 ' Check Boost Mode Start 
 ' Event Listeners:              
-    RegisterPlayerStateEvent BOOST_HITS, "CheckBoostModeStart"
-'
+    AddPlayerStateEventListener BOOST_HITS, BOOST_HITS &   "CheckBoostModeStart",   "CheckBoostModeStart",  1000, Null
 '*****************************
 Sub CheckBoostModeStart
         If GetPlayerState(MODE_BOOST) = False AND GetPlayerState(BOOST_HITS) = (3 * GetPlayerState(BOOST_ACTIVATIONS)) Then
@@ -9398,7 +9342,7 @@ End Sub
 '****************************
 ' Combos
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_SPINNER1, "ComboShotSpinner1"
+    AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "ComboShotSpinner1",   "ComboShotSpinner1",  1000, Null
 '
 '*****************************
 Sub ComboShotSpinner1
@@ -9419,7 +9363,7 @@ End Sub
 '****************************
 ' Combos
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "ComboShotLeftOrbit"
+    AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "ComboShotLeftOrbit",   "ComboShotLeftOrbit",  1000, Null
 '
 '*****************************
 Sub ComboShotLeftOrbit
@@ -9440,7 +9384,7 @@ End Sub
 '****************************
 ' Combos
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "ComboShotLeftRamp"
+    AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "ComboShotLeftRamp",   "ComboShotLeftRamp",  1000, Null
 '
 '*****************************
 Sub ComboShotLeftRamp
@@ -9461,7 +9405,7 @@ End Sub
 '****************************
 ' Combos
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "ComboShotRightRamp"
+    AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "ComboShotRightRamp",   "ComboShotRightRamp",  1000, Null
 '
 '*****************************
 Sub ComboShotRightRamp
@@ -9482,7 +9426,7 @@ End Sub
 '****************************
 ' Combos
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "ComboShotRightOrbit"
+    AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "ComboShotRightOrbit",   "ComboShotRightOrbit",  1000, Null
 '
 '*****************************
 Sub ComboShotRightOrbit
@@ -9503,8 +9447,7 @@ End Sub
 '****************************
 ' Combos
 ' Event Listeners:      
-    RegisterPlayerStateEvent COMBO_COUNT, "CheckComboCount"
-'
+    AddPlayerStateEventListener COMBO_COUNT, COMBO_COUNT &   "CheckComboCount",   "CheckComboCount",  1000, Null
 '*****************************
 Sub CheckComboCount
     
@@ -9543,7 +9486,7 @@ End Sub
 '****************************
 ' Cyber C 
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_SPINNER1, "SwitchCyberCHit"
+AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "SwitchCyberCHit",   "SwitchCyberCHit",  1000, Null
 '
 '*****************************
 Sub SwitchCyberCHit()
@@ -9581,7 +9524,7 @@ End Function
 '****************************
 ' Cyber Y 
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "SwitchCyberYHit"
+AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "SwitchCyberYHit",   "SwitchCyberYHit",  1000, Null
 '
 '*****************************
 Sub SwitchCyberYHit()
@@ -9620,7 +9563,7 @@ End Function
 '****************************
 ' Cyber B
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SwitchCyberBHit"
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "SwitchCyberBHit",   "SwitchCyberBHit",  1000, Null
 '
 '*****************************
 Sub SwitchCyberBHit()
@@ -9658,7 +9601,7 @@ End Function
 '****************************
 ' Cyber E
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "SwitchCyberEHit"
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "SwitchCyberEHit",   "SwitchCyberEHit",  1000, Null
 '
 '*****************************
 Sub SwitchCyberEHit()
@@ -9696,7 +9639,7 @@ End Function
 '****************************
 ' Cyber E
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "SwitchCyberRHit"
+AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "SwitchCyberRHit",   "SwitchCyberRHit",  1000, Null
 '
 '*****************************
 Sub SwitchCyberRHit()
@@ -9740,8 +9683,7 @@ End Sub
 '****************************
 ' Cyber Mode Change
 ' Event Listeners:              
-    RegisterPlayerStateEvent MODE_CYBER, "CyberModeChange"
-'
+    AddPlayerStateEventListener MODE_CYBER, MODE_CYBER &   "CyberModeChange",   "CyberModeChange",  1000, Null
 '*****************************
 Sub CyberModeChange()
     If GetPlayerState(MODE_CYBER) = True Then
@@ -9762,7 +9704,7 @@ End Sub
 '****************************
 ' End Of Ball
 ' Event Listeners:      
-    RegisterPinEvent BALL_DRAIN, "EndOfBall"
+    AddPinEventListener BALL_DRAIN, BALL_DRAIN &   "EndOfBall",   "EndOfBall",  1000, Null
 '
 '*****************************
 Sub EndOfBall()
@@ -10004,7 +9946,7 @@ End Sub
 '****************************
 ' End Of Bonus
 ' Event Listeners:      
-    RegisterPinEvent GAME_BONUS_TIMER_ENDED, "EndOfBonus"
+    AddPinEventListener GAME_BONUS_TIMER_ENDED, GAME_BONUS_TIMER_ENDED &   "EndOfBonus",   "EndOfBonus",  1000, Null
 '
 '*****************************
 Dim bonusScore : bonusScore = 0
@@ -10168,13 +10110,12 @@ End Function
 '****************************
 ' PS_RaceExtraBall
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_1, "PS_RaceExtraBall"
-RegisterPlayerStateEvent RACE_2, "PS_RaceExtraBall"
-RegisterPlayerStateEvent RACE_3, "PS_RaceExtraBall"
-RegisterPlayerStateEvent RACE_4, "PS_RaceExtraBall"
-RegisterPlayerStateEvent RACE_5, "PS_RaceExtraBall"
-RegisterPlayerStateEvent RACE_6, "PS_RaceExtraBall"
-'
+    AddPlayerStateEventListener RACE_1, RACE_1 &   "PS_RaceExtraBall",   "PS_RaceExtraBall",  1000, Null
+    AddPlayerStateEventListener RACE_2, RACE_2 &   "PS_RaceExtraBall",   "PS_RaceExtraBall",  1000, Null
+    AddPlayerStateEventListener RACE_3, RACE_3 &   "PS_RaceExtraBall",   "PS_RaceExtraBall",  1000, Null
+    AddPlayerStateEventListener RACE_4, RACE_4 &   "PS_RaceExtraBall",   "PS_RaceExtraBall",  1000, Null
+    AddPlayerStateEventListener RACE_5, RACE_5 &   "PS_RaceExtraBall",   "PS_RaceExtraBall",  1000, Null
+    AddPlayerStateEventListener RACE_6, RACE_6 &   "PS_RaceExtraBall",   "PS_RaceExtraBall",  1000, Null
 '*****************************
 Sub PS_RaceExtraBall()
     If GetPlayerState(RACE_EXTRABALL) = 0 Then
@@ -10193,7 +10134,7 @@ End Sub
 '****************************
 ' Claim Extra Ball
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_SCOOP, "ClaimExtraBall"
+AddPinEventListener SWITCH_HIT_SCOOP, SWITCH_HIT_SCOOP &   "ClaimExtraBall",   "ClaimExtraBall",  1000, Null
 '
 '*****************************
 Sub ClaimExtraBall()
@@ -10391,13 +10332,12 @@ End Function
 '****************************
 ' GrandSlamRacesCheck
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_1, "GrandSlamRacesCheck"
-RegisterPlayerStateEvent RACE_2, "GrandSlamRacesCheck"
-RegisterPlayerStateEvent RACE_3, "GrandSlamRacesCheck"
-RegisterPlayerStateEvent RACE_4, "GrandSlamRacesCheck"
-RegisterPlayerStateEvent RACE_5, "GrandSlamRacesCheck"
-RegisterPlayerStateEvent RACE_6, "GrandSlamRacesCheck"
-'
+    AddPlayerStateEventListener RACE_1, RACE_1 &   "GrandSlamRacesCheck",   "GrandSlamRacesCheck",  1000, Null
+    AddPlayerStateEventListener RACE_2, RACE_2 &   "GrandSlamRacesCheck",   "GrandSlamRacesCheck",  1000, Null
+    AddPlayerStateEventListener RACE_3, RACE_3 &   "GrandSlamRacesCheck",   "GrandSlamRacesCheck",  1000, Null
+    AddPlayerStateEventListener RACE_4, RACE_4 &   "GrandSlamRacesCheck",   "GrandSlamRacesCheck",  1000, Null
+    AddPlayerStateEventListener RACE_5, RACE_5 &   "GrandSlamRacesCheck",   "GrandSlamRacesCheck",  1000, Null
+    AddPlayerStateEventListener RACE_6, RACE_6 &   "GrandSlamRacesCheck",   "GrandSlamRacesCheck",  1000, Null
 '*****************************
 Sub GrandSlamRacesCheck()
     If GetPlayerState(GRANDSLAM_RACES) = False Then
@@ -10422,12 +10362,11 @@ End Sub
 '****************************
 ' GrandSlamWizardCheck
 ' Event Listeners:          
-RegisterPlayerStateEvent GRANDSLAM_TT, "GrandSlamWizardCheck"
-RegisterPlayerStateEvent GRANDSLAM_RACES, "GrandSlamWizardCheck"
-RegisterPlayerStateEvent GRANDSLAM_COMBO, "GrandSlamWizardCheck"
-RegisterPlayerStateEvent GRANDSLAM_NODES, "GrandSlamWizardCheck"
-RegisterPlayerStateEvent GRANDSLAM_SKILLS, "GrandSlamWizardCheck"
-'
+    AddPlayerStateEventListener GRANDSLAM_TT, GRANDSLAM_TT &   "GrandSlamWizardCheck",   "GrandSlamWizardCheck",  1000, Null
+    AddPlayerStateEventListener GRANDSLAM_RACES, GRANDSLAM_RACES &   "GrandSlamWizardCheck",   "GrandSlamWizardCheck",  1000, Null
+    AddPlayerStateEventListener GRANDSLAM_COMBO, GRANDSLAM_COMBO &   "GrandSlamWizardCheck",   "GrandSlamWizardCheck",  1000, Null
+    AddPlayerStateEventListener GRANDSLAM_NODES, GRANDSLAM_NODES &   "GrandSlamWizardCheck",   "GrandSlamWizardCheck",  1000, Null
+    AddPlayerStateEventListener GRANDSLAM_SKILLS, GRANDSLAM_SKILLS &   "GrandSlamWizardCheck",   "GrandSlamWizardCheck",  1000, Null
 '*****************************
 Sub GrandSlamWizardCheck()
     
@@ -10450,7 +10389,7 @@ End Sub
 '****************************
 ' CheckWizardReady
 ' Event Listeners:  
-RegisterPinEvent SWITCH_HIT_RACE_KICKER, "CheckWizardReady"
+AddPinEventListener SWITCH_HIT_RACE_KICKER, SWITCH_HIT_RACE_KICKER &   "CheckWizardReady",   "CheckWizardReady",  1000, Null
 '
 '*****************************
 Dim wizardPointsAddOn
@@ -10544,7 +10483,7 @@ End Sub
 '****************************
 ' WizStage1TimerEnded
 ' Event Listeners:          
-RegisterPinEvent GAME_RACE_TIMER_ENDED, "WizStage1TimerEnded"
+AddPinEventListener GAME_RACE_TIMER_ENDED, GAME_RACE_TIMER_ENDED &   "WizStage1TimerEnded",   "WizStage1TimerEnded",  1000, Null
 '
 '*****************************
 Sub WizStage1TimerEnded()
@@ -10557,12 +10496,12 @@ End Sub
 '****************************
 ' Wiz1 Shot
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_SPINNER1, "Wiz1Shot"
-RegisterPinEvent SWITCH_HIT_SPINNER2, "Wiz1Shot"
-RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "Wiz1Shot"
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "Wiz1Shot"
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "Wiz1Shot"
-RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "Wiz1Shot"
+AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "Wiz1Shot",   "Wiz1Shot",  1000, Null
+AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &   "Wiz1Shot",   "Wiz1Shot",  1000, Null
+AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "Wiz1Shot",   "Wiz1Shot",  1000, Null
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "Wiz1Shot",   "Wiz1Shot",  1000, Null
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "Wiz1Shot",   "Wiz1Shot",  1000, Null
+AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "Wiz1Shot",   "Wiz1Shot",  1000, Null
 '
 '*****************************
 Sub Wiz1Shot
@@ -10574,7 +10513,7 @@ End Sub
 '****************************
 ' Wiz2 Left Ramp Shot
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "Wiz2LeftRampShot"
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "Wiz2LeftRampShot",   "Wiz2LeftRampShot",  1000, Null
 '
 '*****************************
 Sub Wiz2LeftRampShot
@@ -10596,7 +10535,7 @@ End Sub
 '****************************
 ' Wiz3 Shot1
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_SPINNER1, "Wiz3Shot1"
+AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "Wiz3Shot1",   "Wiz3Shot1",  1000, Null
 '
 '*****************************
 Dim wiz3Spinner1Hit : wiz3Spinner1Hit = False
@@ -10613,7 +10552,7 @@ End Sub
 '****************************
 ' Wiz3 Shot2
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_SPINNER2, "Wiz3Shot2"
+AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &   "Wiz3Shot2",   "Wiz3Shot2",  1000, Null
 '
 '*****************************
 Dim wiz3Spinner2Hit : wiz3Spinner2Hit = False
@@ -10629,7 +10568,7 @@ End Sub
 '****************************
 ' Wiz3 Shot3
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "Wiz3Shot3" 
+AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "Wiz3Shot3" ,   "Wiz3Shot3" ,  1000, Null
 '
 '*****************************
 Dim wiz3LeftOrbitHit : wiz3LeftOrbitHit = False
@@ -10645,7 +10584,7 @@ End Sub
 '****************************
 ' Wiz3 Shot4
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "Wiz3Shot4"
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "Wiz3Shot4",   "Wiz3Shot4",  1000, Null
 '
 '*****************************
 Dim wiz3LeftRampHit : wiz3LeftRampHit = False
@@ -10661,7 +10600,7 @@ End Sub
 '****************************
 ' Wiz3 Shot5
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "Wiz3Shot5"
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "Wiz3Shot5",   "Wiz3Shot5",  1000, Null
 '
 '*****************************
 Dim wiz3RightRampHit : wiz3RightRampHit = False
@@ -10677,7 +10616,7 @@ End Sub
 '****************************
 ' Wiz3 Shot6
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "Wiz3Shot6"
+AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "Wiz3Shot6",   "Wiz3Shot6",  1000, Null
 '
 '*****************************
 Dim wiz3RightOrbitHit : wiz3RightOrbitHit = False
@@ -10693,8 +10632,7 @@ End Sub
 '****************************
 ' Check Wiz 3 Hits
 ' Event Listeners:          
-RegisterPlayerStateEvent MODE_WIZARD_HITS, "CheckWiz3Hits"
-'
+    AddPlayerStateEventListener MODE_WIZARD_HITS, MODE_WIZARD_HITS &   "CheckWiz3Hits",   "CheckWiz3Hits",  1000, Null
 '*****************************
 
 Sub CheckWiz3Hits()
@@ -10754,7 +10692,7 @@ End Sub
 '****************************
 ' HiScore Selection Timer Ended
 ' Event Listeners:      
-RegisterPinEvent GAME_SELECTION_TIMER_ENDED, "HiScoreSelectionTimerEnded"
+AddPinEventListener GAME_SELECTION_TIMER_ENDED, GAME_SELECTION_TIMER_ENDED &   "HiScoreSelectionTimerEnded",   "HiScoreSelectionTimerEnded",  1000, Null
 '
 '*****************************
 Sub HiScoreSelectionTimerEnded()
@@ -10767,7 +10705,7 @@ End Sub
 '****************************
 ' HiScoreCycleLeft
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_LEFT_FLIPPER_DOWN, "HiScoreCycleLeft"
+    AddPinEventListener SWITCH_LEFT_FLIPPER_DOWN, SWITCH_LEFT_FLIPPER_DOWN &   "HiScoreCycleLeft",   "HiScoreCycleLeft",  1000, Null
 '
 '*****************************
 Sub HiScoreCycleLeft()
@@ -10791,7 +10729,7 @@ End Sub
 '****************************
 ' HiScoreCycleRight
 ' Event Listeners:  
-RegisterPinEvent SWITCH_RIGHT_FLIPPER_DOWN, "HiScoreCycleRight"
+AddPinEventListener SWITCH_RIGHT_FLIPPER_DOWN, SWITCH_RIGHT_FLIPPER_DOWN &   "HiScoreCycleRight",   "HiScoreCycleRight",  1000, Null
 '
 '*****************************
 Sub HiScoreCycleRight()
@@ -10815,7 +10753,7 @@ End Sub
 '****************************
 ' HiScoreConfirm
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_SELECT_EVENT_KEY, "HiScoreConfirm"
+    AddPinEventListener SWITCH_SELECT_EVENT_KEY, SWITCH_SELECT_EVENT_KEY &   "HiScoreConfirm",   "HiScoreConfirm",  1000, Null
 '
 '*****************************
 Sub HiScoreConfirm()
@@ -10828,7 +10766,7 @@ End Sub
 '****************************
 ' Hyper Hit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_HYPER, "SwitchHyper"
+AddPinEventListener SWITCH_HIT_HYPER, SWITCH_HIT_HYPER &   "SwitchHyper",   "SwitchHyper",  1000, Null
 '
 '*****************************
 Sub SwitchHyper()
@@ -10883,7 +10821,7 @@ End Sub
 '****************************
 ' HyperModeTimerHurry
 ' Event Listeners:          
-RegisterPinEvent GAME_MULTIPLIER_TIMER_HURRY, "HyperModeTimerHurry"
+AddPinEventListener GAME_MULTIPLIER_TIMER_HURRY, GAME_MULTIPLIER_TIMER_HURRY &   "HyperModeTimerHurry",   "HyperModeTimerHurry",  1000, Null
 '
 '*****************************
 Sub HyperModeTimerHurry()
@@ -10902,7 +10840,7 @@ End Sub
 '****************************
 ' HyperModeTimerEnded
 ' Event Listeners:          
-    RegisterPinEvent GAME_MULTIPLIER_TIMER_ENDED, "HyperModeTimerEnded"
+    AddPinEventListener GAME_MULTIPLIER_TIMER_ENDED, GAME_MULTIPLIER_TIMER_ENDED &   "HyperModeTimerEnded",   "HyperModeTimerEnded",  1000, Null
 '
 '*****************************
 Sub HyperModeTimerEnded()
@@ -10914,7 +10852,7 @@ End Sub
 '****************************
 ' Rotate Lane Lights Clockwise
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_RIGHT_FLIPPER_DOWN, "RotateLaneLightsClockwise"
+    AddPinEventListener SWITCH_RIGHT_FLIPPER_DOWN, SWITCH_RIGHT_FLIPPER_DOWN &   "RotateLaneLightsClockwise",   "RotateLaneLightsClockwise",  1000, Null
 '
 '*****************************
 Sub RotateLaneLightsClockwise()
@@ -10934,7 +10872,7 @@ End Sub
 '****************************
 ' Rotate Lane Lights Anti Clockwise
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_LEFT_FLIPPER_DOWN, "RotateLaneLightsAntiClockwise"
+    AddPinEventListener SWITCH_LEFT_FLIPPER_DOWN, SWITCH_LEFT_FLIPPER_DOWN &   "RotateLaneLightsAntiClockwise",   "RotateLaneLightsAntiClockwise",  1000, Null
 '
 '*****************************
 Sub RotateLaneLightsAntiClockwise()
@@ -11003,7 +10941,7 @@ Dim totalMbScore : totalMbScore = 0
 '****************************
 ' Captive Ball Hit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_CAPTIVE, "SwitchHitCaptive"
+    AddPinEventListener SWITCH_HIT_CAPTIVE, SWITCH_HIT_CAPTIVE &   "SwitchHitCaptive",   "SwitchHitCaptive",  1000, Null
 '
 '*****************************
 Sub SwitchHitCaptive()
@@ -11025,7 +10963,7 @@ End Sub
 '****************************
 ' Ramp Lock Gate Hit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RAMP_LOCK, "SwitchHitRampLockGate"
+AddPinEventListener SWITCH_HIT_RAMP_LOCK, SWITCH_HIT_RAMP_LOCK &   "SwitchHitRampLockGate",   "SwitchHitRampLockGate",  1000, Null
 '
 '*****************************
 Sub SwitchHitRampLockGate()
@@ -11165,8 +11103,7 @@ End Sub
 '****************************
 ' Check Lock Hits
 ' Event Listeners:          
-    RegisterPlayerStateEvent LOCK_HITS, "CheckLockHits"
-'
+    AddPlayerStateEventListener LOCK_HITS, LOCK_HITS &   "CheckLockHits",   "CheckLockHits",  1000, Null
 '*****************************
 
 Sub CheckLockHits()
@@ -11180,9 +11117,8 @@ End Sub
 '****************************
 ' Check Lock Lit
 ' Event Listeners:          
-    RegisterPlayerStateEvent LOCK_LIT, "CheckLockLit"
-    RegisterPlayerStateEvent MODE_MULTIBALL, "CheckLockLit"
-'
+    AddPlayerStateEventListener LOCK_LIT, LOCK_LIT &   "CheckLockLit",   "CheckLockLit",  1000, Null
+    AddPlayerStateEventListener MODE_MULTIBALL, MODE_MULTIBALL &   "CheckLockLit",   "CheckLockLit",  1000, Null
 '*****************************
 
 Sub CheckLockLit()
@@ -11198,7 +11134,7 @@ End Sub
 '****************************
 ' LockCheckDiverter
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP_ENTER, "LockCheckDiverter"
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP_ENTER, SWITCH_HIT_RIGHT_RAMP_ENTER &   "LockCheckDiverter",   "LockCheckDiverter",  1000, Null
 '
 '*****************************
 Sub LockCheckDiverter
@@ -11222,7 +11158,7 @@ End Sub
 '****************************
 ' MB Spinner Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_SPINNER1, "MBSpinnerShot"
+    AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "MBSpinnerShot",   "MBSpinnerShot",  1000, Null
 '
 '*****************************
 Sub MBSpinnerShot
@@ -11238,7 +11174,7 @@ End Sub
 '****************************
 ' MB Left Orbit Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "MBLeftOrbitShot"
+    AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "MBLeftOrbitShot",   "MBLeftOrbitShot",  1000, Null
 '
 '*****************************
 Sub MBLeftOrbitShot
@@ -11254,7 +11190,7 @@ End Sub
 '****************************
 ' MB Left Ramp Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "MBLeftRampShot"
+    AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "MBLeftRampShot",   "MBLeftRampShot",  1000, Null
 '
 '*****************************
 Sub MBLeftRampShot
@@ -11280,7 +11216,7 @@ End Sub
 '****************************
 ' MB Right Ramp Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "MBRightRampShot"
+    AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "MBRightRampShot",   "MBRightRampShot",  1000, Null
 '
 '*****************************
 Sub MBRightRampShot
@@ -11296,7 +11232,7 @@ End Sub
 '****************************
 ' MB Right Orbit Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "MBRightOrbitShot"
+    AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "MBRightOrbitShot",   "MBRightOrbitShot",  1000, Null
 '
 '*****************************
 Sub MBRightOrbitShot
@@ -11312,7 +11248,7 @@ End Sub
 '****************************
 ' MB End
 ' Event Listeners:      
-RegisterPinEvent BALL_DRAIN, "MBEnd"
+AddPinEventListener BALL_DRAIN, BALL_DRAIN &   "MBEnd",   "MBEnd",  1000, Null
 '
 '*****************************
 Sub MBEnd
@@ -11348,7 +11284,7 @@ End Function
 '****************************
 ' HitMystery
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_MYSTERY, "HitMystery"
+AddPinEventListener SWITCH_HIT_MYSTERY, SWITCH_HIT_MYSTERY &   "HitMystery",   "HitMystery",  1000, Null
 '
 '*****************************
 Sub HitMystery()
@@ -11413,7 +11349,7 @@ End Sub
 '****************************
 ' Node Row A Hit
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_NODE_A, "NodeARowHit"
+    AddPinEventListener SWITCH_HIT_NODE_A, SWITCH_HIT_NODE_A &   "NodeARowHit",   "NodeARowHit",  1000, Null
 '
 '*****************************
 Sub NodeARowHit()
@@ -11464,7 +11400,7 @@ End Sub
 '****************************
 ' Node Row B Hit
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_NODE_B, "NodeBRowHit"
+    AddPinEventListener SWITCH_HIT_NODE_B, SWITCH_HIT_NODE_B &   "NodeBRowHit",   "NodeBRowHit",  1000, Null
 '
 '*****************************
 Sub NodeBRowHit()
@@ -11515,7 +11451,7 @@ End Sub
 '****************************
 ' Node Row C Hit
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_NODE_C, "NodeCRowHit"
+    AddPinEventListener SWITCH_HIT_NODE_C, SWITCH_HIT_NODE_C &   "NodeCRowHit",   "NodeCRowHit",  1000, Null
 '
 '*****************************
 Sub NodeCRowHit()
@@ -11592,7 +11528,7 @@ End Sub
 '****************************
 ' Node Level Up Ready
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_SCOOP, "NodeCollectPerk"
+    AddPinEventListener SWITCH_HIT_SCOOP, SWITCH_HIT_SCOOP &   "NodeCollectPerk",   "NodeCollectPerk",  1000, Null
 '
 '*****************************
 Sub NodeCollectPerk()
@@ -11632,7 +11568,7 @@ End Sub
 '****************************
 ' Node Perk Selection Timer Ended
 ' Event Listeners:      
-    RegisterPinEvent GAME_SELECTION_TIMER_ENDED, "NodePerkSelectionTimerEnded"
+    AddPinEventListener GAME_SELECTION_TIMER_ENDED, GAME_SELECTION_TIMER_ENDED &   "NodePerkSelectionTimerEnded",   "NodePerkSelectionTimerEnded",  1000, Null
 '
 '*****************************
 Sub NodePerkSelectionTimerEnded()
@@ -11644,7 +11580,7 @@ End Sub
 '****************************
 ' NodePerkSelectLeftPerk
 ' Event Listeners:  
-RegisterPinEvent SWITCH_LEFT_FLIPPER_DOWN, "NodePerkSelectLeftPerk"
+AddPinEventListener SWITCH_LEFT_FLIPPER_DOWN, SWITCH_LEFT_FLIPPER_DOWN &   "NodePerkSelectLeftPerk",   "NodePerkSelectLeftPerk",  1000, Null
 '
 '*****************************
 Sub NodePerkSelectLeftPerk()
@@ -11708,7 +11644,7 @@ End Function
 '****************************
 ' NodePerkSelectRightPerk
 ' Event Listeners:  
-RegisterPinEvent SWITCH_RIGHT_FLIPPER_DOWN, "NodePerkSelectRightPerk"
+AddPinEventListener SWITCH_RIGHT_FLIPPER_DOWN, SWITCH_RIGHT_FLIPPER_DOWN &   "NodePerkSelectRightPerk",   "NodePerkSelectRightPerk",  1000, Null
 '
 '*****************************
 Sub NodePerkSelectRightPerk()
@@ -11846,7 +11782,7 @@ End Function
 '****************************
 ' GameEmpTimerEnded
 ' Event Listeners:      
-    RegisterPinEvent GAME_EMP_TIMER_ENDED, "GameEmpTimerEnded"
+    AddPinEventListener GAME_EMP_TIMER_ENDED, GAME_EMP_TIMER_ENDED &   "GameEmpTimerEnded",   "GameEmpTimerEnded",  1000, Null
 '
 '*****************************
 
@@ -11864,7 +11800,7 @@ End Sub
 '****************************
 ' EMP MODE Shot 1
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_SPINNER2,       "EMPModeShot1"
+    AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &         "EMPModeShot1",         "EMPModeShot1",  1000, Null
 '
 '*****************************
 Sub EMPModeShot1()
@@ -11888,7 +11824,7 @@ End Sub
 '****************************
 ' Check Race Ready
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_HIT_RACE_KICKER, "CheckRaceReady"
+    AddPinEventListener SWITCH_HIT_RACE_KICKER, SWITCH_HIT_RACE_KICKER &   "CheckRaceReady",   "CheckRaceReady",  1000, Null
 '
 '*****************************
 Sub CheckRaceReady()
@@ -11923,7 +11859,7 @@ End Sub
 '****************************
 ' Race Mode Finish
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "CheckRaceModeFinish"
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "CheckRaceModeFinish",   "CheckRaceModeFinish",  1000, Null
 '
 '*****************************
 Sub CheckRaceModeFinish()
@@ -11984,7 +11920,7 @@ End Sub
 '****************************
 ' Race Selection Timer Ended
 ' Event Listeners:      
-    RegisterPinEvent GAME_SELECTION_TIMER_ENDED, "RaceSelectionTimerEnded"
+    AddPinEventListener GAME_SELECTION_TIMER_ENDED, GAME_SELECTION_TIMER_ENDED &   "RaceSelectionTimerEnded",   "RaceSelectionTimerEnded",  1000, Null
 '
 '*****************************
 Sub RaceSelectionTimerEnded()
@@ -11997,7 +11933,7 @@ End Sub
 '****************************
 ' RaceSelectCycleLeft
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_LEFT_FLIPPER_DOWN, "RaceSelectCycleLeft"
+    AddPinEventListener SWITCH_LEFT_FLIPPER_DOWN, SWITCH_LEFT_FLIPPER_DOWN &   "RaceSelectCycleLeft",   "RaceSelectCycleLeft",  1000, Null
 '
 '*****************************
 Sub RaceSelectCycleLeft()
@@ -12023,7 +11959,7 @@ End Sub
 '****************************
 ' RaceSelectCycleRight
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_RIGHT_FLIPPER_DOWN, "RaceSelectCycleRight"
+    AddPinEventListener SWITCH_RIGHT_FLIPPER_DOWN, SWITCH_RIGHT_FLIPPER_DOWN &   "RaceSelectCycleRight",   "RaceSelectCycleRight",  1000, Null
 '
 '*****************************
 Sub RaceSelectCycleRight()
@@ -12050,7 +11986,7 @@ End Sub
 '****************************
 ' RaceSelectConfirm
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_SELECT_EVENT_KEY, "RaceSelectConfirm"
+    AddPinEventListener SWITCH_SELECT_EVENT_KEY, SWITCH_SELECT_EVENT_KEY &   "RaceSelectConfirm",   "RaceSelectConfirm",  1000, Null
 '
 '*****************************
 Sub RaceSelectConfirm()
@@ -12140,7 +12076,7 @@ End Sub
 '****************************
 ' RaceModeShortcutHit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_SHORTCUT, "RaceModeShortcutHit"
+    AddPinEventListener SWITCH_HIT_SHORTCUT, SWITCH_HIT_SHORTCUT &   "RaceModeShortcutHit",   "RaceModeShortcutHit",  1000, Null
 '
 '*****************************
 Sub RaceModeShortcutHit()
@@ -12167,8 +12103,8 @@ End Sub
 '****************************
 ' RaceMode1RampHit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "RaceMode1RampHit"
-    RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "RaceMode1RampHit"
+    AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "RaceMode1RampHit",   "RaceMode1RampHit",  1000, Null
+    AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "RaceMode1RampHit",   "RaceMode1RampHit",  1000, Null
 '
 '*****************************
 Sub RaceMode1RampHit()
@@ -12189,8 +12125,7 @@ End Sub
 '****************************
 ' RaceMode1
 ' Event Listeners:          
-    RegisterPlayerStateEvent RACE_MODE_1_HITS, "RaceMode1"
-'
+    AddPlayerStateEventListener RACE_MODE_1_HITS, RACE_MODE_1_HITS &   "RaceMode1",   "RaceMode1",  1000, Null
 '*****************************
 Sub RaceMode1()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 1 And GetPlayerState(RACE_GRACE) = False Then
@@ -12226,7 +12161,7 @@ End Function
 '****************************
 ' RaceModeTimerHurry
 ' Event Listeners:          
-RegisterPinEvent GAME_RACE_TIMER_HURRY, "RaceModeTimerHurry"
+AddPinEventListener GAME_RACE_TIMER_HURRY, GAME_RACE_TIMER_HURRY &   "RaceModeTimerHurry",   "RaceModeTimerHurry",  1000, Null
 '
 '*****************************
 Sub RaceModeTimerHurry()
@@ -12238,7 +12173,7 @@ End Sub
 '****************************
 ' RaceModeAddTime
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_ADDTIME, "RaceModeAddTime"
+AddPinEventListener SWITCH_HIT_ADDTIME, SWITCH_HIT_ADDTIME &   "RaceModeAddTime",   "RaceModeAddTime",  1000, Null
 '
 '*****************************
 Sub RaceModeAddTime()
@@ -12263,7 +12198,7 @@ End Sub
 '****************************
 ' RaceModeTimerEnded
 ' Event Listeners:          
-    RegisterPinEvent GAME_RACE_TIMER_ENDED, "RaceModeTimerEnded"
+    AddPinEventListener GAME_RACE_TIMER_ENDED, GAME_RACE_TIMER_ENDED &   "RaceModeTimerEnded",   "RaceModeTimerEnded",  1000, Null
 '
 '*****************************
 Sub RaceModeTimerEnded()
@@ -12327,7 +12262,7 @@ End Sub
 '****************************
 ' RaceMode2Spinner1Hit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_SPINNER1, "RaceMode2Spinner1Hit"
+    AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "RaceMode2Spinner1Hit",   "RaceMode2Spinner1Hit",  1000, Null
 '
 '*****************************
 Sub RaceMode2Spinner1Hit()
@@ -12373,7 +12308,7 @@ End Sub
 '****************************
 ' RaceMode2Spinner2Hit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_SPINNER2, "RaceMode2Spinner2Hit"
+    AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &   "RaceMode2Spinner2Hit",   "RaceMode2Spinner2Hit",  1000, Null
 '
 '*****************************
 Sub RaceMode2Spinner2Hit()
@@ -12416,9 +12351,8 @@ End Function
 '****************************
 ' RaceMode2
 ' Event Listeners:          
-    RegisterPlayerStateEvent RACE_MODE_2_SPIN1, "RaceMode2"
-    RegisterPlayerStateEvent RACE_MODE_2_SPIN2, "RaceMode2"
-'
+    AddPlayerStateEventListener RACE_MODE_2_SPIN1, RACE_MODE_2_SPIN1 &   "RaceMode2",   "RaceMode2",  1000, Null
+    AddPlayerStateEventListener RACE_MODE_2_SPIN2, RACE_MODE_2_SPIN2 &   "RaceMode2",   "RaceMode2",  1000, Null
 '*****************************
 Sub RaceMode2()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 2 And GetPlayerState(RACE_GRACE) = False Then
@@ -12446,8 +12380,7 @@ End Sub
 '****************************
 ' Race Mode Finish
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_MODE_FINISH, "RaceModeFinish"
-'
+    AddPlayerStateEventListener RACE_MODE_FINISH, RACE_MODE_FINISH &   "RaceModeFinish",   "RaceModeFinish",  1000, Null
 '*****************************
 Sub RaceModeFinish()
     If GetPlayerState(RACE_MODE_FINISH) = True Then
@@ -12520,7 +12453,7 @@ End Function
 '****************************
 ' RaceMode3Spinner1Hit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_SPINNER1, "RaceMode3Spinner1Hit"
+AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "RaceMode3Spinner1Hit",   "RaceMode3Spinner1Hit",  1000, Null
 '
 '*****************************
 Sub RaceMode3Spinner1Hit()
@@ -12542,7 +12475,7 @@ End Sub
 '****************************
 ' RaceMode3LeftOrbitHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "RaceMode3LeftOrbitHit"
+AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "RaceMode3LeftOrbitHit",   "RaceMode3LeftOrbitHit",  1000, Null
 '
 '*****************************
 Sub RaceMode3LeftOrbitHit()
@@ -12563,7 +12496,7 @@ End Sub
 '****************************
 ' RaceMode3LeftRampHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "RaceMode3LeftRampHit"
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "RaceMode3LeftRampHit",   "RaceMode3LeftRampHit",  1000, Null
 '
 '*****************************
 Sub RaceMode3LeftRampHit()
@@ -12584,7 +12517,7 @@ End Sub
 '****************************
 ' RaceMode3Spinner2Hit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_SPINNER2, "RaceMode3Spinner2Hit"
+AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &   "RaceMode3Spinner2Hit",   "RaceMode3Spinner2Hit",  1000, Null
 '
 '*****************************
 Sub RaceMode3Spinner2Hit()
@@ -12607,7 +12540,7 @@ End Sub
 '****************************
 ' RaceMode3RightRampHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "RaceMode3RightRampHit"
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "RaceMode3RightRampHit",   "RaceMode3RightRampHit",  1000, Null
 '
 '*****************************
 Sub RaceMode3RightRampHit()
@@ -12628,7 +12561,7 @@ End Sub
 '****************************
 ' RaceMode3RightOrbitHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "RaceMode3RightOrbitHit"
+AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "RaceMode3RightOrbitHit",   "RaceMode3RightOrbitHit",  1000, Null
 '
 '*****************************
 Sub RaceMode3RightOrbitHit()
@@ -12649,8 +12582,7 @@ End Sub
 '****************************
 ' RaceMode3HitsCheck
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_MODE_3_HITS, "RaceMode3HitsCheck"
-'
+    AddPlayerStateEventListener RACE_MODE_3_HITS, RACE_MODE_3_HITS &   "RaceMode3HitsCheck",   "RaceMode3HitsCheck",  1000, Null
 '*****************************
 Sub RaceMode3HitsCheck()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 3 And GetPlayerState(RACE_GRACE) = False Then
@@ -12711,7 +12643,7 @@ End Sub
 '****************************
 ' RaceMode4LeftOrbitHit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "RaceMode4LeftOrbitHit"
+    AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "RaceMode4LeftOrbitHit",   "RaceMode4LeftOrbitHit",  1000, Null
 '
 '*****************************
 Sub RaceMode4LeftOrbitHit()
@@ -12732,7 +12664,7 @@ End Sub
 '****************************
 ' RaceMode4RightOrbitHit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "RaceMode4RightOrbitHit"
+    AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "RaceMode4RightOrbitHit",   "RaceMode4RightOrbitHit",  1000, Null
 '
 '*****************************
 Sub RaceMode4RightOrbitHit()
@@ -12753,9 +12685,9 @@ End Sub
 '****************************
 ' RaceMode4NodesHit
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_NODE_A, "RaceMode4NodesHit"
-    RegisterPinEvent SWITCH_HIT_NODE_B, "RaceMode4NodesHit"
-    RegisterPinEvent SWITCH_HIT_NODE_C, "RaceMode4NodesHit"
+    AddPinEventListener SWITCH_HIT_NODE_A, SWITCH_HIT_NODE_A &   "RaceMode4NodesHit",   "RaceMode4NodesHit",  1000, Null
+    AddPinEventListener SWITCH_HIT_NODE_B, SWITCH_HIT_NODE_B &   "RaceMode4NodesHit",   "RaceMode4NodesHit",  1000, Null
+    AddPinEventListener SWITCH_HIT_NODE_C, SWITCH_HIT_NODE_C &   "RaceMode4NodesHit",   "RaceMode4NodesHit",  1000, Null
 '
 '*****************************
 Sub RaceMode4NodesHit()
@@ -12776,8 +12708,7 @@ End Sub
 '****************************
 ' RaceMode4HitsCheck
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_MODE_4_HITS, "RaceMode4HitsCheck"
-'
+    AddPlayerStateEventListener RACE_MODE_4_HITS, RACE_MODE_4_HITS &   "RaceMode4HitsCheck",   "RaceMode4HitsCheck",  1000, Null
 '*****************************
 Sub RaceMode4HitsCheck()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 4 And GetPlayerState(RACE_GRACE) = False Then
@@ -12815,7 +12746,7 @@ End Sub
 '****************************
 ' RaceMode6LeftOrbitHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "RaceMode6LeftOrbitHit"
+AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "RaceMode6LeftOrbitHit",   "RaceMode6LeftOrbitHit",  1000, Null
 '
 '*****************************
 Sub RaceMode6LeftOrbitHit()
@@ -12839,7 +12770,7 @@ End Sub
 '****************************
 ' RaceMode6RightOrbitHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "RaceMode6RightOrbitHit"
+AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "RaceMode6RightOrbitHit",   "RaceMode6RightOrbitHit",  1000, Null
 '
 '*****************************
 Sub RaceMode6RightOrbitHit()
@@ -12862,7 +12793,7 @@ End Sub
 '****************************
 ' RaceMode6SpinnerHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_SPINNER2, "RaceMode6SpinnerHit"
+AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &   "RaceMode6SpinnerHit",   "RaceMode6SpinnerHit",  1000, Null
 '
 '*****************************
 Sub RaceMode6SpinnerHit()
@@ -12909,8 +12840,7 @@ End Function
 '****************************
 ' RaceMode6HitsCheck
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_MODE_6_HITS, "RaceMode6HitsCheck"
-'
+    AddPlayerStateEventListener RACE_MODE_6_HITS, RACE_MODE_6_HITS &   "RaceMode6HitsCheck",   "RaceMode6HitsCheck",  1000, Null
 '*****************************
 Sub RaceMode6HitsCheck()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 6 And GetPlayerState(RACE_GRACE) = False Then
@@ -12931,8 +12861,8 @@ End Sub
 '****************************
 ' RaceMode5RampHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "RaceMode5RampHit"
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "RaceMode5RampHit"
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "RaceMode5RampHit",   "RaceMode5RampHit",  1000, Null
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "RaceMode5RampHit",   "RaceMode5RampHit",  1000, Null
 '
 '*****************************
 Sub RaceMode5RampHit()
@@ -12953,9 +12883,9 @@ End Sub
 '****************************
 ' RaceMode5NodesHit
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_NODE_A, "RaceMode5NodesHit"
-RegisterPinEvent SWITCH_HIT_NODE_B, "RaceMode5NodesHit"
-RegisterPinEvent SWITCH_HIT_NODE_C, "RaceMode5NodesHit"
+AddPinEventListener SWITCH_HIT_NODE_A, SWITCH_HIT_NODE_A &   "RaceMode5NodesHit",   "RaceMode5NodesHit",  1000, Null
+AddPinEventListener SWITCH_HIT_NODE_B, SWITCH_HIT_NODE_B &   "RaceMode5NodesHit",   "RaceMode5NodesHit",  1000, Null
+AddPinEventListener SWITCH_HIT_NODE_C, SWITCH_HIT_NODE_C &   "RaceMode5NodesHit",   "RaceMode5NodesHit",  1000, Null
 '
 '*****************************
 Sub RaceMode5NodesHit()
@@ -12976,8 +12906,7 @@ End Sub
 '****************************
 ' RaceMode5HitsCheck
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_MODE_5_HITS, "RaceMode5HitsCheck"
-'
+    AddPlayerStateEventListener RACE_MODE_5_HITS, RACE_MODE_5_HITS &   "RaceMode5HitsCheck",   "RaceMode5HitsCheck",  1000, Null
 '*****************************
 Sub RaceMode5HitsCheck()
     If GetPlayerState(MODE_RACE) = True And GetPlayerState(RACE_MODE_SELECTION) = 5 And GetPlayerState(RACE_GRACE) = False Then
@@ -13089,7 +13018,7 @@ End Sub
 '****************************
 ' SecretGarageSkip
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_BOTH_FLIPPERS_PRESSED, "SecretGarageSkip"
+    AddPinEventListener SWITCH_BOTH_FLIPPERS_PRESSED, SWITCH_BOTH_FLIPPERS_PRESSED &   "SecretGarageSkip",   "SecretGarageSkip",  1000, Null
 '
 '*****************************
 Sub SecretGarageSkip()
@@ -13101,7 +13030,7 @@ End Sub
 '****************************
 ' SecretGarageEnter
 ' Event Listeners:          
-    RegisterPinEvent SWITCH_HIT_RAMP_PIN, "SecretGarageEnter"
+    AddPinEventListener SWITCH_HIT_RAMP_PIN, SWITCH_HIT_RAMP_PIN &   "SecretGarageEnter",   "SecretGarageEnter",  1000, Null
 '
 '*****************************
 Sub SecretGarageEnter()
@@ -13166,7 +13095,7 @@ End Sub
 '****************************
 ' Skills Trial
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_SPINNER1, "SkillsTrial"
+    AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "SkillsTrial",   "SkillsTrial",  1000, Null
 '
 '*****************************
 Sub SkillsTrial()
@@ -13185,7 +13114,7 @@ End Sub
 '****************************
 ' Skills Trial Ready
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LANE_A, "CheckSkillsTrialReady"
+    AddPinEventListener SWITCH_HIT_LANE_A, SWITCH_HIT_LANE_A &   "CheckSkillsTrialReady",   "CheckSkillsTrialReady",  1000, Null
 '
 '*****************************
 Sub CheckSkillsTrialReady()
@@ -13216,7 +13145,7 @@ End Sub
 '****************************
 ' Skills Trial Shot 1
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "SkillsTrialShot1"
+    AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "SkillsTrialShot1",   "SkillsTrialShot1",  1000, Null
 '
 '*****************************
 Sub SkillsTrialShot1()
@@ -13234,7 +13163,7 @@ End Sub
 '****************************
 ' Skills Trial Shot 2
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "SkillsTrialShot2"
+    AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "SkillsTrialShot2",   "SkillsTrialShot2",  1000, Null
 '
 '*****************************
 Sub SkillsTrialShot2()
@@ -13252,7 +13181,7 @@ End Sub
 '****************************
 ' Skills Trial Shot 3
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SkillsTrialShot3"
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "SkillsTrialShot3",   "SkillsTrialShot3",  1000, Null
 '
 '*****************************
 Sub SkillsTrialShot3
@@ -13273,8 +13202,7 @@ End Sub
 '****************************
 ' Skills Trial Lock Pin
 ' Event Listeners:      
-    RegisterPlayerStateEvent MODE_SKILLS_TRIAL, "SkillsTrialLockPin"
-'
+    AddPlayerStateEventListener MODE_SKILLS_TRIAL, MODE_SKILLS_TRIAL &   "SkillsTrialLockPin",   "SkillsTrialLockPin",  1000, Null
 '*****************************
 Sub SkillsTrialLockPin
     If GetPlayerState(MODE_SKILLS_TRIAL) = True Then
@@ -13295,7 +13223,7 @@ End Sub
 '****************************
 ' GameSkillsTimerEnded
 ' Event Listeners:      
-    RegisterPinEvent GAME_SKILLS_TIMER_ENDED, "GameSkillsTimerEnded"
+    AddPinEventListener GAME_SKILLS_TIMER_ENDED, GAME_SKILLS_TIMER_ENDED &   "GameSkillsTimerEnded",   "GameSkillsTimerEnded",  1000, Null
 '
 '*****************************
 
@@ -13312,8 +13240,8 @@ End Sub
 '****************************
 ' Start Skillshot
 ' Event Listeners:  
-RegisterPinEvent START_GAME,    "StartSkillShot"
-RegisterPinEvent NEXT_PLAYER,   "StartSkillShot"
+AddPinEventListener START_GAME, START_GAME &      "StartSkillShot",      "StartSkillShot",  1000, Null
+AddPinEventListener NEXT_PLAYER, NEXT_PLAYER &     "StartSkillShot",     "StartSkillShot",  1000, Null
 '
 '*****************************
 Sub StartSkillShot()
@@ -13331,7 +13259,7 @@ End Sub
 '****************************
 ' SkillshotLeftRamp
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "SkillshotLeftRamp"
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "SkillshotLeftRamp",   "SkillshotLeftRamp",  1000, Null
 '
 '*****************************
 Sub SkillshotLeftRamp()
@@ -13372,7 +13300,7 @@ End Sub
 '****************************
 ' TT ORBIT
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "SwitchTTOrbitHit"
+AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "SwitchTTOrbitHit",   "SwitchTTOrbitHit",  1000, Null
 '
 '*****************************
 Sub SwitchTTOrbitHit()
@@ -13389,7 +13317,7 @@ End Sub
 '****************************
 ' TT Ramp
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_SCOOP, "SwitchTTRampHit"
+AddPinEventListener SWITCH_HIT_SCOOP, SWITCH_HIT_SCOOP &   "SwitchTTRampHit",   "SwitchTTRampHit",  1000, Null
 '
 '*****************************
 Sub SwitchTTRampHit()
@@ -13406,7 +13334,7 @@ End Sub
 '****************************
 ' TT Target
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_BOOST3, "SwitchTTTargetHit"
+AddPinEventListener SWITCH_HIT_BOOST3, SWITCH_HIT_BOOST3 &   "SwitchTTTargetHit",   "SwitchTTTargetHit",  1000, Null
 '
 '*****************************
 Sub SwitchTTTargetHit()
@@ -13423,7 +13351,7 @@ End Sub
 '****************************
 ' TT Captive
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_CAPTIVE, "SwitchTTCaptiveHit"
+AddPinEventListener SWITCH_HIT_CAPTIVE, SWITCH_HIT_CAPTIVE &   "SwitchTTCaptiveHit",   "SwitchTTCaptiveHit",  1000, Null
 '
 '*****************************
 Sub SwitchTTCaptiveHit()
@@ -13440,7 +13368,7 @@ End Sub
 '****************************
 ' TT Shortcut
 ' Event Listeners:          
-RegisterPinEvent SWITCH_HIT_SHORTCUT, "SwitchTTShortcutHit"
+AddPinEventListener SWITCH_HIT_SHORTCUT, SWITCH_HIT_SHORTCUT &   "SwitchTTShortcutHit",   "SwitchTTShortcutHit",  1000, Null
 '
 '*****************************
 Sub SwitchTTShortcutHit()
@@ -13457,8 +13385,7 @@ End Sub
 '****************************
 ' PS_TTCollected
 ' Event Listeners:          
-    RegisterPlayerStateEvent TT_COLLECTED, "PS_TTCollected"
-'
+    AddPlayerStateEventListener TT_COLLECTED, TT_COLLECTED &   "PS_TTCollected",   "PS_TTCollected",  1000, Null
 '*****************************
 Sub PS_TTCollected()
     If GetPlayerState(TT_COLLECTED) = 10 * GetPlayerState(TT_ACTIVATIONS) Then
@@ -13520,8 +13447,7 @@ End Sub
 '****************************
 ' PS_TTJackpots
 ' Event Listeners:          
-RegisterPlayerStateEvent TT_JACKPOTS, "PS_TTJackpots"
-'
+    AddPlayerStateEventListener TT_JACKPOTS, TT_JACKPOTS &   "PS_TTJackpots",   "PS_TTJackpots",  1000, Null
 '*****************************
 Sub PS_TTJackpots()
     If GetPlayerState(MODE_TT_MULTIBALL) = True And GetPlayerState(TT_JACKPOTS) = 5 And GetPlayerState(GRANDSLAM_TT) = False Then
@@ -13552,7 +13478,7 @@ End Sub
 '****************************
 ' MBTT Spinner Shot
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_SPINNER1, "MBTTSpinnerShot"
+AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "MBTTSpinnerShot",   "MBTTSpinnerShot",  1000, Null
 '
 '*****************************
 Sub MBTTSpinnerShot
@@ -13569,7 +13495,7 @@ End Sub
 '****************************
 ' MBTt Left Orbit Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "MBTTLeftOrbitShot"
+    AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "MBTTLeftOrbitShot",   "MBTTLeftOrbitShot",  1000, Null
 '
 '*****************************
 Sub MBTTLeftOrbitShot
@@ -13586,7 +13512,7 @@ End Sub
 '****************************
 ' MBTT Left Ramp Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "MBTTLeftRampShot"
+    AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "MBTTLeftRampShot",   "MBTTLeftRampShot",  1000, Null
 '
 '*****************************
 Sub MBTTLeftRampShot
@@ -13603,7 +13529,7 @@ End Sub
 '****************************
 ' MBTT Right Ramp Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "MBTTRightRampShot"
+    AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "MBTTRightRampShot",   "MBTTRightRampShot",  1000, Null
 '
 '*****************************
 Sub MBTTRightRampShot
@@ -13620,7 +13546,7 @@ End Sub
 '****************************
 ' MBTT Right Orbit Shot
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "MBTTRightOrbitShot"
+    AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "MBTTRightOrbitShot",   "MBTTRightOrbitShot",  1000, Null
 '
 '*****************************
 Sub MBTTRightOrbitShot
@@ -13637,7 +13563,7 @@ End Sub
 '****************************
 ' MBTT End
 ' Event Listeners:      
-RegisterPinEvent BALL_DRAIN, "MBTTEnd"
+AddPinEventListener BALL_DRAIN, BALL_DRAIN &   "MBTTEnd",   "MBTTEnd",  1000, Null
 '
 '*****************************
 Sub MBTTEnd
@@ -13656,7 +13582,7 @@ End Sub
 '****************************
 ' MBTT Timer End
 ' Event Listeners:      
-RegisterPinEvent GAME_TT_TIMER_ENDED, "MBTTTimerEnd"
+AddPinEventListener GAME_TT_TIMER_ENDED, GAME_TT_TIMER_ENDED &   "MBTTTimerEnd",   "MBTTTimerEnd",  1000, Null
 '
 '*****************************
 Sub MBTTTimerEnd
@@ -13679,8 +13605,7 @@ End Sub
 '****************************
 ' Turn Table Off
 ' Event Listeners:          
-    RegisterPlayerStateEvent MODE_MULTIBALL, "TurnTableState"
-'
+    AddPlayerStateEventListener MODE_MULTIBALL, MODE_MULTIBALL &   "TurnTableState",   "TurnTableState",  1000, Null
 '*****************************
 
 Sub TurnTableState()
@@ -13715,8 +13640,8 @@ Const MUSIC_MULTIBALL =  "Karl Casey - White Bat I - 06 Last Man Standing"
 '****************************
 ' Music
 ' Event Listeners:  
-RegisterPinEvent START_GAME,    "MusicOn"
-RegisterPinEvent NEXT_PLAYER,   "MusicOn"
+AddPinEventListener START_GAME, START_GAME &      "MusicOn",      "MusicOn",  1000, Null
+AddPinEventListener NEXT_PLAYER, NEXT_PLAYER &     "MusicOn",     "MusicOn",  1000, Null
 '
 '*****************************
 Sub MusicOn
@@ -13762,6 +13687,12 @@ Sub StartGame()
    				ScorbitFlasher.Visible = True
             End If
         End If
+        If useBcp Then
+            bcpController.Send "player_turn_start?player_num=int:1"
+            bcpController.Send "ball_start?player_num=int:1&ball=int:1"
+            bcpController.PlaySlide "base", "base", 1000
+            bcpController.SendPlayerVariable "number", 1, 0
+        End If
         DOF 105, DOFPulse
     End If
 End Sub
@@ -13776,12 +13707,14 @@ Sub AddPlayer()
             playerState.Add "PLAYER 1", InitNewPlayer()
             currentPlayer = "PLAYER 1"
             NumberOfPlayers=1
+            BcpAddPlayer 1
      '       FlexDMD.Stage.GetImage("BGP1").Visible = True
       '      FlexDMD.Stage.GetLabel("Player1").Visible = True
         Case 0:     
             If GetPlayerState(CURRENT_BALL) = 1 Then
                 playerState.Add "PLAYER 2", InitNewPlayer()
                 NumberOfPlayers=2
+                BcpAddPlayer 2
        '         FlexDMD.Stage.GetImage("BGP2").Visible = True
         '        FlexDMD.Stage.GetLabel("Player2").Visible = True
             End If
@@ -13789,6 +13722,7 @@ Sub AddPlayer()
             If GetPlayerState(CURRENT_BALL) = 1 Then
                 playerState.Add "PLAYER 3", InitNewPlayer()
                 NumberOfPlayers=3
+                BcpAddPlayer 3
          '       FlexDMD.Stage.GetImage("BGP3").Visible = True
           '      FlexDMD.Stage.GetLabel("Player3").Visible = True
             End If     
@@ -13796,6 +13730,7 @@ Sub AddPlayer()
             If GetPlayerState(CURRENT_BALL) = 1 Then
                 playerState.Add "PLAYER 4", InitNewPlayer()
                 NumberOfPlayers=4
+                BcpAddPlayer 4
            '     FlexDMD.Stage.GetImage("BGP4").Visible = True
             '    FlexDMD.Stage.GetLabel("Player4").Visible = True
             End If  
@@ -14155,8 +14090,8 @@ End Function
 '****************************
 ' Setup Player
 ' Event Listeners:  
-    RegisterPinEvent START_GAME,    "SetupPlayer"
-    RegisterPinEvent NEXT_PLAYER,   "SetupPlayer"
+    AddPinEventListener START_GAME, START_GAME &      "SetupPlayer",      "SetupPlayer",  1000, Null
+    AddPinEventListener NEXT_PLAYER, NEXT_PLAYER &     "SetupPlayer",     "SetupPlayer",  1000, Null
 '
 '*****************************
 Sub SetupPlayer()
@@ -14189,8 +14124,8 @@ End Sub
 '****************************
 ' Release Ball
 ' Event Listeners:  
-    RegisterPinEvent BALL_SAVE,     "AutoPlungeBall"
-    RegisterPinEvent ADD_BALL,      "AutoPlungeBall"
+    AddPinEventListener BALL_SAVE, BALL_SAVE &       "AutoPlungeBall",       "AutoPlungeBall",  1000, Null
+    AddPinEventListener ADD_BALL, ADD_BALL &        "AutoPlungeBall",        "AutoPlungeBall",  1000, Null
 '
 '*****************************
 Sub AutoPlungeBall()
@@ -14602,9 +14537,9 @@ End Sub
 '****************************
 ' Release Ball
 ' Event Listeners:  
-    RegisterPinEvent START_GAME,    "ReleaseBall"
-    RegisterPinEvent NEXT_PLAYER,   "ReleaseBall"
-    RegisterPinEvent RELEASE_BALL,   "ReleaseBall"
+    AddPinEventListener START_GAME, START_GAME &      "ReleaseBall",      "ReleaseBall",  1000, Null
+    AddPinEventListener NEXT_PLAYER, NEXT_PLAYER &     "ReleaseBall",     "ReleaseBall",  1000, Null
+    AddPinEventListener RELEASE_BALL, RELEASE_BALL &     "ReleaseBall",     "ReleaseBall",  1000, Null
 '
 '*****************************
 Sub ReleaseBall()
@@ -14816,9 +14751,9 @@ Sub bcpUpdate_Timer()
                 case "monitor_start"
                     Dim category : category = message.GetValue("category")
                     If category = "player_vars" Then
-                        RegisterPlayerStateEvent SCORE, "BcpSendPlayerVar"
-                        RegisterPlayerStateEvent CURRENT_BALL, "BcpSendPlayerVar"
-                    End If
+                        AddPlayerStateEventListener SCORE, SCORE &   "BcpSendPlayerVar",   "BcpSendPlayerVar",  1000, True
+                        AddPlayerStateEventListener CURRENT_BALL, CURRENT_BALL &   "BcpSendPlayerVar",   "BcpSendPlayerVar",  1000, True
+                End If
                 case "register_trigger"
                     Dim eventName : eventName = message.GetValue("event")
             End Select
@@ -14980,48 +14915,120 @@ Sub DispatchPinEvent(e)
     If BlockAllPinEvents = False Or (BlockAllPinEvents=True And AllowPinEventsList.Exists(e)) Then
         lastPinEvent = e
         gameDebugger.SendPinEvent e
-        FirePinEventCallback e
-    End If
-End Sub
-
-Sub RegisterPinEvent(e, v)
-    If Not pinEvents.Exists(e) Then
-        pinEvents.Add e, CreateObject("Scripting.Dictionary")
-    End If
-    pinEvents(e).Add v, True
-End Sub
-
-Sub BuildPinEventSelectCase()
-    Dim eventName, functionName, caseString, innerDict,BuildSelectCase
-    ' Initialize the Select Case string
-    BuildSelectCase = "Sub FirePinEventCallback(eventName)" & vbCrLf
-    BuildSelectCase = BuildSelectCase & "    Select Case eventName" & vbCrLf
-    
-    ' Iterate over the outer dictionary (playerEvents)
-    For Each eventName In pinEvents.Keys
-        ' Start the Case clause for this event
-        caseString = "        Case """ & eventName & """:" & vbCrLf
-        
-        ' Get the sub-dictionary for this event
-        Set innerDict = pinEvents(eventName)
-        
-        ' Iterate over the sub-dictionary to append function names
-        For Each functionName In innerDict.Keys
-            ' Only append if the value is True (as per your description)
-            If innerDict(functionName) = True Then
-                caseString = caseString & "            " & functionName & vbCrLf
+        Dim k
+        Dim handlers : Set handlers = pinEvents(e)
+        'debugLog.WriteToLog "DispatchPinEvent", e
+        For Each k In pinEventsOrder(e)
+            'debugLog.WriteToLog "DispatchPinEvent_"&e, "key: " & k(1) & ", priority: " & k(0)
+            If IsNull(handlers(k(1))(2)) Then
+                GetRef(handlers(k(1))(0))()'(Array(handlers(k(1))(2), kwargs))
+            Else
+                GetRef(handlers(k(1))(0))(Array(handlers(k(1))(2), Null))
             End If
         Next
-        
-        ' Append this case to the overall Select Case string
-        BuildSelectCase = BuildSelectCase & caseString
+    End If 
+End Sub
+
+Sub DispatchRelayPinEvent(e, kwargs)
+    If Not pinEvents.Exists(e) Then
+        'debugLog.WriteToLog "DispatchRelayPinEvent", e & " has no listeners"
+        Exit Sub
+    End If
+    lastPinEvent = e
+    gameDebugger.SendPinEvent e
+    Dim k
+    Dim handlers : Set handlers = pinEvents(e)
+    'debugLog.WriteToLog "DispatchReplayPinEvent", e
+    For Each k In pinEventsOrder(e)
+        'debugLog.WriteToLog "DispatchReplayPinEvent_"&e, "key: " & k(1) & ", priority: " & k(0)
+        If IsNull(handlers(k(1))(2)) Then
+            kwargs = GetRef(handlers(k(1))(0))()'(Array(handlers(k(1))(2), kwargs))
+        Else
+            kwargs = GetRef(handlers(k(1))(0))(Array(handlers(k(1))(2), kwargs))
+        End If
     Next
+End Sub
+
+Sub AddPinEventListener(evt, key, callbackName, priority, args)
+    Dim i, inserted, tempArray
+    If Not pinEvents.Exists(evt) Then
+        pinEvents.Add evt, CreateObject("Scripting.Dictionary")
+    End If
+    If Not pinEvents(evt).Exists(key) Then
+        pinEvents(evt).Add key, Array(callbackName, priority, args)
+        SortPinEventsByPriority evt, priority, key, True
+    End If
+End Sub
+
+Sub RemovePinEventListener(evt, key)
+    If pinEvents.Exists(evt) Then
+        If pinEvents(evt).Exists(key) Then
+            pinEvents(evt).Remove key
+            SortPinEventsByPriority evt, Null, key, False
+        End If
+    End If
+End Sub
+
+Sub SortPinEventsByPriority(evt, priority, key, isAdding)
+    Dim tempArray, i, inserted, foundIndex
     
-    ' Close the Select Case statement
-    BuildSelectCase = BuildSelectCase & "    End Select" & vbCrLf
-    BuildSelectCase = BuildSelectCase & "End Sub"
-    'debug.print(BuildSelectCase)
-    ExecuteGlobal BuildSelectCase
+    ' Initialize or update the pinEventsOrder to maintain order based on priority
+    If Not pinEventsOrder.Exists(evt) Then
+        ' If the event does not exist in pinEventsOrder, just add it directly if we're adding
+        If isAdding Then
+            pinEventsOrder.Add evt, Array(Array(priority, key))
+        End If
+    Else
+        tempArray = pinEventsOrder(evt)
+        If isAdding Then
+            ' Prepare to add one more element if adding
+            ReDim Preserve tempArray(UBound(tempArray) + 1)
+            inserted = False
+            
+            For i = 0 To UBound(tempArray) - 1
+                If priority > tempArray(i)(0) Then ' Compare priorities
+                    ' Move existing elements to insert the new callback at the correct position
+                    Dim j
+                    For j = UBound(tempArray) To i + 1 Step -1
+                        tempArray(j) = tempArray(j - 1)
+                    Next
+                    ' Insert the new callback
+                    tempArray(i) = Array(priority, key)
+                    inserted = True
+                    Exit For
+                End If
+            Next
+            
+            ' If the new callback has the lowest priority, add it at the end
+            If Not inserted Then
+                tempArray(UBound(tempArray)) = Array(priority, key)
+            End If
+        Else
+            ' Code to remove an element by key
+            foundIndex = -1 ' Initialize to an invalid index
+            
+            ' First, find the element's index
+            For i = 0 To UBound(tempArray)
+                If tempArray(i)(1) = key Then
+                    foundIndex = i
+                    Exit For
+                End If
+            Next
+            
+            ' If found, remove the element by shifting others
+            If foundIndex <> -1 Then
+                For i = foundIndex To UBound(tempArray) - 1
+                    tempArray(i) = tempArray(i + 1)
+                Next
+                
+                ' Resize the array to reflect the removal
+                ReDim Preserve tempArray(UBound(tempArray) - 1)
+            End If
+        End If
+        
+        ' Update the pinEventsOrder with the newly ordered or modified list
+        pinEventsOrder(evt) = tempArray
+    End If
 End Sub
 
 
@@ -19363,41 +19370,6 @@ End Sub
 '******************************************************
 
 
-Function GetGameState(key)
-    If gameState.Exists(key)  Then
-        GetGameState = gameState(key)
-    Else
-        GetGameState = Null
-    End If
-End Function
-
-Function SetGameState(key, value)
-    If gameState.Exists(key)  Then
-        gameState(key) = value
-    Else
-        gameState.Add key, value
-    End If
-
-    WriteToLog "Setting Game State", key &": "&value
-
-    If gameEvents.Exists(key) Then
-        Dim x
-        For Each x in gameEvents(key).Keys()
-            If gameEvents(key)(x) = True Then
-                WriteToLog "Firing Pin Event", key &": "&x
-                ExecuteGlobal x
-            End If
-        Next
-    End If
-    SetGameState = Null
-End Function
-
-Sub RegisterGameStateEvent(e, v)
-    If Not gameEvents.Exists(e) Then
-        gameEvents.Add e, CreateObject("Scripting.Dictionary")
-    End If
-    gameEvents(e).Add v, True
-End Sub
 Function GetPlayerState(key)
     If IsNull(currentPlayer) Then
         Exit Function
@@ -19483,7 +19455,11 @@ Sub FirePlayerEventHandlers(evt, value, prevValue)
     Dim k
     Dim handlers : Set handlers = playerEvents(evt)
     For Each k In playerEventsOrder(evt)
-        GetRef(handlers(k(1))(0))(Array(handlers(k(1))(2), Array(evt,value,prevValue)))
+        If IsNull(handlers(k(1))(2)) Then
+            GetRef(handlers(k(1))(0))()'(Array(handlers(k(1))(2), kwargs))
+        Else
+            GetRef(handlers(k(1))(0))(Array(handlers(k(1))(2), Array(evt,value,prevValue)))
+        End If
     Next
 End Sub
 

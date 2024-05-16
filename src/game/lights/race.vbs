@@ -1,9 +1,8 @@
 '****************************
 ' Race Ready
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_MODE_READY, "RaceModeReady"
-    RegisterPlayerStateEvent MODE_MULTIBALL, "RaceModeReady"
-'
+    AddPlayerStateEventListener RACE_MODE_READY, RACE_MODE_READY &   "RaceModeReady",   "RaceModeReady",  1000, Null
+    AddPlayerStateEventListener MODE_MULTIBALL, MODE_MULTIBALL &   "RaceModeReady",   "RaceModeReady",  1000, Null
 '*****************************
 Sub RaceModeReady()
     If GetPlayerState(RACE_MODE_READY) = True And GetPlayerState(MODE_MULTIBALL) = False Then
@@ -25,9 +24,8 @@ End Sub
 '****************************
 ' LightsRaceMode
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_MODE_SELECTION, "LightsRaceMode"
-    RegisterPlayerStateEvent MODE_RACE_SELECT, "LightsRaceMode"
-'
+    AddPlayerStateEventListener RACE_MODE_SELECTION, RACE_MODE_SELECTION &   "LightsRaceMode",   "LightsRaceMode",  1000, Null
+    AddPlayerStateEventListener MODE_RACE_SELECT, MODE_RACE_SELECT &   "LightsRaceMode",   "LightsRaceMode",  1000, Null
 '*****************************
 Sub LightsRaceMode()
     If GetPlayerState(MODE_RACE_SELECT) = True Then
@@ -73,8 +71,7 @@ End Sub
 '****************************
 ' Mode Race
 ' Event Listeners:      
-    RegisterPlayerStateEvent MODE_RACE, "ModeRace"
-'
+    AddPlayerStateEventListener MODE_RACE, MODE_RACE &   "ModeRace",   "ModeRace",  1000, Null
 '*****************************
 Sub ModeRace()
     If GetPlayerState(MODE_RACE) = True Then
@@ -105,8 +102,7 @@ End Sub
 '****************************
 ' Mode Race 1
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_1, "LightsModeRace1"
-'
+    AddPlayerStateEventListener RACE_1, RACE_1 &   "LightsModeRace1",   "LightsModeRace1",  1000, Null
 '*****************************
 Sub LightsModeRace1()
     lightCtrl.LightState l53, GetPlayerState(RACE_1)
@@ -115,8 +111,7 @@ End Sub
 '****************************
 ' Mode Race 2
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_2, "LightsModeRace2"
-'
+    AddPlayerStateEventListener RACE_2, RACE_2 &   "LightsModeRace2",   "LightsModeRace2",  1000, Null
 '*****************************
 Sub LightsModeRace2()
     lightCtrl.LightState l54, GetPlayerState(RACE_2)
@@ -125,8 +120,7 @@ End Sub
 '****************************
 ' Mode Race 3
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_3, "LightsModeRace3"
-'
+    AddPlayerStateEventListener RACE_3, RACE_3 &   "LightsModeRace3",   "LightsModeRace3",  1000, Null
 '*****************************
 Sub LightsModeRace3()
     lightCtrl.LightState l55, GetPlayerState(RACE_3)
@@ -135,8 +129,7 @@ End Sub
 '****************************
 ' Mode Race 4
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_4, "LightsModeRace4"
-'
+    AddPlayerStateEventListener RACE_4, RACE_4 &   "LightsModeRace4",   "LightsModeRace4",  1000, Null
 '*****************************
 Sub LightsModeRace4()
     lightCtrl.LightState l56, GetPlayerState(RACE_4)
@@ -145,8 +138,7 @@ End Sub
 '****************************
 ' Mode Race 5
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_5, "LightsModeRace5"
-'
+    AddPlayerStateEventListener RACE_5, RACE_5 &   "LightsModeRace5",   "LightsModeRace5",  1000, Null
 '*****************************
 Sub LightsModeRace5()
     lightCtrl.LightState l57, GetPlayerState(RACE_5)
@@ -155,8 +147,7 @@ End Sub
 '****************************
 ' Mode Race 6
 ' Event Listeners:      
-    RegisterPlayerStateEvent RACE_6, "LightsModeRace6"
-'
+    AddPlayerStateEventListener RACE_6, RACE_6 &   "LightsModeRace6",   "LightsModeRace6",  1000, Null
 '*****************************
 Sub LightsModeRace6()
     lightCtrl.LightState l58, GetPlayerState(RACE_6)

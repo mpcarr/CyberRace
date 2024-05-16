@@ -2,7 +2,7 @@
 '****************************
 ' Rotate Lane Lights Clockwise
 ' Event Listeners:  
-    RegisterPinEvent SWITCH_RIGHT_FLIPPER_DOWN, "RotateLaneLightsClockwise"
+    AddPinEventListener SWITCH_RIGHT_FLIPPER_DOWN, SWITCH_RIGHT_FLIPPER_DOWN &   "RotateLaneLightsClockwise",   "RotateLaneLightsClockwise",  1000, Null
 '
 '*****************************
 Sub RotateLaneLightsClockwise()
@@ -22,7 +22,7 @@ End Sub
 '****************************
 ' Rotate Lane Lights Anti Clockwise
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_LEFT_FLIPPER_DOWN, "RotateLaneLightsAntiClockwise"
+    AddPinEventListener SWITCH_LEFT_FLIPPER_DOWN, SWITCH_LEFT_FLIPPER_DOWN &   "RotateLaneLightsAntiClockwise",   "RotateLaneLightsAntiClockwise",  1000, Null
 '
 '*****************************
 Sub RotateLaneLightsAntiClockwise()

@@ -2,7 +2,7 @@
 '****************************
 ' BGStartGame
 ' Event Listeners:  
-RegisterPinEvent START_GAME,    "BGStartGame"
+AddPinEventListener START_GAME, START_GAME &      "BGStartGame",      "BGStartGame",  1000, Null
 '
 '*****************************
 Sub BGStartGame()
@@ -24,7 +24,7 @@ End Sub
 '****************************
 ' BGStartAttract
 ' Event Listeners:          
-RegisterPinEvent GAME_OVER, "BGStartAttract"
+AddPinEventListener GAME_OVER, GAME_OVER &   "BGStartAttract",   "BGStartAttract",  1000, Null
 '
 '*****************************
 Dim BGAttractIndex : BGAttractIndex = 1

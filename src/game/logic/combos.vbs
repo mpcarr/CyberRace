@@ -1,7 +1,7 @@
 '****************************
 ' Combos
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_SPINNER1, "ComboShotSpinner1"
+    AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "ComboShotSpinner1",   "ComboShotSpinner1",  1000, Null
 '
 '*****************************
 Sub ComboShotSpinner1
@@ -22,7 +22,7 @@ End Sub
 '****************************
 ' Combos
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "ComboShotLeftOrbit"
+    AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "ComboShotLeftOrbit",   "ComboShotLeftOrbit",  1000, Null
 '
 '*****************************
 Sub ComboShotLeftOrbit
@@ -43,7 +43,7 @@ End Sub
 '****************************
 ' Combos
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "ComboShotLeftRamp"
+    AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "ComboShotLeftRamp",   "ComboShotLeftRamp",  1000, Null
 '
 '*****************************
 Sub ComboShotLeftRamp
@@ -64,7 +64,7 @@ End Sub
 '****************************
 ' Combos
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "ComboShotRightRamp"
+    AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "ComboShotRightRamp",   "ComboShotRightRamp",  1000, Null
 '
 '*****************************
 Sub ComboShotRightRamp
@@ -85,7 +85,7 @@ End Sub
 '****************************
 ' Combos
 ' Event Listeners:      
-    RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "ComboShotRightOrbit"
+    AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "ComboShotRightOrbit",   "ComboShotRightOrbit",  1000, Null
 '
 '*****************************
 Sub ComboShotRightOrbit
@@ -106,8 +106,7 @@ End Sub
 '****************************
 ' Combos
 ' Event Listeners:      
-    RegisterPlayerStateEvent COMBO_COUNT, "CheckComboCount"
-'
+    AddPlayerStateEventListener COMBO_COUNT, COMBO_COUNT &   "CheckComboCount",   "CheckComboCount",  1000, Null
 '*****************************
 Sub CheckComboCount
     

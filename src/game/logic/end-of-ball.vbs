@@ -2,7 +2,7 @@
 '****************************
 ' End Of Ball
 ' Event Listeners:      
-    RegisterPinEvent BALL_DRAIN, "EndOfBall"
+    AddPinEventListener BALL_DRAIN, BALL_DRAIN &   "EndOfBall",   "EndOfBall",  1000, Null
 '
 '*****************************
 Sub EndOfBall()
@@ -244,7 +244,7 @@ End Sub
 '****************************
 ' End Of Bonus
 ' Event Listeners:      
-    RegisterPinEvent GAME_BONUS_TIMER_ENDED, "EndOfBonus"
+    AddPinEventListener GAME_BONUS_TIMER_ENDED, GAME_BONUS_TIMER_ENDED &   "EndOfBonus",   "EndOfBonus",  1000, Null
 '
 '*****************************
 Dim bonusScore : bonusScore = 0

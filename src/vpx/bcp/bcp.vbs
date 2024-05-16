@@ -110,9 +110,9 @@ Sub bcpUpdate_Timer()
                 case "monitor_start"
                     Dim category : category = message.GetValue("category")
                     If category = "player_vars" Then
-                        RegisterPlayerStateEvent SCORE, "BcpSendPlayerVar"
-                        RegisterPlayerStateEvent CURRENT_BALL, "BcpSendPlayerVar"
-                    End If
+                        AddPlayerStateEventListener SCORE, SCORE &   "BcpSendPlayerVar",   "BcpSendPlayerVar",  1000, True
+                        AddPlayerStateEventListener CURRENT_BALL, CURRENT_BALL &   "BcpSendPlayerVar",   "BcpSendPlayerVar",  1000, True
+                End If
                 case "register_trigger"
                     Dim eventName : eventName = message.GetValue("event")
             End Select

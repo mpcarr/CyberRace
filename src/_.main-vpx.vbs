@@ -306,9 +306,6 @@ Sub Table1_Init()
 	lightCtrl.CreateSeqRunner("WIZARDL64")
 	lightCtrl.CreateSeqRunner("WIZARDL63")
 
-	BuildPinEventSelectCase
-	BuildPlayerEventSelectCase
-
 	'lightCtrl.LoadLightShows
 	
 	'InitLampsNF 'Init Lampz
@@ -401,4 +398,8 @@ Sub Table1_Exit
 		FlexDMD.Run = False
 		FlexDMD = NULL
     End If
+	If useBcp = True Then
+		bcpController.Disconnect
+		Set bcpController = Nothing
+	End If
 End Sub

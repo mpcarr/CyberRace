@@ -1,8 +1,7 @@
 '****************************
 ' Combo Shot Spinner
 ' Event Listeners:      
-    RegisterPlayerStateEvent COMBO_SHOT_SPINNER, "PS_ComboShotSpinner"
-'
+    AddPlayerStateEventListener COMBO_SHOT_SPINNER, COMBO_SHOT_SPINNER &   "PS_ComboShotSpinner",   "PS_ComboShotSpinner",  1000, Null
 '*****************************
 Sub PS_ComboShotSpinner()
     If GetPlayerState(COMBO_SHOT_SPINNER) = 1 Then
@@ -15,8 +14,7 @@ End Sub
 '****************************
 ' Combo Shot Left Orbit
 ' Event Listeners:      
-    RegisterPlayerStateEvent COMBO_SHOT_LEFT_ORBIT, "PS_ComboShotLeftOrbit"
-'
+    AddPlayerStateEventListener COMBO_SHOT_LEFT_ORBIT, COMBO_SHOT_LEFT_ORBIT &   "PS_ComboShotLeftOrbit",   "PS_ComboShotLeftOrbit",  1000, Null
 '*****************************
 Sub PS_ComboShotLeftOrbit()
     If GetPlayerState(COMBO_SHOT_LEFT_ORBIT) = 1 Then
@@ -30,8 +28,7 @@ End Sub
 '****************************
 ' Combo Shot Left Ramp
 ' Event Listeners:      
-    RegisterPlayerStateEvent COMBO_SHOT_LEFT_RAMP, "PS_ComboShotLeftRamp"
-'
+    AddPlayerStateEventListener COMBO_SHOT_LEFT_RAMP, COMBO_SHOT_LEFT_RAMP &   "PS_ComboShotLeftRamp",   "PS_ComboShotLeftRamp",  1000, Null
 '*****************************
 Sub PS_ComboShotLeftRamp()
     If GetPlayerState(COMBO_SHOT_LEFT_RAMP) = 1 Then
@@ -44,8 +41,7 @@ End Sub
 '****************************
 ' Combo Shot Right Ramp
 ' Event Listeners:      
-    RegisterPlayerStateEvent COMBO_SHOT_RIGHT_RAMP, "PS_ComboShotRightRamp"
-'
+    AddPlayerStateEventListener COMBO_SHOT_RIGHT_RAMP, COMBO_SHOT_RIGHT_RAMP &   "PS_ComboShotRightRamp",   "PS_ComboShotRightRamp",  1000, Null
 '*****************************
 Sub PS_ComboShotRightRamp()
     If GetPlayerState(COMBO_SHOT_RIGHT_RAMP) = 1 Then
@@ -58,8 +54,7 @@ End Sub
 '****************************
 ' Combo Shot Right Orbit
 ' Event Listeners:      
-    RegisterPlayerStateEvent COMBO_SHOT_RIGHT_ORBIT, "PS_ComboShotRightOrbit"
-'
+    AddPlayerStateEventListener COMBO_SHOT_RIGHT_ORBIT, COMBO_SHOT_RIGHT_ORBIT &   "PS_ComboShotRightOrbit",   "PS_ComboShotRightOrbit",  1000, Null
 '*****************************
 Sub PS_ComboShotRightOrbit()
     If GetPlayerState(COMBO_SHOT_RIGHT_ORBIT) = 1 Then

@@ -2,13 +2,12 @@
 '****************************
 ' GrandSlamRacesCheck
 ' Event Listeners:          
-RegisterPlayerStateEvent RACE_1, "GrandSlamRacesCheck"
-RegisterPlayerStateEvent RACE_2, "GrandSlamRacesCheck"
-RegisterPlayerStateEvent RACE_3, "GrandSlamRacesCheck"
-RegisterPlayerStateEvent RACE_4, "GrandSlamRacesCheck"
-RegisterPlayerStateEvent RACE_5, "GrandSlamRacesCheck"
-RegisterPlayerStateEvent RACE_6, "GrandSlamRacesCheck"
-'
+    AddPlayerStateEventListener RACE_1, RACE_1 &   "GrandSlamRacesCheck",   "GrandSlamRacesCheck",  1000, Null
+    AddPlayerStateEventListener RACE_2, RACE_2 &   "GrandSlamRacesCheck",   "GrandSlamRacesCheck",  1000, Null
+    AddPlayerStateEventListener RACE_3, RACE_3 &   "GrandSlamRacesCheck",   "GrandSlamRacesCheck",  1000, Null
+    AddPlayerStateEventListener RACE_4, RACE_4 &   "GrandSlamRacesCheck",   "GrandSlamRacesCheck",  1000, Null
+    AddPlayerStateEventListener RACE_5, RACE_5 &   "GrandSlamRacesCheck",   "GrandSlamRacesCheck",  1000, Null
+    AddPlayerStateEventListener RACE_6, RACE_6 &   "GrandSlamRacesCheck",   "GrandSlamRacesCheck",  1000, Null
 '*****************************
 Sub GrandSlamRacesCheck()
     If GetPlayerState(GRANDSLAM_RACES) = False Then
@@ -33,12 +32,11 @@ End Sub
 '****************************
 ' GrandSlamWizardCheck
 ' Event Listeners:          
-RegisterPlayerStateEvent GRANDSLAM_TT, "GrandSlamWizardCheck"
-RegisterPlayerStateEvent GRANDSLAM_RACES, "GrandSlamWizardCheck"
-RegisterPlayerStateEvent GRANDSLAM_COMBO, "GrandSlamWizardCheck"
-RegisterPlayerStateEvent GRANDSLAM_NODES, "GrandSlamWizardCheck"
-RegisterPlayerStateEvent GRANDSLAM_SKILLS, "GrandSlamWizardCheck"
-'
+    AddPlayerStateEventListener GRANDSLAM_TT, GRANDSLAM_TT &   "GrandSlamWizardCheck",   "GrandSlamWizardCheck",  1000, Null
+    AddPlayerStateEventListener GRANDSLAM_RACES, GRANDSLAM_RACES &   "GrandSlamWizardCheck",   "GrandSlamWizardCheck",  1000, Null
+    AddPlayerStateEventListener GRANDSLAM_COMBO, GRANDSLAM_COMBO &   "GrandSlamWizardCheck",   "GrandSlamWizardCheck",  1000, Null
+    AddPlayerStateEventListener GRANDSLAM_NODES, GRANDSLAM_NODES &   "GrandSlamWizardCheck",   "GrandSlamWizardCheck",  1000, Null
+    AddPlayerStateEventListener GRANDSLAM_SKILLS, GRANDSLAM_SKILLS &   "GrandSlamWizardCheck",   "GrandSlamWizardCheck",  1000, Null
 '*****************************
 Sub GrandSlamWizardCheck()
     
@@ -61,7 +59,7 @@ End Sub
 '****************************
 ' CheckWizardReady
 ' Event Listeners:  
-RegisterPinEvent SWITCH_HIT_RACE_KICKER, "CheckWizardReady"
+AddPinEventListener SWITCH_HIT_RACE_KICKER, SWITCH_HIT_RACE_KICKER &   "CheckWizardReady",   "CheckWizardReady",  1000, Null
 '
 '*****************************
 Dim wizardPointsAddOn
@@ -155,7 +153,7 @@ End Sub
 '****************************
 ' WizStage1TimerEnded
 ' Event Listeners:          
-RegisterPinEvent GAME_RACE_TIMER_ENDED, "WizStage1TimerEnded"
+AddPinEventListener GAME_RACE_TIMER_ENDED, GAME_RACE_TIMER_ENDED &   "WizStage1TimerEnded",   "WizStage1TimerEnded",  1000, Null
 '
 '*****************************
 Sub WizStage1TimerEnded()
@@ -168,12 +166,12 @@ End Sub
 '****************************
 ' Wiz1 Shot
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_SPINNER1, "Wiz1Shot"
-RegisterPinEvent SWITCH_HIT_SPINNER2, "Wiz1Shot"
-RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "Wiz1Shot"
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "Wiz1Shot"
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "Wiz1Shot"
-RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "Wiz1Shot"
+AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "Wiz1Shot",   "Wiz1Shot",  1000, Null
+AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &   "Wiz1Shot",   "Wiz1Shot",  1000, Null
+AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "Wiz1Shot",   "Wiz1Shot",  1000, Null
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "Wiz1Shot",   "Wiz1Shot",  1000, Null
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "Wiz1Shot",   "Wiz1Shot",  1000, Null
+AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "Wiz1Shot",   "Wiz1Shot",  1000, Null
 '
 '*****************************
 Sub Wiz1Shot
@@ -185,7 +183,7 @@ End Sub
 '****************************
 ' Wiz2 Left Ramp Shot
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "Wiz2LeftRampShot"
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "Wiz2LeftRampShot",   "Wiz2LeftRampShot",  1000, Null
 '
 '*****************************
 Sub Wiz2LeftRampShot
@@ -207,7 +205,7 @@ End Sub
 '****************************
 ' Wiz3 Shot1
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_SPINNER1, "Wiz3Shot1"
+AddPinEventListener SWITCH_HIT_SPINNER1, SWITCH_HIT_SPINNER1 &   "Wiz3Shot1",   "Wiz3Shot1",  1000, Null
 '
 '*****************************
 Dim wiz3Spinner1Hit : wiz3Spinner1Hit = False
@@ -224,7 +222,7 @@ End Sub
 '****************************
 ' Wiz3 Shot2
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_SPINNER2, "Wiz3Shot2"
+AddPinEventListener SWITCH_HIT_SPINNER2, SWITCH_HIT_SPINNER2 &   "Wiz3Shot2",   "Wiz3Shot2",  1000, Null
 '
 '*****************************
 Dim wiz3Spinner2Hit : wiz3Spinner2Hit = False
@@ -240,7 +238,7 @@ End Sub
 '****************************
 ' Wiz3 Shot3
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_LEFT_ORBIT, "Wiz3Shot3" 
+AddPinEventListener SWITCH_HIT_LEFT_ORBIT, SWITCH_HIT_LEFT_ORBIT &   "Wiz3Shot3" ,   "Wiz3Shot3" ,  1000, Null
 '
 '*****************************
 Dim wiz3LeftOrbitHit : wiz3LeftOrbitHit = False
@@ -256,7 +254,7 @@ End Sub
 '****************************
 ' Wiz3 Shot4
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_LEFT_RAMP, "Wiz3Shot4"
+AddPinEventListener SWITCH_HIT_LEFT_RAMP, SWITCH_HIT_LEFT_RAMP &   "Wiz3Shot4",   "Wiz3Shot4",  1000, Null
 '
 '*****************************
 Dim wiz3LeftRampHit : wiz3LeftRampHit = False
@@ -272,7 +270,7 @@ End Sub
 '****************************
 ' Wiz3 Shot5
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_RIGHT_RAMP, "Wiz3Shot5"
+AddPinEventListener SWITCH_HIT_RIGHT_RAMP, SWITCH_HIT_RIGHT_RAMP &   "Wiz3Shot5",   "Wiz3Shot5",  1000, Null
 '
 '*****************************
 Dim wiz3RightRampHit : wiz3RightRampHit = False
@@ -288,7 +286,7 @@ End Sub
 '****************************
 ' Wiz3 Shot6
 ' Event Listeners:      
-RegisterPinEvent SWITCH_HIT_RIGHT_ORBIT, "Wiz3Shot6"
+AddPinEventListener SWITCH_HIT_RIGHT_ORBIT, SWITCH_HIT_RIGHT_ORBIT &   "Wiz3Shot6",   "Wiz3Shot6",  1000, Null
 '
 '*****************************
 Dim wiz3RightOrbitHit : wiz3RightOrbitHit = False
@@ -304,8 +302,7 @@ End Sub
 '****************************
 ' Check Wiz 3 Hits
 ' Event Listeners:          
-RegisterPlayerStateEvent MODE_WIZARD_HITS, "CheckWiz3Hits"
-'
+    AddPlayerStateEventListener MODE_WIZARD_HITS, MODE_WIZARD_HITS &   "CheckWiz3Hits",   "CheckWiz3Hits",  1000, Null
 '*****************************
 
 Sub CheckWiz3Hits()

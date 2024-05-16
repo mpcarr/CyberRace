@@ -2,8 +2,7 @@
 '****************************
 ' NEON L
 ' Event Listeners:          
-    RegisterPlayerStateEvent LOCK_HITS, "PS_LockHits"
-'
+    AddPlayerStateEventListener LOCK_HITS, LOCK_HITS &   "PS_LockHits",   "PS_LockHits",  1000, Null
 '*****************************
 Sub PS_LockHits()
     dim lockHits : lockHits = GetPlayerState(LOCK_HITS)

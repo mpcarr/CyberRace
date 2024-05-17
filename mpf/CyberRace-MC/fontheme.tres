@@ -1,0 +1,10 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://bruufssvwvlsc"]
+
+[ext_resource type="FontFile" uid="uid://bj7gqhdlgasra" path="res://fonts/Sendha.ttf" id="1_pgkeu"]
+
+[resource]
+default_font = ExtResource("1_pgkeu")
+default_font_size = 90
+Label/colors/font_color = Color(0.168461, 0.714339, 0.819051, 1)
+Label/colors/font_outline_color = Color(0, 0, 0, 1)
+Label/colors/font_shadow_color = Color(0, 0, 0, 1)

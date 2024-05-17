@@ -174,16 +174,16 @@ sub CreateGameDMD
 	FlexDMD.Stage.RemoveAll
 	FlexDMD.Stage.AddActor scene
 	FlexDMD.Stage.AddActor scene2
-	FlexDMD.Show = True
+	FlexDMD.Show = False
     'If VRRoom = 0 Then FlexDMD.Show = True Else FlexDMD.Show = False
-	FlexDMD.Run = True
+	FlexDMD.Run = False
 	FlexDMD.UnlockRenderThread
 
 End Sub
 
 
 Sub DMDTimer_Timer
-	
+	Exit Sub
 	
 	FlexDMD.LockRenderThread
 	
@@ -199,7 +199,7 @@ Sub DMDTimer_Timer
 		'label.Text = "BOOTING"
 		'label.SetAlignedPosition CurrentItem.StartPos(0),CurrentItem.StartPos(1)+16 - DMD_slide ,FlexDMD_Align_Center
 		'label.visible = True
-		DmdQ.Update()
+		'DmdQ.Update()
 		FlexDMD.UnLockRenderThread
 		Exit Sub	
 	End If
@@ -285,7 +285,7 @@ Sub DMDTimer_Timer
 		End If
 		FlexDMD.Stage.GetLabel("Content_1").SetAlignedPosition 64, 17, FlexDMD_Align_Center
 		
-		DmdQ.Update()
+		'DmdQ.Update()
 
 	End If
 	FlexDMD.UnLockRenderThread

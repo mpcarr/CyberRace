@@ -317,6 +317,7 @@ Class Queue
     End Sub
 
     Public Sub DMDResetAll
+        Exit Sub
         Dim child
         For Each child in FlexDMDOverlayAssets
             dim asset

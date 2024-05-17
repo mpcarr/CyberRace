@@ -47,7 +47,7 @@ Sub InitFlexDMD()
 		.Height = DmdHeight
 		.Clear = True
 		.ProjectFolder = "./CyberRaceDMD/"
-		.Run = True
+		.Run = False
 	End With
 	Set DmdQ = New Queue
 	Set DmdQ.FlexDMDItem = FlexDMD
@@ -56,13 +56,13 @@ Sub InitFlexDMD()
 End Sub
 
 Sub DMD_Timer()
-	Dim DMDp
-	DMDp = FlexDMD.DmdColoredPixels
-	If Not IsEmpty(DMDp) Then
-		DMD.DMDWidth = FlexDMD.Width
-		DMD.DMDHeight = FlexDMD.Height
-		DMD.DMDColoredPixels = DMDp
-	End If
+	'Dim DMDp
+	'DMDp = FlexDMD.DmdColoredPixels
+	'If Not IsEmpty(DMDp) Then
+		'DMD.DMDWidth = FlexDMD.Width
+		'DMD.DMDHeight = FlexDMD.Height
+		'DMD.DMDColoredPixels = DMDp
+	'End If
 End Sub
 
 InitFlexDMD()

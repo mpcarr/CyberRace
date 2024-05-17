@@ -11,7 +11,7 @@ Class VpxBcpController
     Private Sub Class_Initialize()
         On Error Resume Next
         Set m_bcpController = CreateObject("vpx_bcp_server.VpxBcpController")
-        m_bcpController.Connect 5050, Null '""
+        m_bcpController.Connect 5050, "cyberrace-mc.exe"
         m_connected = True
         bcpUpdate.Enabled = True
         If Err Then Debug.print("Can't start Vpx Bcp Controller") : m_connected = False

@@ -239,7 +239,7 @@ Dim DmdQ
 Dim VRRoom, VRElement
 VRRoom = 0 '0 = Standard Room, 1= Minimal Room
  
-If RenderingMode = 2 then 
+'If RenderingMode = 2 then 
 	For Each VRElement in VRStuff
 		VRElement.Visible = True
 	Next
@@ -254,7 +254,7 @@ If RenderingMode = 2 then
 		Next
 	End If
 	DMD.TimerEnabled = True
-End If
+'End If
 
 '/////////////////////-----Scorbit Options-----////////////////////
 dim TablesDir : TablesDir = GetTablesFolder

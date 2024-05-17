@@ -239,7 +239,7 @@ Dim DmdQ
 Dim VRRoom, VRElement
 VRRoom = 0 '0 = Standard Room, 1= Minimal Room
  
-If RenderingMode = 2 then 
+'If RenderingMode = 2 then 
 	For Each VRElement in VRStuff
 		VRElement.Visible = True
 	Next
@@ -254,7 +254,7 @@ If RenderingMode = 2 then
 		Next
 	End If
 	DMD.TimerEnabled = True
-End If
+'End If
 
 '/////////////////////-----Scorbit Options-----////////////////////
 dim TablesDir : TablesDir = GetTablesFolder
@@ -1072,7 +1072,7 @@ Sub InitFlexDMD()
 		.Height = DmdHeight
 		.Clear = True
 		.ProjectFolder = "./CyberRaceDMD/"
-		.Run = True
+		.Run = False
 	End With
 	Set DmdQ = New Queue
 	Set DmdQ.FlexDMDItem = FlexDMD
@@ -1081,13 +1081,13 @@ Sub InitFlexDMD()
 End Sub
 
 Sub DMD_Timer()
-	Dim DMDp
-	DMDp = FlexDMD.DmdColoredPixels
-	If Not IsEmpty(DMDp) Then
-		DMD.DMDWidth = FlexDMD.Width
-		DMD.DMDHeight = FlexDMD.Height
-		DMD.DMDColoredPixels = DMDp
-	End If
+	'Dim DMDp
+	'DMDp = FlexDMD.DmdColoredPixels
+	'If Not IsEmpty(DMDp) Then
+		'DMD.DMDWidth = FlexDMD.Width
+		'DMD.DMDHeight = FlexDMD.Height
+		'DMD.DMDColoredPixels = DMDp
+	'End If
 End Sub
 
 InitFlexDMD()
@@ -1980,16 +1980,16 @@ sub CreateGameDMD
 	FlexDMD.Stage.RemoveAll
 	FlexDMD.Stage.AddActor scene
 	FlexDMD.Stage.AddActor scene2
-	FlexDMD.Show = True
+	FlexDMD.Show = False
     'If VRRoom = 0 Then FlexDMD.Show = True Else FlexDMD.Show = False
-	FlexDMD.Run = True
+	FlexDMD.Run = False
 	FlexDMD.UnlockRenderThread
 
 End Sub
 
 
 Sub DMDTimer_Timer
-	
+	Exit Sub
 	
 	FlexDMD.LockRenderThread
 	
@@ -2005,7 +2005,7 @@ Sub DMDTimer_Timer
 		'label.Text = "BOOTING"
 		'label.SetAlignedPosition CurrentItem.StartPos(0),CurrentItem.StartPos(1)+16 - DMD_slide ,FlexDMD_Align_Center
 		'label.visible = True
-		DmdQ.Update()
+		'DmdQ.Update()
 		FlexDMD.UnLockRenderThread
 		Exit Sub	
 	End If
@@ -2091,7 +2091,7 @@ Sub DMDTimer_Timer
 		End If
 		FlexDMD.Stage.GetLabel("Content_1").SetAlignedPosition 64, 17, FlexDMD_Align_Center
 		
-		DmdQ.Update()
+		'DmdQ.Update()
 
 	End If
 	FlexDMD.UnLockRenderThread
@@ -13670,15 +13670,15 @@ End Sub
 Sub StartGame()
     If BallsInTrough = 5 Then
         gameStarted = True
-        FlexDMD.Stage.GetVideo("vidIntro").Visible = False
+        'FlexDMD.Stage.GetVideo("vidIntro").Visible = False
         DispatchPinEvent START_GAME
         SetPlayerState ENABLE_BALLSAVER, True
         lightCtrl.RemoveAllTableLightSeqs()
         lightCtrl.RemoveAllLightSeq "Attract"
-        FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
-        FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
-        FlexDMD.Stage.GetFrame("VSeparator3").Visible = True
-        FlexDMD.Stage.GetFrame("VSeparator4").Visible = True
+        'FlexDMD.Stage.GetFrame("VSeparator1").Visible = True
+        'FlexDMD.Stage.GetFrame("VSeparator2").Visible = True
+        'FlexDMD.Stage.GetFrame("VSeparator3").Visible = True
+        'FlexDMD.Stage.GetFrame("VSeparator4").Visible = True
         If Not IsNull(Scorbit) Then
             If ScorbitActive = 1 And Scorbit.bNeedsPairing = False Then
                 Scorbit.StartSession()
@@ -14652,7 +14652,7 @@ Class VpxBcpController
     Private Sub Class_Initialize()
         On Error Resume Next
         Set m_bcpController = CreateObject("vpx_bcp_server.VpxBcpController")
-        m_bcpController.Connect 5050, Null '""
+        m_bcpController.Connect 5050, "cyberrace-mc.exe"
         m_connected = True
         bcpUpdate.Enabled = True
         If Err Then Debug.print("Can't start Vpx Bcp Controller") : m_connected = False
@@ -21091,6 +21091,7 @@ Class Queue
     End Sub
 
     Public Sub DMDResetAll
+        Exit Sub
         Dim child
         For Each child in FlexDMDOverlayAssets
             dim asset

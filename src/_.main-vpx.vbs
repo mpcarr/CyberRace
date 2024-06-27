@@ -211,19 +211,9 @@ Dim ballInPlungeerLane : ballInPlungerLane = False
 Dim ballSaver : ballSaver = False
 Dim ballSaverIgnoreCount : ballSaverIgnoreCount = 0
 Dim ttSpinner
-Dim pinEvents : Set pinEvents = CreateObject("Scripting.Dictionary")
-Dim pinEventsOrder : Set pinEventsOrder = CreateObject("Scripting.Dictionary")
-Dim playerEvents : Set playerEvents = CreateObject("Scripting.Dictionary")
-Dim playerEventsOrder : Set playerEventsOrder = CreateObject("Scripting.Dictionary")
-Dim playerState : Set playerState = CreateObject("Scripting.Dictionary")
 Dim DMDDisplay(20,20)
 Dim NumberOfPlayers : NumberOfPlayers=0
-Dim lightCtrl : Set lightCtrl = new LStateController
 Dim gameDebugger : Set gameDebugger = new AdvGameDebugger
-Dim debugLog : Set debugLog = new DebugLogFile
-Dim debugLogOn : debugLogOn = False
-
-Dim calloutsQ : Set calloutsQ = New vpwQueueManager
 
 Dim Tilt
 Dim MechTilt
@@ -260,9 +250,6 @@ VRRoom = 0 '0 = Standard Room, 1= Minimal Room
 dim TablesDir : TablesDir = GetTablesFolder
 Const     ScorbitAlternateUUID  = 0 	' Force Alternate UUID from Windows Machine and saves it in VPX Users directory (C:\Visual Pinball\User\ScorbitUUID.dat)	
 
-If debugLogOn = True Then
-	debugLog.WriteToLog "Game Started", "", 2
-End If
 
 LoadCoreFiles
 Sub LoadCoreFiles
@@ -287,35 +274,7 @@ End Sub
 
 Sub Table1_Init()
 	
-	vpmMapLights aLights2
-	lightCtrl.RegisterLights "VPX"
-	lightCtrl.CreateSeqRunner("BoostUp")
-	lightCtrl.CreateSeqRunner("RaceMode")
-	lightCtrl.CreateSeqRunner("NodesGrid")
-	lightCtrl.CreateSeqRunner("BetMode")
-	lightCtrl.CreateSeqRunner("GI")
-	lightCtrl.CreateSeqRunner("NonRGB")
-	lightCtrl.CreateSeqRunner("RGB")
-
-	lightCtrl.CreateSeqRunner("Attract")
-
-	lightCtrl.CreateSeqRunner("WIZARDL48")
-	lightCtrl.CreateSeqRunner("WIZARDL46")
-	lightCtrl.CreateSeqRunner("WIZARDL47")
-	lightCtrl.CreateSeqRunner("WIZARDL23")
-	lightCtrl.CreateSeqRunner("WIZARDL64")
-	lightCtrl.CreateSeqRunner("WIZARDL63")
-
-	'lightCtrl.LoadLightShows
 	
-	'InitLampsNF 'Init Lampz
-
-	Set Ball1 = swTrough1.CreateSizedballWithMass(Ballsize/2,Ballmass)
-	Set Ball2 = swTrough2.CreateSizedballWithMass(Ballsize/2,Ballmass)
-	Set Ball3 = swTrough3.CreateSizedballWithMass(Ballsize/2,Ballmass)
-	Set Ball4 = swTrough4.CreateSizedballWithMass(Ballsize/2,Ballmass)
-	Set Ball5 = swTrough5.CreateSizedballWithMass(Ballsize/2,Ballmass)
-	gBOT = Array(Ball1,Ball2,Ball3,Ball4,Ball5)
 
 	kickerCaptiveBall1.CreateSizedballWithMass Ballsize/2, BallMass
 	kickerCaptiveBall1.kick 0,0
@@ -360,32 +319,9 @@ Sub Table1_Init()
 	LeftSlingShot_Timer
 	RightSlingShot_Timer
 	
-	lightCtrl.AddTableLightSeq "Attract", lSeqAttract3
-	lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm1
-	lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm2
-	lightCtrl.AddTableLightSeq "Attract", lSeqAttFlashers
-	Dim qItem : Set qItem = New QueueItem
-	With qItem
-		.Name = "boot"
-		.Duration = 3
-		.BGImage = "BGBlack"
-		.BGVideo = "novideo"
-	End With
-	qItem.AddLabel "PLEASE WAIT", 	Font12, DMDWidth/2, DMDHeight*.3, DMDWidth/2, DMDHeight*.3, "blink"
-	qItem.AddLabel "BOOTING", 		Font12, DMDWidth/2, DMDHeight*.8, DMDWidth/2, DMDHeight*.8, "blink"
-	DmdQ.Enqueue qItem
 	SetRoomBrightness RoomBrightness/100
 
-	If useBCP = True Then
-		ConnectToBCPMediaController
-	End If
-End Sub
-
-Sub AttractTimer_Timer
-	AttractTimer.Enabled = False
-	gameBooted = True
-	DmdQ.DMDResetAll()
-	DispatchPinEvent GAME_OVER
+	
 End Sub
 
 Sub Table1_Exit
@@ -398,8 +334,4 @@ Sub Table1_Exit
 		FlexDMD.Run = False
 		FlexDMD = NULL
     End If
-	If useBcp = True Then
-		bcpController.Disconnect
-		Set bcpController = Nothing
-	End If
 End Sub

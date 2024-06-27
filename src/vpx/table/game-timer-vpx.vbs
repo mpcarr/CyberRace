@@ -6,8 +6,8 @@ Sub GameTimer_timer()
 	period = gametime - lastimeupdate
 	lastimeupdate = gametime
 	DoSTAnim						'handle stand up target animations
-	RollingUpdate
-	cor.update
+	'RollingUpdate
+	'cor.update
 	Options_UpdateDMD
 	TargetMovableHelper
 	Dim el
@@ -17,15 +17,8 @@ Sub GameTimer_timer()
 	Next
 End Sub
 
-
-Sub LightTimer_timer()
-	lightCtrl.Update
-End Sub
-
 Sub FrameTimer_Timer()
-	BSUpdate	
-	calloutsQ.Tick
-	TimerTick
+	'BSUpdate
 End Sub
 
 Sub TargetMovableHelper

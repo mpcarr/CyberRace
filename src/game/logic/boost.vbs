@@ -15,7 +15,7 @@ Sub SwitchBOOST1Hit()
             SetPlayerState BOOST_SHOT, GetPlayerState(BOOST_SHOT) + 1
             FlexDMDBoostModeScene()
         Else
-            AddScore POINT_BASE
+            AddScore POINTS_BASE
             SetPlayerState BOOST_1, 1
             SetPlayerState BOOST_HITS, GetPlayerState(BOOST_HITS) + 1
             FlexDMDBoostScene()
@@ -40,7 +40,7 @@ Sub SwitchBOOST2Hit
             SetPlayerState BOOST_SHOT, GetPlayerState(BOOST_SHOT) + 1
             FlexDMDBoostModeScene()
         Else
-            AddScore POINT_BASE
+            AddScore POINTS_BASE
             SetPlayerState BOOST_2, 1
             SetPlayerState BOOST_HITS, GetPlayerState(BOOST_HITS) + 1
             FlexDMDBoostScene()
@@ -64,7 +64,7 @@ Sub SwitchBOOST3Hit
             SetPlayerState BOOST_SHOT, GetPlayerState(BOOST_SHOT) + 1
             FlexDMDBoostModeScene()
         Else
-            AddScore POINT_BASE
+            AddScore POINTS_BASE
             SetPlayerState BOOST_3, 1
             SetPlayerState BOOST_HITS, GetPlayerState(BOOST_HITS) + 1
             FlexDMDBoostScene()

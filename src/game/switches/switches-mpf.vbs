@@ -30,3 +30,30 @@ Sub sw39_UnHit()
     MPFController.Switch("0-0-34")=0
     KickerBall39 = Null
 End Sub
+
+Sub sw18_Hit()
+    STHit 18
+    MPFController.Switch("0-0-35")=1
+End Sub
+
+Sub sw18_UnHit()
+    MPFController.Switch("0-0-35")=0
+End Sub
+
+Sub sw19_Hit()
+    STHit 19
+    MPFController.Switch("0-0-36")=1
+End Sub
+
+Sub sw19_UnHit()
+    MPFController.Switch("0-0-36")=0
+End Sub
+
+Sub sw20_Hit()
+    STHit 20
+    MPFController.Switch("0-0-37")=1
+End Sub
+
+Sub sw20_UnHit()
+    MPFController.Switch("0-0-37")=0
+End Sub

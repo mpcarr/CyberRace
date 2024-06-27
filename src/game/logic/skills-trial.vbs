@@ -6,7 +6,7 @@
 '
 '*****************************
 Sub SkillsTrial()
-    AddScore POINT_BASE
+    AddScore POINTS_BASE
     If GetPlayerState(GRANDSLAM_SKILLS) = False And GetPlayerState(MODE_SKILLS_TRIAL) = False And GetPlayerState(SKILLS_TRIAL_READY) = False Then
         SetPlayerState SKILLS_TRIAL_SPINS, GetPlayerState(SKILLS_TRIAL_SPINS) + 1
         FlexDMDSkillsScene()

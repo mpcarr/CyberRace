@@ -1,0 +1,64 @@
+#config_version=6
+mode:
+  start_events: ball_started
+  stop_events: start_boost_mode_actual
+  priority: 2000
+
+show_player:
+  mode_boost_base_started: 
+    show_boost:
+      loops: 0
+
+shot_profiles:
+  boost_flash:
+    states:
+      - name: flashing
+        show: "flash_color"
+        speed: 2
+      - name: solid
+        show: "on"
+shots:
+  boost1:
+    switch: s_sw18
+    profile: boost_flash
+    show_tokens:
+      lights: boost1
+      color: 00FF00 
+  boost2:
+      switch: s_sw19
+      profile: boost_flash
+      show_tokens:
+        lights: boost2
+        color: 00FF00 
+  boost3:
+      switch: s_sw20
+      profile: boost_flash
+      show_tokens:
+        lights: boost3
+        color: 00FF00
+
+shot_groups:
+  boost_targets:
+    shots: boost1, boost2, boost3
+    enable_events: mode_boost_base_started
+    disable_events: mode_boost_base_ended
+
+variable_player:
+  boost_targets_flashing_hit:
+    score: (machine.base_points)
+  logicblock_boost_activation_counter_complete:
+    boost_activations: 1
+
+counters:
+  boost_activation_counter:
+    count_events: boost_targets_solid_complete
+    count_complete_value: current_player.boost_activations
+
+event_player:
+  logicblock_boost_activation_counter_complete:
+    - start_boost_mode_actual
+
+sound_player:
+  boost_targets_flashing_hit:
+      fx-boost:
+        bus: effects

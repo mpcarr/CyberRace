@@ -1,29 +1,12 @@
-[gd_scene load_steps=9 format=3 uid="uid://cbcpp5lmfjv5v"]
+[gd_scene load_steps=8 format=3 uid="uid://cbcpp5lmfjv5v"]
 
 [ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_slide.gd" id="1_h6h4i"]
 [ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_variable.gd" id="2_12gbe"]
 [ext_resource type="Texture2D" uid="uid://b4qkioq6m3lnx" path="res://mainloop.png" id="2_rcaow"]
 [ext_resource type="FontFile" uid="uid://bj7gqhdlgasra" path="res://fonts/Sendha.ttf" id="3_orxcw"]
 [ext_resource type="Theme" uid="uid://bruufssvwvlsc" path="res://fontheme.tres" id="3_wqs2h"]
-
-[sub_resource type="Curve" id="Curve_8bedb"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 2
-
-[sub_resource type="CurveTexture" id="CurveTexture_gyg3r"]
-curve = SubResource("Curve_8bedb")
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_pro88"]
-particle_flag_disable_z = true
-emission_shape = 1
-emission_sphere_radius = 61.12
-angle_min = -174.5
-angle_max = 116.4
-gravity = Vector3(0, 98, 0)
-scale_min = 2.0
-scale_max = 10.0
-scale_curve = SubResource("CurveTexture_gyg3r")
-color = Color(0, 0.947489, 0.820419, 1)
+[ext_resource type="SpriteFrames" uid="uid://62k3qlck4eny" path="res://imgseqs/cube/cube.tres" id="6_5p5pc"]
+[ext_resource type="SpriteFrames" uid="uid://cb0odys2orx5h" path="res://imgseqs/cube2/cube2.tres" id="7_fla4o"]
 
 [node name="Base" type="Control"]
 layout_mode = 3
@@ -142,65 +125,14 @@ min_digits = 2
 template_string = "Player %s"
 initialize_empty = false
 
-[node name="GPUParticles2D3" type="GPUParticles2D" parent="."]
-position = Vector2(152, 120)
-scale = Vector2(3.9601, 3.9601)
-amount = 50
-process_material = SubResource("ParticleProcessMaterial_pro88")
-lifetime = 2.0
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(392, 608)
+scale = Vector2(0.0722656, 0.0722656)
+sprite_frames = ExtResource("6_5p5pc")
+autoplay = "default"
 
-[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
-position = Vector2(1072, 112)
-scale = Vector2(1.99, 1.99)
-amount = 50
-process_material = SubResource("ParticleProcessMaterial_pro88")
-lifetime = 2.0
-
-[node name="GPUParticles2D2" type="GPUParticles2D" parent="."]
-position = Vector2(640, 120)
-scale = Vector2(1.99, 1.99)
-amount = 50
-process_material = SubResource("ParticleProcessMaterial_pro88")
-lifetime = 2.0
-
-[node name="GPUParticles2D4" type="GPUParticles2D" parent="."]
-position = Vector2(856, 128)
-scale = Vector2(1.99, 1.99)
-amount = 50
-process_material = SubResource("ParticleProcessMaterial_pro88")
-lifetime = 2.0
-
-[node name="GPUParticles2D5" type="GPUParticles2D" parent="."]
-position = Vector2(440, 136)
-scale = Vector2(1.99, 1.99)
-amount = 50
-process_material = SubResource("ParticleProcessMaterial_pro88")
-lifetime = 2.0
-
-[node name="GPUParticles2D6" type="GPUParticles2D" parent="."]
-position = Vector2(496, 552)
-scale = Vector2(1.99, 1.99)
-amount = 50
-process_material = SubResource("ParticleProcessMaterial_pro88")
-lifetime = 2.0
-
-[node name="GPUParticles2D7" type="GPUParticles2D" parent="."]
-position = Vector2(216, 504)
-scale = Vector2(1.99, 1.99)
-amount = 50
-process_material = SubResource("ParticleProcessMaterial_pro88")
-lifetime = 2.0
-
-[node name="GPUParticles2D8" type="GPUParticles2D" parent="."]
-position = Vector2(1120, 432)
-scale = Vector2(1.99, 1.99)
-amount = 50
-process_material = SubResource("ParticleProcessMaterial_pro88")
-lifetime = 2.0
-
-[node name="GPUParticles2D9" type="GPUParticles2D" parent="."]
-position = Vector2(784, 528)
-scale = Vector2(1.99, 1.99)
-amount = 50
-process_material = SubResource("ParticleProcessMaterial_pro88")
-lifetime = 2.0
+[node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="."]
+position = Vector2(656, 352)
+scale = Vector2(0.616667, 0.616667)
+sprite_frames = ExtResource("7_fla4o")
+autoplay = "default"

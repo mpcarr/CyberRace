@@ -292,7 +292,7 @@ End Sub
 
 Sub Table1_Init()
 	
-	'vpmMapLights aLights2
+	vpmMapLights aLights2
 	lightCtrl.RegisterLights "VPX"
 	lightCtrl.CreateSeqRunner("BoostUp")
 	lightCtrl.CreateSeqRunner("RaceMode")
@@ -311,8 +311,6 @@ Sub Table1_Init()
 	lightCtrl.CreateSeqRunner("WIZARDL64")
 	lightCtrl.CreateSeqRunner("WIZARDL63")
 
-	BuildPinEventSelectCase
-	BuildPlayerEventSelectCase
 
 	'lightCtrl.LoadLightShows
 	
@@ -368,6 +366,8 @@ Sub Table1_Init()
 	LeftSlingShot_Timer
 	RightSlingShot_Timer
 	
+
+	TurnAllLightsOn
 	'lightCtrl.AddTableLightSeq "Attract", lSeqAttract3
 	'lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm1
 	'lightCtrl.AddTableLightSeq "Attract", lSeqAttWarm2

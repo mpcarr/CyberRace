@@ -14,6 +14,8 @@ bcp:
 modes:
   - base
   - race
+  - boost_base
+  - boost
 
 opp:
    ports: /dev/ttyACM0, /dev/ttyACM1
@@ -60,6 +62,15 @@ switches:
     number: 0-0-33
   s_center_vuk:
     number: 0-0-34
+  s_sw18:
+    number: 0-0-35
+    tags: boost1, boost_targets
+  s_sw19:
+    number: 0-0-36
+    tags: boost2, boost_targets
+  s_sw20:
+    number: 0-0-37
+    tags: boost3, boost_targets        
 
 coils:
   c_flipper_left_main:
@@ -429,39 +440,39 @@ lights:
     number: 0-0-79
     subtype: led
     tags: nodes10
-  l9:
+  l09:
     number: 0-0-80
     subtype: led
     tags: nodes9
-  l8:
+  l08:
     number: 0-0-81
     subtype: led
     tags: nodes8
-  l7:
+  l07:
     number: 0-0-82
     subtype: led
     tags: nodes7
-  l5:
+  l05:
     number: 0-0-83
     subtype: led
     tags: nodes6
-  l6:
+  l06:
     number: 0-0-84
     subtype: led
     tags: nodes5
-  l4:
+  l04:
     number: 0-0-85
     subtype: led
     tags: nodes4
-  l3:
+  l03:
     number: 0-0-86
     subtype: led
     tags: nodes3
-  l2:
+  l02:
     number: 0-0-87
     subtype: led
     tags: nodes2
-  l1:
+  l01:
     number: 0-0-88
     subtype: led
     tags: nodes1                
@@ -729,3 +740,17 @@ light_settings:
       whitepoint: [1, 1, 1]
     NeoSeg_green:
       whitepoint: [.5, .5, .5]
+
+
+machine_vars:
+  base_points:
+    initial_value: 7500
+    value_type: int
+  mode_points:
+    initial_value: 75000
+    value_type: int
+
+player_vars:
+  boost_activations:
+    initial_value: 1
+    value_type: int    

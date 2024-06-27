@@ -1,27 +1,26 @@
 events:
-  game_ended: 11
-  game_started: 152
+  game_ended: 12
+  game_started: 192
 missing_switches:
-  s_center_vuk: 26
-  s_hyper_vuk: 26
-  s_launch_button: 26
-  s_left_flipper: 26
-  s_plunger: 1
-  s_race_scoop: 2
-  s_right_flipper: 26
-  s_right_inlane: 26
-  s_start: 2
-  s_trough1: 1
-  s_trough2: 1
-  s_trough3: 1
-  s_trough4: 1
-  s_trough5: 2
-  s_trough6: 26
-  s_trough_jam: 26
+  s_center_vuk: 10
+  s_hyper_vuk: 20
+  s_launch_button: 66
+  s_left_flipper: 66
+  s_race_scoop: 6
+  s_right_flipper: 66
+  s_right_inlane: 66
+  s_start: 20
+  s_sw18: 6
+  s_sw19: 6
+  s_sw20: 6
+  s_trough5: 9
+  s_trough6: 66
+  s_trough_jam: 66
 player:
   score:
-    average: 0
+    average: 1875
     top:
+    - 22500
     - 0
     - 0
     - 0
@@ -31,22 +30,28 @@ player:
     - 0
     - 0
     - 0
-    - 0
-    total: 11
+    total: 12
+shots:
+  boost1: 26
+  boost2: 20
+  boost3: 19
 switches:
-  s_center_vuk: 25
-  s_hyper_vuk: 7
+  s_center_vuk: 30
+  s_hyper_vuk: 9
   s_launch_button: 0
   s_left_flipper: 0
-  s_plunger: 281
-  s_race_scoop: 179
+  s_plunger: 343
+  s_race_scoop: 215
   s_right_flipper: 0
   s_right_inlane: 0
-  s_start: 34
-  s_trough1: 242
-  s_trough2: 238
-  s_trough3: 230
-  s_trough4: 227
-  s_trough5: 127
+  s_start: 35
+  s_sw18: 26
+  s_sw19: 20
+  s_sw20: 20
+  s_trough1: 304
+  s_trough2: 300
+  s_trough3: 292
+  s_trough4: 289
+  s_trough5: 152
   s_trough6: 0
   s_trough_jam: 0

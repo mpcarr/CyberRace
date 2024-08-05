@@ -1,4 +1,3 @@
-@tool
 class_name MPFSoundAsset
 extends Resource
 
@@ -16,3 +15,7 @@ extends Resource
 @export var start_at: float
 ## The maximum amount of time (in seconds) that this sound will be queued in a sequential playback bus.
 @export var max_queue_time: float
+## Ducking settings for this sound. Can be overridden with sound_player config.
+@export var ducking: DuckSettings
+## Marker settings for this sound.
+@export var markers: Array[SoundMarker]

@@ -1,4 +1,3 @@
-@tool
 class_name MPFSceneBase
 extends Control
 
@@ -52,7 +51,8 @@ func initialize(n: String, settings: Dictionary, c: String, p: int = 0, kwargs: 
 
 func _enter_tree():
 	# Create a log
-	self.log = preload("res://addons/mpf-gmc/scripts/log.gd").new(self.name)
+	var scene_type = "Slide" if self is MPFSlide else "Display" if self is MPFDisplay else "Widget" if self is MPFWidget else "MPFSceneBase"
+	self.log = preload("res://addons/mpf-gmc/scripts/log.gd").new("%s<%s>" % [scene_type, self.name])
 
 func _exit_tree() -> void:
 	for timer in self._expirations.values():
@@ -76,7 +76,9 @@ func process_action(child_name: String, children: Array, action: String, setting
 			child = null
 		"remove":
 			if child:
-				self.action_remove(child)
+				# Use the _remove_expiration method to handle any expire timers
+				# before calling action_remove (done within that method)
+				self._remove_expiration(child)
 		"update":
 			if child:
 				child.action_update(settings, kwargs)
@@ -116,10 +118,12 @@ func remove(with_animation=true):
 	if with_animation:
 		if self._trigger_animation(CoreAnimation.REMOVED):
 			await self.animation_player.animation_finished
-			self.log.info("Removal animation complete, removing now")
 	# Immediately cancel any created/active animations
 	if self.current_animation in [CoreAnimation.CREATED, CoreAnimation.ACTIVE]:
 		self.animation_player.stop()
+	# If the removal animation is already playing, ignore this remove call
+	elif self.current_animation == CoreAnimation.REMOVED:
+		return
 	self.get_parent().remove_child(self)
 	self.queue_free()
 
@@ -134,14 +138,15 @@ func _trigger_animation(animation_name: String) -> bool:
 		return true
 	if self.animation_player.has_animation(animation_name):
 		self.animation_player.stop()
-		self.log.info("Playing animation %s" % animation_name)
+		self.log.info("Playing animation '%s'", animation_name)
 		self.animation_player.play(animation_name)
 		return true
 	return false
 
 func _create_expire(child: MPFSceneBase, expiration_secs: float) -> void:
-	# If there is already a timer for this child to expire, reset it
-	if self._expirations.has(child.key):
+	# Check for an existing expiration timer on this child
+	if self._expirations.has(child.key) and is_instance_valid(self._expirations[child.key]):
+		# If there is already a valid timer for this child to expire, reset it
 		self._expirations[child.key].start(expiration_secs)
 		return
 
@@ -149,15 +154,18 @@ func _create_expire(child: MPFSceneBase, expiration_secs: float) -> void:
 	timer.wait_time = expiration_secs
 	timer.one_shot = true
 	timer.autostart = true
-	timer.timeout.connect(self._on_expire.bind(child, timer))
-	self.add_child(timer)
 	self._expirations[child.key] = timer
+	timer.timeout.connect(self._remove_expiration.bind(child, timer))
+	self.add_child(timer)
 
-func _on_expire(child, timer: Timer) -> void:
+func _remove_expiration(child, timer=null) -> void:
 	# This expiration may come after the child was removed for other reasons
 	if is_instance_valid(child):
+		# Check to see if there's a leftover timer from a previous instance
+		if not timer:
+			timer = self._expirations.get(child.key)
 		self._expirations.erase(child.key)
 		self.action_remove(child)
-	if is_instance_valid(timer):
+	if timer and is_instance_valid(timer):
 		self.remove_child(timer)
 		timer.queue_free()

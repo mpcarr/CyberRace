@@ -6,9 +6,9 @@ Sub GameTimer_timer()
 	period = gametime - lastimeupdate
 	lastimeupdate = gametime
 	DoSTAnim						'handle stand up target animations
-	'RollingUpdate
-	'cor.update
-	Options_UpdateDMD
+	RollingUpdate
+	cor.update
+	'Options_UpdateDMD
 	TargetMovableHelper
 	Dim el
 	BM_Disc.RotZ = (BM_Disc.RotZ + (ttSpinner.Speed/4)) Mod 360
@@ -18,7 +18,7 @@ Sub GameTimer_timer()
 End Sub
 
 Sub FrameTimer_Timer()
-	'BSUpdate
+	BSUpdate
 End Sub
 
 Sub TargetMovableHelper

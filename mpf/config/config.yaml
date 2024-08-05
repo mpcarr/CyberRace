@@ -13,9 +13,8 @@ bcp:
 
 modes:
   - base
-  - race
-  - boost_base
-  - boost
+  - skillshot
+  - qualify-race
 
 opp:
    ports: /dev/ttyACM0, /dev/ttyACM1
@@ -51,9 +50,6 @@ switches:
   s_start:
     number: 0-0-29
     tags: start
-  s_right_inlane:
-    number: 0-0-30
-    tags: playfield_active
   s_launch_button:
     number: 0-0-31
   s_race_scoop:
@@ -70,7 +66,28 @@ switches:
     tags: boost2, boost_targets
   s_sw20:
     number: 0-0-37
-    tags: boost3, boost_targets        
+    tags: boost3, boost_targets   
+  sw01:
+    number: 0-0-12
+    tags: sw01
+  sw02:
+    number: 0-0-13
+    tags: sw02
+  sw03:
+    number: 0-0-14
+    tags: sw03
+  sw04:
+    number: 0-0-15
+    tags: sw04
+  sw05:
+    number: 0-0-5
+    tags: sw05
+  sw06:
+    number: 0-0-6
+    tags: sw06
+  sw07:
+    number: 0-0-7
+    tags: sw07
 
 coils:
   c_flipper_left_main:
@@ -754,3 +771,22 @@ player_vars:
   boost_activations:
     initial_value: 1
     value_type: int    
+
+
+shot_profiles:
+  skillshot:
+    states:
+      - name: unlit
+        show: off
+      - name: flashing
+        show: flash_color
+        show_tokens:
+          color: ffff00
+  qualify_race:
+    states:
+      - name: unlit
+        show: off
+      - name: on
+        show: led_color
+        show_tokens:
+          color: ff0000

@@ -1,0 +1,34 @@
+2024-06-29 15:50:54,524 : INFO : root : Loading config.
+2024-06-29 15:50:54,539 : INFO : YamlMultifileConfigLoader : Machine config file #1: config.yaml
+2024-06-29 15:50:54,539 : INFO : ConfigProcessor : Loading config from file C:\Users\carr-\Documents\development\mpf-source\mpf\mpfconfig.yaml.
+2024-06-29 15:50:54,550 : INFO : ConfigProcessor : Loading config: C:\Users\carr-\Documents\development\mpf-source\mpf\mpfconfig.yaml
+2024-06-29 15:50:54,550 : INFO : ConfigProcessor : Loading config from file C:\vPinball\VisualPinball\Tables\wip\CyberRace\scripts-new\mpf\monitor\config\config.yaml.
+2024-06-29 15:50:54,555 : INFO : ConfigProcessor : Config file cache created: C:\Users\carr-\AppData\Local\Temp\78b3b178545cc8006e5c7986a32e35d3.mpf_cache
+2024-06-29 15:50:54,619 : INFO : ConfigProcessor : Loading config from cache: C:\Users\carr-\AppData\Local\Temp\1673d803f898b79b42ae94787e646be5.mpf_cache
+2024-06-29 15:50:54,624 : INFO : ConfigProcessor : Loading config from cache: C:\Users\carr-\AppData\Local\Temp\cea107589f0408830791d0f9d3962e7a.mpf_cache
+2024-06-29 15:50:54,628 : INFO : Machine : Mission Pinball Framework Core Engine v0.80.0.dev1
+2024-06-29 15:50:54,628 : INFO : Machine : Command line arguments: {'no_load_cache': False, 'create_config_cache': True, 'bcp': True, 'configfile': ['config.yaml'], 'force_assets_load': False, 'platform_integration_test': False, 'jsonlogging': False, 'logfile': 'logs\\2024-06-29-15-50-54-mpf-LAPTOP-99TN7EPH.log', 'pause': False, 'production': False, 'text_ui': True, 'loglevel': 15, 'consoleloglevel': 20, 'force_platform': None, 'syslog_address': None, 'mc_file_name': None, 'no_sound': False}
+2024-06-29 15:50:54,628 : INFO : Machine : MPF path: C:\Users\carr-\Documents\development\mpf-source\mpf
+2024-06-29 15:50:54,628 : INFO : Machine : Machine path: C:\vPinball\VisualPinball\Tables\wip\CyberRace\scripts-new\mpf\monitor
+2024-06-29 15:50:54,628 : INFO : Machine : Platform: win32
+2024-06-29 15:50:54,628 : INFO : Machine : Python executable location: C:\vPinball\VisualPinball\Tables\wip\CyberRace\scripts-new\mpf080\Scripts\python.exe
+2024-06-29 15:50:54,628 : INFO : Machine : Python version: 3.9.13 (64-bit)
+2024-06-29 15:50:54,630 : INFO : Machine : Initializing MPF...
+2024-06-29 15:50:54,782 : INFO : EventManager : Event: ======'machine_var_credits_string'====== Args={'value': 'FREE PLAY', 'prev_value': None, 'change': True}
+2024-06-29 15:50:54,792 : INFO : EventManager : Event: ======'machine_var_master_volume'====== Args={'value': 0.5, 'prev_value': None, 'change': True}
+2024-06-29 15:50:54,792 : INFO : EventManager : Event: ======'machine_var_mpf_version'====== Args={'value': 'Mission Pinball Framework v0.80.0.dev1', 'prev_value': None, 'change': True}
+2024-06-29 15:50:54,792 : INFO : EventManager : Event: ======'machine_var_mpf_extended_version'====== Args={'value': 'Mission Pinball Framework v0.80.0.dev1, Config version:6, Show version: 6, BCP version:1.1', 'prev_value': None, 'change': True}
+2024-06-29 15:50:54,792 : INFO : EventManager : Event: ======'machine_var_python_version'====== Args={'value': '3.9.13', 'prev_value': None, 'change': True}
+2024-06-29 15:50:54,816 : INFO : EventManager : Event: ======'machine_var_platform'====== Args={'value': 'Windows-10-10.0.22621-SP0', 'prev_value': None, 'change': True}
+2024-06-29 15:50:54,816 : INFO : EventManager : Event: ======'machine_var_platform_system'====== Args={'value': 'Windows', 'prev_value': None, 'change': True}
+2024-06-29 15:50:54,816 : INFO : EventManager : Event: ======'machine_var_platform_release'====== Args={'value': '10', 'prev_value': None, 'change': True}
+2024-06-29 15:50:54,816 : INFO : EventManager : Event: ======'machine_var_platform_version'====== Args={'value': '10.0.22621', 'prev_value': None, 'change': True}
+2024-06-29 15:50:54,816 : INFO : EventManager : Event: ======'machine_var_platform_machine'====== Args={'value': 'AMD64', 'prev_value': None, 'change': True}
+2024-06-29 15:50:54,816 : INFO : EventManager : Event: ======'init_phase_1'====== Args={}
+2024-06-29 15:50:54,818 : INFO : EventManager : Event: ======'init_phase_2'====== Args={}
+2024-06-29 15:50:54,818 : INFO : EventManager : Event: ======'bcp_connection_attempt'====== Args={'name': 'local_display', 'host': 'localhost', 'port': 5050}
+2024-06-29 15:50:54,818 : INFO : BCPClientSocket : Connecting BCP to 'local_display' at localhost:5050...
+2024-06-29 15:51:11,523 : INFO : Machine : Starting the main run loop.
+2024-06-29 15:51:11,523 : INFO : Machine : Shutting down...
+2024-06-29 15:51:11,523 : INFO : EventManager : Event: ======'shutdown'====== Args={}
+2024-06-29 15:51:12,531 : INFO : root : MPF run loop ended.

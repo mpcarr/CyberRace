@@ -1,16 +1,8 @@
-base_points:
-  expire: null
-  expire_secs: null
-  value: 7500
 master_volume:
   expire: null
   expire_secs: null
   value: 0.5
-mode_points:
-  expire: null
-  expire_secs: null
-  value: 75000
 player1_score:
   expire: null
   expire_secs: null
-  value: 22500
+  value: 0

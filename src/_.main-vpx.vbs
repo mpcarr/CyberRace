@@ -185,7 +185,7 @@ Const AmbientBallShadowOn = 1		'0 = Static shadow under ball ("flasher" image, l
 Dim tablewidth: tablewidth = Table1.width
 Dim tableheight: tableheight = Table1.height
 
-Dim Ball1, Ball2, Ball3, Ball4, Ball5, gBOT
+Dim gBOT
 
 Dim Controller
 Dim B2SOn
@@ -286,7 +286,6 @@ Sub Table1_Init()
 
 	DiverterOn.IsDropped = 1
 	DiverterOff.IsDropped = 0
-	RPin.IsDropped = 1
 	LockPin1.IsDropped = 1
 	LockPin2.IsDropped = 1
 	LockPin3.IsDropped = 1
@@ -314,14 +313,12 @@ Sub Table1_Init()
 		.InitExitSnd SoundFX("Saucer_Kick", DOFContactors), SoundFX("Relay_On", DOFContactors)
 		.CreateEvents "plungerIM"
 	End With
-	Options_Load
-
+	
 	LeftSlingShot_Timer
 	RightSlingShot_Timer
-	
-	SetRoomBrightness RoomBrightness/100
 
-	
+	Glf_Init()
+	ConfigureGlfDevices()
 End Sub
 
 Sub Table1_Exit
@@ -329,9 +326,28 @@ Sub Table1_Exit
 		Controller.Pause = False
 		Controller.Stop
 	End If
-	If Not FlexDMD is Nothing Then
-		FlexDMD.Show = False
-		FlexDMD.Run = False
-		FlexDMD = NULL
-    End If
+	Glf_Exit()
+End Sub
+
+Sub Table1_OptionEvent(ByVal eventId)
+    If eventId = 1 Then DisableStaticPreRendering = True
+
+    Glf_Options(eventId)
+
+    If eventId = 3 Then DisableStaticPreRendering = False
+End Sub
+
+Sub ScoopBackWall_Hit()
+    activeball.vely = 1
+    activeball.velx = 1
+End Sub
+
+Sub KickBall(kball, kangle, kvel, kvelz, kzlift)
+	dim rangle
+	rangle = PI * (kangle - 90) / 180
+    
+	kball.z = kball.z + kzlift
+	kball.velz = kvelz
+	kball.velx = cos(rangle)*kvel
+	kball.vely = sin(rangle)*kvel
 End Sub

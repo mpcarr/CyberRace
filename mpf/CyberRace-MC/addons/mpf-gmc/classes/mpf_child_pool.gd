@@ -1,4 +1,3 @@
-@tool
 class_name MPFChildPool
 extends Node2D
 ## Chooses one child to display when entering the scene tree.
@@ -35,7 +34,7 @@ var _tracker: Dictionary
 var _player_num: int
 
 func _enter_tree() -> void:
-	self.log = preload("res://addons/mpf-gmc/scripts/log.gd").new(self.name)
+	self.log = preload("res://addons/mpf-gmc/scripts/log.gd").new("ChildPool<%s>" % self.name)
 	for c in self.get_children():
 		c.hide()
 

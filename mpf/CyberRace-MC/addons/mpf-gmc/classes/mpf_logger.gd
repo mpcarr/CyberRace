@@ -1,4 +1,3 @@
-@tool
 class_name MPFLogger
 extends Node
 
@@ -18,9 +17,9 @@ func _ready() -> void:
 	if not self.loggers or not self.enabled:
 		return
 	for n in self.loggers:
-		if not n:
+		if not n or n == null:
 			printerr("Found empty array element in MPFLogger %s" % self.name)
-		if n.get("log") is GMCLogger:
+		elif n.get("log") is GMCLogger:
 			n.log.setLevel(self.log_level)
 		else:
 			printerr("Node %s does not support GMCLogger. Logging will not be available for this node." % n)

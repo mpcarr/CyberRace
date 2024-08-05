@@ -1,0 +1,5 @@
+2024-06-29 15:46:38,662 : INFO : root : Loading config.
+2024-06-29 15:46:38,677 : INFO : YamlMultifileConfigLoader : Machine config file #1: config.yaml
+2024-06-29 15:46:38,677 : INFO : ConfigProcessor : Loading config from file C:\Users\carr-\Documents\development\mpf-source\mpf\mpfconfig.yaml.
+2024-06-29 15:46:38,684 : INFO : ConfigProcessor : Loading config: C:\Users\carr-\Documents\development\mpf-source\mpf\mpfconfig.yaml
+2024-06-29 15:46:38,684 : INFO : ConfigProcessor : Loading config from file C:\vPinball\VisualPinball\Tables\wip\CyberRace\scripts-new\mpf\monitor\config\config.yaml.

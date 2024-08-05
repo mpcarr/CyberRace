@@ -8,9 +8,6 @@ light_player:
     gi:
       color: white
 
-slide_player:
-  mode_base_started: base
-
 show_player:
   ball_save_main_timer_start:
     flash_color:

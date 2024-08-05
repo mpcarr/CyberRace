@@ -1,12 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://cbcpp5lmfjv5v"]
+[gd_scene load_steps=6 format=3 uid="uid://cbcpp5lmfjv5v"]
 
 [ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_slide.gd" id="1_h6h4i"]
 [ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_variable.gd" id="2_12gbe"]
 [ext_resource type="Texture2D" uid="uid://b4qkioq6m3lnx" path="res://mainloop.png" id="2_rcaow"]
 [ext_resource type="FontFile" uid="uid://bj7gqhdlgasra" path="res://fonts/Sendha.ttf" id="3_orxcw"]
 [ext_resource type="Theme" uid="uid://bruufssvwvlsc" path="res://fontheme.tres" id="3_wqs2h"]
-[ext_resource type="SpriteFrames" uid="uid://62k3qlck4eny" path="res://imgseqs/cube/cube.tres" id="6_5p5pc"]
-[ext_resource type="SpriteFrames" uid="uid://cb0odys2orx5h" path="res://imgseqs/cube2/cube2.tres" id="7_fla4o"]
 
 [node name="Base" type="Control"]
 layout_mode = 3
@@ -124,15 +122,3 @@ variable_name = "score"
 min_digits = 2
 template_string = "Player %s"
 initialize_empty = false
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(392, 608)
-scale = Vector2(0.0722656, 0.0722656)
-sprite_frames = ExtResource("6_5p5pc")
-autoplay = "default"
-
-[node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="."]
-position = Vector2(656, 352)
-scale = Vector2(0.616667, 0.616667)
-sprite_frames = ExtResource("7_fla4o")
-autoplay = "default"

@@ -1,0 +1,34 @@
+#config_version=6
+
+mode:
+  start_events: ball_started
+  stop_events: skill_shot_unlit_hit,skill_shot_flashing_hit
+  priority: 500
+
+shots: 
+  lane1:
+    switch: sw05
+    show_tokens: 
+        lights: l66
+    advance_events: mode_skillshot_started
+    profile: skillshot
+  lane2:
+    switch: sw06
+    show_tokens: 
+        lights: l67
+    profile: skillshot
+  lane3:
+    switch: sw07
+    show_tokens: 
+        lights: l68
+    profile: skillshot
+
+shot_groups:
+  skill_shot:
+    shots: lane1, lane2, lane3
+    rotate_left_events: sw_left_flipper
+    rotate_right_events: sw_right_flipper
+
+variable_player:
+  skill_shot_flashing_hit:
+    score: 1000

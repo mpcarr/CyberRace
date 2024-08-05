@@ -18,12 +18,17 @@ var _slides: Control
 var _current_slide: MPFSlide
 # The queue of slides waiting to be played
 var _queue: Array = []
+# An overlay slide for slide-less widgets
+var _overlay_slide: MPFSlide
+
 
 func _ready() -> void:
-	self._slides = Control.new()
-	self._slides.set_anchors_preset(PRESET_FULL_RECT)
-	self._slides.size_flags_horizontal = SIZE_EXPAND
-	self._slides.size_flags_vertical = SIZE_EXPAND
+	if Engine.is_editor_hint():
+		self._render_preview()
+		self.renamed.connect(self._on_renamed)
+		return
+	self._register_display_in_window()
+	self._slides = self._build_slide_container("_%s_slides" % self.name)
 	self.add_child(self._slides)
 	if not self.initial_slide:
 		return
@@ -90,6 +95,8 @@ func action_remove(slide) -> void:
 func get_slide(slide_name):
 	if not slide_name:
 		return self._current_slide
+	elif slide_name == "_overlay":
+		return self._get_overlay_slide()
 	for s in self._slide_stack:
 		if s.key == slide_name:
 			return s
@@ -133,7 +140,9 @@ func _update_stack(kwargs: Dictionary = {}) -> void:
 	if new_slide != old_slide:
 		new_slide.on_active()
 		if old_slide:
-			MPF.server.send_event("slide_%s_inactive" % old_slide.key)
+			var is_removed = self._slide_stack.find(old_slide) == -1
+			MPF.server.send_event_with_args("slide_%s_inactive" % old_slide.key,
+				{"is_removing": is_removed})
 		MPF.server.send_event_with_args("slide_%s_active" % new_slide.key, kwargs)
 		self._current_slide = new_slide
 		# If the old slide is removed, check for animations
@@ -148,7 +157,7 @@ func _update_stack(kwargs: Dictionary = {}) -> void:
 				await new_slide.animation_finished
 		   	# If the old slide is on top of the new one and has an outro, play it
 			if is_instance_valid(old_slide):
-				await old_slide.remove(old_slide.priority > new_slide.priority)
+				await old_slide.remove(old_slide.priority >= new_slide.priority)
 			MPF.server.send_event("slide_%s_removed" % old_slide_key)
 
 func _manage_queue(action: String) -> void:
@@ -189,3 +198,53 @@ func _on_clear(context_name) -> void:
 	# For the remaining slides, clear out any widgets from that context
 	for s in self._slide_stack:
 		s.clear(context_name)
+
+func _build_slide_container(cname: String):
+	var container = Control.new()
+	container.name = cname
+	container.set_anchors_preset(PRESET_FULL_RECT)
+	container.size_flags_horizontal = SIZE_EXPAND
+	container.size_flags_vertical = SIZE_EXPAND
+	return container
+
+func _get_overlay_slide() -> MPFSlide:
+	if self._overlay_slide:
+		return self._overlay_slide
+	var overlay_container = self._build_slide_container("%s_overlay" % self.name)
+	self._overlay_slide = MPFSlide.new()
+	self._overlay_slide.name = "%s_overlay_slide" % self.name
+	overlay_container.add_child(self._overlay_slide)
+	self.add_child(overlay_container)
+	return self._overlay_slide
+
+func _register_display_in_window() -> void:
+	var window = MPF.util.find_parent_window(self)
+	if window:
+		window.register_display(self)
+
+
+func _render_preview():
+	var preview_colors = ["ff002e", "004eff", "ff7d00", "00ff9a", "9900ff", "ffc500"]
+	var display_index = self.get_parent().get_children().find(self)
+	var color_box = ColorRect.new()
+	color_box.color = preview_colors[display_index]
+	color_box.set_anchors_preset(PRESET_FULL_RECT)
+	color_box.size_flags_horizontal = SIZE_EXPAND
+	color_box.size_flags_vertical = SIZE_EXPAND
+	var label = Label.new()
+	label.text = self.name
+	label.set("theme_override_font_sizes/font_size", 80)
+	label.horizontal_alignment = HorizontalAlignment.HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VerticalAlignment.VERTICAL_ALIGNMENT_CENTER
+	label.set_anchors_preset(PRESET_FULL_RECT)
+	label.size_flags_horizontal = SIZE_EXPAND
+	label.size_flags_vertical = SIZE_EXPAND
+	color_box.add_child(label)
+	self.add_child(color_box)
+
+func _on_renamed():
+	# Hard-code the path to the label
+	self.get_child(0).get_child(0).text = self.name
+
+func _to_string() -> String:
+	return "MPFDisplay<%s>" % self.name

@@ -185,7 +185,7 @@ Const AmbientBallShadowOn = 1		'0 = Static shadow under ball ("flasher" image, l
 Dim tablewidth: tablewidth = Table1.width
 Dim tableheight: tableheight = Table1.height
 
-Dim Ball1, Ball2, Ball3, Ball4, Ball5, gBOT
+Dim gBOT
 
 Dim Controller
 Dim B2SOn
@@ -286,7 +286,6 @@ Sub Table1_Init()
 
 	DiverterOn.IsDropped = 1
 	DiverterOff.IsDropped = 0
-	RPin.IsDropped = 1
 	LockPin1.IsDropped = 1
 	LockPin2.IsDropped = 1
 	LockPin3.IsDropped = 1
@@ -314,14 +313,12 @@ Sub Table1_Init()
 		.InitExitSnd SoundFX("Saucer_Kick", DOFContactors), SoundFX("Relay_On", DOFContactors)
 		.CreateEvents "plungerIM"
 	End With
-	Options_Load
-
+	
 	LeftSlingShot_Timer
 	RightSlingShot_Timer
-	
-	SetRoomBrightness RoomBrightness/100
 
-	
+	Glf_Init()
+	ConfigureGlfDevices()
 End Sub
 
 Sub Table1_Exit
@@ -329,11 +326,30 @@ Sub Table1_Exit
 		Controller.Pause = False
 		Controller.Stop
 	End If
-	If Not FlexDMD is Nothing Then
-		FlexDMD.Show = False
-		FlexDMD.Run = False
-		FlexDMD = NULL
-    End If
+	Glf_Exit()
+End Sub
+
+Sub Table1_OptionEvent(ByVal eventId)
+    If eventId = 1 Then DisableStaticPreRendering = True
+
+    Glf_Options(eventId)
+
+    If eventId = 3 Then DisableStaticPreRendering = False
+End Sub
+
+Sub ScoopBackWall_Hit()
+    activeball.vely = 1
+    activeball.velx = 1
+End Sub
+
+Sub KickBall(kball, kangle, kvel, kvelz, kzlift)
+	dim rangle
+	rangle = PI * (kangle - 90) / 180
+    
+	kball.z = kball.z + kzlift
+	kball.velz = kvelz
+	kball.velx = cos(rangle)*kvel
+	kball.vely = sin(rangle)*kvel
 End Sub
 
 
@@ -761,7 +777,80 @@ Const MODE_WIZARD_HITS = "Game Mode Wizard Hits"
 
 '***********************************************************************************************************************
 
+'Devices
 
+
+
+
+Sub ConfigureGlfDevices()
+
+    Dim light
+    For Each light in Lights_GI
+        lightCtrl.AddLightTags light, "gi"
+    Next
+
+    lightCtrl.AddLightTags l53, "race1_selection"
+    lightCtrl.AddLightTags l46, "race1_selection"
+    lightCtrl.AddLightTags l63, "race1_selection"
+    
+
+    Dim ball_device_plunger
+    Set ball_device_plunger = (new BallDevice)("plunger")
+
+    With ball_device_plunger
+        .BallSwitches = Array("sw17")
+        .EjectTargets = Array("sw27")
+        .EjectStrength = 150
+        .MechcanicalEject = True
+        .DefaultDevice = True
+    End With
+
+    Dim ball_device_racevuk
+    Set ball_device_racevuk = (new BallDevice)("racevuk")
+    ball_device_racevuk.Debug = True
+
+    With ball_device_racevuk
+        .BallSwitches = Array("raceVuk")
+        .EjectCallback = "RaceVuk_EjectCallback"
+    End With
+
+    Dim ball_device_nodes
+    Set ball_device_nodes = (new BallDevice)("nodes")
+
+    With ball_device_nodes
+        .BallSwitches = Array("sw39")
+        .EjectCallback = "Nodes_EjectCallback"
+    End With
+
+    Dim ball_device_hyper
+    Set ball_device_hyper = (new BallDevice)("hyper")
+
+    With ball_device_hyper
+        .BallSwitches = Array("sw38")
+        .EjectCallback = "Hyper_EjectCallback"
+    End With
+
+    CreateBaseMode()
+    CreateSkillshotMode()
+    CreateQualifyRaceMode()
+    CreateRaceSelectionMode()
+    CreateRace1Mode()
+End Sub
+
+Sub RaceVuk_EjectCallback(ball)
+    SoundSaucerKick 1,raceVuk
+    raceVuk.Kick 65, RndInt(7,15)
+End Sub
+
+Sub Nodes_EjectCallback(ball)
+    SoundSaucerKick 1,sw39
+    KickBall ball, 0, 0, 55, 10
+End Sub
+
+Sub Hyper_EjectCallback(ball)
+    SoundSaucerKick 1,sw38
+    sw38.Kick 0, 60, 1.36
+End Sub
 Sub Spinner1_Animate()
     Dim el
 	For Each el in BP_Spinner1
@@ -948,6 +1037,419 @@ End Sub
 
 Sub TimerPlunger2_Timer
 	VR_CabShooter_BM.Y = 15 + (5* Plunger.Position) -20
+End Sub
+
+Sub CreateBaseMode
+
+
+	Dim mode_base
+	Set mode_base = (new Mode)("base", 1000)
+
+	With mode_base
+		.StartEvents = Array("ball_started")
+		.StopEvents = Array("ball_ended") 
+	End With
+
+	With mode_base.BallSaves("base")
+		.EnableEvents = Array("mode_base_started")
+		.TimerStartEvents = Array("balldevice_plunger_ball_eject_success")
+		.ActiveTime = 15
+		.HurryUpTime = 5
+		.GracePeriod = 3
+		.BallsToSave = -1
+		.AutoLaunch = True
+	End With
+
+	With mode_base.LightPlayer()
+		.Add "mode_base_started", Array("gi|ffffff")
+	End With
+
+	With mode_base.ShowPlayer()
+		With .Events("ball_saves_base_timer_start")
+			.Key = "ball_save"
+			.Show = glf_ShowFlashColor
+			.Loops = -1
+			.Speed = 1
+			With .Tokens()
+				.Add "lights", "l16"
+				.Add "color", "62FBFF"
+			End With
+		End With
+		With .Events("ball_saves_base_hurry_up_time")
+			.Key = "ball_save"
+			.Show = glf_ShowFlashColor
+			.Loops = -1
+			.Speed = 2
+			With .Tokens()
+				.Add "lights", "l17"
+				.Add "color", "62FBFF"
+			End With
+		End With
+		With .Events("ball_saves_base_grace_period")
+			.Key = "ball_save"
+			.Action = "stop"
+		End With
+	End With
+
+	With mode_base.VariablePlayer()
+		With .Events("ball_saves_base_timer_start")
+			With .Variable("score")
+				.Int = 1000
+			End With
+		End With
+	End With
+
+
+End Sub
+
+
+' Qualify Race Mode
+
+Sub CreateQualifyRaceMode()
+
+    With GlfShotProfiles("qualify_race")
+        With .States("unlit")
+            .Show = glf_ShowOff
+        End With
+        With .States("on")
+            .Show = glf_ShowOnColor
+            With .Tokens()
+                .Add "color", "ff0000"
+            End With
+        End With
+    End With
+
+    With CreateGlfMode("qualify_race", 510)
+        .StartEvents = Array("ball_started")
+        .StopEvents = Array("ball_ended")
+        .Debug = True
+        With .Shots("left_outlane")
+            .Switch = "sw01"
+            .Profile = "qualify_race"
+            With .Tokens()
+                .Add "lights", "l42"
+            End With
+            With .ControlEvents("super_skillshot")
+                .Events = Array("award_super_skillshot")
+                .State = 1
+            End With
+        End With
+        With .Shots("left_inlane")
+            .Switch = "sw02"
+            .Profile = "qualify_race"
+            With .Tokens()
+                .Add "lights", "l43"
+            End With
+            With .ControlEvents("super_skillshot")
+                .Events = Array("award_super_skillshot")
+                .State = 1
+            End With
+        End With
+        With .Shots("right_inlane")
+            .Switch = "sw03"
+            .Profile = "qualify_race"
+            With .Tokens()
+                .Add "lights", "l44"
+            End With
+            With .ControlEvents("super_skillshot")
+                .Events = Array("award_super_skillshot")
+                .State = 1
+            End With
+        End With
+        With .Shots("right_outlane")
+            .Switch = "sw04"
+            .Profile = "qualify_race"
+            With .Tokens()
+                .Add "lights", "l45"
+            End With
+            With .ControlEvents("super_skillshot")
+                .Events = Array("award_super_skillshot")
+                .State = 1
+            End With
+        End With
+        With .Shots("right_orbit_race_qualify")
+            .Profile = "flash_color"
+            With .Tokens()
+                .Add "lights", "l63"
+                .Add "color", "ff0000"
+            End With
+            With .ControlEvents("race_ready")
+                .Events = Array("qualify_race_on_complete")
+                .State = 1
+            End With
+            With .ControlEvents("race_started")
+                .Events = Array("mode_race_selection_starting")
+                .State = 0
+            End With
+        End With
+        With .ShotGroups("qualify_race")
+            .Shots = Array("left_outlane", "left_inlane", "right_inlane", "right_outlane")
+            .RotateLeftEvents = Array("s_left_flipper_active")
+            .RotateRightEvents = Array("s_right_flipper_active")
+            .ResetEvents = Array("mode_race_ended")
+        End With
+        With .BallHolds("race_ready")
+            .EnableEvents = Array("qualify_race_on_complete", "mode_qualify_race_started{current_player.player_shot_right_orbit_race_qualify==1}")
+            .DisableEvents = Array("race_started")
+            .BallsToHold = 1
+            .HoldDevices = Array("racevuk")
+            .ReleaseAllEvents = Array("race_selection_confirmed")
+        End With
+        .ToYaml()
+    End With
+End Sub
+' Race Selection Mode
+
+Sub CreateRaceSelectionMode()
+
+    With GlfShotProfiles("race_selection")
+        With .States("unlit")
+            .Show = glf_ShowOff
+        End With
+        With .States("flashing")
+            .Show = glf_ShowFlashColor
+            With .Tokens()
+                .Add "color", "ff0000"
+            End With
+        End With
+        With .States("complete")
+            .Show = glf_ShowOnColor
+            With .Tokens()
+                .Add "color", "ff0000"
+            End With
+        End With
+        .StateNamesNotToRotate = Array("complete")
+    End With
+
+    With CreateGlfMode("race_selection", 520)
+        .StartEvents = Array("ball_hold_race_ready_full")
+        .StopEvents = Array("race_started")
+        .Debug=True
+        With .Shots("rs1_tri")
+            .Profile = "race_selection"
+            With .Tokens()
+                .Add "lights", "race1_selection"
+            End With
+            With .ControlEvents("light_selection")
+                .Events = Array("light_race1_selection")
+                .State = 1
+            End With
+            With .ControlEvents("light_complete")
+                .Events = Array("light_race1_complete")
+                .State = 2
+            End With
+        End With
+        With .Shots("rs2_tri")
+            .Profile = "race_selection"
+            With .Tokens()
+                .Add "lights", "l54"
+            End With
+            With .ControlEvents("light_selection")
+                .Events = Array("light_race2_selection")
+                .State = 1
+            End With
+            With .ControlEvents("light_complete")
+                .Events = Array("light_race2_complete")
+                .State = 2
+            End With
+        End With
+        With .Shots("rs3_tri")
+            .Profile = "race_selection"
+            With .Tokens()
+                .Add "lights", "l55"
+            End With
+            With .ControlEvents("light_selection")
+                .Events = Array("light_race3_selection")
+                .State = 1
+            End With
+            With .ControlEvents("light_complete")
+                .Events = Array("light_race3_complete")
+                .State = 2
+            End With
+        End With
+        With .Shots("rs4_tri")
+            .Profile = "race_selection"
+            With .Tokens()
+                .Add "lights", "l56"
+            End With
+            With .ControlEvents("light_selection")
+                .Events = Array("light_race4_selection")
+                .State = 1
+            End With
+            With .ControlEvents("light_complete")
+                .Events = Array("light_race4_complete")
+                .State = 2
+            End With
+        End With
+        With .Shots("rs5_tri")
+            .Profile = "race_selection"
+            With .Tokens()
+                .Add "lights", "l57"
+            End With
+            With .ControlEvents("light_selection")
+                .Events = Array("light_race5_selection")
+                .State = 1
+            End With
+            With .ControlEvents("light_complete")
+                .Events = Array("light_race5_complete")
+                .State = 2
+            End With
+        End With
+        With .Shots("rs6_tri")
+            .Profile = "race_selection"
+            With .Tokens()
+                .Add "lights", "l58"
+            End With
+            With .ControlEvents("light_selection")
+                .Events = Array("light_race6_selection")
+                .State = 1
+            End With
+            With .ControlEvents("light_complete")
+                .Events = Array("light_race6_complete")
+                .State = 2
+            End With
+        End With
+
+        With .EventPlayer()
+            .Add "mode_race_selection_started{current_player.player_shot_rs1_tri < 2}", Array("light_race1_selection")
+            .Add "mode_race_selection_started{current_player.player_shot_rs2_tri < 2 && current_player.player_shot_rs1_tri==2}", Array("light_race2_selection")
+            .Add "mode_race_selection_started{current_player.player_shot_rs3_tri < 2 && current_player.player_shot_rs1_tri==2 && current_player.player_shot_rs2_tri==2}", Array("light_race3_selection")
+            .Add "mode_race_selection_started{current_player.player_shot_rs3_tri < 2 && current_player.player_shot_rs1_tri==2 && current_player.player_shot_rs2_tri==2 && current_player.player_shot_rs3_tri==2}", Array("light_race4_selection")
+            .Add "mode_race_selection_started{current_player.player_shot_rs3_tri < 2 && current_player.player_shot_rs1_tri==2 && current_player.player_shot_rs2_tri==2 && current_player.player_shot_rs3_tri==2 && current_player.player_shot_rs4_tri==2}", Array("light_race5_selection")
+            .Add "mode_race_selection_started{current_player.player_shot_rs3_tri < 2 && current_player.player_shot_rs1_tri==2 && current_player.player_shot_rs2_tri==2 && current_player.player_shot_rs3_tri==2 && current_player.player_shot_rs4_tri==2 && current_player.player_shot_rs5_tri==2}", Array("light_race6_selection")
+            .Add "s_plunger_key_active", Array("race_selection_confirmed")
+            .Add "s_lockbar_key_active", Array("race_selection_confirmed")
+        End With
+
+        With .ShotGroups("race_selection")
+            .Shots = Array("rs1_tri", "rs2_tri", "rs3_tri", "rs4_tri", "rs5_tri", "rs6_tri")
+            .RotateLeftEvents = Array("s_left_flipper_active")
+            .RotateRightEvents = Array("s_right_flipper_active")
+        End With
+        .ToYaml()
+    End With
+
+End Sub 
+' Race 1 Selection Mode
+
+Sub CreateRace1Mode()
+
+    With CreateGlfMode("race_1", 500)
+        .StartEvents = Array("race_selection_confirmed{current_player.player_shot_rs1_tri==1}")
+        .Debug = True
+        With .EventPlayer()
+            .Add "mode_race_1_started", Array("race_started")
+            .Add "ball_ending", Array("mode_race_ended")
+        End With
+    End With
+End Sub
+' Skillshot Mode
+' 
+' A the start of the ball, the left top lanes lights yellow.
+' Hitting the lit shot awards 150K
+'
+' Skillshot 2
+'
+' Left Ramp is lit yellow, a soft plunge and hit to this
+' awards race ready.
+'
+
+Sub CreateSkillshotMode()
+
+    With GlfShotProfiles("skillshot")
+        With .States("unlit")
+            .Show = glf_ShowOff
+        End With
+        With .States("flashing")
+            .Show = glf_ShowFlashColor
+            With .Tokens()
+                .Add "color", "ffff00"
+            End With
+            .SyncMs = 400
+        End With
+        With .States("flashing_super")
+            .Show = glf_ShowFlashColor
+            .Speed = 1.5
+            With .Tokens()
+                .Add "color", "ffff00"
+            End With
+            .SyncMs = 400
+        End With
+    End With
+
+
+    With CreateGlfMode("skillshot", 500)
+        .StartEvents = Array("ball_started")
+        .StopEvents = Array("end_skillshot", "skill_shot_unlit_hit", "timer_skillshot_complete")
+        .Debug = True
+        With .Shots("lane1")
+            .Switch = "sw05"
+            .Profile = "skillshot"
+            .Persist = False
+            .AdvanceEvents = Array("mode_skillshot_started")
+            With .Tokens()
+                .Add "lights", "l66"
+            End With
+        End With
+        With .Shots("lane2")
+            .Switch = "sw06"
+            .Profile = "skillshot"
+            .Persist = False
+            With .Tokens()
+                .Add "lights", "l67"
+            End With
+        End With
+        With .Shots("lane3")
+            .Switch = "sw07"
+            .Profile = "skillshot"
+            .Persist = False
+            With .Tokens()
+                .Add "lights", "l68"
+            End With
+        End With
+        With .Shots("leftramp")
+            .Switch = "sw13"
+            .Profile = "skillshot"
+            .Persist = False
+            With .ControlEvents("start")
+                .Events = Array("mode_skillshot_started")
+                .State = 2
+            End With
+            With .Tokens()
+                .Add "lights", "l47"
+            End With
+        End With
+        With .ShotGroups("skill_shot")
+            .Shots = Array("lane1", "lane2", "lane3")
+            .RotateLeftEvents = Array("s_left_flipper_active")
+            .RotateRightEvents = Array("s_right_flipper_active")
+        End With
+        With .EventPlayer()
+            .Add "shot_leftramp_skillshot_flashing_super_hit", Array("award_super_skillshot", "end_skillshot")
+            .Add "skill_shot_flashing_hit", Array("award_skillshot", "end_skillshot")
+        End With
+        With .VariablePlayer()
+            With .Events("award_skillshot")
+                With .Variable("score")
+                    .Int = 150000
+                End With
+            End With
+            With .Events("award_super_skillshot")
+                With .Variable("score")
+                    .Int = 250000
+                End With
+            End With
+        End With
+        With .Timers("skillshot")
+            .StartValue = 10
+            .EndValue = 0
+            .Direction = "down"
+            With .ControlEvents("start")
+                .EventName = "balldevice_plunger_ball_eject_success"
+                .Action = "start"
+            End With
+        End With
+    End With
 End Sub
 
 
@@ -1249,6 +1751,251 @@ Public Sub DOF(DOFevent, State)
 End Sub
 
 '***********************************************************************************************************************
+
+
+
+
+
+
+' VLM Arrays - Start
+' Arrays per baked partl
+Dim BP_Extra: BP_Extra=Array(BM_Extra, LM_spots_Extra, LM_flashers_l141_Extra, LM_flashers_l142_Extra, LM_flashers_l143_Extra, LM_ins_l01_Extra, LM_ins_l02_Extra, LM_ins_l03_Extra, LM_ins_l04_Extra, LM_ins_l05_Extra, LM_ins_l07_Extra, LM_ins_l08_Extra, LM_ins_l09_Extra, LM_GI_l101_Extra, LM_GI_l102_Extra, LM_GI_l104_Extra, LM_GI_l105_Extra, LM_GI_l106_Extra, LM_GI_l107_Extra, LM_GI_l109_Extra, LM_ins_l10_Extra, LM_GI_l111_Extra, LM_GI_l117_Extra, LM_GI_l118_Extra, LM_GI_l133_Extra, LM_GI_l134_Extra, LM_GI_l119_Extra, LM_ins_l11_Extra, LM_GI_l120_Extra, LM_GI_l128_Extra, LM_ins_l12_Extra, LM_GI_l131_Extra, LM_GI_l132_Extra, LM_ins_l13_Extra, LM_ins_l14_Extra, LM_ins_l15_Extra, LM_ins_l16_Extra, LM_ins_l17_Extra, LM_ins_l18_Extra, LM_ins_l19_Extra, LM_ins_l20_Extra, LM_ins_l21_Extra, LM_ins_l22_Extra, LM_ins_l23_Extra, LM_ins_l26_Extra, LM_ins_l30_Extra, LM_ins_l31_Extra, LM_ins_l32_Extra, LM_ins_l33_Extra, LM_ins_l37_Extra, LM_ins_l38_Extra, LM_ins_l39_Extra, LM_ins_l40_Extra, LM_ins_l41_Extra, _
+	LM_ins_l42_Extra, LM_ins_l43_Extra, LM_ins_l44_Extra, LM_ins_l45_Extra, LM_ins_l46_Extra, LM_ins_l47_Extra, LM_ins_l50_Extra, LM_ins_l52_Extra, LM_ins_l54_Extra, LM_ins_l56_Extra, LM_ins_l58_Extra, LM_ins_l60_Extra, LM_ins_l61_Extra, LM_ins_l64_Extra, LM_ins_l65_Extra, LM_ins_l66_Extra, LM_ins_l67_Extra, LM_ins_l68_Extra, LM_ins_l77_Extra, LM_ins_l78_Extra, LM_ins_l80_Extra, LM_ins_l83_Extra, LM_ins_l84_Extra, LM_ins_l91_Extra, LM_ins_l93_Extra, LM_ins_l95_Extra, LM_ins_l98_Extra, LM_clock_l160_Extra, LM_clock_l161_Extra, LM_clock_l162_Extra, LM_clock_l163_Extra, LM_clock_l164_Extra, LM_clock_l165_Extra, LM_clock_l166_Extra, LM_clock_l167_Extra, LM_clock_l168_Extra, LM_clock_l169_Extra, LM_clock_l150_Extra, LM_clock_l151_Extra, LM_clock_l152_Extra, LM_clock_l153_Extra, LM_clock_l154_Extra, LM_clock_l155_Extra, LM_clock_l156_Extra, LM_clock_l157_Extra, LM_clock_l158_Extra, LM_clock_l159_Extra)
+Dim BP_LEMK: BP_LEMK=Array(BM_LEMK, LM_GI_l100_LEMK, LM_GI_l103_LEMK, LM_GI_l106_LEMK, LM_GI_l107_LEMK, LM_ins_l52_LEMK, LM_ins_l54_LEMK, LM_ins_l56_LEMK, LM_ins_l57_LEMK)
+Dim BP_LSling1: BP_LSling1=Array(BM_LSling1, LM_GI_l100_LSling1, LM_GI_l103_LSling1, LM_GI_l106_LSling1, LM_GI_l107_LSling1, LM_ins_l20_LSling1, LM_ins_l21_LSling1, LM_ins_l22_LSling1, LM_ins_l29_LSling1, LM_ins_l42_LSling1, LM_ins_l43_LSling1, LM_ins_l50_LSling1, LM_ins_l51_LSling1, LM_ins_l52_LSling1, LM_ins_l53_LSling1, LM_ins_l54_LSling1, LM_ins_l55_LSling1, LM_ins_l56_LSling1, LM_ins_l57_LSling1, LM_ins_l58_LSling1, LM_ins_l80_LSling1, LM_ins_l81_LSling1, LM_ins_l82_LSling1)
+Dim BP_LSling2: BP_LSling2=Array(BM_LSling2, LM_flashers_l142_LSling2, LM_flashers_l143_LSling2, LM_GI_l100_LSling2, LM_GI_l103_LSling2, LM_GI_l106_LSling2, LM_GI_l107_LSling2, LM_ins_l20_LSling2, LM_ins_l22_LSling2, LM_ins_l29_LSling2, LM_ins_l42_LSling2, LM_ins_l43_LSling2, LM_ins_l50_LSling2, LM_ins_l51_LSling2, LM_ins_l52_LSling2, LM_ins_l53_LSling2, LM_ins_l54_LSling2, LM_ins_l55_LSling2, LM_ins_l56_LSling2, LM_ins_l57_LSling2, LM_ins_l58_LSling2, LM_ins_l80_LSling2, LM_ins_l81_LSling2, LM_ins_l82_LSling2)
+Dim BP_REMK: BP_REMK=Array(BM_REMK, LM_GI_l101_REMK, LM_GI_l102_REMK, LM_GI_l104_REMK, LM_GI_l105_REMK, LM_ins_l21_REMK, LM_ins_l22_REMK, LM_ins_l45_REMK, LM_ins_l55_REMK, LM_ins_l57_REMK, LM_ins_l58_REMK, LM_clock_l160_REMK, LM_clock_l161_REMK, LM_clock_l162_REMK, LM_clock_l163_REMK, LM_clock_l165_REMK, LM_clock_l166_REMK, LM_clock_l168_REMK, LM_clock_l169_REMK, LM_clock_l150_REMK, LM_clock_l151_REMK, LM_clock_l152_REMK, LM_clock_l153_REMK, LM_clock_l154_REMK, LM_clock_l155_REMK, LM_clock_l156_REMK, LM_clock_l157_REMK, LM_clock_l158_REMK, LM_clock_l159_REMK)
+Dim BP_RSling1: BP_RSling1=Array(BM_RSling1, LM_ins_l09_RSling1, LM_GI_l102_RSling1, LM_GI_l104_RSling1, LM_GI_l105_RSling1, LM_ins_l10_RSling1, LM_ins_l13_RSling1, LM_ins_l14_RSling1, LM_ins_l15_RSling1, LM_ins_l20_RSling1, LM_ins_l21_RSling1, LM_ins_l22_RSling1, LM_ins_l44_RSling1, LM_ins_l45_RSling1, LM_ins_l51_RSling1, LM_ins_l52_RSling1, LM_ins_l53_RSling1, LM_ins_l54_RSling1, LM_ins_l55_RSling1, LM_ins_l57_RSling1, LM_ins_l58_RSling1, LM_ins_l82_RSling1, LM_ins_l83_RSling1, LM_ins_l84_RSling1, LM_clock_l150_RSling1, LM_clock_l151_RSling1, LM_clock_l152_RSling1, LM_clock_l153_RSling1, LM_clock_l154_RSling1, LM_clock_l155_RSling1, LM_clock_l156_RSling1, LM_clock_l157_RSling1, LM_clock_l158_RSling1, LM_clock_l159_RSling1)
+Dim BP_RSling2: BP_RSling2=Array(BM_RSling2, LM_flashers_l142_RSling2, LM_ins_l09_RSling2, LM_GI_l102_RSling2, LM_GI_l104_RSling2, LM_GI_l105_RSling2, LM_ins_l10_RSling2, LM_ins_l13_RSling2, LM_ins_l14_RSling2, LM_ins_l15_RSling2, LM_ins_l20_RSling2, LM_ins_l21_RSling2, LM_ins_l22_RSling2, LM_ins_l44_RSling2, LM_ins_l45_RSling2, LM_ins_l51_RSling2, LM_ins_l53_RSling2, LM_ins_l54_RSling2, LM_ins_l55_RSling2, LM_ins_l57_RSling2, LM_ins_l58_RSling2, LM_ins_l82_RSling2, LM_ins_l83_RSling2, LM_ins_l84_RSling2, LM_clock_l150_RSling2, LM_clock_l151_RSling2, LM_clock_l152_RSling2, LM_clock_l153_RSling2, LM_clock_l154_RSling2, LM_clock_l155_RSling2, LM_clock_l156_RSling2, LM_clock_l157_RSling2, LM_clock_l158_RSling2, LM_clock_l159_RSling2)
+
+Dim BP_BIPL: BP_BIPL=Array(BM_BIPL, LM_flashers_l140_BIPL, LM_GI_l134_BIPL)
+Dim BP_BR1: BP_BR1=Array(BM_BR1, LM_spots_BR1, LM_flashers_l140_BR1, LM_flashers_l141_BR1, LM_flashers_l143_BR1, LM_GI_l127_BR1, LM_GI_l130_BR1, LM_GI_l131_BR1, LM_GI_l132_BR1)
+Dim BP_BR2: BP_BR2=Array(BM_BR2, LM_spots_BR2, LM_flashers_l140_BR2, LM_flashers_l141_BR2, LM_flashers_l143_BR2, LM_GI_l111_BR2, LM_GI_l127_BR2, LM_GI_l132_BR2, LM_ins_l23_BR2)
+Dim BP_BR3: BP_BR3=Array(BM_BR3, LM_flashers_l141_BR3, LM_flashers_l143_BR3, LM_GI_l127_BR3, LM_GI_l129_BR3, LM_GI_l132_BR3)
+Dim BP_Disc: BP_Disc=Array(BM_Disc, LM_spots_Disc, LM_flashers_l143_Disc, LM_ins_l06_Disc, LM_ins_l10_Disc, LM_ins_l59_Disc, LM_ins_l98_Disc)
+Dim BP_FlipperL: BP_FlipperL=Array(BM_FlipperL, LM_GI_l100_FlipperL, LM_ins_l16_FlipperL, LM_ins_l54_FlipperL, LM_ins_l56_FlipperL, LM_ins_l57_FlipperL)
+Dim BP_FlipperLU: BP_FlipperLU=Array(BM_FlipperLU, LM_GI_l100_FlipperLU, LM_ins_l16_FlipperLU, LM_ins_l52_FlipperLU, LM_ins_l53_FlipperLU, LM_ins_l54_FlipperLU, LM_ins_l55_FlipperLU, LM_ins_l56_FlipperLU, LM_ins_l57_FlipperLU)
+Dim BP_FlipperR: BP_FlipperR=Array(BM_FlipperR, LM_GI_l101_FlipperR, LM_ins_l16_FlipperR, LM_ins_l55_FlipperR, LM_ins_l57_FlipperR, LM_ins_l58_FlipperR)
+Dim BP_FlipperRU: BP_FlipperRU=Array(BM_FlipperRU, LM_GI_l101_FlipperRU, LM_ins_l16_FlipperRU, LM_ins_l22_FlipperRU, LM_ins_l54_FlipperRU, LM_ins_l55_FlipperRU, LM_ins_l56_FlipperRU, LM_ins_l57_FlipperRU, LM_ins_l58_FlipperRU)
+Dim BP_FlipperU: BP_FlipperU=Array(BM_FlipperU, LM_spots_FlipperU, LM_flashers_l142_FlipperU, LM_ins_l01_FlipperU, LM_GI_l120_FlipperU, LM_ins_l28_FlipperU, LM_ins_l33_FlipperU, LM_ins_l63_FlipperU, LM_ins_l65_FlipperU)
+Dim BP_FlipperUU: BP_FlipperUU=Array(BM_FlipperUU, LM_spots_FlipperUU, LM_flashers_l142_FlipperUU, LM_GI_l117_FlipperUU, LM_GI_l120_FlipperUU, LM_ins_l28_FlipperUU, LM_ins_l33_FlipperUU, LM_ins_l63_FlipperUU, LM_ins_l64_FlipperUU, LM_ins_l65_FlipperUU, LM_ins_l92_FlipperUU)
+Dim BP_Gate002_Wire: BP_Gate002_Wire=Array(BM_Gate002_Wire, LM_GI_l105_Gate002_Wire, LM_GI_l133_Gate002_Wire)
+Dim BP_Layer1: BP_Layer1=Array(BM_Layer1, LM_spots_Layer1, LM_flashers_l140_Layer1, LM_flashers_l141_Layer1, LM_flashers_l142_Layer1, LM_flashers_l143_Layer1, LM_GI_l111_Layer1, LM_GI_l112_Layer1, LM_GI_l122_Layer1, LM_GI_l123_Layer1, LM_GI_l127_Layer1, LM_GI_l128_Layer1, LM_GI_l129_Layer1, LM_GI_l130_Layer1, LM_GI_l131_Layer1, LM_GI_l132_Layer1, LM_ins_l23_Layer1, LM_ins_l34_Layer1, LM_ins_l35_Layer1, LM_ins_l62_Layer1, LM_ins_l64_Layer1, LM_ins_l66_Layer1, LM_ins_l67_Layer1, LM_ins_l68_Layer1, LM_ins_l77_Layer1, LM_ins_l78_Layer1, LM_ins_l79_Layer1)
+Dim BP_LockPin4: BP_LockPin4=Array(BM_LockPin4, LM_flashers_l140_LockPin4, LM_flashers_l143_LockPin4, LM_GI_l100_LockPin4, LM_GI_l103_LockPin4, LM_GI_l106_LockPin4, LM_GI_l107_LockPin4)
+Dim BP_LockPin4UP: BP_LockPin4UP=Array(BM_LockPin4UP, LM_GI_l100_LockPin4UP, LM_GI_l103_LockPin4UP, LM_GI_l106_LockPin4UP, LM_ins_l52_LockPin4UP)
+Dim BP_Neon: BP_Neon=Array(BM_Neon, LM_flashers_l141_Neon, LM_flashers_l142_Neon)
+Dim BP_Parts: BP_Parts=Array(BM_Parts, LM_spots_Parts, LM_flashers_l140_Parts, LM_flashers_l141_Parts, LM_flashers_l142_Parts, LM_flashers_l143_Parts, LM_ins_l01_Parts, LM_ins_l02_Parts, LM_ins_l03_Parts, LM_ins_l04_Parts, LM_ins_l05_Parts, LM_ins_l06_Parts, LM_ins_l07_Parts, LM_ins_l08_Parts, LM_ins_l09_Parts, LM_GI_l100_Parts, LM_GI_l101_Parts, LM_GI_l102_Parts, LM_GI_l103_Parts, LM_GI_l104_Parts, LM_GI_l105_Parts, LM_GI_l106_Parts, LM_GI_l107_Parts, LM_GI_l108_Parts, LM_GI_l109_Parts, LM_ins_l10_Parts, LM_GI_l110_Parts, LM_GI_l111_Parts, LM_GI_l112_Parts, LM_GI_l113_Parts, LM_GI_l114_Parts, LM_GI_l117_Parts, LM_GI_l118_Parts, LM_GI_l133_Parts, LM_GI_l134_Parts, LM_GI_l119_Parts, LM_ins_l11_Parts, LM_GI_l120_Parts, LM_GI_l121_Parts, LM_GI_l122_Parts, LM_GI_l123_Parts, LM_GI_l124_Parts, LM_GI_l125_Parts, LM_GI_l126_Parts, LM_GI_l127_Parts, LM_GI_l128_Parts, LM_GI_l129_Parts, LM_ins_l12_Parts, LM_GI_l130_Parts, LM_GI_l131_Parts, LM_GI_l132_Parts, LM_ins_l13_Parts, LM_ins_l14_Parts, LM_ins_l15_Parts, _
+	LM_ins_l16_Parts, LM_ins_l17_Parts, LM_ins_l18_Parts, LM_ins_l19_Parts, LM_ins_l20_Parts, LM_ins_l21_Parts, LM_ins_l22_Parts, LM_ins_l23_Parts, LM_ins_l24_Parts, LM_ins_l25_Parts, LM_ins_l26_Parts, LM_ins_l27_Parts, LM_ins_l28_Parts, LM_ins_l29_Parts, LM_ins_l30_Parts, LM_ins_l31_Parts, LM_ins_l32_Parts, LM_ins_l33_Parts, LM_ins_l34_Parts, LM_ins_l35_Parts, LM_ins_l37_Parts, LM_ins_l38_Parts, LM_ins_l39_Parts, LM_ins_l40_Parts, LM_ins_l41_Parts, LM_ins_l42_Parts, LM_ins_l43_Parts, LM_ins_l44_Parts, LM_ins_l45_Parts, LM_ins_l46_Parts, LM_ins_l47_Parts, LM_ins_l48_Parts, LM_ins_l49_Parts, LM_ins_l50_Parts, LM_ins_l51_Parts, LM_ins_l52_Parts, LM_ins_l53_Parts, LM_ins_l54_Parts, LM_ins_l55_Parts, LM_ins_l56_Parts, LM_ins_l57_Parts, LM_ins_l58_Parts, LM_ins_l59_Parts, LM_ins_l60_Parts, LM_ins_l61_Parts, LM_ins_l62_Parts, LM_ins_l63_Parts, LM_ins_l64_Parts, LM_ins_l65_Parts, LM_ins_l66_Parts, LM_ins_l67_Parts, LM_ins_l68_Parts, LM_ins_l77_Parts, LM_ins_l78_Parts, LM_ins_l79_Parts, LM_ins_l80_Parts, _
+	LM_ins_l81_Parts, LM_ins_l82_Parts, LM_ins_l83_Parts, LM_ins_l84_Parts, LM_ins_l90_Parts, LM_ins_l91_Parts, LM_ins_l92_Parts, LM_ins_l93_Parts, LM_ins_l95_Parts, LM_ins_l98_Parts, LM_clock_l160_Parts, LM_clock_l161_Parts, LM_clock_l162_Parts, LM_clock_l163_Parts, LM_clock_l164_Parts, LM_clock_l165_Parts, LM_clock_l166_Parts, LM_clock_l167_Parts, LM_clock_l168_Parts, LM_clock_l169_Parts, LM_clock_l150_Parts, LM_clock_l151_Parts, LM_clock_l152_Parts, LM_clock_l153_Parts, LM_clock_l154_Parts, LM_clock_l155_Parts, LM_clock_l156_Parts, LM_clock_l157_Parts, LM_clock_l158_Parts, LM_clock_l159_Parts)
+Dim BP_PartsNew: BP_PartsNew=Array(BM_PartsNew, BM_PartsNew_001, BM_PartsNew_002, BM_PartsNew_003, LM_spots_PartsNew, LM_flashers_l140_PartsNew, LM_flashers_l141_PartsNew, LM_flashers_l142_PartsNew, LM_flashers_l143_PartsNew, LM_GI_l100_PartsNew, LM_GI_l101_PartsNew, LM_GI_l102_PartsNew, LM_GI_l103_PartsNew, LM_GI_l104_PartsNew, LM_GI_l105_PartsNew, LM_GI_l106_PartsNew, LM_GI_l108_PartsNew, LM_GI_l109_PartsNew, LM_GI_l110_PartsNew, LM_GI_l114_PartsNew, LM_GI_l133_PartsNew, LM_GI_l134_PartsNew, LM_GI_l119_PartsNew, LM_GI_l120_PartsNew, LM_GI_l121_PartsNew, LM_GI_l123_PartsNew, LM_GI_l124_PartsNew, LM_GI_l125_PartsNew, LM_GI_l126_PartsNew, LM_ins_l14_PartsNew, LM_ins_l16_PartsNew, LM_ins_l22_PartsNew, LM_ins_l42_PartsNew, LM_ins_l43_PartsNew, LM_ins_l44_PartsNew, LM_ins_l48_PartsNew, LM_ins_l49_PartsNew, LM_ins_l50_PartsNew, LM_ins_l51_PartsNew, LM_ins_l52_PartsNew, LM_ins_l54_PartsNew, LM_ins_l55_PartsNew, LM_ins_l56_PartsNew, LM_ins_l57_PartsNew, LM_ins_l58_PartsNew, LM_ins_l63_PartsNew, LM_ins_l84_PartsNew, _
+	LM_clock_l160_PartsNew, LM_clock_l161_PartsNew, LM_clock_l162_PartsNew, LM_clock_l163_PartsNew, LM_clock_l164_PartsNew, LM_clock_l165_PartsNew, LM_clock_l166_PartsNew, LM_clock_l167_PartsNew, LM_clock_l168_PartsNew, LM_clock_l169_PartsNew, LM_clock_l150_PartsNew, LM_clock_l151_PartsNew, LM_clock_l152_PartsNew, LM_clock_l153_PartsNew, LM_clock_l154_PartsNew, LM_clock_l155_PartsNew, LM_clock_l156_PartsNew, LM_clock_l157_PartsNew, LM_clock_l158_PartsNew, LM_clock_l159_PartsNew)
+Dim BP_PinCab_Rails: BP_PinCab_Rails=Array(BM_PinCab_Rails, BM_PinCab_Rails_001, BM_PinCab_Rails_002, LM_spots_PinCab_Rails, LM_flashers_l140_PinCab_Rails, LM_flashers_l143_PinCab_Rails)
+Dim BP_Playfield: BP_Playfield=Array(BM_Playfield, LM_spots_Playfield, LM_flashers_l140_Playfield, LM_flashers_l141_Playfield, LM_flashers_l142_Playfield, LM_flashers_l143_Playfield, LM_ins_l01_Playfield, LM_ins_l02_Playfield, LM_ins_l03_Playfield, LM_ins_l04_Playfield, LM_ins_l05_Playfield, LM_ins_l06_Playfield, LM_ins_l07_Playfield, LM_ins_l08_Playfield, LM_ins_l09_Playfield, LM_GI_l100_Playfield, LM_GI_l101_Playfield, LM_GI_l102_Playfield, LM_GI_l103_Playfield, LM_GI_l104_Playfield, LM_GI_l105_Playfield, LM_GI_l106_Playfield, LM_GI_l107_Playfield, LM_GI_l108_Playfield, LM_GI_l109_Playfield, LM_ins_l10_Playfield, LM_GI_l110_Playfield, LM_GI_l111_Playfield, LM_GI_l112_Playfield, LM_GI_l113_Playfield, LM_GI_l114_Playfield, LM_GI_l117_Playfield, LM_GI_l118_Playfield, LM_GI_l133_Playfield, LM_GI_l134_Playfield, LM_GI_l119_Playfield, LM_ins_l11_Playfield, LM_GI_l120_Playfield, LM_GI_l121_Playfield, LM_GI_l122_Playfield, LM_GI_l123_Playfield, LM_GI_l124_Playfield, LM_GI_l125_Playfield, LM_GI_l126_Playfield, _
+	LM_GI_l127_Playfield, LM_GI_l128_Playfield, LM_GI_l129_Playfield, LM_ins_l12_Playfield, LM_GI_l130_Playfield, LM_GI_l131_Playfield, LM_GI_l132_Playfield, LM_ins_l13_Playfield, LM_ins_l14_Playfield, LM_ins_l15_Playfield, LM_ins_l16_Playfield, LM_ins_l17_Playfield, LM_ins_l18_Playfield, LM_ins_l19_Playfield, LM_ins_l20_Playfield, LM_ins_l21_Playfield, LM_ins_l22_Playfield, LM_ins_l23_Playfield, LM_ins_l24_Playfield, LM_ins_l25_Playfield, LM_ins_l26_Playfield, LM_ins_l27_Playfield, LM_ins_l28_Playfield, LM_ins_l29_Playfield, LM_ins_l30_Playfield, LM_ins_l31_Playfield, LM_ins_l32_Playfield, LM_ins_l33_Playfield, LM_ins_l34_Playfield, LM_ins_l35_Playfield, LM_ins_l37_Playfield, LM_ins_l38_Playfield, LM_ins_l39_Playfield, LM_ins_l40_Playfield, LM_ins_l41_Playfield, LM_ins_l42_Playfield, LM_ins_l43_Playfield, LM_ins_l44_Playfield, LM_ins_l45_Playfield, LM_ins_l46_Playfield, LM_ins_l47_Playfield, LM_ins_l48_Playfield, LM_ins_l49_Playfield, LM_ins_l50_Playfield, LM_ins_l51_Playfield, LM_ins_l52_Playfield, _
+	LM_ins_l53_Playfield, LM_ins_l54_Playfield, LM_ins_l55_Playfield, LM_ins_l56_Playfield, LM_ins_l57_Playfield, LM_ins_l58_Playfield, LM_ins_l59_Playfield, LM_ins_l60_Playfield, LM_ins_l61_Playfield, LM_ins_l62_Playfield, LM_ins_l63_Playfield, LM_ins_l64_Playfield, LM_ins_l65_Playfield, LM_ins_l66_Playfield, LM_ins_l67_Playfield, LM_ins_l68_Playfield, LM_ins_l79_Playfield, LM_ins_l80_Playfield, LM_ins_l81_Playfield, LM_ins_l82_Playfield, LM_ins_l83_Playfield, LM_ins_l84_Playfield, LM_ins_l90_Playfield, LM_ins_l91_Playfield, LM_ins_l92_Playfield, LM_ins_l93_Playfield, LM_ins_l95_Playfield, LM_ins_l98_Playfield)
+Dim BP_Spinner1: BP_Spinner1=Array(BM_Spinner1, LM_spots_Spinner1, LM_GI_l109_Spinner1, LM_ins_l24_Spinner1, LM_ins_l29_Spinner1, LM_ins_l48_Spinner1, LM_ins_l59_Spinner1)
+Dim BP_Spinner2: BP_Spinner2=Array(BM_Spinner2, LM_spots_Spinner2, LM_flashers_l141_Spinner2, LM_flashers_l143_Spinner2, LM_GI_l111_Spinner2, LM_GI_l112_Spinner2, LM_GI_l132_Spinner2, LM_ins_l17_Spinner2, LM_ins_l18_Spinner2, LM_ins_l23_Spinner2, LM_ins_l61_Spinner2, LM_ins_l91_Spinner2)
+Dim BP_UnderPF: BP_UnderPF=Array(BM_UnderPF, LM_spots_UnderPF, LM_flashers_l140_UnderPF, LM_flashers_l141_UnderPF, LM_flashers_l142_UnderPF, LM_flashers_l143_UnderPF, LM_ins_l01_UnderPF, LM_ins_l02_UnderPF, LM_ins_l03_UnderPF, LM_ins_l04_UnderPF, LM_ins_l05_UnderPF, LM_ins_l06_UnderPF, LM_ins_l07_UnderPF, LM_ins_l08_UnderPF, LM_ins_l09_UnderPF, LM_GI_l100_UnderPF, LM_GI_l105_UnderPF, LM_GI_l106_UnderPF, LM_GI_l107_UnderPF, LM_GI_l109_UnderPF, LM_ins_l10_UnderPF, LM_GI_l111_UnderPF, LM_GI_l112_UnderPF, LM_GI_l117_UnderPF, LM_ins_l11_UnderPF, LM_GI_l127_UnderPF, LM_GI_l128_UnderPF, LM_GI_l129_UnderPF, LM_ins_l12_UnderPF, LM_GI_l130_UnderPF, LM_GI_l131_UnderPF, LM_GI_l132_UnderPF, LM_ins_l13_UnderPF, LM_ins_l14_UnderPF, LM_ins_l15_UnderPF, LM_ins_l16_UnderPF, LM_ins_l17_UnderPF, LM_ins_l18_UnderPF, LM_ins_l19_UnderPF, LM_ins_l20_UnderPF, LM_ins_l21_UnderPF, LM_ins_l22_UnderPF, LM_ins_l23_UnderPF, LM_ins_l24_UnderPF, LM_ins_l25_UnderPF, LM_ins_l26_UnderPF, LM_ins_l27_UnderPF, LM_ins_l28_UnderPF, _
+	LM_ins_l29_UnderPF, LM_ins_l30_UnderPF, LM_ins_l31_UnderPF, LM_ins_l32_UnderPF, LM_ins_l33_UnderPF, LM_ins_l34_UnderPF, LM_ins_l35_UnderPF, LM_ins_l37_UnderPF, LM_ins_l38_UnderPF, LM_ins_l39_UnderPF, LM_ins_l40_UnderPF, LM_ins_l41_UnderPF, LM_ins_l42_UnderPF, LM_ins_l43_UnderPF, LM_ins_l44_UnderPF, LM_ins_l45_UnderPF, LM_ins_l46_UnderPF, LM_ins_l47_UnderPF, LM_ins_l48_UnderPF, LM_ins_l49_UnderPF, LM_ins_l50_UnderPF, LM_ins_l51_UnderPF, LM_ins_l52_UnderPF, LM_ins_l53_UnderPF, LM_ins_l54_UnderPF, LM_ins_l55_UnderPF, LM_ins_l56_UnderPF, LM_ins_l57_UnderPF, LM_ins_l58_UnderPF, LM_ins_l59_UnderPF, LM_ins_l60_UnderPF, LM_ins_l61_UnderPF, LM_ins_l62_UnderPF, LM_ins_l63_UnderPF, LM_ins_l64_UnderPF, LM_ins_l65_UnderPF, LM_ins_l66_UnderPF, LM_ins_l67_UnderPF, LM_ins_l68_UnderPF, LM_ins_l77_UnderPF, LM_ins_l80_UnderPF, LM_ins_l81_UnderPF, LM_ins_l82_UnderPF, LM_ins_l83_UnderPF, LM_ins_l84_UnderPF, LM_ins_l90_UnderPF, LM_ins_l91_UnderPF, LM_ins_l92_UnderPF, LM_ins_l93_UnderPF, LM_ins_l95_UnderPF, LM_ins_l98_UnderPF, _
+	LM_clock_l160_UnderPF, LM_clock_l161_UnderPF, LM_clock_l162_UnderPF, LM_clock_l163_UnderPF, LM_clock_l164_UnderPF, LM_clock_l165_UnderPF, LM_clock_l166_UnderPF, LM_clock_l167_UnderPF, LM_clock_l168_UnderPF, LM_clock_l169_UnderPF)
+Dim BP_sw01: BP_sw01=Array(BM_sw01, LM_ins_l42_sw01)
+Dim BP_sw02: BP_sw02=Array(BM_sw02, LM_flashers_l140_sw02, LM_GI_l100_sw02, LM_GI_l103_sw02, LM_GI_l106_sw02, LM_GI_l107_sw02, LM_ins_l43_sw02)
+Dim BP_sw03: BP_sw03=Array(BM_sw03, LM_flashers_l140_sw03, LM_GI_l101_sw03, LM_GI_l102_sw03, LM_GI_l104_sw03, LM_GI_l105_sw03, LM_GI_l133_sw03, LM_ins_l21_sw03, LM_ins_l44_sw03)
+Dim BP_sw04: BP_sw04=Array(BM_sw04, LM_flashers_l140_sw04, LM_flashers_l142_sw04, LM_flashers_l143_sw04, LM_GI_l101_sw04, LM_GI_l102_sw04, LM_GI_l133_sw04, LM_GI_l134_sw04)
+Dim BP_sw05: BP_sw05=Array(BM_sw05, LM_flashers_l141_sw05, LM_GI_l130_sw05, LM_GI_l131_sw05, LM_ins_l66_sw05, LM_ins_l67_sw05)
+Dim BP_sw06: BP_sw06=Array(BM_sw06, LM_flashers_l140_sw06, LM_flashers_l141_sw06, LM_GI_l127_sw06, LM_GI_l131_sw06, LM_ins_l67_sw06, LM_ins_l79_sw06)
+Dim BP_sw07: BP_sw07=Array(BM_sw07, LM_flashers_l140_sw07, LM_flashers_l141_sw07, LM_GI_l127_sw07, LM_GI_l129_sw07, LM_GI_l131_sw07, LM_ins_l68_sw07, LM_ins_l79_sw07)
+Dim BP_sw08: BP_sw08=Array(BM_sw08, LM_flashers_l141_sw08, LM_GI_l122_sw08, LM_GI_l123_sw08)
+Dim BP_sw10: BP_sw10=Array(BM_sw10, LM_ins_l01_sw10, LM_ins_l02_sw10, LM_ins_l03_sw10, LM_ins_l05_sw10, LM_ins_l07_sw10, LM_ins_l08_sw10, LM_GI_l117_sw10, LM_GI_l118_sw10, LM_ins_l11_sw10)
+Dim BP_sw11: BP_sw11=Array(BM_sw11, LM_ins_l01_sw11, LM_ins_l02_sw11, LM_ins_l03_sw11, LM_ins_l05_sw11, LM_ins_l07_sw11, LM_ins_l08_sw11, LM_GI_l117_sw11, LM_GI_l118_sw11, LM_ins_l11_sw11, LM_ins_l12_sw11, LM_ins_l13_sw11)
+Dim BP_sw12: BP_sw12=Array(BM_sw12, LM_ins_l01_sw12, LM_ins_l05_sw12, LM_ins_l07_sw12, LM_ins_l08_sw12, LM_GI_l117_sw12, LM_GI_l118_sw12, LM_ins_l11_sw12, LM_ins_l12_sw12, LM_ins_l13_sw12)
+Dim BP_sw14: BP_sw14=Array(BM_sw14, LM_ins_l68_sw14)
+Dim BP_sw18: BP_sw18=Array(BM_sw18, LM_spots_sw18, LM_GI_l109_sw18, LM_ins_l48_sw18, LM_ins_l49_sw18, LM_ins_l51_sw18, LM_ins_l54_sw18, LM_ins_l57_sw18, LM_ins_l59_sw18, LM_ins_l81_sw18)
+Dim BP_sw19: BP_sw19=Array(BM_sw19, LM_spots_sw19, LM_flashers_l141_sw19, LM_GI_l128_sw19, LM_ins_l37_sw19, LM_ins_l38_sw19, LM_ins_l39_sw19, LM_ins_l47_sw19, LM_ins_l60_sw19, LM_ins_l98_sw19)
+Dim BP_sw20: BP_sw20=Array(BM_sw20, LM_spots_sw20, LM_flashers_l141_sw20, LM_GI_l111_sw20, LM_GI_l132_sw20, LM_ins_l17_sw20, LM_ins_l23_sw20, LM_ins_l61_sw20, LM_ins_l91_sw20)
+Dim BP_sw21: BP_sw21=Array(BM_sw21, LM_spots_sw21, LM_flashers_l141_sw21, LM_GI_l111_sw21, LM_GI_l112_sw21, LM_GI_l132_sw21, LM_ins_l17_sw21, LM_ins_l18_sw21, LM_ins_l19_sw21, LM_ins_l23_sw21)
+Dim BP_sw22: BP_sw22=Array(BM_sw22, LM_spots_sw22, LM_flashers_l141_sw22, LM_GI_l111_sw22, LM_GI_l112_sw22, LM_ins_l17_sw22, LM_ins_l18_sw22, LM_ins_l19_sw22, LM_ins_l23_sw22)
+Dim BP_sw23: BP_sw23=Array(BM_sw23, LM_spots_sw23, LM_flashers_l141_sw23, LM_GI_l112_sw23, LM_ins_l17_sw23, LM_ins_l18_sw23, LM_ins_l19_sw23, LM_ins_l47_sw23)
+Dim BP_sw25: BP_sw25=Array(BM_sw25, LM_spots_sw25, LM_GI_l109_sw25, LM_ins_l49_sw25, LM_ins_l59_sw25)
+Dim BP_sw26_Wire: BP_sw26_Wire=Array(BM_sw26_Wire, LM_spots_sw26_Wire)
+Dim BP_sw31: BP_sw31=Array(BM_sw31, LM_flashers_l142_sw31)
+' Arrays per lighting scenario
+Dim BL_GI_l100: BL_GI_l100=Array(LM_GI_l100_FlipperL, LM_GI_l100_FlipperLU, LM_GI_l100_LockPin4, LM_GI_l100_LockPin4UP, LM_GI_l100_Parts, LM_GI_l100_PartsNew, LM_GI_l100_Playfield, LM_GI_l100_UnderPF, LM_GI_l100_sw02)
+Dim BL_GI_l101: BL_GI_l101=Array(LM_GI_l101_FlipperR, LM_GI_l101_FlipperRU, LM_GI_l101_Parts, LM_GI_l101_PartsNew, LM_GI_l101_Playfield, LM_GI_l101_sw03, LM_GI_l101_sw04)
+Dim BL_GI_l102: BL_GI_l102=Array(LM_GI_l102_Parts, LM_GI_l102_PartsNew, LM_GI_l102_Playfield, LM_GI_l102_sw03, LM_GI_l102_sw04)
+Dim BL_GI_l103: BL_GI_l103=Array(LM_GI_l103_LockPin4, LM_GI_l103_LockPin4UP, LM_GI_l103_Parts, LM_GI_l103_PartsNew, LM_GI_l103_Playfield, LM_GI_l103_sw02)
+Dim BL_GI_l104: BL_GI_l104=Array(LM_GI_l104_Parts, LM_GI_l104_PartsNew, LM_GI_l104_Playfield, LM_GI_l104_sw03)
+Dim BL_GI_l105: BL_GI_l105=Array(LM_GI_l105_Gate002_Wire, LM_GI_l105_Parts, LM_GI_l105_PartsNew, LM_GI_l105_Playfield, LM_GI_l105_UnderPF, LM_GI_l105_sw03)
+Dim BL_GI_l106: BL_GI_l106=Array(LM_GI_l106_LockPin4, LM_GI_l106_LockPin4UP, LM_GI_l106_Parts, LM_GI_l106_PartsNew, LM_GI_l106_Playfield, LM_GI_l106_UnderPF, LM_GI_l106_sw02)
+Dim BL_GI_l107: BL_GI_l107=Array(LM_GI_l107_LockPin4, LM_GI_l107_Parts, LM_GI_l107_Playfield, LM_GI_l107_UnderPF, LM_GI_l107_sw02)
+Dim BL_GI_l108: BL_GI_l108=Array(LM_GI_l108_Parts, LM_GI_l108_PartsNew, LM_GI_l108_Playfield)
+Dim BL_GI_l109: BL_GI_l109=Array(LM_GI_l109_Parts, LM_GI_l109_PartsNew, LM_GI_l109_Playfield, LM_GI_l109_Spinner1, LM_GI_l109_UnderPF, LM_GI_l109_sw18, LM_GI_l109_sw25)
+Dim BL_GI_l110: BL_GI_l110=Array(LM_GI_l110_Parts, LM_GI_l110_PartsNew, LM_GI_l110_Playfield)
+Dim BL_GI_l111: BL_GI_l111=Array(LM_GI_l111_BR2, LM_GI_l111_Layer1, LM_GI_l111_Parts, LM_GI_l111_Playfield, LM_GI_l111_Spinner2, LM_GI_l111_UnderPF, LM_GI_l111_sw20, LM_GI_l111_sw21, LM_GI_l111_sw22)
+Dim BL_GI_l112: BL_GI_l112=Array(LM_GI_l112_Layer1, LM_GI_l112_Parts, LM_GI_l112_Playfield, LM_GI_l112_Spinner2, LM_GI_l112_UnderPF, LM_GI_l112_sw21, LM_GI_l112_sw22, LM_GI_l112_sw23)
+Dim BL_GI_l113: BL_GI_l113=Array(LM_GI_l113_Parts, LM_GI_l113_Playfield)
+Dim BL_GI_l114: BL_GI_l114=Array(LM_GI_l114_Parts, LM_GI_l114_PartsNew, LM_GI_l114_Playfield)
+Dim BL_GI_l117: BL_GI_l117=Array(LM_GI_l117_FlipperUU, LM_GI_l117_Parts, LM_GI_l117_Playfield, LM_GI_l117_UnderPF, LM_GI_l117_sw10, LM_GI_l117_sw11, LM_GI_l117_sw12)
+Dim BL_GI_l118: BL_GI_l118=Array(LM_GI_l118_Parts, LM_GI_l118_Playfield, LM_GI_l118_sw10, LM_GI_l118_sw11, LM_GI_l118_sw12)
+Dim BL_GI_l119: BL_GI_l119=Array(LM_GI_l119_Parts, LM_GI_l119_PartsNew, LM_GI_l119_Playfield)
+Dim BL_GI_l120: BL_GI_l120=Array(LM_GI_l120_FlipperU, LM_GI_l120_FlipperUU, LM_GI_l120_Parts, LM_GI_l120_PartsNew, LM_GI_l120_Playfield)
+Dim BL_GI_l121: BL_GI_l121=Array(LM_GI_l121_Parts, LM_GI_l121_PartsNew, LM_GI_l121_Playfield)
+Dim BL_GI_l122: BL_GI_l122=Array(LM_GI_l122_Layer1, LM_GI_l122_Parts, LM_GI_l122_Playfield, LM_GI_l122_sw08)
+Dim BL_GI_l123: BL_GI_l123=Array(LM_GI_l123_Layer1, LM_GI_l123_Parts, LM_GI_l123_PartsNew, LM_GI_l123_Playfield, LM_GI_l123_sw08)
+Dim BL_GI_l124: BL_GI_l124=Array(LM_GI_l124_Parts, LM_GI_l124_PartsNew, LM_GI_l124_Playfield)
+Dim BL_GI_l125: BL_GI_l125=Array(LM_GI_l125_Parts, LM_GI_l125_PartsNew, LM_GI_l125_Playfield)
+Dim BL_GI_l126: BL_GI_l126=Array(LM_GI_l126_Parts, LM_GI_l126_PartsNew, LM_GI_l126_Playfield)
+Dim BL_GI_l127: BL_GI_l127=Array(LM_GI_l127_BR1, LM_GI_l127_BR2, LM_GI_l127_BR3, LM_GI_l127_Layer1, LM_GI_l127_Parts, LM_GI_l127_Playfield, LM_GI_l127_UnderPF, LM_GI_l127_sw06, LM_GI_l127_sw07)
+Dim BL_GI_l128: BL_GI_l128=Array(LM_GI_l128_Layer1, LM_GI_l128_Parts, LM_GI_l128_Playfield, LM_GI_l128_UnderPF, LM_GI_l128_sw19)
+Dim BL_GI_l129: BL_GI_l129=Array(LM_GI_l129_BR3, LM_GI_l129_Layer1, LM_GI_l129_Parts, LM_GI_l129_Playfield, LM_GI_l129_UnderPF, LM_GI_l129_sw07)
+Dim BL_GI_l130: BL_GI_l130=Array(LM_GI_l130_BR1, LM_GI_l130_Layer1, LM_GI_l130_Parts, LM_GI_l130_Playfield, LM_GI_l130_UnderPF, LM_GI_l130_sw05)
+Dim BL_GI_l131: BL_GI_l131=Array(LM_GI_l131_BR1, LM_GI_l131_Layer1, LM_GI_l131_Parts, LM_GI_l131_Playfield, LM_GI_l131_UnderPF, LM_GI_l131_sw05, LM_GI_l131_sw06, LM_GI_l131_sw07)
+Dim BL_GI_l132: BL_GI_l132=Array(LM_GI_l132_BR1, LM_GI_l132_BR2, LM_GI_l132_BR3, LM_GI_l132_Layer1, LM_GI_l132_Parts, LM_GI_l132_Playfield, LM_GI_l132_Spinner2, LM_GI_l132_UnderPF, LM_GI_l132_sw20, LM_GI_l132_sw21)
+Dim BL_GI_l133: BL_GI_l133=Array(LM_GI_l133_Gate002_Wire, LM_GI_l133_Parts, LM_GI_l133_PartsNew, LM_GI_l133_Playfield, LM_GI_l133_sw03, LM_GI_l133_sw04)
+Dim BL_GI_l134: BL_GI_l134=Array(LM_GI_l134_BIPL, LM_GI_l134_Parts, LM_GI_l134_PartsNew, LM_GI_l134_Playfield, LM_GI_l134_sw04)
+Dim BL_World: BL_World=Array(BM_BIPL, BM_BR1, BM_BR2, BM_BR3, BM_Disc, BM_FlipperL, BM_FlipperLU, BM_FlipperR, BM_FlipperRU, BM_FlipperU, BM_FlipperUU, BM_Gate002_Wire, BM_Layer1, BM_LockPin4, BM_LockPin4UP, BM_Neon, BM_Parts, BM_PartsNew, BM_PartsNew_001, BM_PartsNew_002, BM_PartsNew_003, BM_PinCab_Rails, BM_PinCab_Rails_001, BM_PinCab_Rails_002, BM_Playfield, BM_Spinner1, BM_Spinner2, BM_UnderPF, BM_sw01, BM_sw02, BM_sw03, BM_sw04, BM_sw05, BM_sw06, BM_sw07, BM_sw08, BM_sw10, BM_sw11, BM_sw12, BM_sw14, BM_sw18, BM_sw19, BM_sw20, BM_sw21, BM_sw22, BM_sw23, BM_sw25, BM_sw26_Wire, BM_sw31)
+Dim BL_clock_l150: BL_clock_l150=Array(LM_clock_l150_Parts, LM_clock_l150_PartsNew)
+Dim BL_clock_l151: BL_clock_l151=Array(LM_clock_l151_Parts, LM_clock_l151_PartsNew)
+Dim BL_clock_l152: BL_clock_l152=Array(LM_clock_l152_Parts, LM_clock_l152_PartsNew)
+Dim BL_clock_l153: BL_clock_l153=Array(LM_clock_l153_Parts, LM_clock_l153_PartsNew)
+Dim BL_clock_l154: BL_clock_l154=Array(LM_clock_l154_Parts, LM_clock_l154_PartsNew)
+Dim BL_clock_l155: BL_clock_l155=Array(LM_clock_l155_Parts, LM_clock_l155_PartsNew)
+Dim BL_clock_l156: BL_clock_l156=Array(LM_clock_l156_Parts, LM_clock_l156_PartsNew)
+Dim BL_clock_l157: BL_clock_l157=Array(LM_clock_l157_Parts, LM_clock_l157_PartsNew)
+Dim BL_clock_l158: BL_clock_l158=Array(LM_clock_l158_Parts, LM_clock_l158_PartsNew)
+Dim BL_clock_l159: BL_clock_l159=Array(LM_clock_l159_Parts, LM_clock_l159_PartsNew)
+Dim BL_clock_l160: BL_clock_l160=Array(LM_clock_l160_Parts, LM_clock_l160_PartsNew, LM_clock_l160_UnderPF)
+Dim BL_clock_l161: BL_clock_l161=Array(LM_clock_l161_Parts, LM_clock_l161_PartsNew, LM_clock_l161_UnderPF)
+Dim BL_clock_l162: BL_clock_l162=Array(LM_clock_l162_Parts, LM_clock_l162_PartsNew, LM_clock_l162_UnderPF)
+Dim BL_clock_l163: BL_clock_l163=Array(LM_clock_l163_Parts, LM_clock_l163_PartsNew, LM_clock_l163_UnderPF)
+Dim BL_clock_l164: BL_clock_l164=Array(LM_clock_l164_Parts, LM_clock_l164_PartsNew, LM_clock_l164_UnderPF)
+Dim BL_clock_l165: BL_clock_l165=Array(LM_clock_l165_Parts, LM_clock_l165_PartsNew, LM_clock_l165_UnderPF)
+Dim BL_clock_l166: BL_clock_l166=Array(LM_clock_l166_Parts, LM_clock_l166_PartsNew, LM_clock_l166_UnderPF)
+Dim BL_clock_l167: BL_clock_l167=Array(LM_clock_l167_Parts, LM_clock_l167_PartsNew, LM_clock_l167_UnderPF)
+Dim BL_clock_l168: BL_clock_l168=Array(LM_clock_l168_Parts, LM_clock_l168_PartsNew, LM_clock_l168_UnderPF)
+Dim BL_clock_l169: BL_clock_l169=Array(LM_clock_l169_Parts, LM_clock_l169_PartsNew, LM_clock_l169_UnderPF)
+Dim BL_flashers_l140: BL_flashers_l140=Array(LM_flashers_l140_BIPL, LM_flashers_l140_BR1, LM_flashers_l140_BR2, LM_flashers_l140_Layer1, LM_flashers_l140_LockPin4, LM_flashers_l140_Parts, LM_flashers_l140_PartsNew, LM_flashers_l140_PinCab_Rails, LM_flashers_l140_Playfield, LM_flashers_l140_UnderPF, LM_flashers_l140_sw02, LM_flashers_l140_sw03, LM_flashers_l140_sw04, LM_flashers_l140_sw06, LM_flashers_l140_sw07)
+Dim BL_flashers_l141: BL_flashers_l141=Array(LM_flashers_l141_BR1, LM_flashers_l141_BR2, LM_flashers_l141_BR3, LM_flashers_l141_Layer1, LM_flashers_l141_Neon, LM_flashers_l141_Parts, LM_flashers_l141_PartsNew, LM_flashers_l141_Playfield, LM_flashers_l141_Spinner2, LM_flashers_l141_UnderPF, LM_flashers_l141_sw05, LM_flashers_l141_sw06, LM_flashers_l141_sw07, LM_flashers_l141_sw08, LM_flashers_l141_sw19, LM_flashers_l141_sw20, LM_flashers_l141_sw21, LM_flashers_l141_sw22, LM_flashers_l141_sw23)
+Dim BL_flashers_l142: BL_flashers_l142=Array(LM_flashers_l142_FlipperU, LM_flashers_l142_FlipperUU, LM_flashers_l142_Layer1, LM_flashers_l142_Neon, LM_flashers_l142_Parts, LM_flashers_l142_PartsNew, LM_flashers_l142_Playfield, LM_flashers_l142_UnderPF, LM_flashers_l142_sw04, LM_flashers_l142_sw31)
+Dim BL_flashers_l143: BL_flashers_l143=Array(LM_flashers_l143_BR1, LM_flashers_l143_BR2, LM_flashers_l143_BR3, LM_flashers_l143_Disc, LM_flashers_l143_Layer1, LM_flashers_l143_LockPin4, LM_flashers_l143_Parts, LM_flashers_l143_PartsNew, LM_flashers_l143_PinCab_Rails, LM_flashers_l143_Playfield, LM_flashers_l143_Spinner2, LM_flashers_l143_UnderPF, LM_flashers_l143_sw04)
+Dim BL_ins_l01: BL_ins_l01=Array(LM_ins_l01_FlipperU, LM_ins_l01_Parts, LM_ins_l01_Playfield, LM_ins_l01_UnderPF, LM_ins_l01_sw10, LM_ins_l01_sw11, LM_ins_l01_sw12)
+Dim BL_ins_l02: BL_ins_l02=Array(LM_ins_l02_Parts, LM_ins_l02_Playfield, LM_ins_l02_UnderPF, LM_ins_l02_sw10, LM_ins_l02_sw11)
+Dim BL_ins_l03: BL_ins_l03=Array(LM_ins_l03_Parts, LM_ins_l03_Playfield, LM_ins_l03_UnderPF, LM_ins_l03_sw10, LM_ins_l03_sw11)
+Dim BL_ins_l04: BL_ins_l04=Array(LM_ins_l04_Parts, LM_ins_l04_Playfield, LM_ins_l04_UnderPF)
+Dim BL_ins_l05: BL_ins_l05=Array(LM_ins_l05_Parts, LM_ins_l05_Playfield, LM_ins_l05_UnderPF, LM_ins_l05_sw10, LM_ins_l05_sw11, LM_ins_l05_sw12)
+Dim BL_ins_l06: BL_ins_l06=Array(LM_ins_l06_Disc, LM_ins_l06_Parts, LM_ins_l06_Playfield, LM_ins_l06_UnderPF)
+Dim BL_ins_l07: BL_ins_l07=Array(LM_ins_l07_Parts, LM_ins_l07_Playfield, LM_ins_l07_UnderPF, LM_ins_l07_sw10, LM_ins_l07_sw11, LM_ins_l07_sw12)
+Dim BL_ins_l08: BL_ins_l08=Array(LM_ins_l08_Parts, LM_ins_l08_Playfield, LM_ins_l08_UnderPF, LM_ins_l08_sw10, LM_ins_l08_sw11, LM_ins_l08_sw12)
+Dim BL_ins_l09: BL_ins_l09=Array(LM_ins_l09_Parts, LM_ins_l09_Playfield, LM_ins_l09_UnderPF)
+Dim BL_ins_l10: BL_ins_l10=Array(LM_ins_l10_Disc, LM_ins_l10_Parts, LM_ins_l10_Playfield, LM_ins_l10_UnderPF)
+Dim BL_ins_l11: BL_ins_l11=Array(LM_ins_l11_Parts, LM_ins_l11_Playfield, LM_ins_l11_UnderPF, LM_ins_l11_sw10, LM_ins_l11_sw11, LM_ins_l11_sw12)
+Dim BL_ins_l12: BL_ins_l12=Array(LM_ins_l12_Parts, LM_ins_l12_Playfield, LM_ins_l12_UnderPF, LM_ins_l12_sw11, LM_ins_l12_sw12)
+Dim BL_ins_l13: BL_ins_l13=Array(LM_ins_l13_Parts, LM_ins_l13_Playfield, LM_ins_l13_UnderPF, LM_ins_l13_sw11, LM_ins_l13_sw12)
+Dim BL_ins_l14: BL_ins_l14=Array(LM_ins_l14_Parts, LM_ins_l14_PartsNew, LM_ins_l14_Playfield, LM_ins_l14_UnderPF)
+Dim BL_ins_l15: BL_ins_l15=Array(LM_ins_l15_Parts, LM_ins_l15_Playfield, LM_ins_l15_UnderPF)
+Dim BL_ins_l16: BL_ins_l16=Array(LM_ins_l16_FlipperL, LM_ins_l16_FlipperLU, LM_ins_l16_FlipperR, LM_ins_l16_FlipperRU, LM_ins_l16_Parts, LM_ins_l16_PartsNew, LM_ins_l16_Playfield, LM_ins_l16_UnderPF)
+Dim BL_ins_l17: BL_ins_l17=Array(LM_ins_l17_Parts, LM_ins_l17_Playfield, LM_ins_l17_Spinner2, LM_ins_l17_UnderPF, LM_ins_l17_sw20, LM_ins_l17_sw21, LM_ins_l17_sw22, LM_ins_l17_sw23)
+Dim BL_ins_l18: BL_ins_l18=Array(LM_ins_l18_Parts, LM_ins_l18_Playfield, LM_ins_l18_Spinner2, LM_ins_l18_UnderPF, LM_ins_l18_sw21, LM_ins_l18_sw22, LM_ins_l18_sw23)
+Dim BL_ins_l19: BL_ins_l19=Array(LM_ins_l19_Parts, LM_ins_l19_Playfield, LM_ins_l19_UnderPF, LM_ins_l19_sw21, LM_ins_l19_sw22, LM_ins_l19_sw23)
+Dim BL_ins_l20: BL_ins_l20=Array(LM_ins_l20_Parts, LM_ins_l20_Playfield, LM_ins_l20_UnderPF)
+Dim BL_ins_l21: BL_ins_l21=Array(LM_ins_l21_Parts, LM_ins_l21_Playfield, LM_ins_l21_UnderPF, LM_ins_l21_sw03)
+Dim BL_ins_l22: BL_ins_l22=Array(LM_ins_l22_FlipperRU, LM_ins_l22_Parts, LM_ins_l22_PartsNew, LM_ins_l22_Playfield, LM_ins_l22_UnderPF)
+Dim BL_ins_l23: BL_ins_l23=Array(LM_ins_l23_BR2, LM_ins_l23_Layer1, LM_ins_l23_Parts, LM_ins_l23_Playfield, LM_ins_l23_Spinner2, LM_ins_l23_UnderPF, LM_ins_l23_sw20, LM_ins_l23_sw21, LM_ins_l23_sw22)
+Dim BL_ins_l24: BL_ins_l24=Array(LM_ins_l24_Parts, LM_ins_l24_Playfield, LM_ins_l24_Spinner1, LM_ins_l24_UnderPF)
+Dim BL_ins_l25: BL_ins_l25=Array(LM_ins_l25_Parts, LM_ins_l25_Playfield, LM_ins_l25_UnderPF)
+Dim BL_ins_l26: BL_ins_l26=Array(LM_ins_l26_Parts, LM_ins_l26_Playfield, LM_ins_l26_UnderPF)
+Dim BL_ins_l27: BL_ins_l27=Array(LM_ins_l27_Parts, LM_ins_l27_Playfield, LM_ins_l27_UnderPF)
+Dim BL_ins_l28: BL_ins_l28=Array(LM_ins_l28_FlipperU, LM_ins_l28_FlipperUU, LM_ins_l28_Parts, LM_ins_l28_Playfield, LM_ins_l28_UnderPF)
+Dim BL_ins_l29: BL_ins_l29=Array(LM_ins_l29_Parts, LM_ins_l29_Playfield, LM_ins_l29_Spinner1, LM_ins_l29_UnderPF)
+Dim BL_ins_l30: BL_ins_l30=Array(LM_ins_l30_Parts, LM_ins_l30_Playfield, LM_ins_l30_UnderPF)
+Dim BL_ins_l31: BL_ins_l31=Array(LM_ins_l31_Parts, LM_ins_l31_Playfield, LM_ins_l31_UnderPF)
+Dim BL_ins_l32: BL_ins_l32=Array(LM_ins_l32_Parts, LM_ins_l32_Playfield, LM_ins_l32_UnderPF)
+Dim BL_ins_l33: BL_ins_l33=Array(LM_ins_l33_FlipperU, LM_ins_l33_FlipperUU, LM_ins_l33_Parts, LM_ins_l33_Playfield, LM_ins_l33_UnderPF)
+Dim BL_ins_l34: BL_ins_l34=Array(LM_ins_l34_Layer1, LM_ins_l34_Parts, LM_ins_l34_Playfield, LM_ins_l34_UnderPF)
+Dim BL_ins_l35: BL_ins_l35=Array(LM_ins_l35_Layer1, LM_ins_l35_Parts, LM_ins_l35_Playfield, LM_ins_l35_UnderPF)
+Dim BL_ins_l37: BL_ins_l37=Array(LM_ins_l37_Parts, LM_ins_l37_Playfield, LM_ins_l37_UnderPF, LM_ins_l37_sw19)
+Dim BL_ins_l38: BL_ins_l38=Array(LM_ins_l38_Parts, LM_ins_l38_Playfield, LM_ins_l38_UnderPF, LM_ins_l38_sw19)
+Dim BL_ins_l39: BL_ins_l39=Array(LM_ins_l39_Parts, LM_ins_l39_Playfield, LM_ins_l39_UnderPF, LM_ins_l39_sw19)
+Dim BL_ins_l40: BL_ins_l40=Array(LM_ins_l40_Parts, LM_ins_l40_Playfield, LM_ins_l40_UnderPF)
+Dim BL_ins_l41: BL_ins_l41=Array(LM_ins_l41_Parts, LM_ins_l41_Playfield, LM_ins_l41_UnderPF)
+Dim BL_ins_l42: BL_ins_l42=Array(LM_ins_l42_Parts, LM_ins_l42_PartsNew, LM_ins_l42_Playfield, LM_ins_l42_UnderPF, LM_ins_l42_sw01)
+Dim BL_ins_l43: BL_ins_l43=Array(LM_ins_l43_Parts, LM_ins_l43_PartsNew, LM_ins_l43_Playfield, LM_ins_l43_UnderPF, LM_ins_l43_sw02)
+Dim BL_ins_l44: BL_ins_l44=Array(LM_ins_l44_Parts, LM_ins_l44_PartsNew, LM_ins_l44_Playfield, LM_ins_l44_UnderPF, LM_ins_l44_sw03)
+Dim BL_ins_l45: BL_ins_l45=Array(LM_ins_l45_Parts, LM_ins_l45_Playfield, LM_ins_l45_UnderPF)
+Dim BL_ins_l46: BL_ins_l46=Array(LM_ins_l46_Parts, LM_ins_l46_Playfield, LM_ins_l46_UnderPF)
+Dim BL_ins_l47: BL_ins_l47=Array(LM_ins_l47_Parts, LM_ins_l47_Playfield, LM_ins_l47_UnderPF, LM_ins_l47_sw19, LM_ins_l47_sw23)
+Dim BL_ins_l48: BL_ins_l48=Array(LM_ins_l48_Parts, LM_ins_l48_PartsNew, LM_ins_l48_Playfield, LM_ins_l48_Spinner1, LM_ins_l48_UnderPF, LM_ins_l48_sw18)
+Dim BL_ins_l49: BL_ins_l49=Array(LM_ins_l49_Parts, LM_ins_l49_PartsNew, LM_ins_l49_Playfield, LM_ins_l49_UnderPF, LM_ins_l49_sw18, LM_ins_l49_sw25)
+Dim BL_ins_l50: BL_ins_l50=Array(LM_ins_l50_Parts, LM_ins_l50_PartsNew, LM_ins_l50_Playfield, LM_ins_l50_UnderPF)
+Dim BL_ins_l51: BL_ins_l51=Array(LM_ins_l51_Parts, LM_ins_l51_PartsNew, LM_ins_l51_Playfield, LM_ins_l51_UnderPF, LM_ins_l51_sw18)
+Dim BL_ins_l52: BL_ins_l52=Array(LM_ins_l52_FlipperLU, LM_ins_l52_LockPin4UP, LM_ins_l52_Parts, LM_ins_l52_PartsNew, LM_ins_l52_Playfield, LM_ins_l52_UnderPF)
+Dim BL_ins_l53: BL_ins_l53=Array(LM_ins_l53_FlipperLU, LM_ins_l53_Parts, LM_ins_l53_Playfield, LM_ins_l53_UnderPF)
+Dim BL_ins_l54: BL_ins_l54=Array(LM_ins_l54_FlipperL, LM_ins_l54_FlipperLU, LM_ins_l54_FlipperRU, LM_ins_l54_Parts, LM_ins_l54_PartsNew, LM_ins_l54_Playfield, LM_ins_l54_UnderPF, LM_ins_l54_sw18)
+Dim BL_ins_l55: BL_ins_l55=Array(LM_ins_l55_FlipperLU, LM_ins_l55_FlipperR, LM_ins_l55_FlipperRU, LM_ins_l55_Parts, LM_ins_l55_PartsNew, LM_ins_l55_Playfield, LM_ins_l55_UnderPF)
+Dim BL_ins_l56: BL_ins_l56=Array(LM_ins_l56_FlipperL, LM_ins_l56_FlipperLU, LM_ins_l56_FlipperRU, LM_ins_l56_Parts, LM_ins_l56_PartsNew, LM_ins_l56_Playfield, LM_ins_l56_UnderPF)
+Dim BL_ins_l57: BL_ins_l57=Array(LM_ins_l57_FlipperL, LM_ins_l57_FlipperLU, LM_ins_l57_FlipperR, LM_ins_l57_FlipperRU, LM_ins_l57_Parts, LM_ins_l57_PartsNew, LM_ins_l57_Playfield, LM_ins_l57_UnderPF, LM_ins_l57_sw18)
+Dim BL_ins_l58: BL_ins_l58=Array(LM_ins_l58_FlipperR, LM_ins_l58_FlipperRU, LM_ins_l58_Parts, LM_ins_l58_PartsNew, LM_ins_l58_Playfield, LM_ins_l58_UnderPF)
+Dim BL_ins_l59: BL_ins_l59=Array(LM_ins_l59_Disc, LM_ins_l59_Parts, LM_ins_l59_Playfield, LM_ins_l59_Spinner1, LM_ins_l59_UnderPF, LM_ins_l59_sw18, LM_ins_l59_sw25)
+Dim BL_ins_l60: BL_ins_l60=Array(LM_ins_l60_Parts, LM_ins_l60_Playfield, LM_ins_l60_UnderPF, LM_ins_l60_sw19)
+Dim BL_ins_l61: BL_ins_l61=Array(LM_ins_l61_Parts, LM_ins_l61_Playfield, LM_ins_l61_Spinner2, LM_ins_l61_UnderPF, LM_ins_l61_sw20)
+Dim BL_ins_l62: BL_ins_l62=Array(LM_ins_l62_Layer1, LM_ins_l62_Parts, LM_ins_l62_Playfield, LM_ins_l62_UnderPF)
+Dim BL_ins_l63: BL_ins_l63=Array(LM_ins_l63_FlipperU, LM_ins_l63_FlipperUU, LM_ins_l63_Parts, LM_ins_l63_PartsNew, LM_ins_l63_Playfield, LM_ins_l63_UnderPF)
+Dim BL_ins_l64: BL_ins_l64=Array(LM_ins_l64_FlipperUU, LM_ins_l64_Layer1, LM_ins_l64_Parts, LM_ins_l64_Playfield, LM_ins_l64_UnderPF)
+Dim BL_ins_l65: BL_ins_l65=Array(LM_ins_l65_FlipperU, LM_ins_l65_FlipperUU, LM_ins_l65_Parts, LM_ins_l65_Playfield, LM_ins_l65_UnderPF)
+Dim BL_ins_l66: BL_ins_l66=Array(LM_ins_l66_Layer1, LM_ins_l66_Parts, LM_ins_l66_Playfield, LM_ins_l66_UnderPF, LM_ins_l66_sw05)
+Dim BL_ins_l67: BL_ins_l67=Array(LM_ins_l67_Layer1, LM_ins_l67_Parts, LM_ins_l67_Playfield, LM_ins_l67_UnderPF, LM_ins_l67_sw05, LM_ins_l67_sw06)
+Dim BL_ins_l68: BL_ins_l68=Array(LM_ins_l68_Layer1, LM_ins_l68_Parts, LM_ins_l68_Playfield, LM_ins_l68_UnderPF, LM_ins_l68_sw07, LM_ins_l68_sw14)
+Dim BL_ins_l77: BL_ins_l77=Array(LM_ins_l77_Layer1, LM_ins_l77_Parts, LM_ins_l77_UnderPF)
+Dim BL_ins_l78: BL_ins_l78=Array(LM_ins_l78_Layer1, LM_ins_l78_Parts)
+Dim BL_ins_l79: BL_ins_l79=Array(LM_ins_l79_Layer1, LM_ins_l79_Parts, LM_ins_l79_Playfield, LM_ins_l79_sw06, LM_ins_l79_sw07)
+Dim BL_ins_l80: BL_ins_l80=Array(LM_ins_l80_Parts, LM_ins_l80_Playfield, LM_ins_l80_UnderPF)
+Dim BL_ins_l81: BL_ins_l81=Array(LM_ins_l81_Parts, LM_ins_l81_Playfield, LM_ins_l81_UnderPF, LM_ins_l81_sw18)
+Dim BL_ins_l82: BL_ins_l82=Array(LM_ins_l82_Parts, LM_ins_l82_Playfield, LM_ins_l82_UnderPF)
+Dim BL_ins_l83: BL_ins_l83=Array(LM_ins_l83_Parts, LM_ins_l83_Playfield, LM_ins_l83_UnderPF)
+Dim BL_ins_l84: BL_ins_l84=Array(LM_ins_l84_Parts, LM_ins_l84_PartsNew, LM_ins_l84_Playfield, LM_ins_l84_UnderPF)
+Dim BL_ins_l90: BL_ins_l90=Array(LM_ins_l90_Parts, LM_ins_l90_Playfield, LM_ins_l90_UnderPF)
+Dim BL_ins_l91: BL_ins_l91=Array(LM_ins_l91_Parts, LM_ins_l91_Playfield, LM_ins_l91_Spinner2, LM_ins_l91_UnderPF, LM_ins_l91_sw20)
+Dim BL_ins_l92: BL_ins_l92=Array(LM_ins_l92_FlipperUU, LM_ins_l92_Parts, LM_ins_l92_Playfield, LM_ins_l92_UnderPF)
+Dim BL_ins_l93: BL_ins_l93=Array(LM_ins_l93_Parts, LM_ins_l93_Playfield, LM_ins_l93_UnderPF)
+Dim BL_ins_l94: BL_ins_l94=Array()
+Dim BL_ins_l95: BL_ins_l95=Array(LM_ins_l95_Parts, LM_ins_l95_Playfield, LM_ins_l95_UnderPF)
+Dim BL_ins_l98: BL_ins_l98=Array(LM_ins_l98_Disc, LM_ins_l98_Parts, LM_ins_l98_Playfield, LM_ins_l98_UnderPF, LM_ins_l98_sw19)
+Dim BL_spots: BL_spots=Array(LM_spots_BR1, LM_spots_BR2, LM_spots_Disc, LM_spots_FlipperU, LM_spots_FlipperUU, LM_spots_Layer1, LM_spots_Parts, LM_spots_PartsNew, LM_spots_PinCab_Rails, LM_spots_Playfield, LM_spots_Spinner1, LM_spots_Spinner2, LM_spots_UnderPF, LM_spots_sw18, LM_spots_sw19, LM_spots_sw20, LM_spots_sw21, LM_spots_sw22, LM_spots_sw23, LM_spots_sw25, LM_spots_sw26_Wire)
+' Global arrays
+Dim BG_Bakemap: BG_Bakemap=Array(BM_BIPL, BM_BR1, BM_BR2, BM_BR3, BM_Disc, BM_FlipperL, BM_FlipperLU, BM_FlipperR, BM_FlipperRU, BM_FlipperU, BM_FlipperUU, BM_Gate002_Wire, BM_Layer1, BM_LockPin4, BM_LockPin4UP, BM_Neon, BM_Parts, BM_PartsNew, BM_PartsNew_001, BM_PartsNew_002, BM_PartsNew_003, BM_PinCab_Rails, BM_PinCab_Rails_001, BM_PinCab_Rails_002, BM_Playfield, BM_Spinner1, BM_Spinner2, BM_UnderPF, BM_sw01, BM_sw02, BM_sw03, BM_sw04, BM_sw05, BM_sw06, BM_sw07, BM_sw08, BM_sw10, BM_sw11, BM_sw12, BM_sw14, BM_sw18, BM_sw19, BM_sw20, BM_sw21, BM_sw22, BM_sw23, BM_sw25, BM_sw26_Wire, BM_sw31)
+Dim BG_Lightmap: BG_Lightmap=Array(LM_GI_l100_FlipperL, LM_GI_l100_FlipperLU, LM_GI_l100_LockPin4, LM_GI_l100_LockPin4UP, LM_GI_l100_Parts, LM_GI_l100_PartsNew, LM_GI_l100_Playfield, LM_GI_l100_UnderPF, LM_GI_l100_sw02, LM_GI_l101_FlipperR, LM_GI_l101_FlipperRU, LM_GI_l101_Parts, LM_GI_l101_PartsNew, LM_GI_l101_Playfield, LM_GI_l101_sw03, LM_GI_l101_sw04, LM_GI_l102_Parts, LM_GI_l102_PartsNew, LM_GI_l102_Playfield, LM_GI_l102_sw03, LM_GI_l102_sw04, LM_GI_l103_LockPin4, LM_GI_l103_LockPin4UP, LM_GI_l103_Parts, LM_GI_l103_PartsNew, LM_GI_l103_Playfield, LM_GI_l103_sw02, LM_GI_l104_Parts, LM_GI_l104_PartsNew, LM_GI_l104_Playfield, LM_GI_l104_sw03, LM_GI_l105_Gate002_Wire, LM_GI_l105_Parts, LM_GI_l105_PartsNew, LM_GI_l105_Playfield, LM_GI_l105_UnderPF, LM_GI_l105_sw03, LM_GI_l106_LockPin4, LM_GI_l106_LockPin4UP, LM_GI_l106_Parts, LM_GI_l106_PartsNew, LM_GI_l106_Playfield, LM_GI_l106_UnderPF, LM_GI_l106_sw02, LM_GI_l107_LockPin4, LM_GI_l107_Parts, LM_GI_l107_Playfield, LM_GI_l107_UnderPF, LM_GI_l107_sw02, _
+	LM_GI_l108_Parts, LM_GI_l108_PartsNew, LM_GI_l108_Playfield, LM_GI_l109_Parts, LM_GI_l109_PartsNew, LM_GI_l109_Playfield, LM_GI_l109_Spinner1, LM_GI_l109_UnderPF, LM_GI_l109_sw18, LM_GI_l109_sw25, LM_GI_l110_Parts, LM_GI_l110_PartsNew, LM_GI_l110_Playfield, LM_GI_l111_BR2, LM_GI_l111_Layer1, LM_GI_l111_Parts, LM_GI_l111_Playfield, LM_GI_l111_Spinner2, LM_GI_l111_UnderPF, LM_GI_l111_sw20, LM_GI_l111_sw21, LM_GI_l111_sw22, LM_GI_l112_Layer1, LM_GI_l112_Parts, LM_GI_l112_Playfield, LM_GI_l112_Spinner2, LM_GI_l112_UnderPF, LM_GI_l112_sw21, LM_GI_l112_sw22, LM_GI_l112_sw23, LM_GI_l113_Parts, LM_GI_l113_Playfield, LM_GI_l114_Parts, LM_GI_l114_PartsNew, LM_GI_l114_Playfield, LM_GI_l117_FlipperUU, LM_GI_l117_Parts, LM_GI_l117_Playfield, LM_GI_l117_UnderPF, LM_GI_l117_sw10, LM_GI_l117_sw11, LM_GI_l117_sw12, LM_GI_l118_Parts, LM_GI_l118_Playfield, LM_GI_l118_sw10, LM_GI_l118_sw11, LM_GI_l118_sw12, LM_GI_l119_Parts, LM_GI_l119_PartsNew, LM_GI_l119_Playfield, LM_GI_l120_FlipperU, LM_GI_l120_FlipperUU, LM_GI_l120_Parts, _
+	LM_GI_l120_PartsNew, LM_GI_l120_Playfield, LM_GI_l121_Parts, LM_GI_l121_PartsNew, LM_GI_l121_Playfield, LM_GI_l122_Layer1, LM_GI_l122_Parts, LM_GI_l122_Playfield, LM_GI_l122_sw08, LM_GI_l123_Layer1, LM_GI_l123_Parts, LM_GI_l123_PartsNew, LM_GI_l123_Playfield, LM_GI_l123_sw08, LM_GI_l124_Parts, LM_GI_l124_PartsNew, LM_GI_l124_Playfield, LM_GI_l125_Parts, LM_GI_l125_PartsNew, LM_GI_l125_Playfield, LM_GI_l126_Parts, LM_GI_l126_PartsNew, LM_GI_l126_Playfield, LM_GI_l127_BR1, LM_GI_l127_BR2, LM_GI_l127_BR3, LM_GI_l127_Layer1, LM_GI_l127_Parts, LM_GI_l127_Playfield, LM_GI_l127_UnderPF, LM_GI_l127_sw06, LM_GI_l127_sw07, LM_GI_l128_Layer1, LM_GI_l128_Parts, LM_GI_l128_Playfield, LM_GI_l128_UnderPF, LM_GI_l128_sw19, LM_GI_l129_BR3, LM_GI_l129_Layer1, LM_GI_l129_Parts, LM_GI_l129_Playfield, LM_GI_l129_UnderPF, LM_GI_l129_sw07, LM_GI_l130_BR1, LM_GI_l130_Layer1, LM_GI_l130_Parts, LM_GI_l130_Playfield, LM_GI_l130_UnderPF, LM_GI_l130_sw05, LM_GI_l131_BR1, LM_GI_l131_Layer1, LM_GI_l131_Parts, LM_GI_l131_Playfield, _
+	LM_GI_l131_UnderPF, LM_GI_l131_sw05, LM_GI_l131_sw06, LM_GI_l131_sw07, LM_GI_l132_BR1, LM_GI_l132_BR2, LM_GI_l132_BR3, LM_GI_l132_Layer1, LM_GI_l132_Parts, LM_GI_l132_Playfield, LM_GI_l132_Spinner2, LM_GI_l132_UnderPF, LM_GI_l132_sw20, LM_GI_l132_sw21, LM_GI_l133_Gate002_Wire, LM_GI_l133_Parts, LM_GI_l133_PartsNew, LM_GI_l133_Playfield, LM_GI_l133_sw03, LM_GI_l133_sw04, LM_GI_l134_BIPL, LM_GI_l134_Parts, LM_GI_l134_PartsNew, LM_GI_l134_Playfield, LM_GI_l134_sw04, LM_clock_l150_Parts, LM_clock_l150_PartsNew, LM_clock_l151_Parts, LM_clock_l151_PartsNew, LM_clock_l152_Parts, LM_clock_l152_PartsNew, LM_clock_l153_Parts, LM_clock_l153_PartsNew, LM_clock_l154_Parts, LM_clock_l154_PartsNew, LM_clock_l155_Parts, LM_clock_l155_PartsNew, LM_clock_l156_Parts, LM_clock_l156_PartsNew, LM_clock_l157_Parts, LM_clock_l157_PartsNew, LM_clock_l158_Parts, LM_clock_l158_PartsNew, LM_clock_l159_Parts, LM_clock_l159_PartsNew, LM_clock_l160_Parts, LM_clock_l160_PartsNew, LM_clock_l160_UnderPF, LM_clock_l161_Parts, _
+	LM_clock_l161_PartsNew, LM_clock_l161_UnderPF, LM_clock_l162_Parts, LM_clock_l162_PartsNew, LM_clock_l162_UnderPF, LM_clock_l163_Parts, LM_clock_l163_PartsNew, LM_clock_l163_UnderPF, LM_clock_l164_Parts, LM_clock_l164_PartsNew, LM_clock_l164_UnderPF, LM_clock_l165_Parts, LM_clock_l165_PartsNew, LM_clock_l165_UnderPF, LM_clock_l166_Parts, LM_clock_l166_PartsNew, LM_clock_l166_UnderPF, LM_clock_l167_Parts, LM_clock_l167_PartsNew, LM_clock_l167_UnderPF, LM_clock_l168_Parts, LM_clock_l168_PartsNew, LM_clock_l168_UnderPF, LM_clock_l169_Parts, LM_clock_l169_PartsNew, LM_clock_l169_UnderPF, LM_flashers_l140_BIPL, LM_flashers_l140_BR1, LM_flashers_l140_BR2, LM_flashers_l140_Layer1, LM_flashers_l140_LockPin4, LM_flashers_l140_Parts, LM_flashers_l140_PartsNew, LM_flashers_l140_PinCab_Rails, LM_flashers_l140_Playfield, LM_flashers_l140_UnderPF, LM_flashers_l140_sw02, LM_flashers_l140_sw03, LM_flashers_l140_sw04, LM_flashers_l140_sw06, LM_flashers_l140_sw07, LM_flashers_l141_BR1, LM_flashers_l141_BR2, _
+	LM_flashers_l141_BR3, LM_flashers_l141_Layer1, LM_flashers_l141_Neon, LM_flashers_l141_Parts, LM_flashers_l141_PartsNew, LM_flashers_l141_Playfield, LM_flashers_l141_Spinner2, LM_flashers_l141_UnderPF, LM_flashers_l141_sw05, LM_flashers_l141_sw06, LM_flashers_l141_sw07, LM_flashers_l141_sw08, LM_flashers_l141_sw19, LM_flashers_l141_sw20, LM_flashers_l141_sw21, LM_flashers_l141_sw22, LM_flashers_l141_sw23, LM_flashers_l142_FlipperU, LM_flashers_l142_FlipperUU, LM_flashers_l142_Layer1, LM_flashers_l142_Neon, LM_flashers_l142_Parts, LM_flashers_l142_PartsNew, LM_flashers_l142_Playfield, LM_flashers_l142_UnderPF, LM_flashers_l142_sw04, LM_flashers_l142_sw31, LM_flashers_l143_BR1, LM_flashers_l143_BR2, LM_flashers_l143_BR3, LM_flashers_l143_Disc, LM_flashers_l143_Layer1, LM_flashers_l143_LockPin4, LM_flashers_l143_Parts, LM_flashers_l143_PartsNew, LM_flashers_l143_PinCab_Rails, LM_flashers_l143_Playfield, LM_flashers_l143_Spinner2, LM_flashers_l143_UnderPF, LM_flashers_l143_sw04, LM_ins_l01_FlipperU, _
+	LM_ins_l01_Parts, LM_ins_l01_Playfield, LM_ins_l01_UnderPF, LM_ins_l01_sw10, LM_ins_l01_sw11, LM_ins_l01_sw12, LM_ins_l02_Parts, LM_ins_l02_Playfield, LM_ins_l02_UnderPF, LM_ins_l02_sw10, LM_ins_l02_sw11, LM_ins_l03_Parts, LM_ins_l03_Playfield, LM_ins_l03_UnderPF, LM_ins_l03_sw10, LM_ins_l03_sw11, LM_ins_l04_Parts, LM_ins_l04_Playfield, LM_ins_l04_UnderPF, LM_ins_l05_Parts, LM_ins_l05_Playfield, LM_ins_l05_UnderPF, LM_ins_l05_sw10, LM_ins_l05_sw11, LM_ins_l05_sw12, LM_ins_l06_Disc, LM_ins_l06_Parts, LM_ins_l06_Playfield, LM_ins_l06_UnderPF, LM_ins_l07_Parts, LM_ins_l07_Playfield, LM_ins_l07_UnderPF, LM_ins_l07_sw10, LM_ins_l07_sw11, LM_ins_l07_sw12, LM_ins_l08_Parts, LM_ins_l08_Playfield, LM_ins_l08_UnderPF, LM_ins_l08_sw10, LM_ins_l08_sw11, LM_ins_l08_sw12, LM_ins_l09_Parts, LM_ins_l09_Playfield, LM_ins_l09_UnderPF, LM_ins_l10_Disc, LM_ins_l10_Parts, LM_ins_l10_Playfield, LM_ins_l10_UnderPF, LM_ins_l11_Parts, LM_ins_l11_Playfield, LM_ins_l11_UnderPF, LM_ins_l11_sw10, LM_ins_l11_sw11, LM_ins_l11_sw12, _
+	LM_ins_l12_Parts, LM_ins_l12_Playfield, LM_ins_l12_UnderPF, LM_ins_l12_sw11, LM_ins_l12_sw12, LM_ins_l13_Parts, LM_ins_l13_Playfield, LM_ins_l13_UnderPF, LM_ins_l13_sw11, LM_ins_l13_sw12, LM_ins_l14_Parts, LM_ins_l14_PartsNew, LM_ins_l14_Playfield, LM_ins_l14_UnderPF, LM_ins_l15_Parts, LM_ins_l15_Playfield, LM_ins_l15_UnderPF, LM_ins_l16_FlipperL, LM_ins_l16_FlipperLU, LM_ins_l16_FlipperR, LM_ins_l16_FlipperRU, LM_ins_l16_Parts, LM_ins_l16_PartsNew, LM_ins_l16_Playfield, LM_ins_l16_UnderPF, LM_ins_l17_Parts, LM_ins_l17_Playfield, LM_ins_l17_Spinner2, LM_ins_l17_UnderPF, LM_ins_l17_sw20, LM_ins_l17_sw21, LM_ins_l17_sw22, LM_ins_l17_sw23, LM_ins_l18_Parts, LM_ins_l18_Playfield, LM_ins_l18_Spinner2, LM_ins_l18_UnderPF, LM_ins_l18_sw21, LM_ins_l18_sw22, LM_ins_l18_sw23, LM_ins_l19_Parts, LM_ins_l19_Playfield, LM_ins_l19_UnderPF, LM_ins_l19_sw21, LM_ins_l19_sw22, LM_ins_l19_sw23, LM_ins_l20_Parts, LM_ins_l20_Playfield, LM_ins_l20_UnderPF, LM_ins_l21_Parts, LM_ins_l21_Playfield, LM_ins_l21_UnderPF, LM_ins_l21_sw03, _
+	LM_ins_l22_FlipperRU, LM_ins_l22_Parts, LM_ins_l22_PartsNew, LM_ins_l22_Playfield, LM_ins_l22_UnderPF, LM_ins_l23_BR2, LM_ins_l23_Layer1, LM_ins_l23_Parts, LM_ins_l23_Playfield, LM_ins_l23_Spinner2, LM_ins_l23_UnderPF, LM_ins_l23_sw20, LM_ins_l23_sw21, LM_ins_l23_sw22, LM_ins_l24_Parts, LM_ins_l24_Playfield, LM_ins_l24_Spinner1, LM_ins_l24_UnderPF, LM_ins_l25_Parts, LM_ins_l25_Playfield, LM_ins_l25_UnderPF, LM_ins_l26_Parts, LM_ins_l26_Playfield, LM_ins_l26_UnderPF, LM_ins_l27_Parts, LM_ins_l27_Playfield, LM_ins_l27_UnderPF, LM_ins_l28_FlipperU, LM_ins_l28_FlipperUU, LM_ins_l28_Parts, LM_ins_l28_Playfield, LM_ins_l28_UnderPF, LM_ins_l29_Parts, LM_ins_l29_Playfield, LM_ins_l29_Spinner1, LM_ins_l29_UnderPF, LM_ins_l30_Parts, LM_ins_l30_Playfield, LM_ins_l30_UnderPF, LM_ins_l31_Parts, LM_ins_l31_Playfield, LM_ins_l31_UnderPF, LM_ins_l32_Parts, LM_ins_l32_Playfield, LM_ins_l32_UnderPF, LM_ins_l33_FlipperU, LM_ins_l33_FlipperUU, LM_ins_l33_Parts, LM_ins_l33_Playfield, LM_ins_l33_UnderPF, LM_ins_l34_Layer1, _
+	LM_ins_l34_Parts, LM_ins_l34_Playfield, LM_ins_l34_UnderPF, LM_ins_l35_Layer1, LM_ins_l35_Parts, LM_ins_l35_Playfield, LM_ins_l35_UnderPF, LM_ins_l37_Parts, LM_ins_l37_Playfield, LM_ins_l37_UnderPF, LM_ins_l37_sw19, LM_ins_l38_Parts, LM_ins_l38_Playfield, LM_ins_l38_UnderPF, LM_ins_l38_sw19, LM_ins_l39_Parts, LM_ins_l39_Playfield, LM_ins_l39_UnderPF, LM_ins_l39_sw19, LM_ins_l40_Parts, LM_ins_l40_Playfield, LM_ins_l40_UnderPF, LM_ins_l41_Parts, LM_ins_l41_Playfield, LM_ins_l41_UnderPF, LM_ins_l42_Parts, LM_ins_l42_PartsNew, LM_ins_l42_Playfield, LM_ins_l42_UnderPF, LM_ins_l42_sw01, LM_ins_l43_Parts, LM_ins_l43_PartsNew, LM_ins_l43_Playfield, LM_ins_l43_UnderPF, LM_ins_l43_sw02, LM_ins_l44_Parts, LM_ins_l44_PartsNew, LM_ins_l44_Playfield, LM_ins_l44_UnderPF, LM_ins_l44_sw03, LM_ins_l45_Parts, LM_ins_l45_Playfield, LM_ins_l45_UnderPF, LM_ins_l46_Parts, LM_ins_l46_Playfield, LM_ins_l46_UnderPF, LM_ins_l47_Parts, LM_ins_l47_Playfield, LM_ins_l47_UnderPF, LM_ins_l47_sw19, LM_ins_l47_sw23, LM_ins_l48_Parts, _
+	LM_ins_l48_PartsNew, LM_ins_l48_Playfield, LM_ins_l48_Spinner1, LM_ins_l48_UnderPF, LM_ins_l48_sw18, LM_ins_l49_Parts, LM_ins_l49_PartsNew, LM_ins_l49_Playfield, LM_ins_l49_UnderPF, LM_ins_l49_sw18, LM_ins_l49_sw25, LM_ins_l50_Parts, LM_ins_l50_PartsNew, LM_ins_l50_Playfield, LM_ins_l50_UnderPF, LM_ins_l51_Parts, LM_ins_l51_PartsNew, LM_ins_l51_Playfield, LM_ins_l51_UnderPF, LM_ins_l51_sw18, LM_ins_l52_FlipperLU, LM_ins_l52_LockPin4UP, LM_ins_l52_Parts, LM_ins_l52_PartsNew, LM_ins_l52_Playfield, LM_ins_l52_UnderPF, LM_ins_l53_FlipperLU, LM_ins_l53_Parts, LM_ins_l53_Playfield, LM_ins_l53_UnderPF, LM_ins_l54_FlipperL, LM_ins_l54_FlipperLU, LM_ins_l54_FlipperRU, LM_ins_l54_Parts, LM_ins_l54_PartsNew, LM_ins_l54_Playfield, LM_ins_l54_UnderPF, LM_ins_l54_sw18, LM_ins_l55_FlipperLU, LM_ins_l55_FlipperR, LM_ins_l55_FlipperRU, LM_ins_l55_Parts, LM_ins_l55_PartsNew, LM_ins_l55_Playfield, LM_ins_l55_UnderPF, LM_ins_l56_FlipperL, LM_ins_l56_FlipperLU, LM_ins_l56_FlipperRU, LM_ins_l56_Parts, LM_ins_l56_PartsNew, _
+	LM_ins_l56_Playfield, LM_ins_l56_UnderPF, LM_ins_l57_FlipperL, LM_ins_l57_FlipperLU, LM_ins_l57_FlipperR, LM_ins_l57_FlipperRU, LM_ins_l57_Parts, LM_ins_l57_PartsNew, LM_ins_l57_Playfield, LM_ins_l57_UnderPF, LM_ins_l57_sw18, LM_ins_l58_FlipperR, LM_ins_l58_FlipperRU, LM_ins_l58_Parts, LM_ins_l58_PartsNew, LM_ins_l58_Playfield, LM_ins_l58_UnderPF, LM_ins_l59_Disc, LM_ins_l59_Parts, LM_ins_l59_Playfield, LM_ins_l59_Spinner1, LM_ins_l59_UnderPF, LM_ins_l59_sw18, LM_ins_l59_sw25, LM_ins_l60_Parts, LM_ins_l60_Playfield, LM_ins_l60_UnderPF, LM_ins_l60_sw19, LM_ins_l61_Parts, LM_ins_l61_Playfield, LM_ins_l61_Spinner2, LM_ins_l61_UnderPF, LM_ins_l61_sw20, LM_ins_l62_Layer1, LM_ins_l62_Parts, LM_ins_l62_Playfield, LM_ins_l62_UnderPF, LM_ins_l63_FlipperU, LM_ins_l63_FlipperUU, LM_ins_l63_Parts, LM_ins_l63_PartsNew, LM_ins_l63_Playfield, LM_ins_l63_UnderPF, LM_ins_l64_FlipperUU, LM_ins_l64_Layer1, LM_ins_l64_Parts, LM_ins_l64_Playfield, LM_ins_l64_UnderPF, LM_ins_l65_FlipperU, LM_ins_l65_FlipperUU, LM_ins_l65_Parts, _
+	LM_ins_l65_Playfield, LM_ins_l65_UnderPF, LM_ins_l66_Layer1, LM_ins_l66_Parts, LM_ins_l66_Playfield, LM_ins_l66_UnderPF, LM_ins_l66_sw05, LM_ins_l67_Layer1, LM_ins_l67_Parts, LM_ins_l67_Playfield, LM_ins_l67_UnderPF, LM_ins_l67_sw05, LM_ins_l67_sw06, LM_ins_l68_Layer1, LM_ins_l68_Parts, LM_ins_l68_Playfield, LM_ins_l68_UnderPF, LM_ins_l68_sw07, LM_ins_l68_sw14, LM_ins_l77_Layer1, LM_ins_l77_Parts, LM_ins_l77_UnderPF, LM_ins_l78_Layer1, LM_ins_l78_Parts, LM_ins_l79_Layer1, LM_ins_l79_Parts, LM_ins_l79_Playfield, LM_ins_l79_sw06, LM_ins_l79_sw07, LM_ins_l80_Parts, LM_ins_l80_Playfield, LM_ins_l80_UnderPF, LM_ins_l81_Parts, LM_ins_l81_Playfield, LM_ins_l81_UnderPF, LM_ins_l81_sw18, LM_ins_l82_Parts, LM_ins_l82_Playfield, LM_ins_l82_UnderPF, LM_ins_l83_Parts, LM_ins_l83_Playfield, LM_ins_l83_UnderPF, LM_ins_l84_Parts, LM_ins_l84_PartsNew, LM_ins_l84_Playfield, LM_ins_l84_UnderPF, LM_ins_l90_Parts, LM_ins_l90_Playfield, LM_ins_l90_UnderPF, LM_ins_l91_Parts, LM_ins_l91_Playfield, LM_ins_l91_Spinner2, _
+	LM_ins_l91_UnderPF, LM_ins_l91_sw20, LM_ins_l92_FlipperUU, LM_ins_l92_Parts, LM_ins_l92_Playfield, LM_ins_l92_UnderPF, LM_ins_l93_Parts, LM_ins_l93_Playfield, LM_ins_l93_UnderPF, LM_ins_l95_Parts, LM_ins_l95_Playfield, LM_ins_l95_UnderPF, LM_ins_l98_Disc, LM_ins_l98_Parts, LM_ins_l98_Playfield, LM_ins_l98_UnderPF, LM_ins_l98_sw19, LM_spots_BR1, LM_spots_BR2, LM_spots_Disc, LM_spots_FlipperU, LM_spots_FlipperUU, LM_spots_Layer1, LM_spots_Parts, LM_spots_PartsNew, LM_spots_PinCab_Rails, LM_spots_Playfield, LM_spots_Spinner1, LM_spots_Spinner2, LM_spots_UnderPF, LM_spots_sw18, LM_spots_sw19, LM_spots_sw20, LM_spots_sw21, LM_spots_sw22, LM_spots_sw23, LM_spots_sw25, LM_spots_sw26_Wire)
+Dim BG_All: BG_All=Array(BM_BIPL, BM_BR1, BM_BR2, BM_BR3, BM_Disc, BM_FlipperL, BM_FlipperLU, BM_FlipperR, BM_FlipperRU, BM_FlipperU, BM_FlipperUU, BM_Gate002_Wire, BM_Layer1, BM_LockPin4, BM_LockPin4UP, BM_Neon, BM_Parts, BM_PartsNew, BM_PartsNew_001, BM_PartsNew_002, BM_PartsNew_003, BM_PinCab_Rails, BM_PinCab_Rails_001, BM_PinCab_Rails_002, BM_Playfield, BM_Spinner1, BM_Spinner2, BM_UnderPF, BM_sw01, BM_sw02, BM_sw03, BM_sw04, BM_sw05, BM_sw06, BM_sw07, BM_sw08, BM_sw10, BM_sw11, BM_sw12, BM_sw14, BM_sw18, BM_sw19, BM_sw20, BM_sw21, BM_sw22, BM_sw23, BM_sw25, BM_sw26_Wire, BM_sw31, LM_GI_l100_FlipperL, LM_GI_l100_FlipperLU, LM_GI_l100_LockPin4, LM_GI_l100_LockPin4UP, LM_GI_l100_Parts, LM_GI_l100_PartsNew, LM_GI_l100_Playfield, LM_GI_l100_UnderPF, LM_GI_l100_sw02, LM_GI_l101_FlipperR, LM_GI_l101_FlipperRU, LM_GI_l101_Parts, LM_GI_l101_PartsNew, LM_GI_l101_Playfield, LM_GI_l101_sw03, LM_GI_l101_sw04, LM_GI_l102_Parts, LM_GI_l102_PartsNew, LM_GI_l102_Playfield, LM_GI_l102_sw03, LM_GI_l102_sw04, _
+	LM_GI_l103_LockPin4, LM_GI_l103_LockPin4UP, LM_GI_l103_Parts, LM_GI_l103_PartsNew, LM_GI_l103_Playfield, LM_GI_l103_sw02, LM_GI_l104_Parts, LM_GI_l104_PartsNew, LM_GI_l104_Playfield, LM_GI_l104_sw03, LM_GI_l105_Gate002_Wire, LM_GI_l105_Parts, LM_GI_l105_PartsNew, LM_GI_l105_Playfield, LM_GI_l105_UnderPF, LM_GI_l105_sw03, LM_GI_l106_LockPin4, LM_GI_l106_LockPin4UP, LM_GI_l106_Parts, LM_GI_l106_PartsNew, LM_GI_l106_Playfield, LM_GI_l106_UnderPF, LM_GI_l106_sw02, LM_GI_l107_LockPin4, LM_GI_l107_Parts, LM_GI_l107_Playfield, LM_GI_l107_UnderPF, LM_GI_l107_sw02, LM_GI_l108_Parts, LM_GI_l108_PartsNew, LM_GI_l108_Playfield, LM_GI_l109_Parts, LM_GI_l109_PartsNew, LM_GI_l109_Playfield, LM_GI_l109_Spinner1, LM_GI_l109_UnderPF, LM_GI_l109_sw18, LM_GI_l109_sw25, LM_GI_l110_Parts, LM_GI_l110_PartsNew, LM_GI_l110_Playfield, LM_GI_l111_BR2, LM_GI_l111_Layer1, LM_GI_l111_Parts, LM_GI_l111_Playfield, LM_GI_l111_Spinner2, LM_GI_l111_UnderPF, LM_GI_l111_sw20, LM_GI_l111_sw21, LM_GI_l111_sw22, LM_GI_l112_Layer1, LM_GI_l112_Parts, _
+	LM_GI_l112_Playfield, LM_GI_l112_Spinner2, LM_GI_l112_UnderPF, LM_GI_l112_sw21, LM_GI_l112_sw22, LM_GI_l112_sw23, LM_GI_l113_Parts, LM_GI_l113_Playfield, LM_GI_l114_Parts, LM_GI_l114_PartsNew, LM_GI_l114_Playfield, LM_GI_l117_FlipperUU, LM_GI_l117_Parts, LM_GI_l117_Playfield, LM_GI_l117_UnderPF, LM_GI_l117_sw10, LM_GI_l117_sw11, LM_GI_l117_sw12, LM_GI_l118_Parts, LM_GI_l118_Playfield, LM_GI_l118_sw10, LM_GI_l118_sw11, LM_GI_l118_sw12, LM_GI_l119_Parts, LM_GI_l119_PartsNew, LM_GI_l119_Playfield, LM_GI_l120_FlipperU, LM_GI_l120_FlipperUU, LM_GI_l120_Parts, LM_GI_l120_PartsNew, LM_GI_l120_Playfield, LM_GI_l121_Parts, LM_GI_l121_PartsNew, LM_GI_l121_Playfield, LM_GI_l122_Layer1, LM_GI_l122_Parts, LM_GI_l122_Playfield, LM_GI_l122_sw08, LM_GI_l123_Layer1, LM_GI_l123_Parts, LM_GI_l123_PartsNew, LM_GI_l123_Playfield, LM_GI_l123_sw08, LM_GI_l124_Parts, LM_GI_l124_PartsNew, LM_GI_l124_Playfield, LM_GI_l125_Parts, LM_GI_l125_PartsNew, LM_GI_l125_Playfield, LM_GI_l126_Parts, LM_GI_l126_PartsNew, LM_GI_l126_Playfield, _
+	LM_GI_l127_BR1, LM_GI_l127_BR2, LM_GI_l127_BR3, LM_GI_l127_Layer1, LM_GI_l127_Parts, LM_GI_l127_Playfield, LM_GI_l127_UnderPF, LM_GI_l127_sw06, LM_GI_l127_sw07, LM_GI_l128_Layer1, LM_GI_l128_Parts, LM_GI_l128_Playfield, LM_GI_l128_UnderPF, LM_GI_l128_sw19, LM_GI_l129_BR3, LM_GI_l129_Layer1, LM_GI_l129_Parts, LM_GI_l129_Playfield, LM_GI_l129_UnderPF, LM_GI_l129_sw07, LM_GI_l130_BR1, LM_GI_l130_Layer1, LM_GI_l130_Parts, LM_GI_l130_Playfield, LM_GI_l130_UnderPF, LM_GI_l130_sw05, LM_GI_l131_BR1, LM_GI_l131_Layer1, LM_GI_l131_Parts, LM_GI_l131_Playfield, LM_GI_l131_UnderPF, LM_GI_l131_sw05, LM_GI_l131_sw06, LM_GI_l131_sw07, LM_GI_l132_BR1, LM_GI_l132_BR2, LM_GI_l132_BR3, LM_GI_l132_Layer1, LM_GI_l132_Parts, LM_GI_l132_Playfield, LM_GI_l132_Spinner2, LM_GI_l132_UnderPF, LM_GI_l132_sw20, LM_GI_l132_sw21, LM_GI_l133_Gate002_Wire, LM_GI_l133_Parts, LM_GI_l133_PartsNew, LM_GI_l133_Playfield, LM_GI_l133_sw03, LM_GI_l133_sw04, LM_GI_l134_BIPL, LM_GI_l134_Parts, LM_GI_l134_PartsNew, LM_GI_l134_Playfield, LM_GI_l134_sw04, _
+	LM_clock_l150_Parts, LM_clock_l150_PartsNew, LM_clock_l151_Parts, LM_clock_l151_PartsNew, LM_clock_l152_Parts, LM_clock_l152_PartsNew, LM_clock_l153_Parts, LM_clock_l153_PartsNew, LM_clock_l154_Parts, LM_clock_l154_PartsNew, LM_clock_l155_Parts, LM_clock_l155_PartsNew, LM_clock_l156_Parts, LM_clock_l156_PartsNew, LM_clock_l157_Parts, LM_clock_l157_PartsNew, LM_clock_l158_Parts, LM_clock_l158_PartsNew, LM_clock_l159_Parts, LM_clock_l159_PartsNew, LM_clock_l160_Parts, LM_clock_l160_PartsNew, LM_clock_l160_UnderPF, LM_clock_l161_Parts, LM_clock_l161_PartsNew, LM_clock_l161_UnderPF, LM_clock_l162_Parts, LM_clock_l162_PartsNew, LM_clock_l162_UnderPF, LM_clock_l163_Parts, LM_clock_l163_PartsNew, LM_clock_l163_UnderPF, LM_clock_l164_Parts, LM_clock_l164_PartsNew, LM_clock_l164_UnderPF, LM_clock_l165_Parts, LM_clock_l165_PartsNew, LM_clock_l165_UnderPF, LM_clock_l166_Parts, LM_clock_l166_PartsNew, LM_clock_l166_UnderPF, LM_clock_l167_Parts, LM_clock_l167_PartsNew, LM_clock_l167_UnderPF, LM_clock_l168_Parts, _
+	LM_clock_l168_PartsNew, LM_clock_l168_UnderPF, LM_clock_l169_Parts, LM_clock_l169_PartsNew, LM_clock_l169_UnderPF, LM_flashers_l140_BIPL, LM_flashers_l140_BR1, LM_flashers_l140_BR2, LM_flashers_l140_Layer1, LM_flashers_l140_LockPin4, LM_flashers_l140_Parts, LM_flashers_l140_PartsNew, LM_flashers_l140_PinCab_Rails, LM_flashers_l140_Playfield, LM_flashers_l140_UnderPF, LM_flashers_l140_sw02, LM_flashers_l140_sw03, LM_flashers_l140_sw04, LM_flashers_l140_sw06, LM_flashers_l140_sw07, LM_flashers_l141_BR1, LM_flashers_l141_BR2, LM_flashers_l141_BR3, LM_flashers_l141_Layer1, LM_flashers_l141_Neon, LM_flashers_l141_Parts, LM_flashers_l141_PartsNew, LM_flashers_l141_Playfield, LM_flashers_l141_Spinner2, LM_flashers_l141_UnderPF, LM_flashers_l141_sw05, LM_flashers_l141_sw06, LM_flashers_l141_sw07, LM_flashers_l141_sw08, LM_flashers_l141_sw19, LM_flashers_l141_sw20, LM_flashers_l141_sw21, LM_flashers_l141_sw22, LM_flashers_l141_sw23, LM_flashers_l142_FlipperU, LM_flashers_l142_FlipperUU, LM_flashers_l142_Layer1, _
+	LM_flashers_l142_Neon, LM_flashers_l142_Parts, LM_flashers_l142_PartsNew, LM_flashers_l142_Playfield, LM_flashers_l142_UnderPF, LM_flashers_l142_sw04, LM_flashers_l142_sw31, LM_flashers_l143_BR1, LM_flashers_l143_BR2, LM_flashers_l143_BR3, LM_flashers_l143_Disc, LM_flashers_l143_Layer1, LM_flashers_l143_LockPin4, LM_flashers_l143_Parts, LM_flashers_l143_PartsNew, LM_flashers_l143_PinCab_Rails, LM_flashers_l143_Playfield, LM_flashers_l143_Spinner2, LM_flashers_l143_UnderPF, LM_flashers_l143_sw04, LM_ins_l01_FlipperU, LM_ins_l01_Parts, LM_ins_l01_Playfield, LM_ins_l01_UnderPF, LM_ins_l01_sw10, LM_ins_l01_sw11, LM_ins_l01_sw12, LM_ins_l02_Parts, LM_ins_l02_Playfield, LM_ins_l02_UnderPF, LM_ins_l02_sw10, LM_ins_l02_sw11, LM_ins_l03_Parts, LM_ins_l03_Playfield, LM_ins_l03_UnderPF, LM_ins_l03_sw10, LM_ins_l03_sw11, LM_ins_l04_Parts, LM_ins_l04_Playfield, LM_ins_l04_UnderPF, LM_ins_l05_Parts, LM_ins_l05_Playfield, LM_ins_l05_UnderPF, LM_ins_l05_sw10, LM_ins_l05_sw11, LM_ins_l05_sw12, LM_ins_l06_Disc, _
+	LM_ins_l06_Parts, LM_ins_l06_Playfield, LM_ins_l06_UnderPF, LM_ins_l07_Parts, LM_ins_l07_Playfield, LM_ins_l07_UnderPF, LM_ins_l07_sw10, LM_ins_l07_sw11, LM_ins_l07_sw12, LM_ins_l08_Parts, LM_ins_l08_Playfield, LM_ins_l08_UnderPF, LM_ins_l08_sw10, LM_ins_l08_sw11, LM_ins_l08_sw12, LM_ins_l09_Parts, LM_ins_l09_Playfield, LM_ins_l09_UnderPF, LM_ins_l10_Disc, LM_ins_l10_Parts, LM_ins_l10_Playfield, LM_ins_l10_UnderPF, LM_ins_l11_Parts, LM_ins_l11_Playfield, LM_ins_l11_UnderPF, LM_ins_l11_sw10, LM_ins_l11_sw11, LM_ins_l11_sw12, LM_ins_l12_Parts, LM_ins_l12_Playfield, LM_ins_l12_UnderPF, LM_ins_l12_sw11, LM_ins_l12_sw12, LM_ins_l13_Parts, LM_ins_l13_Playfield, LM_ins_l13_UnderPF, LM_ins_l13_sw11, LM_ins_l13_sw12, LM_ins_l14_Parts, LM_ins_l14_PartsNew, LM_ins_l14_Playfield, LM_ins_l14_UnderPF, LM_ins_l15_Parts, LM_ins_l15_Playfield, LM_ins_l15_UnderPF, LM_ins_l16_FlipperL, LM_ins_l16_FlipperLU, LM_ins_l16_FlipperR, LM_ins_l16_FlipperRU, LM_ins_l16_Parts, LM_ins_l16_PartsNew, LM_ins_l16_Playfield, _
+	LM_ins_l16_UnderPF, LM_ins_l17_Parts, LM_ins_l17_Playfield, LM_ins_l17_Spinner2, LM_ins_l17_UnderPF, LM_ins_l17_sw20, LM_ins_l17_sw21, LM_ins_l17_sw22, LM_ins_l17_sw23, LM_ins_l18_Parts, LM_ins_l18_Playfield, LM_ins_l18_Spinner2, LM_ins_l18_UnderPF, LM_ins_l18_sw21, LM_ins_l18_sw22, LM_ins_l18_sw23, LM_ins_l19_Parts, LM_ins_l19_Playfield, LM_ins_l19_UnderPF, LM_ins_l19_sw21, LM_ins_l19_sw22, LM_ins_l19_sw23, LM_ins_l20_Parts, LM_ins_l20_Playfield, LM_ins_l20_UnderPF, LM_ins_l21_Parts, LM_ins_l21_Playfield, LM_ins_l21_UnderPF, LM_ins_l21_sw03, LM_ins_l22_FlipperRU, LM_ins_l22_Parts, LM_ins_l22_PartsNew, LM_ins_l22_Playfield, LM_ins_l22_UnderPF, LM_ins_l23_BR2, LM_ins_l23_Layer1, LM_ins_l23_Parts, LM_ins_l23_Playfield, LM_ins_l23_Spinner2, LM_ins_l23_UnderPF, LM_ins_l23_sw20, LM_ins_l23_sw21, LM_ins_l23_sw22, LM_ins_l24_Parts, LM_ins_l24_Playfield, LM_ins_l24_Spinner1, LM_ins_l24_UnderPF, LM_ins_l25_Parts, LM_ins_l25_Playfield, LM_ins_l25_UnderPF, LM_ins_l26_Parts, LM_ins_l26_Playfield, LM_ins_l26_UnderPF, _
+	LM_ins_l27_Parts, LM_ins_l27_Playfield, LM_ins_l27_UnderPF, LM_ins_l28_FlipperU, LM_ins_l28_FlipperUU, LM_ins_l28_Parts, LM_ins_l28_Playfield, LM_ins_l28_UnderPF, LM_ins_l29_Parts, LM_ins_l29_Playfield, LM_ins_l29_Spinner1, LM_ins_l29_UnderPF, LM_ins_l30_Parts, LM_ins_l30_Playfield, LM_ins_l30_UnderPF, LM_ins_l31_Parts, LM_ins_l31_Playfield, LM_ins_l31_UnderPF, LM_ins_l32_Parts, LM_ins_l32_Playfield, LM_ins_l32_UnderPF, LM_ins_l33_FlipperU, LM_ins_l33_FlipperUU, LM_ins_l33_Parts, LM_ins_l33_Playfield, LM_ins_l33_UnderPF, LM_ins_l34_Layer1, LM_ins_l34_Parts, LM_ins_l34_Playfield, LM_ins_l34_UnderPF, LM_ins_l35_Layer1, LM_ins_l35_Parts, LM_ins_l35_Playfield, LM_ins_l35_UnderPF, LM_ins_l37_Parts, LM_ins_l37_Playfield, LM_ins_l37_UnderPF, LM_ins_l37_sw19, LM_ins_l38_Parts, LM_ins_l38_Playfield, LM_ins_l38_UnderPF, LM_ins_l38_sw19, LM_ins_l39_Parts, LM_ins_l39_Playfield, LM_ins_l39_UnderPF, LM_ins_l39_sw19, LM_ins_l40_Parts, LM_ins_l40_Playfield, LM_ins_l40_UnderPF, LM_ins_l41_Parts, LM_ins_l41_Playfield, _
+	LM_ins_l41_UnderPF, LM_ins_l42_Parts, LM_ins_l42_PartsNew, LM_ins_l42_Playfield, LM_ins_l42_UnderPF, LM_ins_l42_sw01, LM_ins_l43_Parts, LM_ins_l43_PartsNew, LM_ins_l43_Playfield, LM_ins_l43_UnderPF, LM_ins_l43_sw02, LM_ins_l44_Parts, LM_ins_l44_PartsNew, LM_ins_l44_Playfield, LM_ins_l44_UnderPF, LM_ins_l44_sw03, LM_ins_l45_Parts, LM_ins_l45_Playfield, LM_ins_l45_UnderPF, LM_ins_l46_Parts, LM_ins_l46_Playfield, LM_ins_l46_UnderPF, LM_ins_l47_Parts, LM_ins_l47_Playfield, LM_ins_l47_UnderPF, LM_ins_l47_sw19, LM_ins_l47_sw23, LM_ins_l48_Parts, LM_ins_l48_PartsNew, LM_ins_l48_Playfield, LM_ins_l48_Spinner1, LM_ins_l48_UnderPF, LM_ins_l48_sw18, LM_ins_l49_Parts, LM_ins_l49_PartsNew, LM_ins_l49_Playfield, LM_ins_l49_UnderPF, LM_ins_l49_sw18, LM_ins_l49_sw25, LM_ins_l50_Parts, LM_ins_l50_PartsNew, LM_ins_l50_Playfield, LM_ins_l50_UnderPF, LM_ins_l51_Parts, LM_ins_l51_PartsNew, LM_ins_l51_Playfield, LM_ins_l51_UnderPF, LM_ins_l51_sw18, LM_ins_l52_FlipperLU, LM_ins_l52_LockPin4UP, LM_ins_l52_Parts, LM_ins_l52_PartsNew, _
+	LM_ins_l52_Playfield, LM_ins_l52_UnderPF, LM_ins_l53_FlipperLU, LM_ins_l53_Parts, LM_ins_l53_Playfield, LM_ins_l53_UnderPF, LM_ins_l54_FlipperL, LM_ins_l54_FlipperLU, LM_ins_l54_FlipperRU, LM_ins_l54_Parts, LM_ins_l54_PartsNew, LM_ins_l54_Playfield, LM_ins_l54_UnderPF, LM_ins_l54_sw18, LM_ins_l55_FlipperLU, LM_ins_l55_FlipperR, LM_ins_l55_FlipperRU, LM_ins_l55_Parts, LM_ins_l55_PartsNew, LM_ins_l55_Playfield, LM_ins_l55_UnderPF, LM_ins_l56_FlipperL, LM_ins_l56_FlipperLU, LM_ins_l56_FlipperRU, LM_ins_l56_Parts, LM_ins_l56_PartsNew, LM_ins_l56_Playfield, LM_ins_l56_UnderPF, LM_ins_l57_FlipperL, LM_ins_l57_FlipperLU, LM_ins_l57_FlipperR, LM_ins_l57_FlipperRU, LM_ins_l57_Parts, LM_ins_l57_PartsNew, LM_ins_l57_Playfield, LM_ins_l57_UnderPF, LM_ins_l57_sw18, LM_ins_l58_FlipperR, LM_ins_l58_FlipperRU, LM_ins_l58_Parts, LM_ins_l58_PartsNew, LM_ins_l58_Playfield, LM_ins_l58_UnderPF, LM_ins_l59_Disc, LM_ins_l59_Parts, LM_ins_l59_Playfield, LM_ins_l59_Spinner1, LM_ins_l59_UnderPF, LM_ins_l59_sw18, LM_ins_l59_sw25, _
+	LM_ins_l60_Parts, LM_ins_l60_Playfield, LM_ins_l60_UnderPF, LM_ins_l60_sw19, LM_ins_l61_Parts, LM_ins_l61_Playfield, LM_ins_l61_Spinner2, LM_ins_l61_UnderPF, LM_ins_l61_sw20, LM_ins_l62_Layer1, LM_ins_l62_Parts, LM_ins_l62_Playfield, LM_ins_l62_UnderPF, LM_ins_l63_FlipperU, LM_ins_l63_FlipperUU, LM_ins_l63_Parts, LM_ins_l63_PartsNew, LM_ins_l63_Playfield, LM_ins_l63_UnderPF, LM_ins_l64_FlipperUU, LM_ins_l64_Layer1, LM_ins_l64_Parts, LM_ins_l64_Playfield, LM_ins_l64_UnderPF, LM_ins_l65_FlipperU, LM_ins_l65_FlipperUU, LM_ins_l65_Parts, LM_ins_l65_Playfield, LM_ins_l65_UnderPF, LM_ins_l66_Layer1, LM_ins_l66_Parts, LM_ins_l66_Playfield, LM_ins_l66_UnderPF, LM_ins_l66_sw05, LM_ins_l67_Layer1, LM_ins_l67_Parts, LM_ins_l67_Playfield, LM_ins_l67_UnderPF, LM_ins_l67_sw05, LM_ins_l67_sw06, LM_ins_l68_Layer1, LM_ins_l68_Parts, LM_ins_l68_Playfield, LM_ins_l68_UnderPF, LM_ins_l68_sw07, LM_ins_l68_sw14, LM_ins_l77_Layer1, LM_ins_l77_Parts, LM_ins_l77_UnderPF, LM_ins_l78_Layer1, LM_ins_l78_Parts, LM_ins_l79_Layer1, _
+	LM_ins_l79_Parts, LM_ins_l79_Playfield, LM_ins_l79_sw06, LM_ins_l79_sw07, LM_ins_l80_Parts, LM_ins_l80_Playfield, LM_ins_l80_UnderPF, LM_ins_l81_Parts, LM_ins_l81_Playfield, LM_ins_l81_UnderPF, LM_ins_l81_sw18, LM_ins_l82_Parts, LM_ins_l82_Playfield, LM_ins_l82_UnderPF, LM_ins_l83_Parts, LM_ins_l83_Playfield, LM_ins_l83_UnderPF, LM_ins_l84_Parts, LM_ins_l84_PartsNew, LM_ins_l84_Playfield, LM_ins_l84_UnderPF, LM_ins_l90_Parts, LM_ins_l90_Playfield, LM_ins_l90_UnderPF, LM_ins_l91_Parts, LM_ins_l91_Playfield, LM_ins_l91_Spinner2, LM_ins_l91_UnderPF, LM_ins_l91_sw20, LM_ins_l92_FlipperUU, LM_ins_l92_Parts, LM_ins_l92_Playfield, LM_ins_l92_UnderPF, LM_ins_l93_Parts, LM_ins_l93_Playfield, LM_ins_l93_UnderPF, LM_ins_l95_Parts, LM_ins_l95_Playfield, LM_ins_l95_UnderPF, LM_ins_l98_Disc, LM_ins_l98_Parts, LM_ins_l98_Playfield, LM_ins_l98_UnderPF, LM_ins_l98_sw19, LM_spots_BR1, LM_spots_BR2, LM_spots_Disc, _
+	LM_spots_FlipperU, LM_spots_FlipperUU, LM_spots_Layer1, LM_spots_Parts, LM_spots_PartsNew, LM_spots_PinCab_Rails, LM_spots_Playfield, LM_spots_Spinner1, LM_spots_Spinner2, LM_spots_UnderPF, LM_spots_sw18, LM_spots_sw19, LM_spots_sw20, LM_spots_sw21, LM_spots_sw22, LM_spots_sw23, LM_spots_sw25, LM_spots_sw26_Wire)
+' VLM Arrays - End
+
+
+
 
 '******************************************************
 '  TRACK ALL BALL VELOCITIES
@@ -2813,9 +3560,9 @@ Sub GameTimer_timer()
 	period = gametime - lastimeupdate
 	lastimeupdate = gametime
 	DoSTAnim						'handle stand up target animations
-	'RollingUpdate
-	'cor.update
-	Options_UpdateDMD
+	RollingUpdate
+	cor.update
+	'Options_UpdateDMD
 	TargetMovableHelper
 	Dim el
 	BM_Disc.RotZ = (BM_Disc.RotZ + (ttSpinner.Speed/4)) Mod 360
@@ -2825,7 +3572,7 @@ Sub GameTimer_timer()
 End Sub
 
 Sub FrameTimer_Timer()
-	'BSUpdate
+	BSUpdate
 End Sub
 
 Sub TargetMovableHelper
@@ -2869,63 +3616,11 @@ Sub Table1_KeyDown(ByVal Keycode)
         VRFlipperRight.X = VRFlipperRight.X - 10
     End if
 
-    If bInOptions Then
-		Options_KeyDown keycode
-		Exit Sub
-	End If
-	If keycode = LeftMagnaSave Then
-		If bOptionsMagna Then Options_Open() Else bOptionsMagna = True
-    ElseIf keycode = RightMagnaSave Then
-		If bOptionsMagna Then Options_Open() Else bOptionsMagna = True
-	End If
 
 
-    'If keycode = 46 then ' C Key
-    '    If contball = 1 Then
-    '        contball = 0
-    '    Else
-    '        contball = 1
-    '    End If
-    'End If
-    'if keycode = 203 then bcleft = 1 ' Left Arrow
-    'if keycode = 200 then bcup = 1 ' Up Arrow
-    'if keycode = 208 then bcdown = 1 ' Down Arrow
-    'if keycode = 205 then bcright = 1 ' Right Arrow
-   
-
-    If gameStarted = False Then
-        If keycode = StartGameKey And gameBooted = True Then
-            playerState.RemoveAll()
-            AddPlayer()
-            StartGame()
-        End If
-    Else
-        If GAME_DRAIN_BALLS_AND_RESET = True Or GameTilted = True Then
-            Exit Sub
-        End If
-
-        If GameTimers(GAME_BONUS_TIMER_IDX) > 0 Then 
-            
-            If keycode = LeftFlipperKey Then
-                LFlipperDown = True   
-                If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
-            End If
-            
-            If keycode = RightFlipperKey Then 
-                RFlipperDown = True
-                If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
-            End If    
-            
-            Exit Sub 
-        End If
-        
-        
-        If keycode = StartGameKey Then
-            AddPlayer()
-        End If
-        If keycode = StartGameKey Then
-            DispatchPinEvent SWITCH_START_GAME_KEY
-        End If
+    If glf_gameStarted = True Then
+       
+    
         If keycode = PlungerKey Then
             PlaySoundAt "Plunger_Pull_1", Plunger
             Plunger.Pullback
@@ -2940,14 +3635,9 @@ Sub Table1_KeyDown(ByVal Keycode)
             CheckMechTilt
         End If
 
-        If(keycode = PlungerKey OR keycode = Lockbarkey) Then
-            DispatchPinEvent(SWITCH_SELECT_EVENT_KEY)
-        End If
-
         If keycode = LeftFlipperKey Then
             LFlipperDown = True
             DOF 101,DOFOn
-            If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
             FlipperActivate LeftFlipper,LFPress
             LF.Fire    
             If LeftFlipper.currentangle < LeftFlipper.endangle + ReflipAngle Then 
@@ -2956,16 +3646,13 @@ Sub Table1_KeyDown(ByVal Keycode)
                 SoundFlipperUpAttackLeft LeftFlipper
                 RandomSoundFlipperUpLeft LeftFlipper
             End If
-            DispatchPinEvent(SWITCH_LEFT_FLIPPER_DOWN)
         End If
         
         If keycode = RightFlipperKey Then 
-            'UpRightFlipper.RotateToEnd
             FlipperActivate RightFlipper, RFPress
             RF.Fire
             RFlipperDown = True
             DOF 102,DOFOn
-            If LFlipperDown And RFlipperDown Then DispatchPinEvent(SWITCH_BOTH_FLIPPERS_PRESSED) End If
 			If StagedFlipperMod <> 1 Then
 				UpRightFlipper.RotateToEnd
 			End If
@@ -2975,7 +3662,6 @@ Sub Table1_KeyDown(ByVal Keycode)
                 SoundFlipperUpAttackRight RightFlipper
                 RandomSoundFlipperUpRight RightFlipper
             End If
-            DispatchPinEvent(SWITCH_RIGHT_FLIPPER_DOWN)
         End If
 
 	    If StagedFlipperMod = 1 Then
@@ -2989,7 +3675,9 @@ Sub Table1_KeyDown(ByVal Keycode)
                 End If
             End If
         End If
-    End If    
+    End If
+
+    Glf_KeyDown(keycode) 
 End Sub
 
 
@@ -3002,46 +3690,35 @@ Sub Table1_KeyUp(ByVal keycode)
         VRFlipperRight.X = VRFlipperRight.X + 10
     End if
 
-    If keycode = LeftMagnaSave And Not bInOptions Then bOptionsMagna = False
-    If keycode = RightMagnaSave And Not bInOptions Then bOptionsMagna = False
-
-
-    if keycode = 203 then bcleft = 0 ' Left Arrow
-    if keycode = 200 then bcup = 0 ' Up Arrow
-    if keycode = 208 then bcdown = 0 ' Down Arrow
-    if keycode = 205 then bcright = 0 ' Right Arrow
-
     'If gameStarted = True Then
-        If keycode = PlungerKey Then
-            PlaySoundAt "Plunger_Release_Ball", Plunger
-            Plunger.Fire
+    If keycode = PlungerKey Then
+        PlaySoundAt "Plunger_Release_Ball", Plunger
+        Plunger.Fire
+    End If
+    
+    If keycode = LeftFlipperKey Then
+        DOF 101,DOFOff
+        LFlipperDown = False
+        FlipperDeActivate LeftFlipper, LFPress
+        LeftFlipper.RotateToStart
+        If LeftFlipper.currentangle < LeftFlipper.startAngle - 5 Then
+            RandomSoundFlipperDownLeft LeftFlipper
         End If
-        
-        If keycode = LeftFlipperKey Then
-            DOF 101,DOFOff
-            LFlipperDown = False
-            FlipperDeActivate LeftFlipper, LFPress
-            LeftFlipper.RotateToStart
-            If LeftFlipper.currentangle < LeftFlipper.startAngle - 5 Then
-                RandomSoundFlipperDownLeft LeftFlipper
+        FlipperLeftHitParm = FlipperUpSoundLevel
+    End If
+    If keycode = RightFlipperKey Then
+        DOF 102,DOFOff
+        RFlipperDown = False
+        FlipperDeActivate RightFlipper, RFPress
+        RightFlipper.RotateToStart
+        If StagedFlipperMod <> 1 Then
+            UpRightFlipper.RotateToStart
             End If
-            FlipperLeftHitParm = FlipperUpSoundLevel
-            DispatchPinEvent(SWITCH_LEFT_FLIPPER_UP)
-        End If
-        If keycode = RightFlipperKey Then
-            DOF 102,DOFOff
-            RFlipperDown = False
-            FlipperDeActivate RightFlipper, RFPress
-            RightFlipper.RotateToStart
-			If StagedFlipperMod <> 1 Then
-				UpRightFlipper.RotateToStart
-				End If
-            End If	
-            If RightFlipper.currentangle > RightFlipper.startAngle + 5 Then
-                RandomSoundFlipperDownRight RightFlipper
-            FlipperRightHitParm = FlipperUpSoundLevel
-            DispatchPinEvent(SWITCH_RIGHT_FLIPPER_UP)
-        End If
+        End If	
+        If RightFlipper.currentangle > RightFlipper.startAngle + 5 Then
+            RandomSoundFlipperDownRight RightFlipper
+        FlipperRightHitParm = FlipperUpSoundLevel
+    End If
 	If StagedFlipperMod = 1 Then
         If keycode = 40 Then
             UpRightFlipper.RotateToStart
@@ -3050,6 +3727,8 @@ Sub Table1_KeyUp(ByVal keycode)
             End If	
         End If
     End If
+
+    Glf_KeyUp(keycode)
 End Sub
 
 '***********************************************************************************************************************
@@ -4286,459 +4965,3 @@ Class Queue
         Next
     End Sub
 End Class
-
-'***********************************************************************
-'* TABLE OPTIONS *******************************************************
-'***********************************************************************
-
-Dim RoomBrightness : RoomBrightness = 60			'Level of room lighting (0 to 100), where 0 is dark and 100 is brightest
-Dim ColorLUT : ColorLUT = 3
-Dim ScorbitActive : ScorbitActive = 0
-Dim OutPostMod : OutPostMod = 1				'Difficulty : 0 = Easy, 1 = Medium, 2 = Hard
-Dim SlingsMod : SlingsMod = 0 				'0 - Blue Slings, 1 = Orange Slings
-Dim VolumeDial : VolumeDial = 0.8			'Overall Mechanical sound effect volume. Recommended values should be no greater than 1.
-Dim BallRollVolume : BallRollVolume = 0.5 	'Level of ball rolling volume. Value between 0 and 1
-Dim RampRollVolume : RampRollVolume = 0.5 	'Level of ramp rolling volume. Value between 0 and 1
-Dim StagedFlipperMod
-Dim OptionsCabinetMode : OptionsCabinetMode = 0
-Dim OptionsWizardMode : OptionsWizardMode = 0
-Dim OptionsBonusSound : OptionsBonusSound = "fx-bonus"
-
-'Dim Cabinetmode	: Cabinetmode = 0			'0 - Siderails On, 1 - Siderails Off
-
-Dim VRRoomChoice : VRRoomChoice = 1				'0 - Minimal Room, 1 = Default Room
-
-' Base options
-Const Opt_Light = 0
-Const Opt_LUT = 1
-Const Opt_Scorbit = 2
-
-Const Opt_CabinetMode = 3
-Const Opt_WizardMode = 4
-Const Opt_BonusSound = 5
-
-Const Opt_Volume = 6
-Const Opt_Volume_Ramp = 7
-Const Opt_Volume_Ball = 8
-' Table mods & toys
-'Const Opt_Cabinet = 8
-Const Opt_Staged_Flipper = 9
-' Shadow options
-' Informations
-Const Opt_Info_1 = 10
-Const Opt_Info_2 = 11
-
-Const NOptions = 12
-
-Dim OptionDMD: Set OptionDMD = Nothing
-Dim bOptionsMagna, bInOptions : bOptionsMagna = False
-Dim OptPos, OptSelected, OptN, OptTop, OptBot, OptSel
-Dim OptFontHi, OptFontLo
-
-Sub Options_Open
-	bOptionsMagna = False
-	Set OptionDMD = CreateObject("FlexDMD.FlexDMD")
-	If OptionDMD is Nothing Then
-		Debug.Print "FlexDMD is not installed"
-		Debug.Print "Option UI can not be opened"
-		Exit Sub
-	End If
-	Debug.Print "Option UI opened"
-	If ShowDT Then OptionDMDFlasher.RotX = -(Table1.Inclination + Table1.Layback)
-	bInOptions = True
-	OptPos = 0
-	OptSelected = False
-	OptionDMD.Show = False
-	OptionDMD.RenderMode = FlexDMD_RenderMode_DMD_GRAY_4
-	OptionDMD.Width = 128
-	OptionDMD.Height = 32
-	OptionDMD.Clear = True
-	OptionDMD.Run = True
-	Dim a, scene, font
-	Set scene = OptionDMD.NewGroup("Scene")
-	Set OptFontHi = OptionDMD.NewFont("FlexDMD.Resources.teeny_tiny_pixls-5.fnt", vbWhite, vbWhite, 0)
-	Set OptFontLo = OptionDMD.NewFont("FlexDMD.Resources.teeny_tiny_pixls-5.fnt", RGB(100, 100, 100), RGB(100, 100, 100), 0)
-	Set OptSel = OptionDMD.NewGroup("Sel")
-	Set a = OptionDMD.NewLabel(">", OptFontLo, ">>>")
-	a.SetAlignedPosition 1, 16, FlexDMD_Align_Left
-	OptSel.AddActor a
-	Set a = OptionDMD.NewLabel(">", OptFontLo, "<<<")
-	a.SetAlignedPosition 127, 16, FlexDMD_Align_Right
-	OptSel.AddActor a
-	scene.AddActor OptSel
-	OptSel.SetBounds 0, 0, 128, 32
-	OptSel.Visible = False
-	
-	Set a = OptionDMD.NewLabel("Info1", OptFontLo, "MAGNA EXIT/ENTER")
-	a.SetAlignedPosition 1, 32, FlexDMD_Align_BottomLeft
-	scene.AddActor a
-	Set a = OptionDMD.NewLabel("Info2", OptFontLo, "FLIPPER SELECT")
-	a.SetAlignedPosition 127, 32, FlexDMD_Align_BottomRight
-	scene.AddActor a
-	Set OptN = OptionDMD.NewLabel("Pos", OptFontLo, "LINE 1")
-	Set OptTop = OptionDMD.NewLabel("Top", OptFontLo, "LINE 1")
-	Set OptBot = OptionDMD.NewLabel("Bottom", OptFontLo, "LINE 2")
-	scene.AddActor OptN
-	scene.AddActor OptTop
-	scene.AddActor OptBot
-	Options_OnOptChg
-	OptionDMD.LockRenderThread
-	OptionDMD.Stage.AddActor scene
-	OptionDMD.UnlockRenderThread
-	OptionDMDFlasher.Visible = True
-	DisableStaticPrerendering = True
-End Sub
-
-Sub Options_UpdateDMD
-	If OptionDMD is Nothing Then Exit Sub
-	Dim DMDp: DMDp = OptionDMD.DmdPixels
-	If Not IsEmpty(DMDp) Then
-		OptionDMDFlasher.DMDWidth = OptionDMD.Width
-		OptionDMDFlasher.DMDHeight = OptionDMD.Height
-		OptionDMDFlasher.DMDPixels = DMDp
-	End If
-End Sub
-
-Sub Options_Close
-	bInOptions = False
-	OptionDMDFlasher.Visible = False
-	If OptionDMD is Nothing Then Exit Sub
-	OptionDMD.Run = False
-	Set OptionDMD = Nothing
-	DisableStaticPrerendering = False
-End Sub
-
-Function Options_OnOffText(opt)
-	If opt Then
-		Options_OnOffText = "ON"
-	Else
-		Options_OnOffText = "OFF"
-	End If
-End Function
-
-Sub Options_OnOptChg
-	If OptionDMD is Nothing Then Exit Sub
-	OptionDMD.LockRenderThread
-
-
-	If Not OptPos=2 Then
-		
-	End If
-
-	If OptSelected Then
-		OptTop.Font = OptFontLo
-		OptBot.Font = OptFontHi
-		OptSel.Visible = True
-	Else
-		OptTop.Font = OptFontHi
-		OptBot.Font = OptFontLo
-		OptSel.Visible = False
-	End If
-	If OptPos = Opt_Light Then
-		OptTop.Text = "ROOM LIGHT LEVEL1"
-		OptBot.Text = "LEVEL " & RoomBrightness
-		SaveValue cGameName, "LIGHT", RoomBrightness
-	ElseIf OptPos = Opt_LUT Then
-		OptTop.Text = "COLOR SATURATION"
-'		OptBot.Text = "LUT " & CInt(ColorLUT)
-		if ColorLUT = 1 Then OptBot.text = "DISABLED"
-		if ColorLUT = 2 Then OptBot.text = "DESATURATED -10%"
-		if ColorLUT = 3 Then OptBot.text = "DESATURATED -20%"
-		if ColorLUT = 4 Then OptBot.text = "DESATURATED -30%"
-		if ColorLUT = 5 Then OptBot.text = "DESATURATED -40%"
-		if ColorLUT = 6 Then OptBot.text = "DESATURATED -50%"
-		if ColorLUT = 7 Then OptBot.text = "DESATURATED -60%"
-		if ColorLUT = 8 Then OptBot.text = "DESATURATED -70%"
-		if ColorLUT = 9 Then OptBot.text = "DESATURATED -80%"
-		if ColorLUT = 10 Then OptBot.text = "DESATURATED -90%"
-		if ColorLUT = 11 Then OptBot.text = "BLACK'N WHITE"
-		SaveValue cGameName, "LUT", ColorLUT
-	ElseIf OptPos = Opt_Scorbit Then
-		OptTop.Text = "SCORBIT"
-		if ScorbitActive = 0 Then OptBot.text = "OFF"
-		if ScorbitActive = 1 Then OptBot.text = "ACTIVE"
-		SaveValue cGameName, "SCORBIT", ScorbitActive
-	ElseIf OptPos = Opt_CabinetMode Then
-		OptTop.Text = "CABINET MODE"
-		OptBot.Text = Options_OnOffText(OptionsCabinetMode)
-		SaveValue cGameName, "CABMODE", OptionsCabinetMode
-	ElseIf OptPos = Opt_WizardMode Then
-		OptTop.Text = "PLAY WIZARD MODE"
-		OptBot.Text = Options_OnOffText(OptionsWizardMode)
-		SaveValue cGameName, "WIZMODE", OptionsWizardMode
-	ElseIf OptPos = Opt_BonusSound Then
-		OptTop.Text = "BONUS SOUND"
-		If OptionsBonusSound = "fx-bonus" Then
-			OptBot.Text = "Main"
-		Else
-			OptBot.Text = "Alt"
-		End If
-		SaveValue cGameName, "BONUS", OptionsBonusSound
-	ElseIf OptPos = Opt_Volume Then
-		OptTop.Text = "MECH VOLUME"
-		OptBot.Text = "LEVEL " & CInt(VolumeDial * 100)
-		SaveValue cGameName, "VOLUME", VolumeDial
-	ElseIf OptPos = Opt_Volume_Ramp Then
-		OptTop.Text = "RAMP VOLUME"
-		OptBot.Text = "LEVEL " & CInt(RampRollVolume * 100)
-		SaveValue cGameName, "RAMPVOLUME", RampRollVolume
-	ElseIf OptPos = Opt_Volume_Ball Then
-		OptTop.Text = "BALL VOLUME"
-		OptBot.Text = "LEVEL " & CInt(BallRollVolume * 100)
-		SaveValue cGameName, "BALLVOLUME", BallRollVolume
-	ElseIf OptPos = Opt_Staged_Flipper Then
-		OptTop.Text = "STAGED FLIPPER"
-		OptBot.Text = Options_OnOffText(StagedFlipperMod)
-		SaveValue cGameName, "STAGED", StagedFlipperMod
-'	ElseIf OptPos = Opt_Cabinet Then
-'		OptTop.Text = "CABINET MODE"
-'		OptBot.Text = Options_OnOffText(CabinetMode)
-'		SaveValue cGameName, "CABINET", CabinetMode
-	ElseIf OptPos = Opt_Info_1 Then
-		OptTop.Text = "VPX " & VersionMajor & "." & VersionMinor & "." & VersionRevision
-		OptBot.Text = "CYBERRACE " & TableVersion
-	ElseIf OptPos = Opt_Info_2 Then
-		OptTop.Text = "RENDER MODE"
-		If RenderingMode = 0 Then OptBot.Text = "DEFAULT"
-		If RenderingMode = 1 Then OptBot.Text = "STEREO 3D"
-		If RenderingMode = 2 Then OptBot.Text = "VR"
-	End If
-	'OptTop.SetAlignedPosition 127, 1, FlexDMD_Align_TopRight 'bug? not aligning right
-	OptTop.SetAlignedPosition 100, 1, FlexDMD_Align_TopRight
-	OptBot.SetAlignedPosition 64, 16, FlexDMD_Align_Center
-	OptionDMD.UnlockRenderThread
-	UpdateMods
-End Sub
-
-Sub Options_Toggle(amount)
-	If OptionDMD is Nothing Then Exit Sub
-
-	If OptPos = Opt_Light Then
-		RoomBrightness = RoomBrightness + amount * 10
-		If RoomBrightness < 0 Then RoomBrightness = 100
-		If RoomBrightness > 100 Then RoomBrightness = 0
-	ElseIf OptPos = Opt_LUT Then
-		ColorLUT = ColorLUT + amount * 1
-		If ColorLUT < 1 Then ColorLUT = 11
-		If ColorLUT > 11 Then ColorLUT = 1
-	ElseIf OptPos = Opt_Scorbit Then
-		If ScorbitActive = 1 Then 
-			ScorbitActive = 0
-		Else 
-			ScorbitActive = 1
-		End If
-	ElseIf OptPos = Opt_Volume Then
-		VolumeDial = VolumeDial + amount * 0.1
-		If VolumeDial < 0 Then VolumeDial = 1
-		If VolumeDial > 1 Then VolumeDial = 0
-	ElseIf OptPos = Opt_Volume_Ramp Then
-		RampRollVolume = RampRollVolume + amount * 0.1
-		If RampRollVolume < 0 Then RampRollVolume = 1
-		If RampRollVolume > 1 Then RampRollVolume = 0
-	ElseIf OptPos = Opt_Volume_Ball Then
-		BallRollVolume = BallRollVolume + amount * 0.1
-		If BallRollVolume < 0 Then BallRollVolume = 1
-		If BallRollVolume > 1 Then BallRollVolume = 0
-	ElseIf OptPos = Opt_Staged_Flipper Then
-		StagedFlipperMod = 1 - StagedFlipperMod
-	ElseIf OptPos = Opt_CabinetMode Then
-		OptionsCabinetMode = 1 - OptionsCabinetMode
-	ElseIf OptPos = Opt_WizardMode Then
-		OptionsWizardMode = 1 - OptionsWizardMode
-	ElseIf OptPos = Opt_BonusSound Then
-		If OptionsBonusSound = "fx-bonus" Then 
-			OptionsBonusSound = "fx-bonus-alt"
-		Else
-			OptionsBonusSound = "fx-bonus"
-		End If
-		PlaySound(OptionsBonusSound)
-	End If
-End Sub
-
-Sub Options_KeyDown(ByVal keycode)
-	If OptSelected Then
-		If keycode = LeftMagnaSave Then ' Exit / Cancel
-			OptSelected = False
-		ElseIf keycode = RightMagnaSave Then ' Enter / Select
-			OptSelected = False
-		ElseIf keycode = LeftFlipperKey Then ' Next / +
-			Options_Toggle	-1
-		ElseIf keycode = RightFlipperKey Then ' Prev / -
-			Options_Toggle	1
-		End If
-	Else
-		If keycode = LeftMagnaSave Then ' Exit / Cancel
-			Options_Close
-		ElseIf keycode = RightMagnaSave Then ' Enter / Select
-			If OptPos < Opt_Info_1 Then OptSelected = True
-		ElseIf keycode = LeftFlipperKey Then ' Next / +
-			OptPos = OptPos - 1
-'			If OptPos = Opt_VRTopperOn And RenderingMode <> 2 Then OptPos = OptPos - 1 ' Skip VR option in non VR mode
-'			If OptPos = Opt_VRSideBlades And RenderingMode <> 2 Then OptPos = OptPos - 1 ' Skip VR option in non VR mode
-'			If OptPos = Opt_VRBackglassGI And RenderingMode <> 2 Then OptPos = OptPos - 1 ' Skip VR option in non VR mode
-'			If OptPos = Opt_VRRoomChoice And RenderingMode <> 2 Then OptPos = OptPos - 1 ' Skip VR option in non VR mode
-			If OptPos < 0 Then OptPos = NOptions - 1
-		ElseIf keycode = RightFlipperKey Then ' Prev / -
-			OptPos = OptPos + 1
-'			If OptPos = Opt_VRRoomChoice And RenderingMode <> 2 Then OptPos = OptPos + 1 ' Skip VR option in non VR mode
-'			If OptPos = Opt_VRBackglassGI And RenderingMode <> 2 Then OptPos = OptPos + 1 ' Skip VR option in non VR mode
-'			If OptPos = Opt_VRSideBlades And RenderingMode <> 2 Then OptPos = OptPos + 1 ' Skip VR option in non VR mode
-'			If OptPos = Opt_VRTopperOn And RenderingMode <> 2 Then OptPos = OptPos + 1 ' Skip VR option in non VR mode
-			If OptPos >= NOPtions Then OptPos = 0
-		End If
-	End If
-	Options_OnOptChg
-End Sub
-
-Sub Options_Load
-	Dim x
-    x = LoadValue(cGameName, "LIGHT") : If x <> "" Then RoomBrightness = CInt(x) Else RoomBrightness = 60
-    x = LoadValue(cGameName, "LUT") : If x <> "" Then ColorLUT = CInt(x) Else ColorLUT = 3
-	x = LoadValue(cGameName, "SCORBIT") : If x <> "" Then ScorbitActive = CInt(x) Else ScorbitActive = 0
-    x = LoadValue(cGameName, "VOLUME") : If x <> "" Then VolumeDial = CNCDbl(x) Else VolumeDial = 0.8
-    x = LoadValue(cGameName, "RAMPVOLUME") : If x <> "" Then RampRollVolume = CNCDbl(x) Else RampRollVolume = 0.5
-    x = LoadValue(cGameName, "BALLVOLUME") : If x <> "" Then BallRollVolume = CNCDbl(x) Else BallRollVolume = 0.5
-    x = LoadValue(cGameName, "STAGED") : If x <> "" Then StagedFlipperMod = CInt(x) Else StagedFlipperMod = 0
-	x = LoadValue(cGameName, "CABMODE") : If x <> "" Then OptionsCabinetMode = CInt(x) Else OptionsCabinetMode = 0
-	x = LoadValue(cGameName, "WIZMODE") : If x <> "" Then OptionsWizardMode = CInt(x) Else OptionsWizardMode = 0
-	x = LoadValue(cGameName, "BONUS") : If x <> "" Then OptionsBonusSound = CStr(x) Else OptionsBonusSound = "fx-bonus"
-	UpdateMods
-End Sub
-
-
-Sub UpdateMods
-	Dim BL, LM, x, y, c, enabled
-	
-	'*********************
-	'Room light level
-	'*********************
-
-	SetRoomBrightness RoomBrightness/100
-
-	'*********************
-	'Color LUT
-	'*********************
-
-	if ColorLUT = 1 Then Table1.ColorGradeImage = ""
-	if ColorLUT = 2 Then Table1.ColorGradeImage = "colorgradelut256x16-10"
-	if ColorLUT = 3 Then Table1.ColorGradeImage = "colorgradelut256x16-20"
-	if ColorLUT = 4 Then Table1.ColorGradeImage = "colorgradelut256x16-30"
-	if ColorLUT = 5 Then Table1.ColorGradeImage = "colorgradelut256x16-40"
-	if ColorLUT = 6 Then Table1.ColorGradeImage = "colorgradelut256x16-50"
-	if ColorLUT = 7 Then Table1.ColorGradeImage = "colorgradelut256x16-60"
-	if ColorLUT = 8 Then Table1.ColorGradeImage = "colorgradelut256x16-70"
-	if ColorLUT = 9 Then Table1.ColorGradeImage = "colorgradelut256x16-80"
-	if ColorLUT = 10 Then Table1.ColorGradeImage = "colorgradelut256x16-90"
-	if ColorLUT = 11 Then Table1.ColorGradeImage = "colorgradelut256x16-100"
-
-	'MsgBox(ScorbitActive)
-	If ScorbitActive = 1 Then
-		StartScorbit
-		If ScorbitActive = 1 And Scorbit.bNeedsPairing = True Then
-			ScorbitFlasher.Visible = True
-		End If
-	Else
-		ScorbitFlasher.Visible = False
-	End If
-
-	Dim element
-	If OptionsCabinetMode = 1 Then
-		For Each element in BP_PinCab_Rails
-			element.Visible = False
-		Next
-	Else
-		For Each element in BP_PinCab_Rails
-			element.Visible = True
-		Next
-	End If
-
-End Sub
-
-
-' Culture neutral string to double conversion (handles situation where you don't know how the string was written)
-Function CNCDbl(str)
-    Dim strt, Sep, i
-    If IsNumeric(str) Then
-        CNCDbl = CDbl(str)
-    Else
-        Sep = Mid(CStr(0.5), 2, 1)
-        Select Case Sep
-        Case "."
-            i = InStr(1, str, ",")
-        Case ","
-            i = InStr(1, str, ".")
-        End Select
-        If i = 0 Then     
-            CNCDbl = Empty
-        Else
-            strt = Mid(str, 1, i - 1) & Sep & Mid(str, i + 1)
-            If IsNumeric(strt) Then
-                CNCDbl = CDbl(strt)
-            Else
-                CNCDbl = Empty
-            End If
-        End If
-    End If
-End Function
-
-'******************
-'Setup Stuff
-'*****************
-
-
-'****************************
-'	Room Brightness
-'****************************
-
-' Update these arrays if you want to change more materials with room light level
-Dim RoomBrightnessMtlArray: RoomBrightnessMtlArray = Array("VLM.Bake.Active","VLM.Bake.Solid")
-Dim SavedMtlColorArray:     SavedMtlColorArray     = Array(0,0)
-
-
-Sub SetRoomBrightness(lvl)
-	If lvl > 1 Then lvl = 1
-	If lvl < 0 Then lvl = 0
-
-	' Lighting level
-	Dim v: v=(lvl * 225 + 30)/255
-	Dim i: For i = 0 to UBound(RoomBrightnessMtlArray)
-		ModulateMaterialBaseColor RoomBrightnessMtlArray(i), i, v
-	Next
-
-
-End Sub
-
-SaveMtlColors
-Sub SaveMtlColors
-	Dim i: For i = 0 to UBound(RoomBrightnessMtlArray)
-		SaveMaterialBaseColor RoomBrightnessMtlArray(i), i
-	Next
-End Sub
-
-Sub SaveMaterialBaseColor(name, idx)
-    Dim wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
-	GetMaterial name, wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
-	SavedMtlColorArray(idx) = round(base,0)
-End Sub
-
-
-Sub ModulateMaterialBaseColor(name, idx, val)
-    Dim wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
-	Dim red, green, blue, saved_base, new_base
- 
-	'First get the existing material properties
-	GetMaterial name, wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
-
-	'Get saved color
-	saved_base = SavedMtlColorArray(idx)
-	
-	'Next extract the r,g,b values from the base color
-	red = saved_base And &HFF
-	green = (saved_base \ &H100) And &HFF
-	blue = (saved_base \ &H10000) And &HFF
-	'msgbox red & " " & green & " " & blue
-
-	'Create new color scaled down by 'val', and update the material
-	new_base = RGB(red*val, green*val, blue*val)
-    UpdateMaterial name, wrapLighting, roughness, glossyImageLerp, thickness, edge, edgeAlpha, opacity, new_base, glossy, clearcoat, isMetal, opacityActive, elasticity, elasticityFalloff, friction, scatterAngle
-End Sub

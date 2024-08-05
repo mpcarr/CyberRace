@@ -1,0 +1,34 @@
+#config_version=6
+
+mode:
+  start_events: ball_started
+  stop_events: ball_ended
+  priority: 500
+
+shots: 
+  left_outlane:
+    switch: sw01
+    show_tokens: 
+        lights: l42
+    profile: qualify_race
+  left_inlane:
+    switch: sw02
+    show_tokens: 
+        lights: l43
+    profile: qualify_race
+  right_inlane:
+    switch: sw03
+    show_tokens: 
+        lights: l44
+    profile: qualify_race
+  right_outlane:
+    switch: sw04
+    show_tokens: 
+        lights: l45
+    profile: qualify_race
+    
+shot_groups:
+  qualify_race:
+    shots: left_outlane, left_inlane, right_inlane, right_outlane
+    rotate_left_events: sw_left_flipper
+    rotate_right_events: sw_right_flipper

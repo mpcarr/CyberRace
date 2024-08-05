@@ -31,7 +31,7 @@ shader_parameter/rows = 36.0
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_t6y31"]
 
 [node name="MPFWindow" type="Control"]
-custom_minimum_size = Vector2(1280, 720)
+custom_minimum_size = Vector2(1920, 720)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -42,7 +42,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_ixxnq")
 
-[node name="MPFDisplay" type="Control" parent="."]
+[node name="DefaultDisplay" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

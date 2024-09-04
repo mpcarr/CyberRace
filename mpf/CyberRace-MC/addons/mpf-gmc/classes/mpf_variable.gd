@@ -28,6 +28,8 @@ const numbered_players = [VariableType.PLAYER_1, VariableType.PLAYER_2, Variable
 @export var max_players: int
 
 var var_template: String = "%s"
+## Track the player number this variable applies to
+var player_number: int = -1
 
 func _init() -> void:
 	# For new slides, initialize() and update() are called before it enters the tree
@@ -45,10 +47,6 @@ func _ready() -> void:
 	elif variable_type == VariableType.EVENT_ARG:
 		var parent_slide = MPF.util.find_parent_slide_or_widget(self)
 		parent_slide.register_updater(self)
-	elif min_players or max_players or variable_type in numbered_players:
-		MPF.game.connect("player_added", self._on_player_added)
-		# Set the initial state as well
-		self._on_player_added(MPF.game.num_players)
 	else:
 		var is_current_player = self._calculate_player_value()
 		if is_current_player:
@@ -57,12 +55,17 @@ func _ready() -> void:
 	if self.update_event:
 		MPF.server.add_event_handler(self.update_event, self.update)
 
+	if min_players or max_players or variable_type in numbered_players:
+		MPF.game.connect("player_added", self._on_player_added)
+		# Set the initial state as well
+		self._on_player_added(MPF.game.num_players)
+
 func _exit_tree() -> void:
 	if self.update_event:
 		MPF.server.remove_event_handler(self.update_event, self.update)
 	if variable_type == VariableType.EVENT_ARG:
 		var parent_slide = MPF.util.find_parent_slide_or_widget(self)
-		parent_slide.register_updater(self)
+		parent_slide.remove_updater(self)
 
 func update(settings: Dictionary, kwargs: Dictionary = {}) -> void:
 	if variable_type != VariableType.EVENT_ARG:
@@ -86,7 +89,7 @@ func update(settings: Dictionary, kwargs: Dictionary = {}) -> void:
 	elif variable_name in settings:
 		self.update_text(settings[variable_name])
 
-func update_text(value):
+func update_text(value: Variant) -> void:
 	if value == null:
 		self.text = ""
 		return
@@ -102,7 +105,7 @@ func update_text(value):
 	else:
 		self.text = value
 
-func _on_player_update(var_name, value):
+func _on_player_update(var_name: String, value: Variant) -> void:
 	if var_name == variable_name:
 		# For formatting, we need a key/value pair
 		if self.format_string:
@@ -110,10 +113,13 @@ func _on_player_update(var_name, value):
 		else:
 			self.update_text(value)
 
-func _on_player_added(total_players):
-	if min_players != 0 and min_players > total_players:
+func _on_player_added(total_players: int) -> void:
+	if min_players > 0 and min_players > total_players:
 		self.hide()
-	elif max_players != 0 and total_players > max_players:
+	elif max_players > 0 and total_players > max_players:
+		self.hide()
+	# If this player number exceeds the number of players, don't show
+	elif self.player_number > total_players:
 		self.hide()
 	else:
 		# TODO: There is a gap here where a min/max var that applies to the current
@@ -121,11 +127,19 @@ func _on_player_added(total_players):
 		self._calculate_player_value()
 		self.show()
 
-func _calculate_player_value():
-	var player_num = numbered_players.find(variable_type) + 1
-	var is_current_player = variable_type == VariableType.CURRENT_PLAYER or player_num == MPF.game.player.get('number')
+func _calculate_player_value() -> bool:
+	var mpf_player_num = MPF.game.player.get("number")
+	if not mpf_player_num:
+		MPF.log.warning("MPFVariable '%s' is a player variable and should only exist in game modes.", self.name)
+		return false
+	if variable_type == VariableType.CURRENT_PLAYER:
+		self.player_number = mpf_player_num
+	elif variable_type in numbered_players:
+		self.player_number = numbered_players.find(variable_type) + 1
+	var is_current_player = self.player_number == MPF.game.player.get('number')
 	if is_current_player:
 		self.update_text(MPF.game.player.get(self.variable_name))
 		return true
-	elif MPF.game.players.size() >= player_num:
-		self.update_text(MPF.game.players[player_num - 1].get(self.variable_name))
+	elif MPF.game.players.size() >= self.player_number:
+		self.update_text(MPF.game.players[self.player_number - 1].get(self.variable_name))
+	return false

@@ -1,0 +1,47 @@
+[gd_scene load_steps=3 format=3 uid="uid://brb3qrd5u1v3j"]
+
+[ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_slide.gd" id="1_xf0vx"]
+[ext_resource type="Script" path="res://slides/attractvids.gd" id="3_v4l8p"]
+
+[node name="TestSlide" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 24.0
+offset_bottom = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_xf0vx")
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 72.0
+offset_top = 40.0
+offset_right = 712.0
+offset_bottom = 408.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.585, 0.585)
+script = ExtResource("3_v4l8p")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 72.0
+offset_right = 600.0
+offset_bottom = 192.0
+theme_override_font_sizes/normal_font_size = 66
+text = "Player 1"
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 824.0
+offset_top = 80.0
+offset_right = 1120.0
+offset_bottom = 200.0
+theme_override_font_sizes/normal_font_size = 66
+text = "Player 2"

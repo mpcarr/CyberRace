@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "grunt-vpx": "grunt watch:vpx",
-    "grunt-mpf": "grunt watch:mpf"
+    "grunt-mpf": "grunt watch:mpf",
+    "mpf": "powershell -ExecutionPolicy Bypass -File C:\\Users\\carr-\\Documents\\development\\mpf080\\mpfenv\\Scripts\\Activate.ps1"
   },
   "author": "",
   "license": "ISC",

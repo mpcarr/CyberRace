@@ -1,0 +1,37 @@
+#config_version=6
+
+mode:
+  start_events: race_selection_confirmed{current_player.player_shot_rs1_tri==1}
+  priority: 500
+
+shot_profiles: 
+  race_profile:
+    states: 
+     - name: flashing
+       show: flash_color
+       loops: -1
+       speed: 1
+       sync_ms: 0
+       show_tokens: 
+         color: ff0000
+
+shots: 
+  race1_leftorbit:
+    switch: sw08
+    show_tokens: 
+      lights: l46
+    profile: race_profile
+  race1_rightorbit:
+    switch: sw14
+    show_tokens: 
+      lights: l63
+    profile: race_profile
+
+event_player: 
+  mode_race_1_started: 
+    - race_started
+  ball_ending: 
+    - mode_race_ended
+
+
+

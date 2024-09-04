@@ -1,0 +1,72 @@
+[gd_scene load_steps=6 format=3 uid="uid://ddogb41p2x7lx"]
+
+[ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_slide.gd" id="1_x2tt4"]
+[ext_resource type="VideoStream" path="res://videos/HSBackground2.ogv" id="2_mqkhs"]
+[ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_video_player.gd" id="3_6r22r"]
+[ext_resource type="FontFile" uid="uid://dyb3efof104vl" path="res://fonts/DieHardVPX-Regular.ttf" id="5_gpj7c"]
+[ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_variable.gd" id="6_1jtlk"]
+
+[node name="DhAttract2" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_x2tt4")
+
+[node name="MPFVideoPlayer" type="VideoStreamPlayer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+stream = ExtResource("2_mqkhs")
+autoplay = true
+script = ExtResource("3_6r22r")
+events_when_stopped = "dh_attract2_finished"
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 110.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(1, 0, 0, 1)
+theme_override_constants/outline_size = 40
+theme_override_fonts/font = ExtResource("5_gpj7c")
+theme_override_font_sizes/font_size = 80
+text = "BEAT COP"
+horizontal_alignment = 1
+
+[node name="MPFVariable" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 448.0
+offset_bottom = 555.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(1, 0, 0, 1)
+theme_override_constants/outline_size = 40
+theme_override_fonts/font = ExtResource("5_gpj7c")
+theme_override_font_sizes/font_size = 80
+text = "VPX"
+horizontal_alignment = 1
+script = ExtResource("6_1jtlk")
+variable_type = 2
+variable_name = "beatcop1_name"
+
+[node name="MPFVariable2" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 704.0
+offset_bottom = 811.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(1, 0, 0, 1)
+theme_override_constants/outline_size = 40
+theme_override_fonts/font = ExtResource("5_gpj7c")
+theme_override_font_sizes/font_size = 80
+text = "00"
+horizontal_alignment = 1
+script = ExtResource("6_1jtlk")
+variable_type = 2
+variable_name = "beatcop1_value"

@@ -317,8 +317,9 @@ Sub Table1_Init()
 	LeftSlingShot_Timer
 	RightSlingShot_Timer
 
-	Glf_Init()
 	ConfigureGlfDevices()
+
+	Glf_Init()
 End Sub
 
 Sub Table1_Exit
@@ -331,7 +332,7 @@ End Sub
 
 Sub Table1_OptionEvent(ByVal eventId)
     If eventId = 1 Then DisableStaticPreRendering = True
-
+	
     Glf_Options(eventId)
 
     If eventId = 3 Then DisableStaticPreRendering = False
@@ -784,40 +785,30 @@ Const MODE_WIZARD_HITS = "Game Mode Wizard Hits"
 
 Sub ConfigureGlfDevices()
 
-    Dim light
-    For Each light in Lights_GI
-        lightCtrl.AddLightTags light, "gi"
-    Next
-
-    lightCtrl.AddLightTags l53, "race1_selection"
-    lightCtrl.AddLightTags l46, "race1_selection"
-    lightCtrl.AddLightTags l63, "race1_selection"
-    
-
     Dim ball_device_plunger
     Set ball_device_plunger = (new BallDevice)("plunger")
 
     With ball_device_plunger
-        .BallSwitches = Array("sw17")
+        .BallSwitches = Array("s_plunger")
         .EjectTargets = Array("sw27")
         .EjectStrength = 150
         .MechcanicalEject = True
         .DefaultDevice = True
     End With
 
-    Dim ball_device_racevuk
-    Set ball_device_racevuk = (new BallDevice)("racevuk")
-    ball_device_racevuk.Debug = True
+    Dim ball_device_race_scoop
+    Set ball_device_race_scoop = (new BallDevice)("race_scoop")
+    ball_device_race_scoop.Debug = True
 
-    With ball_device_racevuk
-        .BallSwitches = Array("raceVuk")
+    With ball_device_race_scoop
+        .BallSwitches = Array("s_race_scoop")
         .EjectCallback = "RaceVuk_EjectCallback"
     End With
 
-    Dim ball_device_nodes
-    Set ball_device_nodes = (new BallDevice)("nodes")
+    Dim ball_device_center_scoop
+    Set ball_device_center_scoop = (new BallDevice)("center_scoop")
 
-    With ball_device_nodes
+    With ball_device_center_scoop
         .BallSwitches = Array("sw39")
         .EjectCallback = "Nodes_EjectCallback"
     End With
@@ -838,8 +829,8 @@ Sub ConfigureGlfDevices()
 End Sub
 
 Sub RaceVuk_EjectCallback(ball)
-    SoundSaucerKick 1,raceVuk
-    raceVuk.Kick 65, RndInt(7,15)
+    SoundSaucerKick 1,s_race_scoop
+    s_race_scoop.Kick 65, RndInt(7,15)
 End Sub
 
 Sub Nodes_EjectCallback(ball)
@@ -1041,62 +1032,64 @@ End Sub
 
 Sub CreateBaseMode
 
-
-	Dim mode_base
-	Set mode_base = (new Mode)("base", 1000)
-
-	With mode_base
+	With CreateGlfMode("base", 1000)
 		.StartEvents = Array("ball_started")
 		.StopEvents = Array("ball_ended") 
-	End With
+		.Debug = True
+		With .BallSaves("base")
+			.EnableEvents = Array("mode_base_started")
+			.TimerStartEvents = Array("balldevice_plunger_ball_eject_success")
+			.ActiveTime = 15
+			.HurryUpTime = 5
+			.GracePeriod = 3
+			.BallsToSave = -1
+			.AutoLaunch = True
+		End With
 
-	With mode_base.BallSaves("base")
-		.EnableEvents = Array("mode_base_started")
-		.TimerStartEvents = Array("balldevice_plunger_ball_eject_success")
-		.ActiveTime = 15
-		.HurryUpTime = 5
-		.GracePeriod = 3
-		.BallsToSave = -1
-		.AutoLaunch = True
-	End With
-
-	With mode_base.LightPlayer()
-		.Add "mode_base_started", Array("gi|ffffff")
-	End With
-
-	With mode_base.ShowPlayer()
-		With .Events("ball_saves_base_timer_start")
-			.Key = "ball_save"
-			.Show = glf_ShowFlashColor
-			.Loops = -1
-			.Speed = 1
-			With .Tokens()
-				.Add "lights", "l16"
-				.Add "color", "62FBFF"
+		With .LightPlayer()
+			With .Events("mode_base_started")
+				With .Lights("T_GI")
+					.Color = "ffffff"
+				End With
 			End With
 		End With
-		With .Events("ball_saves_base_hurry_up_time")
-			.Key = "ball_save"
-			.Show = glf_ShowFlashColor
-			.Loops = -1
-			.Speed = 2
-			With .Tokens()
-				.Add "lights", "l17"
-				.Add "color", "62FBFF"
-			End With
-		End With
-		With .Events("ball_saves_base_grace_period")
-			.Key = "ball_save"
-			.Action = "stop"
-		End With
-	End With
 
-	With mode_base.VariablePlayer()
-		With .Events("ball_saves_base_timer_start")
-			With .Variable("score")
-				.Int = 1000
+		With .ShowPlayer()
+			With .Events("ball_save_base_timer_start")
+				.Key = "ball_save"
+				.Show = glf_ShowFlashColor
+				.Loops = -1
+				.Speed = 1
+				With .Tokens()
+					.Add "lights", "l16"
+					.Add "color", "62FBFF"
+				End With
+			End With
+			With .Events("ball_save_base_hurry_up")
+				.Key = "ball_save"
+				.Show = glf_ShowFlashColor
+				.Loops = -1
+				.Speed = 2
+				With .Tokens()
+					.Add "lights", "l16"
+					.Add "color", "62FBFF"
+				End With
+			End With
+			With .Events("ball_save_base_grace_period")
+				.Key = "ball_save"
+				.Show = glf_ShowFlashColor
+				.Action = "stop"
 			End With
 		End With
+
+		With .VariablePlayer()
+			With .Events("ball_save_base_timer_start")
+				With .Variable("score")
+					.Int = 1000
+				End With
+			End With
+		End With
+		.ToYaml
 	End With
 
 
@@ -1107,22 +1100,36 @@ End Sub
 
 Sub CreateQualifyRaceMode()
 
-    With GlfShotProfiles("qualify_race")
-        With .States("unlit")
-            .Show = glf_ShowOff
-        End With
-        With .States("on")
-            .Show = glf_ShowOnColor
-            With .Tokens()
-                .Add "color", "ff0000"
-            End With
-        End With
-    End With
+    
 
     With CreateGlfMode("qualify_race", 510)
         .StartEvents = Array("ball_started")
         .StopEvents = Array("ball_ended")
         .Debug = True
+        With .ShotProfiles("qualify_race")
+            With .States("unlit")
+                .Show = glf_ShowOff
+            End With
+            With .States("on")
+                .Show = glf_ShowOnColor
+                With .Tokens()
+                    .Add "color", "ff0000"
+                End With
+            End With
+        End With
+        With .ShotProfiles("qualify_race_ready")
+            With .States("unlit")
+                .Show = glf_ShowOff
+            End With
+            With .States("on")
+                .Show = glf_ShowFlashColor
+                .Speed = 1
+                .Priority = 2
+                With .Tokens()
+                    .Add "color", "ff0000"
+                End With
+            End With
+        End With
         With .Shots("left_outlane")
             .Switch = "sw01"
             .Profile = "qualify_race"
@@ -1168,7 +1175,9 @@ Sub CreateQualifyRaceMode()
             End With
         End With
         With .Shots("right_orbit_race_qualify")
-            .Profile = "flash_color"
+            .Profile = "qualify_race_ready"
+            .ResetEvents = Array("mode_race_selection_starting")
+            .DisableEvents = Array("mode_race_selection_starting")
             With .Tokens()
                 .Add "lights", "l63"
                 .Add "color", "ff0000"
@@ -1176,10 +1185,6 @@ Sub CreateQualifyRaceMode()
             With .ControlEvents("race_ready")
                 .Events = Array("qualify_race_on_complete")
                 .State = 1
-            End With
-            With .ControlEvents("race_started")
-                .Events = Array("mode_race_selection_starting")
-                .State = 0
             End With
         End With
         With .ShotGroups("qualify_race")
@@ -1192,8 +1197,15 @@ Sub CreateQualifyRaceMode()
             .EnableEvents = Array("qualify_race_on_complete", "mode_qualify_race_started{current_player.player_shot_right_orbit_race_qualify==1}")
             .DisableEvents = Array("race_started")
             .BallsToHold = 1
-            .HoldDevices = Array("racevuk")
+            .HoldDevices = Array("race_scoop")
             .ReleaseAllEvents = Array("race_selection_confirmed")
+        End With
+        With .ShowPlayer()
+            With .Events("qualify_race_on_complete")
+                .Show = glf_Showrace_qualify
+                .Loops = 2
+                .Speed = 2
+            End With
         End With
         .ToYaml()
     End With
@@ -1202,29 +1214,28 @@ End Sub
 
 Sub CreateRaceSelectionMode()
 
-    With GlfShotProfiles("race_selection")
-        With .States("unlit")
-            .Show = glf_ShowOff
-        End With
-        With .States("flashing")
-            .Show = glf_ShowFlashColor
-            With .Tokens()
-                .Add "color", "ff0000"
-            End With
-        End With
-        With .States("complete")
-            .Show = glf_ShowOnColor
-            With .Tokens()
-                .Add "color", "ff0000"
-            End With
-        End With
-        .StateNamesNotToRotate = Array("complete")
-    End With
-
     With CreateGlfMode("race_selection", 520)
         .StartEvents = Array("ball_hold_race_ready_full")
         .StopEvents = Array("race_started")
-        .Debug=True
+
+        With .ShotProfiles("race_selection")
+            With .States("unlit")
+                .Show = glf_ShowOff
+            End With
+            With .States("flashing")
+                .Show = glf_ShowFlashColor
+                With .Tokens()
+                    .Add "color", "ff0000"
+                End With
+            End With
+            With .States("complete")
+                .Show = glf_ShowOnColor
+                With .Tokens()
+                    .Add "color", "ff0000"
+                End With
+            End With
+            .StateNamesNotToRotate = Array("complete")
+        End With
         With .Shots("rs1_tri")
             .Profile = "race_selection"
             With .Tokens()
@@ -1332,15 +1343,45 @@ Sub CreateRaceSelectionMode()
 End Sub 
 ' Race 1 Selection Mode
 
+' Left and Right Orbits Increase Race Position
+' Roving Blue Shot Decreases Position (Rival)
+' When in position 3, shortcut becomes ready.
+' Hitting shortcut sets position to 1
+' when in position 1, race finish can be hit.
+' Race is on a timer. Ends when timer ends or race finish is hit.
+
 Sub CreateRace1Mode()
 
     With CreateGlfMode("race_1", 500)
         .StartEvents = Array("race_selection_confirmed{current_player.player_shot_rs1_tri==1}")
         .Debug = True
+        With .ShotProfiles("race_profile")
+            With .States("flashing")
+                .Show = glf_ShowFlashColor
+                With .Tokens()
+                    .Add "color", "ff0000"
+                End With
+            End With
+        End With
         With .EventPlayer()
             .Add "mode_race_1_started", Array("race_started")
             .Add "ball_ending", Array("mode_race_ended")
         End With
+        With .Shots("race1_leftorbit")
+            .Switch = "sw08"
+            .Profile = "race_profile"
+            With .Tokens()
+                .Add "lights", "l46"
+            End With
+        End With
+        With .Shots("race1_rightorbit")
+            .Switch = "sw14"
+            .Profile = "race_profile"
+            With .Tokens()
+                .Add "lights", "l63"
+            End With
+        End With
+        .ToYaml()
     End With
 End Sub
 ' Skillshot Mode
@@ -1356,32 +1397,30 @@ End Sub
 
 Sub CreateSkillshotMode()
 
-    With GlfShotProfiles("skillshot")
-        With .States("unlit")
-            .Show = glf_ShowOff
-        End With
-        With .States("flashing")
-            .Show = glf_ShowFlashColor
-            With .Tokens()
-                .Add "color", "ffff00"
-            End With
-            .SyncMs = 400
-        End With
-        With .States("flashing_super")
-            .Show = glf_ShowFlashColor
-            .Speed = 1.5
-            With .Tokens()
-                .Add "color", "ffff00"
-            End With
-            .SyncMs = 400
-        End With
-    End With
-
-
     With CreateGlfMode("skillshot", 500)
         .StartEvents = Array("ball_started")
         .StopEvents = Array("end_skillshot", "skill_shot_unlit_hit", "timer_skillshot_complete")
         .Debug = True
+        With .ShotProfiles("skillshot")
+            With .States("unlit")
+                .Show = glf_ShowOff
+            End With
+            With .States("flashing")
+                .Show = glf_ShowFlashColor
+                With .Tokens()
+                    .Add "color", "ffff00"
+                End With
+                .Speed = 4
+                .SyncMs = 250
+            End With
+            With .States("flashing_super")
+                .Show = glf_ShowFlashColor
+                .Speed = 2
+                With .Tokens()
+                    .Add "color", "ffff00"
+                End With
+            End With
+        End With
         With .Shots("lane1")
             .Switch = "sw05"
             .Profile = "skillshot"
@@ -1425,7 +1464,7 @@ Sub CreateSkillshotMode()
             .RotateRightEvents = Array("s_right_flipper_active")
         End With
         With .EventPlayer()
-            .Add "shot_leftramp_skillshot_flashing_super_hit", Array("award_super_skillshot", "end_skillshot")
+            .Add "leftramp_skillshot_flashing_super_hit", Array("award_super_skillshot", "end_skillshot")
             .Add "skill_shot_flashing_hit", Array("award_skillshot", "end_skillshot")
         End With
         With .VariablePlayer()
@@ -1449,6 +1488,7 @@ Sub CreateSkillshotMode()
                 .Action = "start"
             End With
         End With
+        .ToYaml()
     End With
 End Sub
 
@@ -1625,75 +1665,6 @@ End Sub
 '*****************************************************************************************************************************************
 '  END Vpx Bcp Controller
 '*****************************************************************************************************************************************
-
-Dim debugWorld : debugWorld = False
-
-Sub ShowDebugRoom()
-	debugWorld = True
-	'Dim tblElement
-	'For Each tblElement in Room_BM
-	'	tblElement.Visible = False
-	'Next
-End Sub
-
-Sub HideDebugRoom()
-	Dim tblElement
-	'For Each tblElement in Room_BM
-	'	tblElement.Visible = True
-	'Next
-End Sub
-
-
-
-'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-' X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  
-'/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
-'\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\
-' X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  
-'/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
-'  MANUAL BALLCONTROL
-'\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\
-' X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  
-'/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
-'\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\
-' X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  X  
-	' 
-
-	Sub StartControl_Hit()
-		 Set ControlBall = ActiveBall
-		 contballinplay = true
-	End Sub
-
-	Dim bcup, bcdown, bcleft, bcright, contball, contballinplay, ControlBall, bcboost
-	Dim bcvel, bcyveloffset, bcboostmulti
-
-	bcboost = 1 'Do Not Change - default setting
-	bcvel = 4 'Controls the speed of the ball movement
-	bcyveloffset = -0.01 'Offsets the force of gravity to keep the ball from drifting vertically on the table, should be negative
-	bcboostmulti = 3 'Boost multiplier to ball veloctiy (toggled with the B key)
-
-	Sub BallControl_Timer()
-		 If Contball and ContBallInPlay then
-			  If bcright = 1 Then
-				   ControlBall.velx = bcvel*bcboost
-			  ElseIf bcleft = 1 Then
-				   ControlBall.velx = - bcvel*bcboost
-			  Else
-				   ControlBall.velx=0
-			  End If
-
-			 If bcup = 1 Then
-				  ControlBall.vely = -bcvel*bcboost
-			 ElseIf bcdown = 1 Then
-				  ControlBall.vely = bcvel*bcboost
-			 Else
-				  ControlBall.vely= bcyveloffset
-			 End If
-		 End If
-	End Sub
-
-
-
 
 
 

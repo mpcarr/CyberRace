@@ -3,6 +3,8 @@ class_name GMCBus
 
 enum BusType { SOLO, SEQUENTIAL, SIMULTANEOUS }
 
+signal sound_play(sound_name, settings)
+
 var channels: Array[GMCChannel] = []
 var type: BusType = BusType.SIMULTANEOUS
 var queue
@@ -18,12 +20,14 @@ func _init(n: String, log_level: int = 30):
 	self.configure_logging("Bus<%s>" % self.name, log_level)
 	# Store the target restore volume for post-ducks
 	self._bus_index = AudioServer.get_bus_index(self.name)
-	assert(self._bus_index != -1, "No audio bus %s configured in Godot Audio layout.")
+	assert(self._bus_index != -1, "No audio bus %s configured in Godot Audio layout." % n)
 	self._full_volume_db = AudioServer.get_bus_volume_db(self._bus_index)
 
 func create_channel(channel_name: String) -> GMCChannel:
 	var channel = GMCChannel.new(channel_name, self)
 	self.channels.append(channel)
+	# Channels have tweens so must be in the tree
+	self.add_child(channel)
 	if self.type == BusType.SEQUENTIAL:
 		channel.finished.connect(self._on_queue_channel_finished)
 	return channel
@@ -50,6 +54,7 @@ func duck(settings) -> void:
 
 	if not self._duck_release_timer:
 		self._duck_release_timer = Timer.new()
+		self._duck_release_timer.name = "%sDuckReleaseTimer" % self.name
 		self._duck_release_timer.one_shot = true
 		self._duck_release_timer.timeout.connect(self.duck_release)
 		self.add_child(self._duck_release_timer)
@@ -154,6 +159,7 @@ func play(filename: String, settings: Dictionary = {}) -> void:
 		self.log.error("Failed to load stream for filepath '%s' on channel %s", [filepath, available_channel])
 		return
 	var stream = available_channel.play_with_settings(settings)
+	self.sound_play.emit(filename, settings)
 
 	if settings.get("ducking", false):
 		if stream is AudioStreamRandomizer:

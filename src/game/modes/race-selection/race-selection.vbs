@@ -2,29 +2,28 @@
 
 Sub CreateRaceSelectionMode()
 
-    With GlfShotProfiles("race_selection")
-        With .States("unlit")
-            .Show = glf_ShowOff
-        End With
-        With .States("flashing")
-            .Show = glf_ShowFlashColor
-            With .Tokens()
-                .Add "color", "ff0000"
-            End With
-        End With
-        With .States("complete")
-            .Show = glf_ShowOnColor
-            With .Tokens()
-                .Add "color", "ff0000"
-            End With
-        End With
-        .StateNamesNotToRotate = Array("complete")
-    End With
-
     With CreateGlfMode("race_selection", 520)
         .StartEvents = Array("ball_hold_race_ready_full")
         .StopEvents = Array("race_started")
-        .Debug=True
+
+        With .ShotProfiles("race_selection")
+            With .States("unlit")
+                .Show = glf_ShowOff
+            End With
+            With .States("flashing")
+                .Show = glf_ShowFlashColor
+                With .Tokens()
+                    .Add "color", "ff0000"
+                End With
+            End With
+            With .States("complete")
+                .Show = glf_ShowOnColor
+                With .Tokens()
+                    .Add "color", "ff0000"
+                End With
+            End With
+            .StateNamesNotToRotate = Array("complete")
+        End With
         With .Shots("rs1_tri")
             .Profile = "race_selection"
             With .Tokens()

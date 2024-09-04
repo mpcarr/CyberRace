@@ -2,33 +2,71 @@
 
 mode:
   start_events: ball_started
-  stop_events: skill_shot_unlit_hit,skill_shot_flashing_hit
+  stop_events: end_skillshot, skill_shot_unlit_hit, timer_skillshot_complete
   priority: 500
+
+shot_profiles: 
+  skillshot:
+    states: 
+     - name: unlit
+       show: off
+       loops: -1
+       speed: 1
+       sync_ms: 0
+     - name: flashing
+       show: flash_color
+       loops: -1
+       speed: 4
+       sync_ms: 250
+       show_tokens: 
+         color: ffff00
+     - name: flashing_super
+       show: flash_color
+       loops: -1
+       speed: 2
+       sync_ms: 0
+       show_tokens: 
+         color: ffff00
 
 shots: 
   lane1:
     switch: sw05
     show_tokens: 
-        lights: l66
+      lights: l66
     advance_events: mode_skillshot_started
     profile: skillshot
   lane2:
     switch: sw06
     show_tokens: 
-        lights: l67
+      lights: l67
     profile: skillshot
   lane3:
     switch: sw07
     show_tokens: 
-        lights: l68
+      lights: l68
     profile: skillshot
+  leftramp:
+    switch: sw13
+    show_tokens: 
+      lights: l47
+    profile: skillshot
+    control_events: 
+      - events: mode_skillshot_started
+        state: 2
 
-shot_groups:
+shot_groups: 
   skill_shot:
-    shots: lane1, lane2, lane3
-    rotate_left_events: sw_left_flipper
-    rotate_right_events: sw_right_flipper
+    shots: lane1,lane2,lane3
+    rotate_left_events: s_left_flipper_active
+    rotate_right_events: s_right_flipper_active
 
-variable_player:
-  skill_shot_flashing_hit:
-    score: 1000
+event_player: 
+  leftramp_skillshot_flashing_super_hit: 
+    - award_super_skillshot
+    - end_skillshot
+  skill_shot_flashing_hit: 
+    - award_skillshot
+    - end_skillshot
+
+
+

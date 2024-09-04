@@ -1,0 +1,8 @@
+#show_version=6
+##! show: attract_display_loop
+
+- duration: 5
+  slides: dh_attract1
+
+- duration: 5
+  slides: dh_attract2

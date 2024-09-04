@@ -11,32 +11,30 @@
 
 Sub CreateSkillshotMode()
 
-    With GlfShotProfiles("skillshot")
-        With .States("unlit")
-            .Show = glf_ShowOff
-        End With
-        With .States("flashing")
-            .Show = glf_ShowFlashColor
-            With .Tokens()
-                .Add "color", "ffff00"
-            End With
-            .SyncMs = 400
-        End With
-        With .States("flashing_super")
-            .Show = glf_ShowFlashColor
-            .Speed = 1.5
-            With .Tokens()
-                .Add "color", "ffff00"
-            End With
-            .SyncMs = 400
-        End With
-    End With
-
-
     With CreateGlfMode("skillshot", 500)
         .StartEvents = Array("ball_started")
         .StopEvents = Array("end_skillshot", "skill_shot_unlit_hit", "timer_skillshot_complete")
         .Debug = True
+        With .ShotProfiles("skillshot")
+            With .States("unlit")
+                .Show = glf_ShowOff
+            End With
+            With .States("flashing")
+                .Show = glf_ShowFlashColor
+                With .Tokens()
+                    .Add "color", "ffff00"
+                End With
+                .Speed = 4
+                .SyncMs = 250
+            End With
+            With .States("flashing_super")
+                .Show = glf_ShowFlashColor
+                .Speed = 2
+                With .Tokens()
+                    .Add "color", "ffff00"
+                End With
+            End With
+        End With
         With .Shots("lane1")
             .Switch = "sw05"
             .Profile = "skillshot"
@@ -80,7 +78,7 @@ Sub CreateSkillshotMode()
             .RotateRightEvents = Array("s_right_flipper_active")
         End With
         With .EventPlayer()
-            .Add "shot_leftramp_skillshot_flashing_super_hit", Array("award_super_skillshot", "end_skillshot")
+            .Add "leftramp_skillshot_flashing_super_hit", Array("award_super_skillshot", "end_skillshot")
             .Add "skill_shot_flashing_hit", Array("award_skillshot", "end_skillshot")
         End With
         With .VariablePlayer()
@@ -104,5 +102,6 @@ Sub CreateSkillshotMode()
                 .Action = "start"
             End With
         End With
+        .ToYaml()
     End With
 End Sub

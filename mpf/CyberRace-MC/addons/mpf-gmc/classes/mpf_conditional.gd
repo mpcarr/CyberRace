@@ -27,11 +27,11 @@ const VariableType = preload("const.gd").VariableType
 ## If set, this nod will only render if the number of players is less than or equal to this value.
 @export var max_players: int
 
-var initialized = false
+var initialized := false
 
 @warning_ignore("shadowed_global_identifier")
 var log: GMCLogger
-var operator
+var operator: Callable
 var true_variable_name: String
 var target
 
@@ -41,11 +41,11 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	if not Engine.is_editor_hint():
 		self._initialize()
-	var parent_slide = MPF.util.find_parent_slide_or_widget(self)
+	var parent_slide: MPFSceneBase = MPF.util.find_parent_slide_or_widget(self)
 	parent_slide.register_updater(self)
 
 func _exit_tree() -> void:
-	var parent_slide = MPF.util.find_parent_slide_or_widget(self)
+	var parent_slide: MPFSceneBase = MPF.util.find_parent_slide_or_widget(self)
 	parent_slide.remove_updater(self)
 
 @warning_ignore("native_method_override")

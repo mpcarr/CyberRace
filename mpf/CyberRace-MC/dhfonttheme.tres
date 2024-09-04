@@ -1,0 +1,7 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://d25wdvnl5ombc"]
+
+[ext_resource type="FontFile" uid="uid://dyb3efof104vl" path="res://fonts/DieHardVPX-Regular.ttf" id="1_s0dfp"]
+
+[resource]
+default_font = ExtResource("1_s0dfp")
+default_font_size = 81

@@ -1,0 +1,112 @@
+#config_version=6
+
+mode:
+  start_events: ball_hold_race_ready_full
+  stop_events: race_started
+  priority: 520
+
+shot_profiles: 
+  race_selection:
+    states: 
+     - name: unlit
+       show: off
+       loops: -1
+       speed: 1
+       sync_ms: 0
+     - name: flashing
+       show: flash_color
+       loops: -1
+       speed: 1
+       sync_ms: 0
+       show_tokens: 
+         color: ff0000
+     - name: complete
+       show: led_color
+       loops: -1
+       speed: 1
+       sync_ms: 0
+       show_tokens: 
+         color: ff0000
+
+shots: 
+  rs1_tri:
+    show_tokens: 
+      lights: race1_selection
+    profile: race_selection
+    control_events: 
+      - events: light_race1_selection
+        state: 1
+      - events: light_race1_complete
+        state: 2
+  rs2_tri:
+    show_tokens: 
+      lights: l54
+    profile: race_selection
+    control_events: 
+      - events: light_race2_selection
+        state: 1
+      - events: light_race2_complete
+        state: 2
+  rs3_tri:
+    show_tokens: 
+      lights: l55
+    profile: race_selection
+    control_events: 
+      - events: light_race3_selection
+        state: 1
+      - events: light_race3_complete
+        state: 2
+  rs4_tri:
+    show_tokens: 
+      lights: l56
+    profile: race_selection
+    control_events: 
+      - events: light_race4_selection
+        state: 1
+      - events: light_race4_complete
+        state: 2
+  rs5_tri:
+    show_tokens: 
+      lights: l57
+    profile: race_selection
+    control_events: 
+      - events: light_race5_selection
+        state: 1
+      - events: light_race5_complete
+        state: 2
+  rs6_tri:
+    show_tokens: 
+      lights: l58
+    profile: race_selection
+    control_events: 
+      - events: light_race6_selection
+        state: 1
+      - events: light_race6_complete
+        state: 2
+
+shot_groups: 
+  race_selection:
+    shots: rs1_tri,rs2_tri,rs3_tri,rs4_tri,rs5_tri,rs6_tri
+    rotate_left_events: s_left_flipper_active
+    rotate_right_events: s_right_flipper_active
+
+event_player: 
+  mode_race_selection_started{current_player.player_shot_rs1_tri < 2}: 
+    - light_race1_selection
+  mode_race_selection_started{current_player.player_shot_rs2_tri < 2 && current_player.player_shot_rs1_tri==2}: 
+    - light_race2_selection
+  mode_race_selection_started{current_player.player_shot_rs3_tri < 2 && current_player.player_shot_rs1_tri==2 && current_player.player_shot_rs2_tri==2}: 
+    - light_race3_selection
+  mode_race_selection_started{current_player.player_shot_rs3_tri < 2 && current_player.player_shot_rs1_tri==2 && current_player.player_shot_rs2_tri==2 && current_player.player_shot_rs3_tri==2}: 
+    - light_race4_selection
+  mode_race_selection_started{current_player.player_shot_rs3_tri < 2 && current_player.player_shot_rs1_tri==2 && current_player.player_shot_rs2_tri==2 && current_player.player_shot_rs3_tri==2 && current_player.player_shot_rs4_tri==2}: 
+    - light_race5_selection
+  mode_race_selection_started{current_player.player_shot_rs3_tri < 2 && current_player.player_shot_rs1_tri==2 && current_player.player_shot_rs2_tri==2 && current_player.player_shot_rs3_tri==2 && current_player.player_shot_rs4_tri==2 && current_player.player_shot_rs5_tri==2}: 
+    - light_race6_selection
+  s_plunger_key_active: 
+    - race_selection_confirmed
+  s_lockbar_key_active: 
+    - race_selection_confirmed
+
+
+

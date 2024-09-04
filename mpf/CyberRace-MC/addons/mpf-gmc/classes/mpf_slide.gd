@@ -18,20 +18,22 @@ func process_widget(widget_name: String, action: String, settings: Dictionary, c
 	self.process_action(widget_name, self._widgets.get_children(), action, settings, c, p, kwargs)
 
 func action_play(widget_name: String, settings: Dictionary, c: String, p: int = 0, kwargs: Dictionary = {}) -> MPFWidget:
-	var widget = MPF.media.get_widget_instance(widget_name)
+	var widget: Node = MPF.media.get_widget_instance(widget_name)
 	assert(widget is MPFWidget, "Widget scenes must use (or extend) the MPFWidget script on the root node.")
 	widget.initialize(widget_name, settings, c, p, kwargs)
 	self._widgets.add_child(widget)
 	self._sort_widgets()
 	self.register_updater(widget)
+	MPF.server.send_event_with_args("widget_%s_active" % widget_name, kwargs)
 	return widget
 
-func action_remove(widget: Node) -> void:
+func action_remove(widget: Node, kwargs: Dictionary = {}) -> void:
 	self._widgets.remove_child(widget)
 	self.remove_updater(widget)
+	MPF.server.send_event_with_args("widget_%s_removed" % widget.name, kwargs)
 	widget.queue_free()
 
-func clear(context_name):
+func clear(context_name: String) -> void:
 	if not self._widgets:
 		return
 	for w in self._widgets.get_children():
@@ -39,7 +41,7 @@ func clear(context_name):
 			self.action_remove(w)
 
 func _sort_widgets() -> void:
-	var new_order = self._widgets.get_children()
+	var new_order: Array[Node] = self._widgets.get_children()
 	new_order.sort_custom(
 		func(a: MPFWidget, b: MPFWidget): return a.priority < b.priority
 	)

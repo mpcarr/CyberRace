@@ -1,0 +1,104 @@
+#config_version=6
+
+mode:
+  start_events: ball_started
+  stop_events: ball_ended
+  priority: 510
+
+shot_profiles: 
+  qualify_race:
+    states: 
+     - name: unlit
+       show: off
+       loops: -1
+       speed: 1
+       sync_ms: 0
+     - name: on
+       show: led_color
+       loops: -1
+       speed: 1
+       sync_ms: 0
+       show_tokens: 
+         color: ff0000
+  qualify_race_ready:
+    states: 
+     - name: unlit
+       show: off
+       loops: -1
+       speed: 1
+       sync_ms: 0
+     - name: on
+       show: flash_color
+       loops: -1
+       speed: 1
+       sync_ms: 0
+       show_tokens: 
+         color: ff0000
+
+shots: 
+  left_outlane:
+    switch: sw01
+    show_tokens: 
+      lights: l42
+    profile: qualify_race
+    control_events: 
+      - events: award_super_skillshot
+        state: 1
+  left_inlane:
+    switch: sw02
+    show_tokens: 
+      lights: l43
+    profile: qualify_race
+    control_events: 
+      - events: award_super_skillshot
+        state: 1
+  right_inlane:
+    switch: sw03
+    show_tokens: 
+      lights: l44
+    profile: qualify_race
+    control_events: 
+      - events: award_super_skillshot
+        state: 1
+  right_outlane:
+    switch: sw04
+    show_tokens: 
+      lights: l45
+    profile: qualify_race
+    control_events: 
+      - events: award_super_skillshot
+        state: 1
+  right_orbit_race_qualify:
+    show_tokens: 
+      lights: l63
+      color: ff0000
+    disable_events: mode_race_selection_starting
+    profile: qualify_race_ready
+    reset_events: mode_race_selection_starting
+    control_events: 
+      - events: qualify_race_on_complete
+        state: 1
+
+shot_groups: 
+  qualify_race:
+    shots: left_outlane,left_inlane,right_inlane,right_outlane
+    reset_events: mode_race_ended
+    rotate_left_events: s_left_flipper_active
+    rotate_right_events: s_right_flipper_active
+
+show_player: 
+  qualify_race_on_complete: 
+    race_qualify: 
+      loops: 2
+      speed: 2
+
+
+ball_holds: 
+  race_ready:
+    enable_events: qualify_race_on_complete, mode_qualify_race_started{current_player.player_shot_right_orbit_race_qualify==1}
+    disable_events: race_started
+    hold_devices: race_scoop
+    balls_to_hold: 1
+    release_all_events: race_selection_confirmed
+
+

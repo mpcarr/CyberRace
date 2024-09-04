@@ -1,53 +1,54 @@
 #config_version=6
+
 mode:
   start_events: ball_started
-  priority: 2000
+  stop_events: ball_ended
+  priority: 1000
 
-light_player:
-  mode_base_started:
-    gi:
-      color: white
-
-show_player:
-  ball_save_main_timer_start:
-    flash_color:
-      key: ball_save
-      speed: 2
-      show_tokens:
-        lights: ballSave
-        color: FF1178 
-  ball_save_main_hurry_up:
-    flash_color:
-      key: ball_save
-      speed: 4
-      show_tokens:
-        lights: ballSave
-        color: FF1178 
-  ball_save_main_disabled:
-    ball_save: stop
-
-timers:
-  ball_save_timer:
-    start_value: 20
-    end_value: 0
-    direction: down
-    control_events:
-      - action: start
-        event: ball_save_main_timer_start
-
-segment_display_player:
-  ball_save_main_timer_start:
-    neoSegClock:
-      text: "{current_player.base_ball_save_timer_tick:d}"
-      priority: 6000
-
-ball_saves:
-  main:
-    active_time: 20s
+ball_saves: 
+  base:
+    active_time: 15s
     grace_period: 3s
     hurry_up_time: 5s
     enable_events: mode_base_started
-    timer_start_events: balldevice_bd_owl_ball_eject_success
+    timer_start_events: balldevice_plunger_ball_eject_success
     auto_launch: true
     balls_to_save: -1
-    debug: true
+
+show_player: 
+  ball_save_base_timer_start: 
+    flash_color: 
+      key: ball_save
+      show_tokens: 
+        lights: l16
+        color: 62FBFF
+  ball_save_base_hurry_up: 
+    flash_color: 
+      key: ball_save
+      speed: 2
+      show_tokens: 
+        lights: l16
+        color: 62FBFF
+  ball_save_base_grace_period: 
+    flash_color: 
+      action: stop
+      key: ball_save
+
+light_player: 
+  mode_base_started: 
+    T_GI: 
+      color: ffffff
+
+segment_display_player:
+  mode_base_started:
+    neoSegClock:
+      text: JACKPOT
+      priority: 1000
+      expire: 2s
+      transition:
+        type: push
+        direction: right
+        text: " *** "
+
+
+

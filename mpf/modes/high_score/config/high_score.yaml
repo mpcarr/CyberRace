@@ -1,0 +1,22 @@
+#config_version=6
+
+high_score:
+  _overwrite: True
+  categories: !!omap
+  - lieutenant:
+      - GRAND CHAMPION
+  - beatcop:
+      - LOOP CHAMP
+  - yippie:
+      - MOST HITS
+  defaults:
+    lieutenant:
+      - VPX: 4242
+      - GHK: 2323
+      - JK: 1337
+      - QC: 42
+      - MPF: 23
+    beatcop:
+      - JK: 42
+    yippie:
+      - A: 1

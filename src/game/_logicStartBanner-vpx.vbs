@@ -5,40 +5,30 @@
 
 Sub ConfigureGlfDevices()
 
-    Dim light
-    For Each light in Lights_GI
-        lightCtrl.AddLightTags light, "gi"
-    Next
-
-    lightCtrl.AddLightTags l53, "race1_selection"
-    lightCtrl.AddLightTags l46, "race1_selection"
-    lightCtrl.AddLightTags l63, "race1_selection"
-    
-
     Dim ball_device_plunger
     Set ball_device_plunger = (new BallDevice)("plunger")
 
     With ball_device_plunger
-        .BallSwitches = Array("sw17")
+        .BallSwitches = Array("s_plunger")
         .EjectTargets = Array("sw27")
         .EjectStrength = 150
         .MechcanicalEject = True
         .DefaultDevice = True
     End With
 
-    Dim ball_device_racevuk
-    Set ball_device_racevuk = (new BallDevice)("racevuk")
-    ball_device_racevuk.Debug = True
+    Dim ball_device_race_scoop
+    Set ball_device_race_scoop = (new BallDevice)("race_scoop")
+    ball_device_race_scoop.Debug = True
 
-    With ball_device_racevuk
-        .BallSwitches = Array("raceVuk")
+    With ball_device_race_scoop
+        .BallSwitches = Array("s_race_scoop")
         .EjectCallback = "RaceVuk_EjectCallback"
     End With
 
-    Dim ball_device_nodes
-    Set ball_device_nodes = (new BallDevice)("nodes")
+    Dim ball_device_center_scoop
+    Set ball_device_center_scoop = (new BallDevice)("center_scoop")
 
-    With ball_device_nodes
+    With ball_device_center_scoop
         .BallSwitches = Array("sw39")
         .EjectCallback = "Nodes_EjectCallback"
     End With
@@ -59,8 +49,8 @@ Sub ConfigureGlfDevices()
 End Sub
 
 Sub RaceVuk_EjectCallback(ball)
-    SoundSaucerKick 1,raceVuk
-    raceVuk.Kick 65, RndInt(7,15)
+    SoundSaucerKick 1,s_race_scoop
+    s_race_scoop.Kick 65, RndInt(7,15)
 End Sub
 
 Sub Nodes_EjectCallback(ball)

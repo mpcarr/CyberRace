@@ -1,0 +1,26 @@
+#config_version=6
+
+slide_player:
+  mode_attract_started:
+    dh_intro:
+      action: play
+  dh_intro_finished:
+    dh_attract1:
+      action: play
+    dh_intro:
+      action: remove
+  dh_attract1_finished:
+    dh_attract2:
+      action: play
+    dh_attract1:
+      action: remove
+  dh_attract2_finished:
+    dh_attract3:
+      action: play
+    dh_attract2:
+      action: remove
+  dh_attract3_finished:
+    dh_attract1:
+      action: play
+    dh_attract3:
+      action: remove

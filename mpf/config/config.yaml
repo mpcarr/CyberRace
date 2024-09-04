@@ -13,8 +13,11 @@ bcp:
 
 modes:
   - base
+  - qualify_race
   - skillshot
-  - qualify-race
+  - race_selection
+  - race_1
+  - high_score
 
 opp:
    ports: /dev/ttyACM0, /dev/ttyACM1
@@ -56,7 +59,7 @@ switches:
     number: 0-0-32
   s_hyper_vuk:
     number: 0-0-33
-  s_center_vuk:
+  s_center_scoop:
     number: 0-0-34
   s_sw18:
     number: 0-0-35
@@ -88,7 +91,15 @@ switches:
   sw07:
     number: 0-0-7
     tags: sw07
-
+  sw08:
+    number: 0-0-16
+    tags: sw08
+  sw13:
+    number: 0-0-18
+    tags: sw13
+  sw14:
+    number: 0-0-17
+    tags: sw14
 coils:
   c_flipper_left_main:
     number: 0-0-1
@@ -112,11 +123,11 @@ coils:
     number: 0-0-7
     default_pulse_ms: 20
   c_hyper_vuk:
-      number: 0-0-8
-      default_pulse_ms: 20
-  c_center_vuk:
-      number: 0-0-9
-      default_pulse_ms: 20        
+    number: 0-0-8
+    default_pulse_ms: 20
+  c_center_scoop:
+    number: 0-0-9
+    default_pulse_ms: 20
 
 neoseg_displays:
   neoSeg_0:
@@ -138,7 +149,6 @@ segment_displays:
       light_groups:
         - neoSeg_0
       type: 14segment
-
 
 lights:
   l73:
@@ -504,169 +514,188 @@ lights:
   l115:
     number: 1-0-0
     subtype: led
-    tags: gi
+    tags: T_GI
   l113:
     number: 1-0-1
     subtype: led
-    tags: gi
+    tags: T_GI
   l114:
     number: 1-0-2
     subtype: led
-    tags: gi
+    tags: T_GI
   l121:
     number: 1-0-3
     subtype: led
-    tags: gi
+    tags: T_GI
   l139:
     number: 1-0-4
     subtype: led
-    tags: gi
+    tags: T_GI
   l129:
     number: 1-0-5
     subtype: led
-    tags: gi
+    tags: T_GI
   l127:
     number: 1-0-6
     subtype: led
-    tags: gi
+    tags: T_GI
   l131:
     number: 1-0-7
     subtype: led
-    tags: gi
+    tags: T_GI
   l130:
     number: 1-0-8
     subtype: led
-    tags: gi
+    tags: T_GI
   l122:
     number: 1-0-9
     subtype: led
-    tags: gi
+    tags: T_GI
   l123:
     number: 1-0-10
     subtype: led
-    tags: gi
+    tags: T_GI
   l116:
     number: 1-0-11
     subtype: led
-    tags: gi
+    tags: T_GI
   l135:
     number: 1-0-12
     subtype: led
-    tags: gi
+    tags: T_GI
   l132:
     number: 1-0-13
     subtype: led
-    tags: gi
+    tags: T_GI
   l111:
     number: 1-0-14
     subtype: led
-    tags: gi
+    tags: T_GI
   l112:
     number: 1-0-15
     subtype: led
-    tags: gi
+    tags: T_GI
   l124:
     number: 1-0-16
     subtype: led
-    tags: gi
+    tags: T_GI
   l125:
     number: 1-0-17
     subtype: led
-    tags: gi
+    tags: T_GI
   l137:
     number: 1-0-18
     subtype: led
-    tags: gi
+    tags: T_GI
   l128:
     number: 1-0-19
     subtype: led
-    tags: gi
+    tags: T_GI
   l126:
     number: 1-0-20
     subtype: led
-    tags: gi
+    tags: T_GI
   l110:
     number: 1-0-21
     subtype: led
-    tags: gi
+    tags: T_GI
   l109:
     number: 1-0-22
     subtype: led
-    tags: gi
+    tags: T_GI
   l108:
     number: 1-0-23
     subtype: led
-    tags: gi
+    tags: T_GI
   l136:
     number: 1-0-24
     subtype: led
-    tags: gi
+    tags: T_GI
   l107:
     number: 1-0-25
     subtype: led
-    tags: gi
+    tags: T_GI
   l106:
     number: 1-0-26
     subtype: led
-    tags: gi
+    tags: T_GI
   l103:
     number: 1-0-27
     subtype: led
-    tags: gi
+    tags: T_GI
   l100:
     number: 1-0-28
     subtype: led
-    tags: gi      
+    tags: T_GI      
   l101:
     number: 1-0-29
     subtype: led
-    tags: gi
+    tags: T_GI
   l102:
     number: 1-0-30
     subtype: led
-    tags: gi
+    tags: T_GI
   l134:
     number: 1-0-31
     subtype: led
-    tags: gi
+    tags: T_GI
   l133:
     number: 1-0-32
     subtype: led
-    tags: gi
+    tags: T_GI
   l104:
     number: 1-0-33
     subtype: led
-    tags: gi
+    tags: T_GI
   l105:
     number: 1-0-34
     subtype: led
-    tags: gi
+    tags: T_GI
   l145:
     number: 1-0-35
     subtype: led
-    tags: gi
+    tags: T_GI
   l118:
     number: 1-0-36
     subtype: led
-    tags: gi
+    tags: T_GI
   l117:
     number: 1-0-37
     subtype: led
-    tags: gi
+    tags: T_GI
   l119:
     number: 1-0-38
     subtype: led
-    tags: gi
+    tags: T_GI
   l120:
     number: 1-0-39
     subtype: led
-    tags: gi
-
-
+    tags: T_GI
+  l140:
+    number: 1-0-40
+    subtype: led
+    tags: flasher
+  l141:
+    number: 1-0-41
+    subtype: led
+    tags: flasher
+  l142:
+    number: 1-0-42
+    subtype: led
+    tags: flasher
+  l143:
+    number: 1-0-43
+    subtype: led
+    tags: flasher
+  l94:
+    number: 1-0-44
+    subtype: led
+    tags: speeder
+    
 playfields:
   playfield:
     tags: default
-    default_source_device: bd_owl
+    default_source_device: plunger
 
 flippers:
   left_flipper:
@@ -713,33 +742,33 @@ virtual_platform_start_active_switches:
   - s_trough3
 
 ball_devices:
-  bd_trough:
+  trough:
     ball_switches: s_trough1, s_trough2, s_trough3, s_trough4, s_trough5, s_trough6, s_trough_jam
     eject_coil: c_trough_eject
     tags: trough, home, drain
     jam_switch: s_trough_jam
     eject_coil_jam_pulse: 15ms
-    eject_targets: bd_owl
+    eject_targets: plunger
     debug: true
-  bd_owl:
+  plunger:
     ball_switches: s_plunger
     eject_coil: c_plunger
     mechanical_eject: true
-    eject_targets: playfield, bd_race_scoop
+    eject_targets: playfield, race_scoop
     eject_timeouts: 3s
-  bd_race_scoop:
+  race_scoop:
     ball_switches: s_race_scoop
     eject_coil: c_race_scoop
     mechanical_eject: false
     eject_timeouts: 2s
-  bd_hyper_vuk:
+  hyper_vuk:
     ball_switches: s_hyper_vuk
     eject_coil: c_hyper_vuk
     mechanical_eject: false
     eject_timeouts: 2s
-  bd_center_vuk:
-    ball_switches: s_center_vuk
-    eject_coil: c_center_vuk
+  center_scoop:
+    ball_switches: s_center_scoop
+    eject_coil: c_center_scoop
     mechanical_eject: false
     eject_timeouts: 2s
 
@@ -770,23 +799,4 @@ machine_vars:
 player_vars:
   boost_activations:
     initial_value: 1
-    value_type: int    
-
-
-shot_profiles:
-  skillshot:
-    states:
-      - name: unlit
-        show: off
-      - name: flashing
-        show: flash_color
-        show_tokens:
-          color: ffff00
-  qualify_race:
-    states:
-      - name: unlit
-        show: off
-      - name: on
-        show: led_color
-        show_tokens:
-          color: ff0000
+    value_type: int

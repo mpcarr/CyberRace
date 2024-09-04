@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://cbcpp5lmfjv5v"]
+[gd_scene load_steps=7 format=3 uid="uid://cbcpp5lmfjv5v"]
 
 [ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_slide.gd" id="1_h6h4i"]
 [ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_variable.gd" id="2_12gbe"]
 [ext_resource type="Texture2D" uid="uid://b4qkioq6m3lnx" path="res://mainloop.png" id="2_rcaow"]
+[ext_resource type="Script" path="res://widgets/attract-vids.gd" id="2_tg6r8"]
 [ext_resource type="FontFile" uid="uid://bj7gqhdlgasra" path="res://fonts/Sendha.ttf" id="3_orxcw"]
 [ext_resource type="Theme" uid="uid://bruufssvwvlsc" path="res://fontheme.tres" id="3_wqs2h"]
 
@@ -122,3 +123,12 @@ variable_name = "score"
 min_digits = 2
 template_string = "Player %s"
 initialize_empty = false
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_tg6r8")

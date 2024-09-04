@@ -317,8 +317,9 @@ Sub Table1_Init()
 	LeftSlingShot_Timer
 	RightSlingShot_Timer
 
-	Glf_Init()
 	ConfigureGlfDevices()
+
+	Glf_Init()
 End Sub
 
 Sub Table1_Exit
@@ -331,7 +332,7 @@ End Sub
 
 Sub Table1_OptionEvent(ByVal eventId)
     If eventId = 1 Then DisableStaticPreRendering = True
-
+	
     Glf_Options(eventId)
 
     If eventId = 3 Then DisableStaticPreRendering = False

@@ -159,6 +159,7 @@ segment_displays:
     integrated_dots: true
     use_dots_for_commas: true
     default_transition_update_hz: 30
+    update_method: "replace"
     platform_settings:
       light_groups:
         - neoSeg_0
@@ -210,7 +211,7 @@ lights:
     subtype: led
     tags: pops
   l23:
-    previous: l7377
+    previous: l77
     subtype: led
     tags: spinner2
   l61:
@@ -422,289 +423,361 @@ lights:
     subtype: led
     tags: race2
   l53:
+    previous: l54
     number: 0-0-65
     subtype: led
     tags: race1
   l22:
+    previous: l53
     number: 0-0-66
     subtype: led
     tags: bonus3
   l21:
+    previous: l22
     number: 0-0-67
     subtype: led
     tags: bonus2
   l20:
+    previous: l21
     number: 0-0-68
     subtype: led
     tags: bonus1
   l82:
+    previous: l20
     number: 0-0-69
     subtype: led
     tags: grandSlam3
   l83:
+    previous: l82
     number: 0-0-70
     subtype: led
     tags: grandSlam4
   l84:
+    previous: l83
     number: 0-0-71
     subtype: led
     tags: grandSlam5
   l44:
+    previous: l84
     number: 0-0-72
     subtype: led
     tags: inlaneC
   l45:
+    previous: l44
     number: 0-0-73
     subtype: led
     tags: inlaneE
   l11:
+    previous: l45
     number: 0-0-74
     subtype: led
     tags: nodes11
   l12:
+    previous: l11
     number: 0-0-75
     subtype: led
     tags: nodes12
   l13:
+    previous: l12
     number: 0-0-76
     subtype: led
     tags: nodes13
   l14:
+    previous: l13
     number: 0-0-77
     subtype: led
     tags: nodes14
   l15:
+    previous: l14
     number: 0-0-78
     subtype: led
     tags: nodes15
   l10:
+    previous: l15
     number: 0-0-79
     subtype: led
     tags: nodes10
   l09:
+    previous: l10
     number: 0-0-80
     subtype: led
     tags: nodes9
   l08:
+    previous: l09
     number: 0-0-81
     subtype: led
     tags: nodes8
   l07:
+    previous: l08
     number: 0-0-82
     subtype: led
     tags: nodes7
   l05:
+    previous: l07
     number: 0-0-83
     subtype: led
     tags: nodes6
   l06:
+    previous: l05
     number: 0-0-84
     subtype: led
     tags: nodes5
   l04:
+    previous: l06
     number: 0-0-85
     subtype: led
     tags: nodes4
   l03:
+    previous: l04
     number: 0-0-86
     subtype: led
     tags: nodes3
   l02:
+    previous: l03
     number: 0-0-87
     subtype: led
     tags: nodes2
   l01:
+    previous: l02
     number: 0-0-88
     subtype: led
-    tags: nodes1                
+    tags: nodes1
   l93:
+    previous: l01
     number: 0-0-89
     subtype: led
     tags: tt5
   l65:
+    previous: l93
     number: 0-0-90
     subtype: led
     tags: shortcut
   l115:
+    previous: l65
     number: 1-0-0
     subtype: led
     tags: T_GI
   l113:
+    previous: l115
     number: 1-0-1
     subtype: led
     tags: T_GI
   l114:
+    previous: l113
     number: 1-0-2
     subtype: led
     tags: T_GI
   l121:
+    previous: l114
     number: 1-0-3
     subtype: led
     tags: T_GI
   l139:
+    previous: l121
     number: 1-0-4
     subtype: led
     tags: T_GI
   l129:
+    previous: l139
     number: 1-0-5
     subtype: led
     tags: T_GI
   l127:
+    previous: l129
     number: 1-0-6
     subtype: led
     tags: T_GI
   l131:
+    previous: l127
     number: 1-0-7
     subtype: led
     tags: T_GI
   l130:
+    previous: l131
     number: 1-0-8
     subtype: led
     tags: T_GI
   l122:
+    previous: l130
     number: 1-0-9
     subtype: led
     tags: T_GI
   l123:
+    previous: l122
     number: 1-0-10
     subtype: led
     tags: T_GI
   l116:
+    previous: l123
     number: 1-0-11
     subtype: led
     tags: T_GI
   l135:
+    previous: l116
     number: 1-0-12
     subtype: led
     tags: T_GI
   l132:
+    previous: l135
     number: 1-0-13
     subtype: led
     tags: T_GI
   l111:
+    previous: l132
     number: 1-0-14
     subtype: led
     tags: T_GI
   l112:
+    previous: l111
     number: 1-0-15
     subtype: led
     tags: T_GI
   l124:
+    previous: l112
     number: 1-0-16
     subtype: led
     tags: T_GI
   l125:
+    previous: l124
     number: 1-0-17
     subtype: led
     tags: T_GI
   l137:
+    previous: l125
     number: 1-0-18
     subtype: led
     tags: T_GI
   l128:
+    previous: l137
     number: 1-0-19
     subtype: led
     tags: T_GI
   l126:
+    previous: l128
     number: 1-0-20
     subtype: led
     tags: T_GI
   l110:
+    previous: l126
     number: 1-0-21
     subtype: led
     tags: T_GI
   l109:
+    previous: l110
     number: 1-0-22
     subtype: led
     tags: T_GI
   l108:
+    previous: l109
     number: 1-0-23
     subtype: led
     tags: T_GI
   l136:
+    previous: l108
     number: 1-0-24
     subtype: led
     tags: T_GI
   l107:
+    previous: l136
     number: 1-0-25
     subtype: led
     tags: T_GI
   l106:
+    previous: l107
     number: 1-0-26
     subtype: led
     tags: T_GI
   l103:
+    previous: l106
     number: 1-0-27
     subtype: led
     tags: T_GI
   l100:
+    previous: l103
     number: 1-0-28
     subtype: led
-    tags: T_GI      
+    tags: T_GI
   l101:
+    previous: l100
     number: 1-0-29
     subtype: led
     tags: T_GI
   l102:
+    previous: l101
     number: 1-0-30
     subtype: led
     tags: T_GI
   l134:
+    previous: l102
     number: 1-0-31
     subtype: led
     tags: T_GI
   l133:
+    previous: l134
     number: 1-0-32
     subtype: led
     tags: T_GI
   l104:
+    previous: l133
     number: 1-0-33
     subtype: led
     tags: T_GI
   l105:
+    previous: l104
     number: 1-0-34
     subtype: led
     tags: T_GI
   l145:
+    previous: l105
     number: 1-0-35
     subtype: led
     tags: T_GI
   l118:
+    previous: l145
     number: 1-0-36
     subtype: led
     tags: T_GI
   l117:
+    previous: l118
     number: 1-0-37
     subtype: led
     tags: T_GI
   l119:
+    previous: l117
     number: 1-0-38
     subtype: led
     tags: T_GI
   l120:
+    previous: l119
     number: 1-0-39
     subtype: led
     tags: T_GI
   l140:
+    previous: l120
     number: 1-0-40
     subtype: led
     tags: flasher
   l141:
+    previous: l140
     number: 1-0-41
     subtype: led
     tags: flasher
   l142:
+    previous: l141
     number: 1-0-42
     subtype: led
     tags: flasher
   l143:
+    previous: l142
     number: 1-0-43
     subtype: led
     tags: flasher
   l94:
+    previous: l143
     number: 1-0-44
     subtype: led
     tags: speeder
+
     
 playfields:
   playfield:

@@ -105,6 +105,8 @@ switches:
   sw14:
     number: 1-0-47
     tags: sw14
+  s_ball_launch:
+    number: 0-0-19
 coils:
   c_flipper_left_main:
     number: 0-0-1

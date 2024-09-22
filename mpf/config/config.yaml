@@ -34,71 +34,76 @@ switches:
   s_right_flipper:
     number: 0-0-2
     tags: right_flipper
-  s_trough1:
+  s_upper_flipper:
     number: 0-0-3
-  s_trough2:
+    tags: upper_flipper
+  
+  s_trough1:
     number: 0-0-8
-  s_trough3:
+  s_trough2:
     number: 0-0-9
-  s_trough4:
+  s_trough3:
     number: 0-0-10
-  s_trough5:
+  s_trough4:
     number: 0-0-11
-  s_trough6:
+  s_trough5:
     number: 0-0-27
-  s_trough_jam:
+  s_trough6:
     number: 0-0-26
+  s_trough_jam:
+    number: 0-0-25
   s_plunger:
-    number: 0-0-28
+    number: 0-0-24
   s_start:
-    number: 0-0-29
+    number: 0-0-19
     tags: start
   s_launch_button:
-    number: 0-0-31
+    number: 0-0-18
+
   s_race_scoop:
-    number: 0-0-32
+    number: 1-0-32
   s_hyper_vuk:
-    number: 0-0-33
+    number: 1-0-33
   s_center_scoop:
-    number: 0-0-34
+    number: 1-0-34
   s_sw18:
-    number: 0-0-35
+    number: 1-0-35
     tags: boost1, boost_targets
   s_sw19:
-    number: 0-0-36
+    number: 1-0-36
     tags: boost2, boost_targets
   s_sw20:
-    number: 0-0-37
+    number: 1-0-37
     tags: boost3, boost_targets   
   sw01:
-    number: 0-0-12
+    number: 1-0-38
     tags: sw01
   sw02:
-    number: 0-0-13
+    number: 1-0-39
     tags: sw02
   sw03:
-    number: 0-0-14
+    number: 1-0-40
     tags: sw03
   sw04:
-    number: 0-0-15
+    number: 1-0-41
     tags: sw04
   sw05:
-    number: 0-0-5
+    number: 1-0-42
     tags: sw05
   sw06:
-    number: 0-0-6
+    number: 1-0-43
     tags: sw06
   sw07:
-    number: 0-0-7
+    number: 1-0-44
     tags: sw07
   sw08:
-    number: 0-0-16
+    number: 1-0-45
     tags: sw08
   sw13:
-    number: 0-0-18
+    number: 1-0-46
     tags: sw13
   sw14:
-    number: 0-0-17
+    number: 1-0-47
     tags: sw14
 coils:
   c_flipper_left_main:
@@ -113,20 +118,27 @@ coils:
   c_flipper_right_hold:
     number: 0-0-4
     allow_enable: true
-  c_trough_eject:
+  c_flipper_upper_main:
     number: 0-0-5
     default_pulse_ms: 20
-  c_plunger:
+  c_flipper_upper_hold:
     number: 0-0-6
-    default_pulse_ms: 20
-  c_race_scoop:
+    allow_enable: true
+
+  c_trough_eject:
     number: 0-0-7
     default_pulse_ms: 20
-  c_hyper_vuk:
+  c_plunger:
     number: 0-0-8
     default_pulse_ms: 20
-  c_center_scoop:
+  c_race_scoop:
     number: 0-0-9
+    default_pulse_ms: 20
+  c_hyper_vuk:
+    number: 0-0-10
+    default_pulse_ms: 20
+  c_center_scoop:
+    number: 0-0-11
     default_pulse_ms: 20
 
 neoseg_displays:
@@ -156,255 +168,255 @@ lights:
     subtype: led
     tags: raceNeon
   l74:
-    number: 0-0-1
+    previous: l73
     subtype: led
     tags: raceNeon
   l75:
-    number: 0-0-2
+    previous: l74
     subtype: led
     tags: raceNeon
   l76:
-    number: 0-0-3
+    previous: l75
     subtype: led
     tags: raceNeon
   l66:
-    number: 0-0-4
+    previous: l76
     subtype: led
     tags: bonusLanes
   l67:
-    number: 0-0-5
+    previous: l66
     subtype: led
     tags: bonusLanes
   l68:
-    number: 0-0-6
+    previous: l67
     subtype: led
     tags: bonusLanes    
   l97:
-    number: 0-0-7
+    previous: l68
     subtype: led
     tags: lockNeonSign
   l79:
-    number: 0-0-8
+    previous: l97
     subtype: led
     tags: pops
   l78:
-    number: 0-0-9
+    previous: l79
     subtype: led
     tags: pops
   l77:
-    number: 0-0-10
+    previous: l78
     subtype: led
     tags: pops
   l23:
-    number: 0-0-11
+    previous: l7377
     subtype: led
     tags: spinner2
   l61:
-    number: 0-0-12
+    previous: l23
     subtype: led
     tags: boost3
   l91:
-    number: 0-0-13
+    previous: l61
     subtype: led
     tags: tt2
   l17:
-    number: 0-0-14
+    previous: l91
     subtype: led
     tags: bet1
   l18:
-    number: 0-0-15
+    previous: l17
     subtype: led
     tags: bet2
   l19:
-    number: 0-0-16
+    previous: l18
     subtype: led
     tags: bet3
   l72:
-    number: 0-0-17
+    previous: l19
     subtype: led
     tags: lockNeonL
   l71:
-    number: 0-0-18
+    previous: l72
     subtype: led
     tags: lockNeonO
   l70:
-    number: 0-0-19
+    previous: l71
     subtype: led
     tags: lockNeonC
   l69:
-    number: 0-0-20
+    previous: l70
     subtype: led
     tags: lockNeonK
   l63:
-    number: 0-0-21
+    previous: l69
     subtype: led
     tags: rightOrbit
   l28:
-    number: 0-0-22
+    previous: l63
     subtype: led
     tags: comboRightOrbit
   l33:
-    number: 0-0-23
+    previous: l28
     subtype: led
     tags: cyberR
   l92:
-    number: 0-0-24
+    previous: l33
     subtype: led
     tags: tt4
   l32:
-    number: 0-0-25
+    previous: l92
     subtype: led
     tags: cyberE  
   l27:
-    number: 0-0-26
+    previous: l32
     subtype: led
     tags: comboRightRamp
   l64:
-    number: 0-0-27
+    previous: l27
     subtype: led
     tags: rightRamp
   l35:
-    number: 0-0-28
+    previous: l64
     subtype: led
     tags: raceFinish
   l62:
-    number: 0-0-29
+    previous: l35
     subtype: led
     tags: nodesComplete
   l34:
-    number: 0-0-30
+    previous: l62
     subtype: led
     tags: extraBall
   l90:
-    number: 0-0-31
+    previous: l34
     subtype: led
     tags: tt3
   l31:
-    number: 0-0-32
+    previous: l90
     subtype: led
     tags: cyberB
   l26:
-    number: 0-0-33
+    previous: l31
     subtype: led
     tags: comboLeftRamp
   l47:
-    number: 0-0-34
+    previous: l26
     subtype: led
     tags: leftRamp
   l46:
-    number: 0-0-35
+    previous: l47
     subtype: led
     tags: leftOrbit
   l25:
-    number: 0-0-36
+    previous: l46
     subtype: led
     tags: comboLeftOrbit
   l30:
-    number: 0-0-37
+    previous: l25
     subtype: led
     tags: cyberY
   l95:
-    number: 0-0-38
+    previous: l30
     subtype: led
     tags: tt1
   l60:
-    number: 0-0-39
+    previous: l95
     subtype: led
     tags: boost2
   l37:
-    number: 0-0-40
+    previous: l60
     subtype: led
     tags: hyperH
   l38:
-    number: 0-0-41
+    previous: l37
     subtype: led
     tags: hyperY
   l39:
-    number: 0-0-42
+    previous: l38
     subtype: led
     tags: hyperP    
   l40:
-    number: 0-0-43
+    previous: l39
     subtype: led
     tags: hyperE
   l41:
-    number: 0-0-44
+    previous: l40
     subtype: led
     tags: hyperR    
   l98:
-    number: 0-0-45
+    previous: l41
     subtype: led
     tags: addTime
   l49:
-    number: 0-0-47
+    previous: l98
     subtype: led
     tags: mystery
   l59:
-    number: 0-0-48
+    previous: l49
     subtype: led
     tags: boost1
   l48:
-    number: 0-0-49
+    previous: l59
     subtype: led
     tags: spinner1
   l24:
-    number: 0-0-50
+    previous: l48
     subtype: led
     tags: comboSpinner
   l29:
-    number: 0-0-51
+    previous: l24
     subtype: led
     tags: cyberC
   l42:
-    number: 0-0-52
+    previous: l29
     subtype: led
     tags: inlaneR
   l43:
-    number: 0-0-53
+    previous: l42
     subtype: led
     tags: inlaneA
   l80:
-    number: 0-0-54
+    previous: l43
     subtype: led
     tags: grandSlam1
   l81:
-    number: 0-0-55
+    previous: l80
     subtype: led
     tags: grandSlam2
   l51:
-    number: 0-0-56
+    previous: l81
     subtype: led
     tags: PFX2
   l50:
-    number: 0-0-57
+    previous: l51
     subtype: led
     tags: PFX1
   l52:
-    number: 0-0-58
+    previous: l50
     subtype: led
     tags: PFX3
   l56:
-    number: 0-0-59
+    previous: l52
     subtype: led
     tags: race4
   l16:
-    number: 0-0-60
+    previous: l56
     subtype: led
     tags: ballSave
   l57:
-    number: 0-0-61
+    previous: l16
     subtype: led
     tags: race5
   l58:
-    number: 0-0-62
+    previous: l57
     subtype: led
     tags: race6
   l55:
-    number: 0-0-63
+    previous: l58
     subtype: led
     tags: race3
   l54:
-    number: 0-0-64
+    previous: l55
     subtype: led
     tags: race2
   l53:
@@ -706,6 +718,10 @@ flippers:
     main_coil: c_flipper_right_main
     hold_coil: c_flipper_right_hold
     activation_switch: s_right_flipper
+  upper_flipper:
+    main_coil: c_flipper_upper_main
+    hold_coil: c_flipper_upper_hold
+    activation_switch: s_upper_flipper
 
 keyboard:
   debug: yes

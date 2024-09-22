@@ -3,6 +3,7 @@ extends MPFSceneBase
 
 var _widgets: Node2D
 
+
 ## A scene root node for creating a Slide that can be added to a display stack using events and the slide_player.
 
 func initialize(n: String, settings: Dictionary, c: String, p: int = 0, kwargs: Dictionary = {}) -> void:

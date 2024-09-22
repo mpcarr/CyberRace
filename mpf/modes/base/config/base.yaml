@@ -5,6 +5,9 @@ mode:
   stop_events: ball_ended
   priority: 1000
 
+slide_player: 
+  mode_base_started: base
+
 ball_saves: 
   base:
     active_time: 15s

@@ -2,12 +2,16 @@
 
 mode:
   start_events: ball_started
-  stop_events: end_skillshot, skill_shot_unlit_hit, timer_skillshot_complete
-  priority: 500
+  stop_events: end_skillshot, skill_shot_unlit_hit, timer_skillshot_complete, skillshot_miss, skillshot_hit
+  priority: 1100
+
+slide_player:
+  mode_skillshot_started: skillshot
+
 
 shot_profiles: 
   skillshot:
-    states: 
+    states:   
      - name: unlit
        show: off
        loops: -1

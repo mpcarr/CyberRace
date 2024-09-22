@@ -1,0 +1,55 @@
+[gd_scene load_steps=7 format=3 uid="uid://bwgfwf5b4d1ot"]
+
+[ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_slide.gd" id="1_s41jp"]
+[ext_resource type="Texture2D" uid="uid://g5j3d5oxwx4p" path="res://slides/skillshot/assets/snowscene2.png" id="2_qo1ov"]
+[ext_resource type="Texture2D" uid="uid://bgfu4nv623ncb" path="res://slides/skillshot/assets/mobiler.png" id="3_b1vb6"]
+[ext_resource type="Script" path="res://slides/skillshot/Mobiler.gd" id="4_irytf"]
+[ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_event_handler.gd" id="5_djdg2"]
+[ext_resource type="Texture2D" uid="uid://5hadtah1jb58" path="res://slides/skillshot/assets/gun.png" id="5_slwvx"]
+
+[node name="Skillshot" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_s41jp")
+
+[node name="BoxContainer" type="BoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Snowscene2" type="Sprite2D" parent="BoxContainer"]
+texture = ExtResource("2_qo1ov")
+centered = false
+
+[node name="Mobiler" type="Sprite2D" parent="BoxContainer"]
+position = Vector2(408, 540)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("3_b1vb6")
+script = ExtResource("4_irytf")
+
+[node name="MPFEventHandler" type="Node2D" parent="BoxContainer/Mobiler"]
+position = Vector2(-816, -1080)
+scale = Vector2(2, 2)
+script = ExtResource("5_djdg2")
+event_name = "s_ball_launch_active"
+call_method = "checkHit"
+
+[node name="Gun" type="Sprite2D" parent="BoxContainer"]
+position = Vector2(936, 824)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("5_slwvx")
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

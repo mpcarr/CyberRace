@@ -24,3 +24,6 @@ slide_player:
       action: play
     dh_attract3:
       action: remove
+
+show_player:
+  mode_attract_started: test

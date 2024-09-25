@@ -41,17 +41,3 @@ light_player:
   mode_base_started: 
     T_GI: 
       color: ffffff
-
-segment_display_player:
-  mode_base_started:
-    neoSegClock:
-      text: JACKPOT
-      priority: 1000
-      expire: 2s
-      transition:
-        type: push
-        direction: right
-        text: " *** "
-
-
-

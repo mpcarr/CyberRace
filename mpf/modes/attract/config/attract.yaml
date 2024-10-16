@@ -25,5 +25,10 @@ slide_player:
     dh_attract3:
       action: remove
 
+
 show_player:
-  mode_attract_started: test
+  mode_attract_started: 
+    race:
+      speed: 4
+      show_tokens:
+        color: "009ba0"

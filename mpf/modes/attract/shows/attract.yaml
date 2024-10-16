@@ -1,0 +1,14 @@
+#show_version=6
+
+- duration: 1s
+  shows:
+    race:
+      speed: .5
+- duration: 1s
+  shows:
+    side:
+      speed: 1
+- duration: 1s
+  shows:
+    green:
+      speed: 1

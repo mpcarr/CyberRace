@@ -1,42 +1,41 @@
 events:
   game_ended: 15
-  game_started: 314
+  game_started: 316
 missing_switches:
   s_ball_launch: 1
-  s_center_scoop: 96
+  s_center_scoop: 98
   s_center_vuk: 36
-  s_hyper_vuk: 142
-  s_launch_button: 26
-  s_left_flipper: 188
-  s_race_scoop: 128
+  s_hyper_vuk: 144
+  s_launch_button: 28
+  s_left_flipper: 190
+  s_race_scoop: 130
   s_race_vuk: 6
-  s_right_flipper: 103
+  s_right_flipper: 105
   s_right_inlane: 78
-  s_start: 38
+  s_start: 40
   s_sw05: 1
   s_sw06: 1
   s_sw07: 1
-  s_sw18: 128
-  s_sw19: 128
-  s_sw20: 128
-  s_trough1: 5
-  s_trough2: 38
-  s_trough3: 38
-  s_trough4: 38
-  s_trough5: 38
-  s_trough6: 33
-  s_trough_jam: 188
-  s_upper_flipper: 7
-  sw01: 102
-  sw02: 102
-  sw03: 102
-  sw04: 102
-  sw05: 112
-  sw06: 118
-  sw07: 118
-  sw08: 102
-  sw13: 37
-  sw14: 102
+  s_sw18: 130
+  s_sw19: 130
+  s_sw20: 130
+  s_trough1: 7
+  s_trough2: 40
+  s_trough3: 40
+  s_trough4: 40
+  s_trough5: 40
+  s_trough6: 35
+  s_trough_jam: 190
+  s_upper_flipper: 9
+  sw01: 104
+  sw02: 104
+  sw03: 104
+  sw04: 104
+  sw05: 114
+  sw06: 120
+  sw07: 120
+  sw08: 104
+  sw14: 104
 player:
   score:
     average: 1498
@@ -61,7 +60,7 @@ shots:
   lane3: 1
   left_inlane: 5
   left_outlane: 4
-  leftramp: 20
+  leftramp: 21
   right_inlane: 6
   right_outlane: 3
 switches:
@@ -71,7 +70,7 @@ switches:
   s_hyper_vuk: 9
   s_launch_button: 1
   s_left_flipper: 0
-  s_plunger: 532
+  s_plunger: 534
   s_race_scoop: 215
   s_race_vuk: 0
   s_right_flipper: 39
@@ -99,5 +98,5 @@ switches:
   sw06: 1
   sw07: 1
   sw08: 0
-  sw13: 23
+  sw13: 26
   sw14: 0

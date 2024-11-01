@@ -41,6 +41,7 @@ Sub ConfigureGlfDevices()
         .EjectCallback = "Hyper_EjectCallback"
     End With
 
+    CreateAttractMode()
     CreateBaseMode()
     CreateSkillshotMode()
     CreateQualifyRaceMode()

@@ -1,9 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://cbcpp5lmfjv5v"]
+[gd_scene load_steps=6 format=3 uid="uid://cbcpp5lmfjv5v"]
 
 [ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_slide.gd" id="1_h6h4i"]
 [ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_variable.gd" id="2_12gbe"]
 [ext_resource type="Texture2D" uid="uid://b4qkioq6m3lnx" path="res://mainloop.png" id="2_rcaow"]
-[ext_resource type="Script" path="res://widgets/attract-vids.gd" id="2_tg6r8"]
 [ext_resource type="FontFile" uid="uid://bj7gqhdlgasra" path="res://fonts/Sendha.ttf" id="3_orxcw"]
 [ext_resource type="Theme" uid="uid://bruufssvwvlsc" path="res://fontheme.tres" id="3_wqs2h"]
 
@@ -33,6 +32,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("3_wqs2h")
+text = "99,999,999,999"
 horizontal_alignment = 1
 vertical_alignment = 1
 script = ExtResource("2_12gbe")
@@ -43,12 +43,13 @@ initialize_empty = false
 
 [node name="current_ball" type="Label" parent="."]
 layout_mode = 0
-offset_left = 600.0
-offset_top = 440.0
-offset_right = 684.0
-offset_bottom = 472.0
+offset_left = 920.0
+offset_top = 620.0
+offset_right = 1004.0
+offset_bottom = 652.0
 theme = ExtResource("3_wqs2h")
 theme_override_font_sizes/font_size = 30
+text = "Ball 1"
 script = ExtResource("2_12gbe")
 variable_name = "ball"
 template_string = "Ball %s "
@@ -56,14 +57,14 @@ initialize_empty = false
 
 [node name="current_player2" type="Label" parent="."]
 layout_mode = 0
-offset_left = 800.0
-offset_top = 256.0
-offset_right = 934.0
-offset_bottom = 288.0
+offset_left = 1184.0
+offset_top = 648.0
+offset_right = 1419.0
+offset_bottom = 680.0
 theme = ExtResource("3_wqs2h")
 theme_override_fonts/font = ExtResource("3_orxcw")
 theme_override_font_sizes/font_size = 30
-text = "00"
+text = "99,999,999,999"
 horizontal_alignment = 1
 script = ExtResource("2_12gbe")
 variable_type = 5
@@ -72,32 +73,32 @@ min_digits = 2
 template_string = "Player %s"
 initialize_empty = false
 
-[node name="current_player" type="Label" parent="."]
+[node name="current_player1" type="Label" parent="."]
 layout_mode = 0
-offset_left = 344.0
-offset_top = 256.0
-offset_right = 467.0
-offset_bottom = 288.0
+offset_left = 512.0
+offset_top = 648.0
+offset_right = 747.0
+offset_bottom = 680.0
 theme = ExtResource("3_wqs2h")
 theme_override_fonts/font = ExtResource("3_orxcw")
 theme_override_font_sizes/font_size = 30
-text = "Player 1"
+text = "99,999,999,999
+"
 script = ExtResource("2_12gbe")
 variable_type = 4
-variable_name = "number"
-template_string = "Player %s"
+variable_name = "score"
 initialize_empty = false
 
 [node name="current_player3" type="Label" parent="."]
 layout_mode = 0
-offset_left = 344.0
-offset_top = 432.0
-offset_right = 467.0
-offset_bottom = 464.0
+offset_left = 512.0
+offset_top = 392.0
+offset_right = 747.0
+offset_bottom = 424.0
 theme = ExtResource("3_wqs2h")
 theme_override_fonts/font = ExtResource("3_orxcw")
 theme_override_font_sizes/font_size = 30
-text = "00"
+text = "99,999,999,999"
 horizontal_alignment = 1
 script = ExtResource("2_12gbe")
 variable_type = 6
@@ -108,14 +109,14 @@ initialize_empty = false
 
 [node name="current_player4" type="Label" parent="."]
 layout_mode = 0
-offset_left = 800.0
-offset_top = 432.0
-offset_right = 923.0
-offset_bottom = 464.0
+offset_left = 1184.0
+offset_top = 392.0
+offset_right = 1419.0
+offset_bottom = 424.0
 theme = ExtResource("3_wqs2h")
 theme_override_fonts/font = ExtResource("3_orxcw")
 theme_override_font_sizes/font_size = 30
-text = "00"
+text = "99,999,999,999"
 horizontal_alignment = 1
 script = ExtResource("2_12gbe")
 variable_type = 7
@@ -123,12 +124,3 @@ variable_name = "score"
 min_digits = 2
 template_string = "Player %s"
 initialize_empty = false
-
-[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("2_tg6r8")

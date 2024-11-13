@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="pygame"
-run/main_scene="res://addons/mpf-gmc/slides/window.tscn"
+run/main_scene="res://slides/window.tscn"
 config/features=PackedStringArray("4.2", "Mobile")
 boot_splash/image="res://splash.png"
 config/icon="res://icon.svg"
@@ -27,6 +27,7 @@ window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/size/initial_position_type=0
 window/size/always_on_top=true
+window/subwindows/embed_subwindows=false
 window/stretch/mode="viewport"
 
 [editor_plugins]

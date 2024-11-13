@@ -1,8 +1,5 @@
 'Devices
 
-
-
-
 Sub ConfigureGlfDevices()
 
     Dim ball_device_plunger
@@ -41,12 +38,20 @@ Sub ConfigureGlfDevices()
         .EjectCallback = "Hyper_EjectCallback"
     End With
 
+    Dim segment_display_clock
+    Set segment_display_clock = (New GlfLightSegmentDisplay)("clock")
+
+    segment_display_clock.SegmentType = "14Segment"
+    segment_display_clock.SegmentSize = 2
+    segment_display_clock.LightGroup = "NeoSegClock"
+
     CreateAttractMode()
     CreateBaseMode()
     CreateSkillshotMode()
     CreateQualifyRaceMode()
     CreateRaceSelectionMode()
     CreateRace1Mode()
+
 End Sub
 
 Sub RaceVuk_EjectCallback(ball)

@@ -1,7 +1,7 @@
 Sub CreateAttractMode
 	With CreateGlfMode("attract", 2000)
-		.StartEvents = Array("ball_started")
-		.StopEvents = Array("ball_ended") 
+		.StartEvents = Array("reset_complete", "game_ended")
+		.StopEvents = Array("game_start") 
 		.Debug = True
 		With .ShowPlayer()
 			With .Events("mode_attract_started")

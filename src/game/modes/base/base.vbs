@@ -15,6 +15,23 @@ Sub CreateBaseMode
 			.AutoLaunch = True
 		End With
 
+		With .SegmentDisplayPlayer()
+			With .Events("timer_ballsave_tick")
+				.Display = "clock"
+				.Text = "devices.timers.ballsave.ticks_remaining"
+			End With
+		End With
+
+		With .Timers("ballsave")
+            .StartValue = 15
+            .EndValue = 0
+            .Direction = "down"
+            With .ControlEvents("start")
+                .EventName = "balldevice_plunger_ball_eject_success"
+                .Action = "start"
+            End With
+        End With
+
 		With .LightPlayer()
 			With .Events("mode_base_started")
 				With .Lights("T_GI")

@@ -1,0 +1,169 @@
+[gd_scene load_steps=15 format=3 uid="uid://bp2uus77hrtns"]
+
+[ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_window.gd" id="1_ybsoh"]
+[ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_display.gd" id="2_8kuxg"]
+[ext_resource type="PackedScene" uid="uid://belkug6sa4arr" path="res://addons/mpf-gmc/slides/startup.tscn" id="3_2ylqy"]
+[ext_resource type="Shader" path="res://addons/mpf-gmc/resources/virtual_dmd.gdshader" id="4_gv8j6"]
+[ext_resource type="Shader" path="res://addons/mpf-gmc/resources/pixelate.gdshader" id="5_hsntf"]
+[ext_resource type="Shader" path="res://addons/mpf-gmc/resources/dmd_dots.gdshader" id="6_88rwb"]
+[ext_resource type="Script" path="res://slides/Window.gd" id="7_geoku"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vnlqf"]
+shader = ExtResource("4_gv8j6")
+shader_parameter/color = Color(0.101961, 0, 0, 1)
+shader_parameter/hardness = 5.0
+shader_parameter/spacing = 2.0
+shader_parameter/columns = 98.0
+shader_parameter/rows = 36.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gmaen"]
+shader = ExtResource("5_hsntf")
+shader_parameter/columns = 128.0
+shader_parameter/rows = 32.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4bkj2"]
+shader = ExtResource("6_88rwb")
+shader_parameter/color = null
+shader_parameter/hardness = 5.0
+shader_parameter/spacing = 2.0
+shader_parameter/columns = 98.0
+shader_parameter/rows = 36.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_t6y31"]
+
+[sub_resource type="Animation" id="Animation_qpo6r"]
+length = 0.001
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_wa1l2"]
+resource_name = "new_animation"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(600, 0), Vector2(0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_mwmuk"]
+_data = {
+"RESET": SubResource("Animation_qpo6r"),
+"new_animation": SubResource("Animation_wa1l2")
+}
+
+[node name="MPFWindow" type="Control"]
+custom_minimum_size = Vector2(1920, 720)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_ybsoh")
+
+[node name="DefaultDisplay" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_8kuxg")
+is_default = true
+initial_slide = ExtResource("3_2ylqy")
+
+[node name="filters" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="virtual_dmd" type="ColorRect" parent="filters"]
+z_index = 4096
+material = SubResource("ShaderMaterial_vnlqf")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="pixelate" type="ColorRect" parent="filters"]
+visible = false
+z_index = 4096
+material = SubResource("ShaderMaterial_gmaen")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="dmd_dots" type="ColorRect" parent="filters"]
+visible = false
+top_level = true
+z_index = 4096
+material = SubResource("ShaderMaterial_4bkj2")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="custom" type="ColorRect" parent="filters"]
+visible = false
+top_level = true
+z_index = 4096
+material = SubResource("ShaderMaterial_t6y31")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Window" type="Window" parent="."]
+title = "test window"
+position = Vector2i(0, 36)
+size = Vector2i(800, 600)
+visible = false
+script = ExtResource("7_geoku")
+
+[node name="ColorRect" type="ColorRect" parent="Window"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 2400.0
+offset_bottom = 1800.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0745098, 1, 1, 1)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Window/ColorRect"]
+libraries = {
+"": SubResource("AnimationLibrary_mwmuk")
+}

@@ -30,31 +30,21 @@ Sub ConfigureGlfDevices()
         .BallSwitches = Array("s_plunger")
         .EjectTargets = Array("sw27")
         .EjectStrength = 150
-        .MechcanicalEject = True
+        .MechanicalEject = True
         .DefaultDevice = True
     End With
 
-    Dim ball_device_race_scoop
-    Set ball_device_race_scoop = (new GlfBallDevice)("race_scoop")
-    ball_device_race_scoop.Debug = True
-
-    With ball_device_race_scoop
+    With CreateGlfBallDevice("race_scoop")
         .BallSwitches = Array("s_race_scoop")
         .EjectCallback = "RaceVuk_EjectCallback"
     End With
 
-    Dim ball_device_center_scoop
-    Set ball_device_center_scoop = (new GlfBallDevice)("center_scoop")
-
-    With ball_device_center_scoop
+    With CreateGlfBallDevice("center_scoop")
         .BallSwitches = Array("sw39")
         .EjectCallback = "Nodes_EjectCallback"
     End With
 
-    Dim ball_device_hyper
-    Set ball_device_hyper = (new GlfBallDevice)("hyper")
-
-    With ball_device_hyper
+    With CreateGlfBallDevice("hyper")
         .BallSwitches = Array("sw38")
         .EjectCallback = "Hyper_EjectCallback"
     End With

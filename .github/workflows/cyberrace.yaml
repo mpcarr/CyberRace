@@ -1,0 +1,53 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "glf" ]
+  pull_request:
+    branches: [ "glf" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    outputs:
+      build_number: ${{ steps.version.outputs.build_number }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: version
+        run: |
+          echo "build_number=$(git rev-list d5dc63720abb4a5a4ca3c6724c7497e593e14eb3..HEAD --count)"  >> $GITHUB_OUTPUT
+
+      - name: Modify locked property
+        run: |
+          jq '.locked = 1' cyberrace-dev/gamedata.json > temp.json && mv temp.json cyberrace-dev/gamedata.json
+        working-directory: ${{ github.workspace }}
+
+      - name: Download vpxtool
+        run: |
+          wget https://github.com/francisdb/vpxtool/releases/download/v0.13.0/vpxtool-Linux-x86_64-musl-v0.13.0.tar.gz
+          tar -xzf vpxtool-Linux-x86_64-musl-v0.13.0.tar.gz
+        
+      - name: Run Command
+        run: |
+          git rev-list --max-parents=0 HEAD
+          ./vpxtool assemble cyberrace-dev
+          mv ./cyberrace-dev.vpx ./CyberRace${{steps.version.outputs.build_number}}.vpx
+          
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CyberRace_${{ steps.version.outputs.build_number }}
+          path: ./CyberRace${{steps.version.outputs.build_number}}.vpx

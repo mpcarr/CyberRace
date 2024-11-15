@@ -29,7 +29,7 @@ Sub ConfigureGlfDevices()
     With CreateGlfBallDevice("plunger")
         .BallSwitches = Array("s_plunger")
         .EjectTargets = Array("sw27")
-        .EjectStrength = 150
+        .EjectStrength = 40
         .MechanicalEject = True
         .DefaultDevice = True
     End With

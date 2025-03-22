@@ -4,3 +4,12 @@ gifs
 mpf/logs
 
 mpf080
+
+godot-cpp
+shared_memory_extension
+shared_memory_extension2
+*.dblite
+*.log
+SConstruct
+bin
+audits.yaml

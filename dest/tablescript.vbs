@@ -274,8 +274,6 @@ End Sub
 
 Sub Table1_Init()
 	
-	
-
 	kickerCaptiveBall1.CreateSizedballWithMass Ballsize/2, BallMass
 	kickerCaptiveBall1.kick 0,0
 	kickerCaptiveBall2.CreateSizedballWithMass Ballsize/2, BallMass
@@ -780,52 +778,75 @@ Const MODE_WIZARD_HITS = "Game Mode Wizard Hits"
 
 'Devices
 
-
-
-
 Sub ConfigureGlfDevices()
 
-    Dim ball_device_plunger
-    Set ball_device_plunger = (new BallDevice)("plunger")
+    With CreateGlfFlipper("left")
+        .Switch = Array("s_left_flipper")
+    End With
+    AddPinEventListener "flipper_left_activate",   "on_left_flipper_activate",   "OnLeftFlipperActivate", 1000, Null
+    AddPinEventListener "flipper_left_deactivate",   "on_left_flipper_deactivate",   "OnLeftFlipperDeactivate", 1000, Null
+    
+    With CreateGlfFlipper("right")
+        .Switch = Array("s_right_flipper")
+    End With
+    AddPinEventListener "flipper_right_activate",   "on_right_flipper_activate",   "OnRightFlipperActivate", 1000, Null
+    AddPinEventListener "flipper_right_deactivate",   "on_right_flipper_deactivate",   "OnRightFlipperDeactivate", 1000, Null
 
-    With ball_device_plunger
+    If StagedFlipperMod = 1 Then
+        With CreateGlfFlipper("upper_right")
+            .Switch = Array("s_right_staged_flipper")
+        End With
+        AddPinEventListener "flipper_upper_right_activate",   "on_right_upper_flipper_activate",   "OnRightUpperFlipperActivate", 1000, Null
+        AddPinEventListener "flipper_upper_right_deactivate",   "on_right_upper_flipper_deactivate",   "OnRightUpperFlipperDeactivate", 1000, Null
+    Else
+        With CreateGlfFlipper("upper_right")
+            .Switch = Array("s_right_flipper")
+        End With
+    End If
+
+    With CreateGlfBallDevice("plunger")
         .BallSwitches = Array("s_plunger")
         .EjectTargets = Array("sw27")
-        .EjectStrength = 150
-        .MechcanicalEject = True
+        .EjectStrength = 40
+        .MechanicalEject = True
         .DefaultDevice = True
     End With
 
-    Dim ball_device_race_scoop
-    Set ball_device_race_scoop = (new BallDevice)("race_scoop")
-    ball_device_race_scoop.Debug = True
-
-    With ball_device_race_scoop
+    With CreateGlfBallDevice("race_scoop")
         .BallSwitches = Array("s_race_scoop")
         .EjectCallback = "RaceVuk_EjectCallback"
     End With
 
-    Dim ball_device_center_scoop
-    Set ball_device_center_scoop = (new BallDevice)("center_scoop")
-
-    With ball_device_center_scoop
+    With CreateGlfBallDevice("center_scoop")
         .BallSwitches = Array("sw39")
         .EjectCallback = "Nodes_EjectCallback"
     End With
 
-    Dim ball_device_hyper
-    Set ball_device_hyper = (new BallDevice)("hyper")
-
-    With ball_device_hyper
+    With CreateGlfBallDevice("hyper")
         .BallSwitches = Array("sw38")
         .EjectCallback = "Hyper_EjectCallback"
     End With
 
+    Dim segment_display_clock
+    Set segment_display_clock = (New GlfLightSegmentDisplay)("clock")
+
+    segment_display_clock.SegmentType = "14Segment"
+    segment_display_clock.SegmentSize = 2
+    segment_display_clock.LightGroup = "NeoSegClock"
+
+    CreateAttractMode()
     CreateBaseMode()
     CreateSkillshotMode()
     CreateQualifyRaceMode()
     CreateRaceSelectionMode()
     CreateRace1Mode()
+
+    AddPinEventListener "trough_eject",   "on_trough_eject",   "OnTroughEject", 1000, Null
+
+End Sub
+
+Sub OnTroughEject(args)
+    'msgbox "here"
 End Sub
 
 Sub RaceVuk_EjectCallback(ball)
@@ -842,6 +863,77 @@ Sub Hyper_EjectCallback(ball)
     SoundSaucerKick 1,sw38
     sw38.Kick 0, 60, 1.36
 End Sub
+
+Function OnLeftFlipperActivate(args)
+    LFlipperDown = True
+    DOF 101, DOFOn
+    FlipperActivate LeftFlipper, LFPress
+    LF.Fire    
+    If LeftFlipper.currentangle < LeftFlipper.endangle + ReflipAngle Then 
+        RandomSoundReflipUpLeft LeftFlipper
+    Else 
+        SoundFlipperUpAttackLeft LeftFlipper
+        RandomSoundFlipperUpLeft LeftFlipper
+    End If
+End Function
+
+Function OnLeftFlipperDeactivate(args)
+    DOF 101,DOFOff
+    LFlipperDown = False
+    FlipperDeActivate LeftFlipper, LFPress
+    LeftFlipper.RotateToStart
+    If LeftFlipper.currentangle < LeftFlipper.startAngle - 5 Then
+        RandomSoundFlipperDownLeft LeftFlipper
+    End If
+    FlipperLeftHitParm = FlipperUpSoundLevel
+End Function
+
+Function OnRightFlipperActivate(args)
+    FlipperActivate RightFlipper, RFPress
+    RF.Fire
+    RFlipperDown = True
+    DOF 102,DOFOn
+    If StagedFlipperMod <> 1 Then
+        OnRightUpperFlipperActivate Null
+    End If
+    If RightFlipper.currentangle > RightFlipper.endangle - ReflipAngle Then
+        RandomSoundReflipUpRight RightFlipper
+    Else 
+        SoundFlipperUpAttackRight RightFlipper
+        RandomSoundFlipperUpRight RightFlipper
+    End If
+End Function
+
+Function OnRightFlipperDeactivate(args)
+    DOF 102,DOFOff
+    RFlipperDown = False
+    FlipperDeActivate RightFlipper, RFPress
+    RightFlipper.RotateToStart
+    If StagedFlipperMod <> 1 Then
+        OnRightUpperFlipperDeactivate Null
+    End If
+    If RightFlipper.currentangle > RightFlipper.startAngle + 5 Then
+        RandomSoundFlipperDownRight RightFlipper
+        FlipperRightHitParm = FlipperUpSoundLevel
+    End If
+End Function
+
+Function OnRightUpperFlipperActivate(args)
+    UpRightFlipper.RotateToEnd
+    If UpRightFlipper.currentangle > UpRightFlipper.endangle - ReflipAngle Then
+        RandomSoundReflipUpRight UpRightFlipper
+    Else 
+        SoundFlipperUpAttackRight UpRightFlipper
+        RandomSoundFlipperUpRight UpRightFlipper
+    End If
+End Function
+
+Function OnRightUpperFlipperDeactivate(args)
+    UpRightFlipper.RotateToStart
+    If UpRightFlipper.currentangle > UpRightFlipper.startAngle + 5 Then
+        RandomSoundFlipperDownRight UpRightFlipper
+    End If
+End Function
 Sub Spinner1_Animate()
     Dim el
 	For Each el in BP_Spinner1
@@ -1029,6 +1121,26 @@ End Sub
 Sub TimerPlunger2_Timer
 	VR_CabShooter_BM.Y = 15 + (5* Plunger.Position) -20
 End Sub
+Sub CreateAttractMode
+	With CreateGlfMode("attract", 2000)
+		.StartEvents = Array("reset_complete", "game_ended")
+		.StopEvents = Array("game_start") 
+		.Debug = True
+		With .ShowPlayer()
+			With .Events("mode_attract_started")
+				.Show = glf_Showrace
+				.Loops = -1
+				.Speed = 4
+				With .Tokens()
+					.Add "color", "62FBFF"
+				End With
+			End With
+		End With
+		.ToYaml
+	End With
+End Sub
+
+
 
 Sub CreateBaseMode
 
@@ -1045,6 +1157,23 @@ Sub CreateBaseMode
 			.BallsToSave = -1
 			.AutoLaunch = True
 		End With
+
+		With .SegmentDisplayPlayer()
+			With .Events("timer_ballsave_tick")
+				.Display = "clock"
+				.Text = "devices.timers.ballsave.ticks_remaining"
+			End With
+		End With
+
+		With .Timers("ballsave")
+            .StartValue = 15
+            .EndValue = 0
+            .Direction = "down"
+            With .ControlEvents("start")
+                .EventName = "balldevice_plunger_ball_eject_success"
+                .Action = "start"
+            End With
+        End With
 
 		With .LightPlayer()
 			With .Events("mode_base_started")
@@ -1540,132 +1669,6 @@ Sub BSUpdate
 		End If
 	Next
 End Sub
-
-
-'*****************************************************************************************************************************************
-'  Vpx Bcp Controller
-'*****************************************************************************************************************************************
-
-Class VpxBcpController
-
-    Private m_bcpController, m_connected
-
-    Private Sub Class_Initialize()
-        On Error Resume Next
-        Set m_bcpController = CreateObject("vpx_bcp_server.VpxBcpController")
-        m_bcpController.Connect 5050, "cyberrace-mc.exe"
-        m_connected = True
-        bcpUpdate.Enabled = True
-        If Err Then Debug.print("Can't start Vpx Bcp Controller") : m_connected = False
-    End Sub
-
-	Public Sub Send(commandMessage)
-		If m_connected Then
-            m_bcpController.Send commandMessage
-        End If
-	End Sub
-
-    Public Function GetMessages
-		If m_connected Then
-            GetMessages = m_bcpController.GetMessages
-        End If
-	End Function
-
-    Public Sub Reset()
-		If m_connected Then
-            m_bcpController.Send "reset"
-        End If
-	End Sub
-    
-    Public Sub PlaySlide(slide, context, priorty)
-		If m_connected Then
-            m_bcpController.Send "trigger?json={""name"": ""slides_play"", ""settings"": {""" & slide & """: {""action"": ""play"", ""expire"": 0}}, ""context"": """ & context & """, ""priority"": " & priorty & "}"
-        End If
-	End Sub
-
-    Public Sub SendPlayerVariable(name, value, prevValue)
-		If m_connected Then
-            m_bcpController.Send "player_variable?name=" & name & "&value=" & EncodeVariable(value) & "&prev_value=" & EncodeVariable(prevValue) & "&change=" & EncodeVariable(VariableVariance(value, prevValue)) & "&player_num=int:" & GetCurrentPlayerNumber
-            '06:34:34.644 : VERBOSE : BCP : Received BCP command: ball_start?player_num=int:1&ball=int:1
-        End If
-	End Sub
-
-    Private Function EncodeVariable(value)
-        Dim retValue
-        Select Case VarType(value)
-            Case vbInteger, vbLong
-                retValue = "int:" & value
-            Case vbSingle, vbDouble
-                retValue = "float:" & value
-            Case vbString
-                retValue = "string:" & value
-            Case vbBoolean
-                retValue = "bool:" & CStr(value)
-            Case Else
-                retValue = "NoneType:"
-        End Select
-        EncodeVariable = retValue
-    End Function
-    
-    Private Function VariableVariance(v1, v2)
-        Dim retValue
-        Select Case VarType(v1)
-            Case vbInteger, vbLong, vbSingle, vbDouble
-                retValue = Abs(v1 - v2)
-            Case Else
-                retValue = True 
-        End Select
-        VariableVariance = retValue
-    End Function
-
-    Public Sub Disconnect()
-        If m_connected Then
-            m_bcpController.Disconnect()
-            m_connected = False
-            bcpUpdate.Enabled = False
-        End If
-    End Sub
-End Class
-
-Sub BcpSendPlayerVar(args)
-    Dim ownProps, kwargs : ownProps = args(0) : kwargs = args(1) 
-    Dim player_var : player_var = kwargs(0)
-    Dim value : value = kwargs(1)
-    Dim prevValue : prevValue = kwargs(2)
-    bcpController.SendPlayerVariable player_var, value, prevValue
-End Sub
-
-Sub BcpAddPlayer(playerNum)
-    If useBcp Then
-        bcpController.Send("player_added?player_num=int:"&playerNum)
-    End If
-End Sub
-
-Sub bcpUpdate_Timer()
-    Dim messages : messages = bcpController.GetMessages()
-    If IsArray(messages) and UBound(messages)>-1 Then
-        Dim message, parameters, parameter
-        For Each message in messages
-            Select Case message.Command
-                case "hello"
-                    bcpController.Reset
-                case "monitor_start"
-                    Dim category : category = message.GetValue("category")
-                    If category = "player_vars" Then
-                        AddPlayerStateEventListener SCORE, SCORE &   "BcpSendPlayerVar",   "BcpSendPlayerVar",  1000, True
-                        AddPlayerStateEventListener CURRENT_BALL, CURRENT_BALL &   "BcpSendPlayerVar",   "BcpSendPlayerVar",  1000, True
-                End If
-                case "register_trigger"
-                    Dim eventName : eventName = message.GetValue("event")
-            End Select
-        Next
-    End If
-End Sub
-
-'*****************************************************************************************************************************************
-'  END Vpx Bcp Controller
-'*****************************************************************************************************************************************
-
 Dim debugWorld : debugWorld = False
 
 Sub ShowDebugRoom()
@@ -3656,65 +3659,18 @@ Sub Table1_KeyDown(ByVal Keycode)
         VRFlipperRight.X = VRFlipperRight.X - 10
     End if
 
-
-
-    If glf_gameStarted = True Then
-       
+    If keycode = PlungerKey Then
+        PlaySoundAt "Plunger_Pull_1", Plunger
+        Plunger.Pullback
+    End If
     
-        If keycode = PlungerKey Then
-            PlaySoundAt "Plunger_Pull_1", Plunger
-            Plunger.Pullback
-        End If
-    
-        If keycode = LeftTiltKey Then Nudge 90, 2: SoundNudgeLeft : CheckTilt
-        If keycode = RightTiltKey Then Nudge 270, 2: SoundNudgeRight : CheckTilt
-        If keycode = CenterTiltKey Then Nudge 0, 3: SoundNudgeCenter : CheckTilt
+    If keycode = LeftTiltKey Then Nudge 90, 2: SoundNudgeLeft : CheckTilt
+    If keycode = RightTiltKey Then Nudge 270, 2: SoundNudgeRight : CheckTilt
+    If keycode = CenterTiltKey Then Nudge 0, 3: SoundNudgeCenter : CheckTilt
         
-        If keycode = MechanicalTilt Then 
-            SoundNudgeCenter
-            CheckMechTilt
-        End If
-
-        If keycode = LeftFlipperKey Then
-            LFlipperDown = True
-            DOF 101,DOFOn
-            FlipperActivate LeftFlipper,LFPress
-            LF.Fire    
-            If LeftFlipper.currentangle < LeftFlipper.endangle + ReflipAngle Then 
-                RandomSoundReflipUpLeft LeftFlipper
-            Else 
-                SoundFlipperUpAttackLeft LeftFlipper
-                RandomSoundFlipperUpLeft LeftFlipper
-            End If
-        End If
-        
-        If keycode = RightFlipperKey Then 
-            FlipperActivate RightFlipper, RFPress
-            RF.Fire
-            RFlipperDown = True
-            DOF 102,DOFOn
-			If StagedFlipperMod <> 1 Then
-				UpRightFlipper.RotateToEnd
-			End If
-            If RightFlipper.currentangle > RightFlipper.endangle - ReflipAngle Then
-                RandomSoundReflipUpRight RightFlipper
-            Else 
-                SoundFlipperUpAttackRight RightFlipper
-                RandomSoundFlipperUpRight RightFlipper
-            End If
-        End If
-
-	    If StagedFlipperMod = 1 Then
-            If keycode = 40 Then 
-                UpRightFlipper.RotateToEnd
-                If UpRightFlipper.currentangle > UpRightFlipper.endangle - ReflipAngle Then
-                    RandomSoundReflipUpRight UpRightFlipper
-                Else 
-                    SoundFlipperUpAttackRight UpRightFlipper
-                    RandomSoundFlipperUpRight UpRightFlipper
-                End If
-            End If
-        End If
+    If keycode = MechanicalTilt Then 
+        SoundNudgeCenter
+        CheckMechTilt
     End If
 
     Glf_KeyDown(keycode) 
@@ -3730,42 +3686,9 @@ Sub Table1_KeyUp(ByVal keycode)
         VRFlipperRight.X = VRFlipperRight.X + 10
     End if
 
-    'If gameStarted = True Then
     If keycode = PlungerKey Then
         PlaySoundAt "Plunger_Release_Ball", Plunger
         Plunger.Fire
-    End If
-    
-    If keycode = LeftFlipperKey Then
-        DOF 101,DOFOff
-        LFlipperDown = False
-        FlipperDeActivate LeftFlipper, LFPress
-        LeftFlipper.RotateToStart
-        If LeftFlipper.currentangle < LeftFlipper.startAngle - 5 Then
-            RandomSoundFlipperDownLeft LeftFlipper
-        End If
-        FlipperLeftHitParm = FlipperUpSoundLevel
-    End If
-    If keycode = RightFlipperKey Then
-        DOF 102,DOFOff
-        RFlipperDown = False
-        FlipperDeActivate RightFlipper, RFPress
-        RightFlipper.RotateToStart
-        If StagedFlipperMod <> 1 Then
-            UpRightFlipper.RotateToStart
-            End If
-        End If	
-        If RightFlipper.currentangle > RightFlipper.startAngle + 5 Then
-            RandomSoundFlipperDownRight RightFlipper
-        FlipperRightHitParm = FlipperUpSoundLevel
-    End If
-	If StagedFlipperMod = 1 Then
-        If keycode = 40 Then
-            UpRightFlipper.RotateToStart
-            If UpRightFlipper.currentangle > UpRightFlipper.startAngle + 5 Then
-                RandomSoundFlipperDownRight UpRightFlipper
-            End If	
-        End If
     End If
 
     Glf_KeyUp(keycode)

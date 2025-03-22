@@ -274,8 +274,6 @@ End Sub
 
 Sub Table1_Init()
 	
-	
-
 	kickerCaptiveBall1.CreateSizedballWithMass Ballsize/2, BallMass
 	kickerCaptiveBall1.kick 0,0
 	kickerCaptiveBall2.CreateSizedballWithMass Ballsize/2, BallMass

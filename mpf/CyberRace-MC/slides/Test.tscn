@@ -1,0 +1,90 @@
+[gd_scene load_steps=6 format=3 uid="uid://buy33sqypitnn"]
+
+[ext_resource type="Script" path="res://addons/mpf-gmc/classes/mpf_slide.gd" id="1_d3nno"]
+[ext_resource type="Script" path="res://slides/SubViewport.gd" id="2_tg2vf"]
+
+[sub_resource type="Animation" id="Animation_rp0dc"]
+resource_name = "new_animation"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("..:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(-600, 0), Vector2(800, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_krlvy"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("..:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-600, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_o3xt8"]
+_data = {
+"RESET": SubResource("Animation_krlvy"),
+"new_animation": SubResource("Animation_rp0dc")
+}
+
+[node name="Test" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_d3nno")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 1, 1)
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
+size = Vector2i(800, 600)
+render_target_update_mode = 4
+script = ExtResource("2_tg2vf")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SubViewportContainer/SubViewport"]
+offset_left = -600.0
+offset_right = -46.0
+offset_bottom = 213.0
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="SubViewportContainer/SubViewport/HBoxContainer"]
+root_node = NodePath("../Label")
+libraries = {
+"": SubResource("AnimationLibrary_o3xt8")
+}
+autoplay = "new_animation"
+
+[node name="Label" type="Label" parent="SubViewportContainer/SubViewport/HBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 1, 1)
+theme_override_font_sizes/font_size = 156
+text = "DEMO!!"

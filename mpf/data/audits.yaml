@@ -3,7 +3,7 @@ events:
   game_started: 341
 missing_switches:
   s_ball_launch: 1
-  s_center_scoop: 96
+  s_center_scoop: 99
   s_center_vuk: 36
   s_hyper_vuk: 142
   s_launch_button: 4
@@ -57,7 +57,7 @@ shots:
   lane3: 1
   left_inlane: 5
   left_outlane: 4
-  leftramp: 20
+  leftramp: 21
   right_inlane: 6
   right_outlane: 3
 switches:
@@ -95,5 +95,5 @@ switches:
   sw06: 1
   sw07: 1
   sw08: 0
-  sw13: 23
+  sw13: 26
   sw14: 0

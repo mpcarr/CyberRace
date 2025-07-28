@@ -14,87 +14,283 @@ bcp:
 
 modes:
   - base
-  - skillshot
 
 opp:
    ports: /dev/ttyACM0, /dev/ttyACM1
+   debug: true
 
 displays:
   window:
     width: 640
     height: 160
 
+servos:
+  servo_ramp:           ##### servo controlling ramp diverter
+    servo_min: 0.196    ##### OPP range 0-2550µs, my servo min is 500µs, 500/2550=0.196 
+    servo_max: 0.98     ##### my servo max is 2500µs, 2500/2550=0.98
+    speed_limit: 160
+    positions:          ##### percentages along range of 0.196(500µs=0) to 0.98(2500µs=1)
+      0.60: ramp_div_open     ## 800µs  I believe open==down
+      0.83: ramp_div_closed   ## 1775µs  and close==up, but I may be wrong :)
+    reset_position: 0.60
+    reset_events: ball_ending, machine_reset_phase_3, game_starting
+    number: 1-0-11
+    debug: true
+
 switches:
   s_left_flipper:
-    number: 0-0-10
+    number: 0-0-17
     tags: left_flipper
   s_right_flipper:
     number: 0-0-16
     tags: right_flipper
-  s_upper_flipper:
-    number: 0-0-9
-    tags: upper_flipper
   
   s_trough1:
-    number: 0-0-27
+    number: 0-0-11
     type: 'NC'
-  s_trough2:
-    number: 1-0-32
-  s_trough3:
-    number: 1-0-33
-  s_trough4:
-    number: 1-0-34
-  s_trough5:
-    number: 1-0-35
-  s_trough6:
-    number: 1-0-36
   s_trough_jam:
-    number: 0-0-26
-    type: 'NC'
-  s_plunger:
-    number: 1-0-40
-  s_start:
-    number: 0-0-19
-    tags: start
+    number: 0-0-8
+    type: 'NC'    
   s_launch_button:
+    number: 0-0-19
+  s_bumper_1:
+    number: 0-0-2
+  s_bumper_2:
+    number: 0-0-3
+  s_bumper_3:
+    number: 0-0-1
+  s_start:
     number: 0-0-18
-  s_race_scoop:
+    tags: start
+  s_left_sling:
+    number: 0-0-9
+  s_right_sling:
+    number: 0-0-10
+  sw32:
+    number: 1-0-32
+    tags: s_trough2
+  sw33:
+    number: 1-0-33
+    tags: s_trough3
+  sw34:
+    number: 1-0-34
+    tags: s_trough4
+  sw35:
+    number: 1-0-35
+    tags: s_trough5
+  sw36:
+    number: 1-0-36
+    tags: s_trough6
+  s_37:
+    number: 1-0-37
+  s_38:
+    number: 1-0-38
+  s_39:
+    number: 1-0-39
+  sw40:
+    number: 1-0-41
+    tags: sw_bet1
+  sw41:
+    number: 1-0-40
+    tags: sw_left_orbit
+  sw42:
+    number: 1-0-42
+    tags: sw_nodes
+  s_43:
+    number: 1-0-43
+  sw44:
+    number: 1-0-44
+    tags: sw_left_outlane
+  s_45:
+    number: 1-0-45
+  s_46:
+    number: 1-0-46
+  s_47:
+    number: 1-0-47
+  sw48:
+    number: 1-0-48
+    tags: sw_top_lane3
+  sw49:
+    number: 1-0-49
+  sw50:
+    number: 1-0-50
+    tags: sw_add_time
+  s_51:
+    number: 1-0-51
+    tags: sw_plunger
+  sw52:
+    number: 1-0-52
+  s_53:
     number: 1-0-53
-
+  s_54:
+    number: 1-0-54
+  s_55:
+    number: 1-0-55
+  sw56:
+    number: 1-0-56
+    tags: sw_race_scoop
+  sw57:
+    number: 1-0-57
+    tags: sw_boost3
+  sw58:
+    number: 1-0-58
+    tags: sw_shortcut
+  s_59:
+    number: 1-0-59
+  sw60:
+    number: 1-0-60
+    tags: s_left_outlane
+  s_61:
+    number: 1-0-61
+  s_62:
+    number: 1-0-62
+  s_63:
+    number: 1-0-63
+  sw64:
+    number: 1-0-64
+    tags: sw_captive_lock
+  sw65:
+    number: 1-0-65
+    tags: sw_bonus_lane1
+  sw66:
+    number: 1-0-66
+    tags: sw_boost2
+  s_67:
+    number: 1-0-67
+  sw68:
+    number: 1-0-68
+    tags: sw_right_outlane
+  s_69:
+    number: 1-0-69
+  s_70:
+    number: 1-0-70
+  s_71:
+    number: 1-0-71
+  sw72:
+    number: 1-0-72
+    tags: sw_bet2
+  sw73:
+    number: 1-0-73
+    tags: sw_bonus_lane2
+  sw74:
+    number: 1-0-74
+    tags: sw_boost1
+  s_75:
+    number: 1-0-75
+  sw76:
+    number: 1-0-76
+    tags: sw_right_inlane
+  s_77:
+    number: 1-0-77
+  s_78:
+    number: 1-0-78
+  s_79:
+    number: 1-0-79
+  s_80:
+    number: 1-0-80
+  sw81:
+    number: 1-0-81
+    tags: sw_right_orbit
+  s_82:
+    number: 1-0-82
+  s_83:
+    number: 1-0-83
+  s_84:
+    number: 1-0-84
+  s_85:
+    number: 1-0-85
+  s_86:
+    number: 1-0-86
+  s_87:
+    number: 1-0-87
+  s_88:
+    number: 1-0-88
+  s_89:
+    number: 1-0-89
+  s_90:
+    number: 1-0-90
+  s_91:
+    number: 1-0-91
+  s_92:
+    number: 1-0-92
+  s_93:
+    number: 1-0-93
+  s_94:
+    number: 1-0-94
+  sw95:
+    number: 1-0-3
+    type: NC
+  sw96:
+    number: 1-0-9
+    type: NC
+  sw97:
+    number: 1-0-8
+    type: NC
+  sw98:
+    number: 1-0-2
+    type: NC
+  sw99:
+    number: 1-0-1
+    type: NC
+  
 coils:
   c_flipper_left_main:
     number: 0-0-1
-    default_pulse_ms: 20
+    default_pulse_ms: 40
   c_flipper_left_hold:
-    number: 0-0-9
-    default_hold_power: 0.2
+    number: 0-0-15
+    default_hold_power: 0.5
   c_flipper_right_main:
     number: 0-0-2
-    default_pulse_ms: 20
+    default_pulse_ms: 40
   c_flipper_right_hold:
     number: 0-0-3
-    default_hold_power: 0.2
+    default_hold_power: 0.5
   c_flipper_upper_main:
-    number: 0-0-5
-    default_pulse_ms: 20
+    number: 0-0-14
+    default_pulse_ms: 40
   c_flipper_upper_hold:
-    number: 0-0-6
-    default_hold_power: 0.2
-  c_trough_eject:
     number: 0-0-7
-    default_pulse_ms: 20
+    default_hold_power: 0.5
+  c_trough_eject:
+    number: 1-0-2
+    default_pulse_ms: 18
   c_plunger:
-    number: 0-0-4
+    number: 1-0-1
     default_pulse_ms: 20
   c_race_scoop:
-    number: 0-0-8
-    default_pulse_ms: 30
-  c_hyper_vuk:
-    number: 0-0-10
-    default_pulse_ms: 20
+    number: 1-0-0
+    default_pulse_ms: 25
   c_center_scoop:
     number: 0-0-11
+    default_pulse_ms: 30
+  c_bumper_1:
+    number: 0-0-4
     default_pulse_ms: 20
+  c_bumper_2:
+    number: 0-0-5
+    default_pulse_ms: 20
+  c_bumper_3:
+    number: 0-0-6
+    default_pulse_ms: 20
+  c_left_sling:
+    number: 0-0-13
+    default_pulse_ms: 20
+  c_right_sling:
+    number: 0-0-12
+    default_pulse_ms: 20
+  c_shortcut_scoop:
+    number: 1-0-3
+    default_pulse_ms: 50
+  c_left_vuk:
+    number: 1-0-6
+    default_pulse_ms: 11
+  c_lock_vuk:
+    number: 1-0-4
+    default_pulse_ms: 11
+  c_center_vuk:
+    number: 1-0-5
+    default_pulse_ms: 12
 
 neoseg_displays:
   neoSeg_0:
@@ -754,48 +950,14 @@ flippers:
     main_coil: c_flipper_right_main
     hold_coil: c_flipper_right_hold
     activation_switch: s_right_flipper
-  upper_flipper:
+  right_upper_flipper:
     main_coil: c_flipper_upper_main
     hold_coil: c_flipper_upper_hold
-    activation_switch: s_upper_flipper
-
-keyboard:
-  debug: yes
-  shift+shift:
-    switch: s_left_flipper
-  shift+rshift:
-    switch: s_right_flipper
-  1:
-    switch: s_trough1
-    toggle: true
-  2:
-    switch: s_trough2
-    toggle: true
-  3:
-    switch: s_trough3
-    toggle: true
-  4:
-    switch: s_trough4
-    toggle: true
-  5:
-    switch: s_trough5
-    toggle: true
-  p:
-    switch: s_plunger
-    toggle: true
-  s: 
-    switch: s_start
-  j: 
-    switch: s_right_inlane
-
-virtual_platform_start_active_switches:
-  - s_trough1
-  - s_trough2
-  - s_trough3
+    activation_switch: s_right_flipper
 
 ball_devices:
   trough:
-    ball_switches: s_trough1, s_trough2, s_trough3, s_trough4, s_trough5, s_trough6, s_trough_jam
+    ball_switches: s_trough1, sw32, sw33, sw34, sw35, sw36, s_trough_jam
     eject_coil: c_trough_eject
     tags: trough, home, drain
     jam_switch: s_trough_jam
@@ -803,15 +965,39 @@ ball_devices:
     eject_targets: plunger
     debug: true
   plunger:
-    ball_switches: s_plunger
+    ball_switches: sw52
     eject_coil: c_plunger
     player_controlled_eject_event: s_launch_button_active
     eject_targets: playfield
     eject_timeouts: 3s
     debug: true
   race_scoop:
-    ball_switches: s_race_scoop
+    ball_switches: sw56
     eject_coil: c_race_scoop
+    eject_targets: playfield
+    eject_timeouts: 1s
+    debug: true
+  shortcut_scoop:
+    ball_switches: sw58
+    eject_coil: c_shortcut_scoop
+    eject_targets: playfield
+    eject_timeouts: 1s
+    debug: true
+  lock_vuk:
+    ball_switches: sw95
+    eject_coil: c_lock_vuk
+    eject_targets: playfield
+    eject_timeouts: 1s
+    debug: true
+  left_vuk:
+    ball_switches: sw97
+    eject_coil: c_left_vuk
+    eject_targets: playfield
+    eject_timeouts: 1s
+    debug: true
+  center_vuk:
+    ball_switches: sw96
+    eject_coil: c_center_vuk
     eject_targets: playfield
     eject_timeouts: 1s
     debug: true
@@ -844,3 +1030,20 @@ player_vars:
   boost_activations:
     initial_value: 1
     value_type: int
+
+autofire_coils:
+  ac_bumper_1:
+    coil: c_bumper_1
+    switch: s_bumper_1
+  ac_bumper_2:
+    coil: c_bumper_2
+    switch: s_bumper_2
+  ac_bumper_3:
+    coil: c_bumper_3
+    switch: s_bumper_3
+  ac_left_sling:
+    coil: c_left_sling
+    switch: s_left_sling
+  ac_right_sling:
+    coil: c_right_sling
+    switch: s_right_sling

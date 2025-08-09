@@ -38,7 +38,7 @@ show_player:
 light_player: 
   mode_base_started: 
     T_GI: 
-      color: ffffff
+      color: FF0000
 
 
 

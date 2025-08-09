@@ -1,0 +1,555 @@
+#config_version=6
+
+lights:
+  l01:
+    number: 0-0-0
+    subtype: led
+    type: rgb
+    tags: bonus_lane1, insert
+  l02:
+    previous: l01
+    subtype: led
+    type: rgb
+    tags: bonus_lane2, insert
+  l03:
+    previous: l02
+    subtype: led
+    type: rgb
+    tags: bonus_lane3, insert
+
+  l04:
+    previous: l03
+    subtype: led
+    type: rgb
+    tags: spinner_top, insert
+  l05:
+    previous: l04
+    subtype: led
+    type: rgb
+    tags: boost_3, insert
+  l06:
+    previous: l05
+    subtype: led
+    type: rgb
+    tags: tt_2, insert
+  l07:
+    previous: l06
+    subtype: led
+    type: rgb
+    tags: bet_b, insert
+  l08:
+    previous: l07
+    subtype: led
+    type: rgb
+    tags: bet_e, insert
+  l09:
+    previous: l08
+    subtype: led
+    type: rgb
+    tags: bet_t, insert
+  l10:
+    previous: l09
+    subtype: led
+    type: rgb
+    tags: perk, insert
+  l11:
+    previous: l10
+    subtype: led
+    type: rgb
+    tags: extra_ball, insert
+  l12:
+    previous: l11
+    subtype: led
+    type: rgb
+    tags: tt_3, insert
+  l13:
+    previous: l12
+    subtype: led
+    type: rgb
+    tags: right_ramp, insert
+  l14:
+    previous: l13
+    subtype: led
+    type: rgb
+    tags: lock, insert
+  l15:
+    previous: l14
+    subtype: led
+    type: rgb
+    tags: right_orbit, insert
+  l16:
+    previous: l15
+    subtype: led
+    type: rgb
+    tags: tt_4, insert
+  l17:
+    previous: l16
+    subtype: led
+    type: rgb
+    tags: combo_5, insert
+  l18:
+    previous: l17
+    subtype: led
+    type: rgb
+    tags: cyber_r, insert
+  l19:
+    previous: l18
+    subtype: led
+    type: rgb
+    tags: shortcut, insert
+  l20:
+    previous: l19
+    subtype: led
+    type: rgb
+    tags: tt_5, insert
+  l21:
+    previous: l20
+    subtype: led
+    type: rgb
+    tags: node1, insert
+  l22:
+    previous: l21
+    subtype: led
+    type: rgb
+    tags: nodes2, insert
+  l23:
+    previous: l22
+    subtype: led
+    type: rgb
+    tags: node3, insert
+  l24:
+    previous: l23
+    subtype: led
+    type: rgb
+    tags: node4, insert
+  l25:
+    previous: l24
+    subtype: led
+    type: rgb
+    tags: node5, insert
+  l26:
+    previous: l25
+    subtype: led
+    type: rgb
+    tags: node6  , insert
+  l27:
+    previous: l26
+    subtype: led
+    type: rgb
+    tags: node7, insert
+  l28:
+    previous: l27
+    subtype: led
+    type: rgb
+    tags: node8, insert
+  l29:
+    previous: l28
+    subtype: led
+    type: rgb
+    tags: node9, insert
+  l30:
+    previous: l29
+    subtype: led
+    type: rgb
+    tags: node10, insert
+  l31:
+    previous: l30
+    subtype: led
+    type: rgb
+    tags: node11, insert
+  l32:
+    previous: l31
+    subtype: led
+    type: rgb
+    tags: node12, insert
+  l33:
+    previous: l32
+    subtype: led
+    type: rgb
+    tags: node13, insert
+  l34:
+    previous: l33
+    subtype: led
+    type: rgb
+    tags: node14, insert
+  l35:
+    previous: l34
+    subtype: led
+    type: rgb
+    tags: node15, insert
+  l36:
+    previous: l35
+    subtype: led
+    type: rgb
+    tags: race_e, insert
+  l37:
+    previous: l36
+    subtype: led
+    type: rgb
+    tags: race_c, insert
+  l38:
+    previous: l37
+    subtype: led
+    type: rgb
+    tags: grandslam_5, insert
+  l39:
+    previous: l38
+    subtype: led
+    type: rgb
+    tags: bonusX_2, insert
+  l40:
+    previous: l39
+    subtype: led
+    type: rgb
+    tags: bonusX_4, insert
+  l41:
+    previous: l40
+    subtype: led
+    type: rgb
+    tags: bonusX_5, insert
+  l42:
+    previous: l41
+    subtype: led
+    type: rgb
+    tags: race_3, insert
+  l43:
+    previous: l42
+    subtype: led
+    type: rgb
+    tags: race_6, insert    
+  l44:
+    previous: l43
+    subtype: led
+    type: rgb
+    tags: race_5, insert
+  l45:
+    previous: l44
+    subtype: led
+    type: rgb
+    tags: race_4, insert
+  l46:
+    previous: l45
+    subtype: led
+    type: rgb
+    tags: race_2, insert
+  l47:
+    previous: l46
+    subtype: led
+    type: rgb
+    tags: race_1, insert
+  l48:
+    previous: l47
+    subtype: led
+    type: rgb
+    tags: playfieldX_5, insert
+  l49:
+    previous: l48
+    subtype: led
+    type: rgb
+    tags: grandslam_4, insert
+  l50:
+    previous: l49
+    subtype: led
+    type: rgb
+    tags: grandslam_3, insert
+  l51:
+    previous: l50
+    subtype: led
+    type: rgb
+    tags: grandslam_2, insert
+  l52:
+    previous: l51
+    subtype: led
+    type: rgb
+    tags: playfieldX_3, insert
+  l53:
+    previous: l52
+    subtype: led
+    type: rgb
+    tags: playfieldX_2, insert
+  l54:
+    previous: l53
+    subtype: led
+    type: rgb
+    tags: grandslam_1, insert
+  l55:
+    previous: l54
+    subtype: led
+    type: rgb
+    tags: race_r, insert
+  l56:
+    previous: l55
+    subtype: led
+    type: rgb
+    tags: race_a, insert
+  l57:
+    previous: l56
+    subtype: led
+    type: rgb
+    tags: cyber_c, insert
+  l58:
+    previous: l57
+    subtype: led
+    type: rgb
+    tags: combo1, insert
+  l59:
+    previous: l58
+    subtype: led
+    type: rgb
+    tags: add_time, insert
+  l60:
+    previous: l59
+    subtype: led
+    type: rgb
+    tags: spinner_bottom, insert
+  l61:
+    previous: l60
+    subtype: led
+    type: rgb
+    tags: boost_1, insert
+  l62:
+    previous: l61
+    subtype: led
+    type: rgb
+    tags: hyper_h, insert
+  l63:
+    previous: l62
+    subtype: led
+    type: rgb
+    tags: tt_1, insert
+  l64:
+    previous: l63
+    subtype: led
+    type: rgb
+    tags: cyber_y, insert
+  l65:
+    previous: l64
+    subtype: led
+    type: rgb
+    tags: combo2, insert
+  l66:
+    previous: l65
+    subtype: led
+    type: rgb
+    tags: left_orbit, insert
+  l67:
+    previous: l66
+    subtype: led
+    type: rgb
+    tags: left_ramp, insert
+  l68:
+    previous: l67
+    subtype: led
+    type: rgb
+    tags: combo3, insert
+  l69:
+    previous: l68
+    subtype: led
+    type: rgb
+    tags: cyber_b, insert
+  l70:
+    previous: l69
+    subtype: led
+    type: rgb
+    tags: combo4, insert
+  l71:
+    previous: l70
+    subtype: led
+    type: rgb
+    tags: cyber_e, insert
+  l72:
+    previous: l71
+    subtype: led
+    type: rgb
+    tags: hyper_r, insert
+  l73:
+    previous: l72
+    subtype: led
+    type: rgb
+    tags: hyper_e, insert
+  l74:
+    previous: l73
+    subtype: led
+    type: rgb
+    tags: hyper_p, insert
+  l75:
+    previous: l74
+    subtype: led
+    type: rgb
+    tags: hyper_y, insert
+  l76:
+    previous: l75
+    subtype: led
+    type: rgb
+    tags: boost_2, insert
+
+  l100:
+    number: 1-0-0
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l101:
+    previous: l100
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l102:
+    previous: l101
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l103:
+    previous: l102
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l104:
+    previous: l103
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l105:
+    previous: l104
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l106:
+    previous: l105
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l107:
+    previous: l106
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l108:
+    previous: l107
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l109:
+    previous: l108
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l110:
+    previous: l109
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l111:
+    previous: l110
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l112:
+    previous: l111
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l113:
+    previous: l112
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l114:
+    previous: l113
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l115:
+    previous: l114
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l116:
+    previous: l115
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l117:
+    previous: l116
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l118:
+    previous: l117
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l119:
+    previous: l118
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l120:
+    previous: l119
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l121:
+    previous: l120
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l122:
+    previous: l121
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l123:
+    previous: l122
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l124:
+    previous: l123
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l125:
+    previous: l124
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l126:
+    previous: l125
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l127:
+    previous: l126
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l128:
+    previous: l127
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l129:
+    previous: l128
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l130:
+    previous: l129
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l131:
+    previous: l130
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l132:
+    previous: l131
+    subtype: led
+    type: rgb
+    tags: T_GI
+  l133:
+    previous: l132
+    subtype: led
+    type: rgb
+    tags: T_GI

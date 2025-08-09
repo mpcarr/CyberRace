@@ -6,5 +6,7 @@ slide_player:
       action: play
   
 light_player:
- mode_attract_started: 
-   T_GI: red
+  mode_attract_started: 
+   insert: FFFFFF
+   T_GI: FF0000
+   
